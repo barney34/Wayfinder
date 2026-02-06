@@ -206,6 +206,10 @@ class DiscoveryData(BaseModel):
     meetingNotes: str = ""
     contextFields: Dict[str, str] = {}
     enabledSections: Dict[str, bool] = {}
+    udsMembers: List[Dict] = []
+    leaseTimeUnits: Dict[str, str] = {}
+    dataCenters: List[Dict] = []
+    sites: List[Dict] = []
 
 
 class DiscoveryDataResponse(BaseModel):
