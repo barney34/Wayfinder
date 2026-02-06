@@ -616,7 +616,7 @@ export function CustomerDetail({ customer, onBack }) {
 
           <TabsContent value="versions">
             <div className="space-y-6">
-              <p className="text-sm text-muted-foreground">Version history is auto-managed via cloud saves.</p>
+              <VersionControl customerId={customer.id} />
               <div className="pt-6 border-t border-border">
                 <h3 className="text-sm font-medium text-muted-foreground mb-3">Data Management</h3>
                 <ClearDataButton />
