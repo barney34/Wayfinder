@@ -615,7 +615,7 @@ export function TokenCalculatorSummary() {
       doc.setFont('helvetica', 'bold');
       doc.text('Bill of Materials', 14, finalY > 150 ? 15 : finalY + 15);
       
-      doc.autoTable({
+      autoTable(doc, {
         startY: finalY > 150 ? 22 : finalY + 22,
         head: [['Hardware SKU', 'Description', 'Qty', 'Sites']],
         body: bom.map(b => [b.sku, b.description, b.quantity.toString(), b.sites.slice(0, 5).join(', ') + (b.sites.length > 5 ? '...' : '')]),
