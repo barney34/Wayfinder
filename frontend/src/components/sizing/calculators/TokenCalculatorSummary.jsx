@@ -571,18 +571,30 @@ export function TokenCalculatorSummary() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="border rounded-lg overflow-hidden">
+          <div className="border rounded-lg overflow-hidden overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50">
                   <TableHead className="w-[30px]"></TableHead>
-                  <TableHead>Site Name</TableHead>
-                  <TableHead className="w-[90px]"># IPs</TableHead>
-                  <TableHead className="w-[70px]">KW</TableHead>
-                  <TableHead className="w-[100px]">Role</TableHead>
+                  <TableHead className="min-w-[120px]">Site Name</TableHead>
+                  <TableHead className="w-[80px]"># IPs</TableHead>
+                  <TableHead className="w-[60px]">KW</TableHead>
+                  <TableHead className="w-[90px]">Role</TableHead>
+                  <TableHead className="w-[80px]">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger className="flex items-center gap-1">
+                          Services <Info className="h-3 w-3" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          Co-located services that can run on the same host. Each service adds performance overhead.
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </TableHead>
                   <TableHead className="w-[100px]">Platform</TableHead>
-                  <TableHead className="w-[90px]">Model</TableHead>
-                  <TableHead className="w-[130px]">Hardware SKU</TableHead>
+                  <TableHead className="w-[80px]">Model</TableHead>
+                  <TableHead className="w-[120px]">Hardware SKU</TableHead>
                   <TableHead className="w-[70px] text-right">Tokens</TableHead>
                   <TableHead className="w-[40px]"></TableHead>
                 </TableRow>
