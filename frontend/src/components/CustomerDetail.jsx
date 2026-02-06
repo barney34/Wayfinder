@@ -800,8 +800,11 @@ export function CustomerDetail({ customer, onBack }) {
                         {sectionQuestions.map((q) => {
                           // Check conditional visibility at parent level
                           if (q.conditionalOn) {
-                            const depValue = answers[q.conditionalOn.questionId];
-                            if (depValue !== q.conditionalOn.value) return null;
+                            const depValue = answers[q.conditionalOn.questionId] || '';
+                            // Support both exact match and includes for multiselect
+                            const matches = depValue === q.conditionalOn.value ||
+                              depValue.split(', ').includes(q.conditionalOn.value);
+                            if (!matches) return null;
                           }
                           return (
                           <div key={q.id} className="space-y-2 pb-4 border-b last:border-0">
