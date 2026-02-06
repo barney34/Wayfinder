@@ -108,6 +108,29 @@ export default function Customers() {
     },
   });
   
+  const updateStatusMutation = useMutation({
+    mutationFn: async (data) => {
+      const response = await apiRequest('PATCH', `/api/customers/${data.customerId}`, {
+        [data.field]: data.newStatus
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/customers'] });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update status.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleUpdateStatus = (customerId, field, newStatus) => {
+    updateStatusMutation.mutate({ customerId, field, newStatus });
+  };
+
   const deleteCustomerMutation = useMutation({
     mutationFn: async (id) => {
       await apiRequest('DELETE', `/api/customers/${id}`);
