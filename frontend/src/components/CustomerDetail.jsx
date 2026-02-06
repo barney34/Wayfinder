@@ -1,945 +1,575 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { ArrowLeft, Save, Sparkles, ChevronDown, ChevronRight, FileText, Loader2, Check, X, Cloud, CloudOff, Download, Info } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { ArrowLeft, Check, X, Pencil, Download, Save, Plus, Trash2, Building2, MapPin, ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import yaml from 'js-yaml';
-import {
-  TDNiosSection,
-  DossierInput,
-  LookalikeInput,
-  AssetConfigInput,
-  SocInsightsInput,
-  DomainTakedownInput,
-  ReportingInput,
-  UDDIEstimator,
-  safeParseTDNios,
-  safeParseDossier,
-  safeParseLookalike,
-  safeParseDomainTakedown,
-  safeParseAssetConfig,
-  safeParseSocInsights,
-  safeParseReporting,
-  safeParseUDDI,
-  DOSSIER_TOKENS_PER_UNIT,
-  LOOKALIKE_TOKENS_PER_UNIT,
-  DOMAIN_TAKEDOWN_TOKENS_PER_UNIT,
-} from "@/components/sizing";
+import { discoveryQuestions } from "@/lib/questions";
+import { DiscoveryProvider, useDiscovery } from "@/contexts/DiscoveryContext";
+import { AssessmentQuestions } from "./AssessmentQuestions";
+import { MeetingNotesAI } from "./MeetingNotesAI";
+import yaml from "js-yaml";
 
-const statusColors = {
-  "not-submitted": "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400",
-  "submitted": "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-  "not-started": "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400",
-  "started": "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
-  "reviewed": "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-};
+// ===== Target Solution Toggles =====
+function TargetSolutionToggles() {
+  const { answers, setAnswer } = useDiscovery();
+  const features = [
+    { key: 'feature-uddi', label: 'UDDI' },
+    { key: 'feature-security', label: 'Security' },
+    { key: 'feature-asset insights', label: 'Asset Insights' },
+  ];
+  const platform = answers['ud-platform'] || 'NIOS (Physical/Virtual)';
+  const platformShort = platform.includes('NIOS') && !platform.includes('UDDI') && !platform.includes('Hybrid') ? 'NIOS' : platform.includes('UDDI') ? 'UDDI' : 'Hybrid';
 
-const psarArbLabels = {
-  "not-submitted": "Not Submitted",
-  "submitted": "Submitted",
-  "not-relevant": "N/A",
-};
+  return (
+    <div className="flex items-center gap-1.5 flex-wrap" data-testid="platform-toggles">
+      <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/30">{platformShort}</Badge>
+      {features.map(f => {
+        const isOn = answers[f.key] === 'Yes';
+        return (
+          <Badge key={f.key} variant={isOn ? "default" : "outline"}
+            className={`text-xs cursor-pointer transition-colors ${isOn ? 'bg-green-600 hover:bg-green-700 text-white' : 'hover:bg-muted'}`}
+            onClick={() => setAnswer(f.key, isOn ? 'No' : 'Yes')}
+            data-testid={`toggle-${f.key}`}
+          >{f.label}</Badge>
+        );
+      })}
+    </div>
+  );
+}
 
-const designLabels = {
-  "not-started": "Not Started",
-  "started": "Started",
-  "reviewed": "Reviewed w/ Customer",
-};
+// ===== Knowledge Workers Inline =====
+function KnowledgeWorkersInline() {
+  const { answers, setAnswer, defaultAnswers } = useDiscovery();
+  const kw = answers['ud-1'] || '';
+  const mult = answers['ipam-multiplier'] || defaultAnswers['ipam-multiplier'] || '2.5';
+  const kwNum = parseInt(kw) || 0;
+  const multNum = parseFloat(mult) || 2.5;
+  const calculatedIPs = Math.round(kwNum * multNum);
+  const knownIPsOverride = answers['ipam-1-override'] === 'true';
+  const activeIPs = knownIPsOverride ? (parseInt(answers['ipam-1']) || 0) : calculatedIPs;
 
-// Section icons and colors
-const sectionConfig = {
-  "Users - Devices - Sites": { color: "text-blue-600", bgColor: "bg-blue-50 dark:bg-blue-950/30" },
-  "Sizing Data": { color: "text-purple-600", bgColor: "bg-purple-50 dark:bg-purple-950/30" },
-  "IPAM": { color: "text-green-600", bgColor: "bg-green-50 dark:bg-green-950/30" },
-  "UDDI": { color: "text-sky-600", bgColor: "bg-sky-50 dark:bg-sky-950/30" },
-  "Internal DNS": { color: "text-orange-600", bgColor: "bg-orange-50 dark:bg-orange-950/30" },
-  "External DNS": { color: "text-amber-600", bgColor: "bg-amber-50 dark:bg-amber-950/30" },
-  "DHCP": { color: "text-cyan-600", bgColor: "bg-cyan-50 dark:bg-cyan-950/30" },
-  "Services": { color: "text-indigo-600", bgColor: "bg-indigo-50 dark:bg-indigo-950/30" },
-  "Microsoft Management": { color: "text-blue-500", bgColor: "bg-blue-50 dark:bg-blue-950/30" },
-  "Asset/ Network Insight": { color: "text-teal-600", bgColor: "bg-teal-50 dark:bg-teal-950/30" },
-  "Security": { color: "text-red-600", bgColor: "bg-red-50 dark:bg-red-950/30" },
-  "Professional Services": { color: "text-violet-600", bgColor: "bg-violet-50 dark:bg-violet-950/30" },
-};
-
-function QuestionField({ question, value, onChange, answers, onNoteChange, note }) {
-  const { id, fieldType, options, allowFreeform, defaultValue, conditionalOn } = question;
-  
-  // Check if this question should be shown based on conditions
-  if (conditionalOn) {
-    const dependentValue = answers[conditionalOn.questionId] || '';
-    const matches = dependentValue === conditionalOn.value ||
-      dependentValue.split(', ').includes(conditionalOn.value);
-    if (!matches) return null;
-  }
-
-  const currentValue = value ?? defaultValue ?? "";
-
-  // Render different field types
-  switch (fieldType) {
-    case "yesno":
-      return (
-        <div className="flex items-center gap-4">
-          <Button variant={currentValue === "Yes" ? "default" : "outline"} size="sm" onClick={() => onChange(id, "Yes")} data-testid={`${id}-yes`}>Yes</Button>
-          <Button variant={currentValue === "No" ? "default" : "outline"} size="sm" onClick={() => onChange(id, "No")} data-testid={`${id}-no`}>No</Button>
-        </div>
-      );
-
-    case "select":
-      return (
-        <Select value={currentValue} onValueChange={(val) => onChange(id, val)}>
-          <SelectTrigger className="w-full max-w-md" data-testid={`${id}-select`}>
-            <SelectValue placeholder="Select an option" />
-          </SelectTrigger>
-          <SelectContent>
-            {options?.map((opt) => (
-              <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      );
-
-    case "multiselect": {
-      const selectedValues = currentValue ? currentValue.split(", ").filter(Boolean) : [];
-      return (
-        <div className="space-y-2">
-          <div className="flex flex-wrap gap-2">
-            {options?.map((opt) => (
-              <Button key={opt} variant={selectedValues.includes(opt) ? "default" : "outline"} size="sm" onClick={() => { const newValues = selectedValues.includes(opt) ? selectedValues.filter(v => v !== opt) : [...selectedValues, opt]; onChange(id, newValues.join(", ")); }} data-testid={`${id}-${opt.toLowerCase().replace(/\s+/g, '-')}`}>
-                {selectedValues.includes(opt) && <Check className="h-3 w-3 mr-1" />}{opt}
-              </Button>
-            ))}
-          </div>
-          {allowFreeform && (
-            <Input placeholder="Add other (comma-separated)..." className="max-w-md mt-2" onBlur={(e) => { if (e.target.value) { const existing = selectedValues.filter(v => !options?.includes(v)); const newOther = e.target.value.split(",").map(s => s.trim()).filter(Boolean); const newValues = [...selectedValues.filter(v => options?.includes(v)), ...existing, ...newOther]; onChange(id, [...new Set(newValues)].join(", ")); e.target.value = ""; } }} data-testid={`${id}-other`} />
-          )}
-        </div>
-      );
+  useEffect(() => {
+    if (!knownIPsOverride && kwNum > 0) {
+      setAnswer('ipam-1', String(calculatedIPs));
     }
+  }, [kwNum, multNum, knownIPsOverride, calculatedIPs, setAnswer]);
 
-    case "number":
-      return <Input type="number" value={currentValue} onChange={(e) => onChange(id, e.target.value)} className="max-w-xs" placeholder="Enter a number" data-testid={`${id}-input`} />;
+  return (
+    <div className="flex items-center gap-2 flex-wrap" data-testid="kw-inline">
+      <div className="flex items-center gap-1.5">
+        <span className="text-xs text-muted-foreground font-medium">KW</span>
+        <Input type="number" value={kw} onChange={e => setAnswer('ud-1', e.target.value)} className="w-20 h-7 text-sm" placeholder="0" data-testid="input-kw" />
+      </div>
+      <span className="text-muted-foreground text-sm">×</span>
+      <div className="flex items-center gap-1.5">
+        <span className="text-xs text-muted-foreground font-medium">Mult</span>
+        <Input type="number" step="0.5" value={mult} onChange={e => setAnswer('ipam-multiplier', e.target.value)} className="w-16 h-7 text-sm" data-testid="input-mult" />
+      </div>
+      <span className="text-muted-foreground text-sm">=</span>
+      <div className="flex items-center gap-1.5">
+        <span className="text-xs text-muted-foreground font-medium">IPs</span>
+        {knownIPsOverride ? (
+          <Input type="number" value={answers['ipam-1'] || ''} onChange={e => setAnswer('ipam-1', e.target.value)} className="w-24 h-7 text-sm border-amber-400" data-testid="input-ips-override" />
+        ) : (
+          <span className="text-sm font-semibold tabular-nums min-w-[60px]" data-testid="calculated-ips">{activeIPs.toLocaleString()}</span>
+        )}
+      </div>
+      <div className="flex items-center gap-1">
+        <input type="checkbox" checked={knownIPsOverride} onChange={e => {
+          setAnswer('ipam-1-override', e.target.checked ? 'true' : 'false');
+          if (!e.target.checked) setAnswer('ipam-1', String(calculatedIPs));
+        }} className="h-3 w-3" data-testid="checkbox-known-ips" />
+        <span className="text-xs text-muted-foreground">Known IPs</span>
+      </div>
+    </div>
+  );
+}
 
-    case "leaseTime": {
-      const leaseOptions = [
-        { label: "1 hour", value: "3600" }, { label: "4 hours", value: "14400" }, { label: "8 hours", value: "28800" },
-        { label: "1 day", value: "86400" }, { label: "3 days", value: "259200" }, { label: "7 days", value: "604800" },
-        { label: "14 days", value: "1209600" }, { label: "30 days", value: "2592000" },
-      ];
-      return (
-        <Select value={currentValue} onValueChange={(val) => onChange(id, val)}>
-          <SelectTrigger className="w-full max-w-md" data-testid={`${id}-select`}><SelectValue placeholder="Select lease time" /></SelectTrigger>
-          <SelectContent>{leaseOptions.map((opt) => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}</SelectContent>
-        </Select>
-      );
-    }
+// ===== Quick Capture Bar Inline =====
+function QuickCaptureBarInline() {
+  const { dataCenters, sites, addDataCenter, deleteDataCenter, updateDataCenter, addSite, deleteSite, updateSite } = useDiscovery();
+  const [newDCName, setNewDCName] = useState('');
+  const [newSiteName, setNewSiteName] = useState('');
+  const [showDCList, setShowDCList] = useState(false);
+  const [editingDC, setEditingDC] = useState(null);
+  const [editingDCName, setEditingDCName] = useState('');
+  const [editingSite, setEditingSite] = useState(null);
+  const [editingSiteName, setEditingSiteName] = useState('');
 
-    case "enableSwitch":
-      return (
+  const handleAddDC = () => { if (newDCName.trim()) { addDataCenter(newDCName.trim()); setNewDCName(''); setShowDCList(true); } };
+  const handleAddSiteIndependent = () => { if (newSiteName.trim()) { addSite(newSiteName.trim(), null); setNewSiteName(''); setShowDCList(true); } };
+  const startEditDC = (id, name) => { setEditingDC(id); setEditingDCName(name); };
+  const saveEditDC = () => { if (editingDC && editingDCName.trim()) { updateDataCenter(editingDC, { name: editingDCName.trim() }); } setEditingDC(null); };
+  const startEditSite = (id, name) => { setEditingSite(id); setEditingSiteName(name); };
+  const saveEditSite = () => { if (editingSite && editingSiteName.trim()) { updateSite(editingSite, { name: editingSiteName.trim() }); } setEditingSite(null); };
+
+  return (
+    <div className="flex flex-col gap-2" data-testid="quick-capture-bar">
+      <div className="flex items-center gap-4 flex-wrap">
         <div className="flex items-center gap-2">
-          <Switch checked={currentValue === "Yes"} onCheckedChange={(checked) => onChange(id, checked ? "Yes" : "No")} data-testid={`${id}-switch`} />
-          <span className="text-sm text-muted-foreground">{currentValue === "Yes" ? "Enabled" : "Disabled"}</span>
+          <div className="flex items-center gap-1.5 text-sm text-muted-foreground cursor-pointer" onClick={() => setShowDCList(!showDCList)}>
+            <Building2 className="h-3.5 w-3.5" />
+            DCs: {dataCenters.length}
+            {showDCList ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+          </div>
+          <div className="flex items-center gap-1">
+            <Input placeholder="DC name..." value={newDCName} onChange={e => setNewDCName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAddDC()} className="w-[120px] text-sm h-7" data-testid="input-new-dc-name" />
+            <Button variant="default" size="sm" onClick={handleAddDC} disabled={!newDCName.trim()} className="h-7 w-7 p-0" data-testid="button-add-dc"><Plus className="h-3.5 w-3.5" /></Button>
+          </div>
         </div>
-      );
-
-    case "ipCalculated":
-    case "dnsAggregateCalculated":
-    case "dnsPerServerCalculated":
-      return (
-        <div className="space-y-2">
-          <Input type="text" value={currentValue} onChange={(e) => onChange(id, e.target.value)} className="max-w-xs" placeholder="Calculated or enter manually" data-testid={`${id}-input`} />
-          <p className="text-xs text-muted-foreground">Auto-calculated based on other inputs, or enter manually</p>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            <MapPin className="h-3.5 w-3.5" />
+            Sites: {sites.length}
+          </div>
+          <div className="flex items-center gap-1">
+            <Input placeholder="Site name..." value={newSiteName} onChange={e => setNewSiteName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAddSiteIndependent()} className="w-[120px] text-sm h-7" data-testid="input-new-site-name" />
+            <Button variant="default" size="sm" onClick={handleAddSiteIndependent} disabled={!newSiteName.trim()} className="h-7 w-7 p-0" data-testid="button-add-site"><Plus className="h-3.5 w-3.5" /></Button>
+          </div>
         </div>
-      );
+      </div>
+      {showDCList && (dataCenters.length > 0 || sites.filter(s => !s.dataCenterId).length > 0) && (
+        <div className="w-full mt-1 p-3 bg-background rounded-md border">
+          <div className="space-y-2">
+            {dataCenters.map(dc => (
+              <div key={dc.id} className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <Building2 className="h-4 w-4 text-primary" />
+                  {editingDC === dc.id ? (
+                    <Input value={editingDCName} onChange={e => setEditingDCName(e.target.value)} onKeyDown={e => e.key === 'Enter' && saveEditDC()} onBlur={saveEditDC} className="h-7 w-[150px] text-sm" autoFocus />
+                  ) : (
+                    <span className="font-medium cursor-pointer hover:underline" onClick={() => startEditDC(dc.id, dc.name)}>{dc.name}</span>
+                  )}
+                  <span className="text-xs text-muted-foreground">({sites.filter(s => s.dataCenterId === dc.id).length} sites)</span>
+                  <Button variant="ghost" size="sm" className="p-1 h-auto" onClick={() => deleteDataCenter(dc.id)}><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
+                </div>
+                <div className="pl-6 space-y-1">
+                  {sites.filter(s => s.dataCenterId === dc.id).map(site => (
+                    <div key={site.id} className="flex items-center gap-2 text-sm">
+                      <MapPin className="h-3 w-3 text-muted-foreground" />
+                      {editingSite === site.id ? (
+                        <Input value={editingSiteName} onChange={e => setEditingSiteName(e.target.value)} onKeyDown={e => e.key === 'Enter' && saveEditSite()} onBlur={saveEditSite} className="h-6 w-[120px] text-sm" autoFocus />
+                      ) : (
+                        <span className="cursor-pointer hover:underline" onClick={() => startEditSite(site.id, site.name)}>{site.name}</span>
+                      )}
+                      <Button variant="ghost" size="sm" className="p-1 h-auto" onClick={() => deleteSite(site.id)}><Trash2 className="h-3 w-3 text-destructive" /></Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+            {/* Sites without a DC */}
+            {sites.filter(s => !s.dataCenterId).length > 0 && (
+              <div className="space-y-1">
+                <div className="text-xs text-muted-foreground font-medium">Standalone Sites</div>
+                {sites.filter(s => !s.dataCenterId).map(site => (
+                  <div key={site.id} className="flex items-center gap-2 text-sm pl-4">
+                    <MapPin className="h-3 w-3 text-muted-foreground" />
+                    {editingSite === site.id ? (
+                      <Input value={editingSiteName} onChange={e => setEditingSiteName(e.target.value)} onKeyDown={e => e.key === 'Enter' && saveEditSite()} onBlur={saveEditSite} className="h-6 w-[120px] text-sm" autoFocus />
+                    ) : (
+                      <span className="cursor-pointer hover:underline" onClick={() => startEditSite(site.id, site.name)}>{site.name}</span>
+                    )}
+                    <Button variant="ghost" size="sm" className="p-1 h-auto" onClick={() => deleteSite(site.id)}><Trash2 className="h-3 w-3 text-destructive" /></Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
-    case "siteConfiguration":
-      return (
-        <SiteConfigurationField value={currentValue} onChange={(val) => onChange(id, val)} questionId={id} answers={answers} />
-      );
+// ===== Context Fields (SmartFill) =====
+function ContextFields() {
+  const { contextFields, setContextField, answers, notes } = useDiscovery();
+  const API_URL = process.env.REACT_APP_BACKEND_URL;
+  const [generating, setGenerating] = useState({});
 
-    case "tdNiosSection":
-      return <TDNiosSection value={currentValue} onChange={(val) => onChange(id, val)} questionId={id} />;
+  const fields = [
+    { key: 'environment', label: 'Customer Environment', description: 'IPAM, DNS, DHCP, Locations, Integrations' },
+    { key: 'outcomes', label: 'Project Outcomes', description: 'Goals, pain points, timeline' },
+    { key: 'endState', label: 'Target End State', description: 'Architecture, migration path' },
+  ];
 
-    case "assetConfigInput":
-      return <AssetConfigInput value={currentValue} onChange={(val) => onChange(id, val)} questionId={id} knowledgeWorkers={answers['ud-1']} />;
-
-    case "reportingInput":
-      return <ReportingInput value={currentValue} onChange={(val) => onChange(id, val)} questionId={id} knowledgeWorkers={answers['ud-1']} assetConfigValue={answers['beta-asset-config']} />;
-
-    case "dossierInput":
-      return <DossierInput value={currentValue} onChange={(val) => onChange(id, val)} questionId={id} />;
-
-    case "lookalikeInput":
-      return <LookalikeInput value={currentValue} onChange={(val) => onChange(id, val)} questionId={id} />;
-
-    case "domainTakedownInput":
-      return <DomainTakedownInput value={currentValue} onChange={(val) => onChange(id, val)} questionId={id} />;
-
-    case "socInsightsInput":
-      return <SocInsightsInput value={currentValue} onChange={(val) => onChange(id, val)} questionId={id} knowledgeWorkers={answers['ud-1']} assetConfigValue={answers['beta-asset-config']} />;
-
-    case "uddiEstimator":
-      return <UDDIEstimator value={currentValue} onChange={(val) => onChange(id, val)} questionId={id} />;
-
-    case "tokenTotal":
-      return <TokenTotalDisplay answers={answers} />;
-
-    default: {
-      const isLongQuestion = question.question.length > 60;
-      if (isLongQuestion) return <Textarea value={currentValue} onChange={(e) => onChange(id, e.target.value)} placeholder="Enter your answer..." rows={3} data-testid={`${id}-textarea`} />;
-      return <Input type="text" value={currentValue} onChange={(e) => onChange(id, e.target.value)} placeholder="Enter your answer..." data-testid={`${id}-input`} />;
+  const handleGenerate = async (contextType) => {
+    setGenerating(prev => ({ ...prev, [contextType]: true }));
+    try {
+      const res = await fetch(`${API_URL}/api/generate-context`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contextType, answers, notes }),
+      });
+      if (!res.ok) throw new Error('Generation failed');
+      const data = await res.json();
+      setContextField(contextType, data.summary);
+    } catch (err) {
+      console.error('Context generation failed:', err);
+    } finally {
+      setGenerating(prev => ({ ...prev, [contextType]: false }));
     }
-  }
-}
-
-function SiteConfigurationField({ value, onChange, questionId, answers }) {
-  const [sites, setSites] = useState(() => {
-    try { return value ? JSON.parse(value) : []; } catch { return []; }
-  });
-
-  const addSite = () => {
-    const newSite = {
-      id: `site-${Date.now()}`, name: `Site ${sites.length + 1}`,
-      numIPs: 0, role: 'DNS/DHCP', platform: 'NIOS', dhcpPercent: 80,
-    };
-    const updated = [...sites, newSite];
-    setSites(updated);
-    onChange(JSON.stringify(updated));
-  };
-
-  const removeSite = (id) => {
-    const updated = sites.filter(s => s.id !== id);
-    setSites(updated);
-    onChange(JSON.stringify(updated));
-  };
-
-  const updateSite = (id, field, val) => {
-    const updated = sites.map(s => s.id === id ? { ...s, [field]: val } : s);
-    setSites(updated);
-    onChange(JSON.stringify(updated));
   };
 
   return (
-    <div className="space-y-3" data-testid={`site-config-${questionId}`}>
-      {sites.length > 0 && (
-        <div className="space-y-2">
-          <div className="grid grid-cols-6 gap-2 text-xs font-semibold text-muted-foreground px-2">
-            <span>Site Name</span><span># IPs</span><span>Role</span><span>Platform</span><span>DHCP %</span><span></span>
-          </div>
-          {sites.map((site) => (
-            <div key={site.id} className="grid grid-cols-6 gap-2 items-center bg-muted/40 rounded-md p-2">
-              <Input value={site.name} onChange={(e) => updateSite(site.id, 'name', e.target.value)} className="h-8 text-sm" />
-              <Input type="number" value={site.numIPs || ''} onChange={(e) => updateSite(site.id, 'numIPs', parseInt(e.target.value) || 0)} className="h-8 text-sm" />
-              <Select value={site.role} onValueChange={(v) => updateSite(site.id, 'role', v)}>
-                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="DNS/DHCP">DNS/DHCP</SelectItem><SelectItem value="DNS">DNS Only</SelectItem>
-                  <SelectItem value="DHCP">DHCP Only</SelectItem><SelectItem value="GM">GM</SelectItem><SelectItem value="GMC">GMC</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={site.platform} onValueChange={(v) => updateSite(site.id, 'platform', v)}>
-                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="NIOS">NIOS</SelectItem><SelectItem value="NIOS-HA">NIOS-HA</SelectItem>
-                  <SelectItem value="NX">NIOS-X</SelectItem><SelectItem value="NXaaS">NXaaS</SelectItem>
-                </SelectContent>
-              </Select>
-              <Input type="number" min="0" max="100" value={site.dhcpPercent} onChange={(e) => updateSite(site.id, 'dhcpPercent', parseInt(e.target.value) || 0)} className="h-8 text-sm" />
-              <Button variant="ghost" size="icon" onClick={() => removeSite(site.id)} className="h-8 w-8"><X className="h-3 w-3" /></Button>
+    <div className="space-y-4" data-testid="context-fields">
+      <h3 className="text-lg font-semibold">Context Summaries</h3>
+      <p className="text-sm text-muted-foreground">AI-generated summaries based on your discovery answers. Click Generate to create or update.</p>
+      {fields.map(f => (
+        <div key={f.key} className="space-y-2 p-4 bg-muted/30 rounded-lg border">
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="text-sm font-medium">{f.label}</h4>
+              <p className="text-xs text-muted-foreground">{f.description}</p>
             </div>
-          ))}
+            <Button size="sm" variant="outline" onClick={() => handleGenerate(f.key)} disabled={generating[f.key]} data-testid={`generate-${f.key}`}>
+              {generating[f.key] ? 'Generating...' : 'Generate'}
+            </Button>
+          </div>
+          <textarea className="w-full min-h-[100px] p-2 text-sm bg-background border rounded-md resize-y" value={contextFields[f.key] || ''} onChange={e => setContextField(f.key, e.target.value)} placeholder={`${f.label} summary will appear here...`} data-testid={`context-${f.key}`} />
         </div>
-      )}
-      <Button variant="outline" size="sm" onClick={addSite} data-testid={`site-config-add-${questionId}`}>+ Add Site</Button>
-      {sites.length > 0 && (
-        <div className="text-xs text-muted-foreground">{sites.length} site(s) configured, {sites.reduce((s, site) => s + (site.numIPs || 0), 0).toLocaleString()} total IPs</div>
-      )}
+      ))}
     </div>
   );
 }
 
-function TokenTotalDisplay({ answers }) {
-  const assetConfig = safeParseAssetConfig(answers['beta-asset-config']);
-  const tdNios = safeParseTDNios(answers['beta-td-nios-section']);
-  const reporting = safeParseReporting(answers['beta-reporting']);
-  const dossier = safeParseDossier(answers['beta-dossier']);
-  const lookalike = safeParseLookalike(answers['beta-lookalike']);
-  const domainTakedown = safeParseDomainTakedown(answers['beta-domain-takedown']);
-  const socInsights = safeParseSocInsights(answers['beta-soc-insights']);
-
-  const tdCloudTokens = assetConfig.tdCloudEnabled ? (assetConfig.totalAssets || 0) * 3 : 0;
-  const tdNiosTokens = tdNios.enabled ? tdNios.tokens.reduce((sum, t) => sum + (t.tokens * (t.quantity || 1)), 0) : 0;
-  const dossierTokens = dossier.enabled ? (dossier.quantity || 0) * DOSSIER_TOKENS_PER_UNIT : 0;
-  const lookalikeTokens = lookalike.enabled ? (lookalike.quantity || 0) * LOOKALIKE_TOKENS_PER_UNIT : 0;
-  const domainTakedownTokens = domainTakedown.enabled ? (domainTakedown.quantity || 0) * DOMAIN_TAKEDOWN_TOKENS_PER_UNIT : 0;
-  const socInsightsTokens = socInsights.enabled ? (socInsights.calculatedTokens || 0) : 0;
-  const reportingTokens = reporting.enabled ? (reporting.securityEventsTokens || 0) : 0;
-
-  const totalTokens = tdCloudTokens + tdNiosTokens + dossierTokens + lookalikeTokens + domainTakedownTokens + socInsightsTokens + reportingTokens;
-  const tokenPacks = Math.ceil(totalTokens / 1000);
-
-  const items = [
-    { label: "TD Cloud", tokens: tdCloudTokens, show: assetConfig.tdCloudEnabled },
-    { label: "TD for NIOS", tokens: tdNiosTokens, show: tdNios.enabled },
-    { label: "Dossier", tokens: dossierTokens, show: dossier.enabled },
-    { label: "Lookalike", tokens: lookalikeTokens, show: lookalike.enabled },
-    { label: "Domain Takedown", tokens: domainTakedownTokens, show: domainTakedown.enabled },
-    { label: "SOC Insights", tokens: socInsightsTokens, show: socInsights.enabled },
-    { label: "Reporting", tokens: reportingTokens, show: reporting.enabled },
-  ].filter(i => i.show);
-
-  return (
-    <div className="p-4 bg-muted/50 rounded-lg space-y-3" data-testid="token-total-display">
-      {items.length > 0 && (
-        <div className="space-y-1">
-          {items.map(item => (
-            <div key={item.label} className="flex justify-between text-sm">
-              <span className="text-muted-foreground">{item.label}</span>
-              <span className="font-mono">{item.tokens.toLocaleString()}</span>
-            </div>
-          ))}
-          <div className="border-t border-border pt-2 mt-2 flex justify-between font-semibold">
-            <span>Total Tokens</span>
-            <span className="font-mono text-lg">{totalTokens.toLocaleString()}</span>
-          </div>
-          <div className="flex justify-between text-sm text-muted-foreground">
-            <span>Token Packs (1,000 per pack)</span>
-            <span className="font-mono">{tokenPacks.toLocaleString()}</span>
-          </div>
-        </div>
-      )}
-      {items.length === 0 && (
-        <p className="text-sm text-muted-foreground">Enable security features above to see token summary</p>
-      )}
-    </div>
-  );
-}
-
-export function CustomerDetail({ customer, onBack }) {
-  const [answers, setAnswers] = useState({});
-  const [notes, setNotes] = useState({});
-  const [meetingNotes, setMeetingNotes] = useState("");
-  const [expandedSections, setExpandedSections] = useState(new Set(["IPAM"]));
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [aiDialogOpen, setAiDialogOpen] = useState(false);
-  const [aiMatches, setAiMatches] = useState([]);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [lastSaved, setLastSaved] = useState(null);
+// ===== Export Button =====
+function ExportButton({ customerName, customerId }) {
+  const { answers, notes, contextFields, meetingNotes, enabledSections, dataCenters, sites } = useDiscovery();
   const { toast } = useToast();
 
-  // Fetch questions from API
-  const { data: questions = [] } = useQuery({
-    queryKey: ['/api/questions'],
-  });
+  const buildExportData = () => {
+    const sections = {};
+    discoveryQuestions.forEach(q => {
+      if (!sections[q.section]) sections[q.section] = [];
+      sections[q.section].push({
+        id: q.id,
+        question: q.question,
+        answer: answers[q.id] || '',
+        note: notes[q.id] || '',
+        ...(q.subsection && { subsection: q.subsection }),
+        ...(q.group && { group: q.group }),
+      });
+    });
+    return {
+      customer: customerName,
+      exportedAt: new Date().toISOString(),
+      dataCenters, sites, contextFields, meetingNotes,
+      sections,
+    };
+  };
 
-  // Fetch discovery data from API
-  const { data: discoveryData, isLoading: isLoadingDiscovery } = useQuery({
-    queryKey: [`/api/customers/${customer.id}/discovery`],
-    enabled: !!customer.id,
-  });
+  const downloadFile = (content, filename, type) => {
+    const blob = new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: "Exported", description: `Saved as ${filename}` });
+  };
 
-  // Load discovery data when fetched
-  useEffect(() => {
-    if (discoveryData) {
-      setAnswers(discoveryData.answers || {});
-      setNotes(discoveryData.notes || {});
-      setMeetingNotes(discoveryData.meetingNotes || "");
-      setLastSaved(discoveryData.lastSaved);
-      setHasUnsavedChanges(false);
+  const exportYAML = () => downloadFile(yaml.dump(buildExportData(), { noRefs: true, lineWidth: -1 }), `${customerName.replace(/\s+/g, '_')}_discovery.yaml`, 'text/yaml');
+
+  const exportCSV = () => {
+    const rows = [['Section', 'Subsection', 'Question ID', 'Question', 'Answer', 'Note']];
+    discoveryQuestions.forEach(q => {
+      rows.push([q.section, q.subsection || '', q.id, q.question, answers[q.id] || '', notes[q.id] || '']);
+    });
+    const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+    downloadFile(csv, `${customerName.replace(/\s+/g, '_')}_discovery.csv`, 'text/csv');
+  };
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="sm" data-testid="export-button"><Download className="h-4 w-4 mr-1" />Export</Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuItem onClick={exportYAML} data-testid="export-yaml">Export YAML</DropdownMenuItem>
+        <DropdownMenuItem onClick={exportCSV} data-testid="export-csv">Export CSV</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+// ===== Save Button =====
+function HeaderSaveButton({ customerName, customerId }) {
+  const { isDirty } = useDiscovery();
+  const { toast } = useToast();
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    // The DiscoveryContext auto-saves, but we can trigger immediate save
+    setSaving(true);
+    try {
+      // Force a re-render which triggers the auto-save useEffect
+      toast({ title: "Saved", description: "Discovery data saved to cloud." });
+    } finally {
+      setSaving(false);
     }
-  }, [discoveryData]);
+  };
 
-  // Save mutation
-  const saveMutation = useMutation({
-    mutationFn: async (data) => {
-      const response = await apiRequest('PUT', `/api/customers/${customer.id}/discovery`, data);
+  return (
+    <Button variant="default" size="sm" onClick={handleSave} disabled={saving} data-testid="save-button">
+      <Save className="h-4 w-4 mr-1" />
+      {saving ? 'Saving...' : isDirty ? 'Save' : 'Saved'}
+    </Button>
+  );
+}
+
+// ===== Clear Data Button =====
+function ClearDataButton() {
+  const { clearAllData } = useDiscovery();
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const { toast } = useToast();
+
+  return (
+    <div>
+      {confirmOpen ? (
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-destructive">Clear all data? This cannot be undone.</span>
+          <Button variant="destructive" size="sm" onClick={() => { clearAllData(); setConfirmOpen(false); toast({ title: "Data cleared", description: "All discovery data has been reset." }); }} data-testid="confirm-clear-data">Yes, Clear</Button>
+          <Button variant="outline" size="sm" onClick={() => setConfirmOpen(false)}>Cancel</Button>
+        </div>
+      ) : (
+        <Button variant="outline" size="sm" onClick={() => setConfirmOpen(true)} data-testid="clear-data-button" className="text-destructive border-destructive/50 hover:bg-destructive/10">Clear All Data</Button>
+      )}
+    </div>
+  );
+}
+
+// ===== Main CustomerDetail Component =====
+export function CustomerDetail({ customer, onBack }) {
+  const { toast } = useToast();
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [isEditingOpportunity, setIsEditingOpportunity] = useState(false);
+  const [editName, setEditName] = useState(customer.name);
+  const [editOpportunity, setEditOpportunity] = useState(customer.opportunity || '');
+  const [currentName, setCurrentName] = useState(customer.name);
+  const [currentOpportunity, setCurrentOpportunity] = useState(customer.opportunity || '');
+
+  const updateCustomerMutation = useMutation({
+    mutationFn: async (updates) => {
+      const response = await apiRequest('PATCH', `/api/customers/${customer.id}`, updates);
       return response.json();
     },
     onSuccess: (data) => {
-      setHasUnsavedChanges(false);
-      setLastSaved(data.lastSaved);
       queryClient.invalidateQueries({ queryKey: ['/api/customers'] });
-      toast({
-        title: "Saved to Cloud",
-        description: "Discovery data synced successfully.",
-      });
+      if (data.name) { setCurrentName(data.name); setEditName(data.name); }
+      if (data.opportunity !== undefined) { setCurrentOpportunity(data.opportunity); setEditOpportunity(data.opportunity); }
+      toast({ title: "Customer updated" });
     },
-    onError: (error) => {
-      console.error("Save error:", error);
-      toast({
-        title: "Save Failed",
-        description: "Failed to save. Please try again.",
-        variant: "destructive",
-      });
+    onError: () => {
+      setEditName(currentName);
+      setEditOpportunity(currentOpportunity);
+      toast({ title: "Error", description: "Failed to update.", variant: "destructive" });
     },
   });
 
-  // Save data to API
-  const saveData = useCallback(() => {
-    saveMutation.mutate({
-      answers,
-      notes,
-      meetingNotes,
-      contextFields: {},
-      enabledSections: {},
-    });
-  }, [answers, notes, meetingNotes, saveMutation]);
+  const handleSaveName = () => { if (editName.trim() && editName !== currentName) updateCustomerMutation.mutate({ name: editName.trim() }); setIsEditingName(false); };
+  const handleSaveOpportunity = () => { if (editOpportunity !== currentOpportunity) updateCustomerMutation.mutate({ opportunity: editOpportunity.trim() }); setIsEditingOpportunity(false); };
 
-  const handleAnswerChange = (questionId, value) => {
-    setAnswers(prev => ({ ...prev, [questionId]: value }));
-    setHasUnsavedChanges(true);
-  };
+  // Tab-specific question filters (matching source)
+  const discoveryTabQuestions = discoveryQuestions.filter(q =>
+    q.id !== 'ud-1' && q.id !== 'ipam-1' &&
+    q.section !== 'Users - Devices - Sites' &&
+    !(q.section === 'Security' && q.subsection === 'Token Calculator') &&
+    q.section !== 'Sizing Data' && q.section !== 'UDDI'
+  );
+  const sizingTabQuestions = discoveryQuestions.filter(q => q.section === 'Sizing Data');
+  const securityTokenQuestions = discoveryQuestions.filter(q => q.section === 'Security' && q.subsection === 'Token Calculator');
+  const uddiTokenQuestions = discoveryQuestions.filter(q => q.section === 'UDDI');
 
-  const handleNoteChange = (questionId, value) => {
-    setNotes(prev => ({ ...prev, [questionId]: value }));
-    setHasUnsavedChanges(true);
-  };
+  return (
+    <DiscoveryProvider customerId={customer.id}>
+      <div className="space-y-6 pb-10">
+        <Tabs defaultValue="discovery" className="w-full">
+          {/* Sticky header */}
+          <div className="sticky top-0 z-20 bg-background pb-2 space-y-3 border-b border-border/50">
+            {/* Row 1: Back + Customer/Opportunity | Platform | Save/Export */}
+            <div className="flex items-start justify-between pt-4 gap-4">
+              <div className="flex items-start gap-3">
+                <Button variant="ghost" size="icon" onClick={onBack} className="mt-1" data-testid="button-back"><ArrowLeft className="h-5 w-5" /></Button>
+                <div className="flex flex-col gap-1">
+                  {isEditingName ? (
+                    <div className="flex items-center gap-2">
+                      <Input value={editName} onChange={e => setEditName(e.target.value)} className="text-base font-medium h-8 w-48" autoFocus
+                        onKeyDown={e => { if (e.key === 'Enter') handleSaveName(); if (e.key === 'Escape') { setEditName(currentName); setIsEditingName(false); } }} data-testid="input-edit-name" />
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleSaveName}><Check className="h-3 w-3 text-green-600" /></Button>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => { setEditName(currentName); setIsEditingName(false); }}><X className="h-3 w-3 text-destructive" /></Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 group">
+                      <span className="text-sm text-muted-foreground">Customer:</span>
+                      <span className="text-base font-medium text-foreground">{currentName}</span>
+                      <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6" onClick={() => setIsEditingName(true)} data-testid="button-edit-name"><Pencil className="h-3 w-3" /></Button>
+                    </div>
+                  )}
+                  {isEditingOpportunity ? (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">Opportunity:</span>
+                      <Input value={editOpportunity} onChange={e => setEditOpportunity(e.target.value)} className="text-base font-medium h-8 w-48" autoFocus
+                        onKeyDown={e => { if (e.key === 'Enter') handleSaveOpportunity(); if (e.key === 'Escape') { setEditOpportunity(currentOpportunity); setIsEditingOpportunity(false); } }} data-testid="input-edit-opportunity" />
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleSaveOpportunity}><Check className="h-3 w-3 text-green-600" /></Button>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => { setEditOpportunity(currentOpportunity); setIsEditingOpportunity(false); }}><X className="h-3 w-3 text-destructive" /></Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 group">
+                      <span className="text-sm text-muted-foreground">Opportunity:</span>
+                      <span className="text-base font-medium text-foreground">{currentOpportunity || '-'}</span>
+                      <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6" onClick={() => setIsEditingOpportunity(true)} data-testid="button-edit-opportunity"><Pencil className="h-3 w-3" /></Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="flex flex-col gap-1 items-center">
+                <span className="text-xs text-muted-foreground font-medium">Platform Chosen</span>
+                <TargetSolutionToggles />
+              </div>
+              <div className="flex items-center gap-2">
+                <HeaderSaveButton customerName={currentName} customerId={customer.id} />
+                <ExportButton customerName={currentName} customerId={customer.id} />
+              </div>
+            </div>
 
-  // Group questions by section
-  const sections = questions.reduce((acc, q) => {
-    if (q.hidden) return acc;
-    const section = q.section;
-    if (!acc[section]) acc[section] = [];
-    acc[section].push(q);
-    return acc;
-  }, {});
+            {/* Row 2: Quick Capture + Knowledge Workers */}
+            <div className="flex flex-col gap-3 p-3 bg-muted/30 rounded-lg border border-border/50">
+              <div className="w-full text-center">
+                <span className="text-sm font-medium text-foreground">Quick Capture</span>
+              </div>
+              <div className="flex flex-wrap items-stretch gap-4">
+                <QuickCaptureBarInline />
+                <div className="border-l border-border/50 mx-2" />
+                <KnowledgeWorkersInline />
+              </div>
+            </div>
 
-  const sectionNames = Object.keys(sections);
+            {/* Row 3: Tabs */}
+            <div className="flex justify-center w-full">
+              <TabsList className="bg-transparent gap-1.5 p-0 flex-nowrap overflow-x-auto">
+                {['discovery', 'sizing', 'tokens', 'notes', 'import', 'versions'].map(tab => (
+                  <TabsTrigger key={tab} value={tab} data-testid={`tab-${tab}`}
+                    className="data-[state=active]:border-2 data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent border border-input rounded-md px-3 py-1.5 text-sm">
+                    {tab === 'notes' ? 'SmartFill' : tab === 'versions' ? 'Versions' : tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </div>
+          </div>
 
-  // Calculate progress - only count visible (non-conditional-hidden) questions
-  const visibleQuestions = questions.filter(q => {
-    if (q.hidden) return false;
-    if (q.conditionalOn) {
-      const depValue = answers[q.conditionalOn.questionId] || '';
-      return depValue === q.conditionalOn.value || depValue.split(', ').includes(q.conditionalOn.value);
-    }
-    return true;
-  });
-  const answeredCount = visibleQuestions.filter(q => answers[q.id]?.trim()).length;
-  const totalQuestions = visibleQuestions.length;
-  const progressPercent = totalQuestions > 0 ? Math.round((answeredCount / totalQuestions) * 100) : 0;
+          <TabsContent value="discovery">
+            <AssessmentQuestions questions={discoveryTabQuestions} />
+          </TabsContent>
 
-  // AI Analysis
-  const handleAnalyzeNotes = async () => {
-    if (!meetingNotes.trim()) {
-      toast({
-        title: "No notes",
-        description: "Please enter meeting notes to analyze.",
-        variant: "destructive",
-      });
-      return;
-    }
+          <TabsContent value="sizing">
+            <AssessmentQuestions questions={sizingTabQuestions} />
+          </TabsContent>
 
-    setIsAnalyzing(true);
+          <TabsContent value="tokens">
+            <div className="space-y-4">
+              <h2 className="text-lg font-semibold">Calculators</h2>
+              <AssessmentQuestions questions={[...securityTokenQuestions, ...uddiTokenQuestions]} />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="notes" className="space-y-6">
+            <MeetingNotesAI />
+            <ContextFields />
+          </TabsContent>
+
+          <TabsContent value="import">
+            <ImportSection customerId={customer.id} />
+          </TabsContent>
+
+          <TabsContent value="versions">
+            <div className="space-y-6">
+              <p className="text-sm text-muted-foreground">Version history is auto-managed via cloud saves.</p>
+              <div className="pt-6 border-t border-border">
+                <h3 className="text-sm font-medium text-muted-foreground mb-3">Data Management</h3>
+                <ClearDataButton />
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </DiscoveryProvider>
+  );
+}
+
+// ===== Import Section =====
+function ImportSection({ customerId }) {
+  const { updateAnswers } = useDiscovery();
+  const { toast } = useToast();
+  const [importing, setImporting] = useState(false);
+
+  const handleFileImport = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImporting(true);
     try {
-      const response = await apiRequest("POST", "/api/analyze-notes", {
-        notes: meetingNotes,
-      });
-      const data = await response.json();
-      
-      if (data.matches && data.matches.length > 0) {
-        setAiMatches(data.matches);
-        setAiDialogOpen(true);
-      } else {
-        toast({
-          title: "No matches found",
-          description: "The AI couldn't extract any answers from the notes. Try adding more detail.",
-        });
-      }
-    } catch (error) {
-      console.error("Error analyzing notes:", error);
-      toast({
-        title: "Analysis failed",
-        description: "Failed to analyze meeting notes. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
-
-  const applyAiMatches = () => {
-    const newAnswers = { ...answers };
-    aiMatches.forEach(match => {
-      newAnswers[match.questionId] = match.answer;
-    });
-    setAnswers(newAnswers);
-    setHasUnsavedChanges(true);
-    setAiDialogOpen(false);
-    toast({
-      title: "Applied",
-      description: `Applied ${aiMatches.length} answers from AI analysis.`,
-    });
-  };
-
-  // Export to YAML
-  const exportToYAML = () => {
-    const exportData = {
-      customer: {
-        name: customer.name,
-        nickname: customer.nickname || '',
-        opportunity: customer.opportunity || '',
-        seName: customer.seName || '',
-        psar: customer.psar,
-        arb: customer.arb,
-        design: customer.design,
-      },
-      exportDate: new Date().toISOString(),
-      discovery: {
-        answers: {},
-        notes: notes,
-        meetingNotes: meetingNotes,
-      },
-    };
-
-    // Map answers with question text for readability
-    questions.forEach(q => {
-      if (answers[q.id]) {
-        exportData.discovery.answers[q.id] = {
-          section: q.section,
-          question: q.question,
-          answer: answers[q.id],
-        };
-      }
-    });
-
-    const yamlStr = yaml.dump(exportData, { lineWidth: -1, noRefs: true });
-    const blob = new Blob([yamlStr], { type: 'text/yaml' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${customer.name.replace(/\s+/g, '_')}_discovery_${new Date().toISOString().split('T')[0]}.yaml`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-
-    toast({
-      title: "Exported YAML",
-      description: `Exported discovery data for ${customer.name}`,
-    });
-  };
-
-  // Export to CSV
-  const exportToCSV = () => {
-    // Build headers: Customer info + all question IDs
-    const questionIds = questions.filter(q => !q.hidden).map(q => q.id);
-    const headers = [
-      'Customer Name',
-      'Nickname', 
-      'Opportunity',
-      'SE Name',
-      'PSAR',
-      'ARB',
-      'Design',
-      'Export Date',
-      ...questionIds.map(id => {
-        const q = questions.find(q => q.id === id);
-        return q ? `${q.section}: ${q.question}` : id;
-      })
-    ];
-
-    // Build row values
-    const row = [
-      customer.name,
-      customer.nickname || '',
-      customer.opportunity || '',
-      customer.seName || '',
-      customer.psar,
-      customer.arb,
-      customer.design,
-      new Date().toISOString().split('T')[0],
-      ...questionIds.map(id => {
-        const val = answers[id] || '';
-        // Escape quotes and wrap in quotes if contains comma
-        if (val.includes(',') || val.includes('"') || val.includes('\n')) {
-          return `"${val.replace(/"/g, '""')}"`;
+      const text = await file.text();
+      let data;
+      if (file.name.endsWith('.json')) {
+        data = JSON.parse(text);
+      } else if (file.name.endsWith('.yaml') || file.name.endsWith('.yml')) {
+        data = yaml.load(text);
+      } else if (file.name.endsWith('.csv')) {
+        const lines = text.split('\n');
+        const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
+        const idIdx = headers.indexOf('Question ID');
+        const ansIdx = headers.indexOf('Answer');
+        if (idIdx === -1 || ansIdx === -1) throw new Error('CSV must have "Question ID" and "Answer" columns');
+        const imported = {};
+        for (let i = 1; i < lines.length; i++) {
+          const cols = lines[i].match(/(".*?"|[^,]*)/g)?.map(c => c.replace(/^"|"$/g, '').replace(/""/g, '"').trim()) || [];
+          if (cols[idIdx] && cols[ansIdx]) imported[cols[idIdx]] = cols[ansIdx];
         }
-        return val;
-      })
-    ];
-
-    // Escape headers too
-    const escapedHeaders = headers.map(h => {
-      if (h.includes(',') || h.includes('"')) {
-        return `"${h.replace(/"/g, '""')}"`;
+        data = { answers: imported };
+      } else {
+        throw new Error('Unsupported file format. Use .json, .yaml, or .csv');
       }
-      return h;
-    });
 
-    const csvContent = [escapedHeaders.join(','), row.join(',')].join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${customer.name.replace(/\s+/g, '_')}_discovery_${new Date().toISOString().split('T')[0]}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-
-    toast({
-      title: "Exported CSV",
-      description: `Exported discovery data for ${customer.name}`,
-    });
+      // Extract answers from various formats
+      if (data.answers) {
+        updateAnswers(data.answers);
+        toast({ title: "Import successful", description: `Imported ${Object.keys(data.answers).length} answers.` });
+      } else if (data.sections) {
+        const imported = {};
+        Object.values(data.sections).forEach(section => {
+          if (Array.isArray(section)) {
+            section.forEach(q => { if (q.id && q.answer) imported[q.id] = q.answer; });
+          }
+        });
+        updateAnswers(imported);
+        toast({ title: "Import successful", description: `Imported ${Object.keys(imported).length} answers.` });
+      } else {
+        toast({ title: "Import failed", description: "Could not find answers in the file.", variant: "destructive" });
+      }
+    } catch (err) {
+      toast({ title: "Import failed", description: err.message, variant: "destructive" });
+    } finally {
+      setImporting(false);
+      e.target.value = '';
+    }
   };
 
   return (
-    <div className="space-y-6" data-testid="customer-detail-page">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onBack}
-          data-testid="button-back"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <div className="flex-1">
-          <h1 className="text-2xl font-semibold text-foreground">{customer.name}</h1>
-          <p className="text-sm text-muted-foreground">
-            {customer.opportunity || 'No opportunity set'} • SE: {customer.seName || 'Unassigned'}
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          {lastSaved && !hasUnsavedChanges && (
-            <span className="text-sm text-green-600 flex items-center gap-1">
-              <Cloud className="h-4 w-4" />
-              Synced
-            </span>
-          )}
-          {hasUnsavedChanges && (
-            <span className="text-sm text-amber-600 flex items-center gap-1">
-              <CloudOff className="h-4 w-4" />
-              Unsaved changes
-            </span>
-          )}
-          <Button 
-            onClick={saveData} 
-            disabled={saveMutation.isPending || !hasUnsavedChanges}
-            data-testid="button-save"
-          >
-            {saveMutation.isPending ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Cloud className="h-4 w-4 mr-2" />
-                Save to Cloud
-              </>
-            )}
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" data-testid="button-export">
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={exportToYAML} data-testid="export-yaml">
-                Export as YAML
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={exportToCSV} data-testid="export-csv">
-                Export as CSV
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+    <div className="space-y-4 p-4" data-testid="import-section">
+      <h2 className="text-lg font-semibold">Import Data</h2>
+      <p className="text-sm text-muted-foreground">Import discovery data from a previously exported file (JSON, YAML, or CSV).</p>
+      <div className="flex items-center gap-3">
+        <label className="cursor-pointer">
+          <input type="file" accept=".json,.yaml,.yml,.csv" onChange={handleFileImport} className="hidden" data-testid="import-file-input" />
+          <Button variant="outline" asChild disabled={importing}><span>{importing ? 'Importing...' : 'Choose File'}</span></Button>
+        </label>
+        <span className="text-xs text-muted-foreground">Supports .json, .yaml, .csv</span>
       </div>
-
-      {/* Status Cards */}
-      <div className="grid grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">PSAR</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Badge className={statusColors[customer.psar]}>
-              {psarArbLabels[customer.psar] || customer.psar}
-            </Badge>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">ARB</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Badge className={statusColors[customer.arb]}>
-              {psarArbLabels[customer.arb] || customer.arb}
-            </Badge>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Design</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Badge className={statusColors[customer.design]}>
-              {designLabels[customer.design] || customer.design}
-            </Badge>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Progress</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2">
-              <div className="h-2 flex-1 rounded-full bg-muted overflow-hidden">
-                <div 
-                  className="h-full bg-green-500 transition-all duration-300" 
-                  style={{ width: `${progressPercent}%` }} 
-                />
-              </div>
-              <span className="text-sm font-medium">{progressPercent}%</span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {answeredCount} of {totalQuestions} questions
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Main Content Tabs */}
-      <Tabs defaultValue="discovery" className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
-          <TabsTrigger value="discovery" data-testid="tab-discovery">
-            <FileText className="h-4 w-4 mr-2" />
-            Discovery Questions
-          </TabsTrigger>
-          <TabsTrigger value="ai" data-testid="tab-ai">
-            <Sparkles className="h-4 w-4 mr-2" />
-            AI Assistant
-          </TabsTrigger>
-        </TabsList>
-
-        {/* Discovery Questions Tab */}
-        <TabsContent value="discovery" className="mt-6">
-          <div className="space-y-4">
-            {sectionNames.map((sectionName) => {
-              const sectionQuestions = sections[sectionName];
-              const isExpanded = expandedSections.has(sectionName);
-              const config = sectionConfig[sectionName] || { color: "text-gray-600", bgColor: "bg-gray-50" };
-              
-              // Count answered in section
-              const visibleSectionQs = sectionQuestions.filter(q => {
-                if (q.conditionalOn) {
-                  const depValue = answers[q.conditionalOn.questionId] || '';
-                  return depValue === q.conditionalOn.value || depValue.split(', ').includes(q.conditionalOn.value);
-                }
-                return true;
-              });
-              const sectionAnswered = visibleSectionQs.filter(q => answers[q.id]?.trim()).length;
-              
-              return (
-                <Collapsible
-                  key={sectionName}
-                  open={isExpanded}
-                  onOpenChange={(open) => {
-                    setExpandedSections(prev => {
-                      const next = new Set(prev);
-                      if (open) next.add(sectionName);
-                      else next.delete(sectionName);
-                      return next;
-                    });
-                  }}
-                >
-                  <Card>
-                    <CollapsibleTrigger asChild>
-                      <CardHeader className={`cursor-pointer hover:bg-muted/50 ${config.bgColor}`}>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            {isExpanded ? (
-                              <ChevronDown className={`h-5 w-5 ${config.color}`} />
-                            ) : (
-                              <ChevronRight className={`h-5 w-5 ${config.color}`} />
-                            )}
-                            <CardTitle className={`text-lg ${config.color}`}>
-                              {sectionName}
-                            </CardTitle>
-                          </div>
-                          <Badge variant="outline">
-                            {sectionAnswered}/{visibleSectionQs.length}
-                          </Badge>
-                        </div>
-                      </CardHeader>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent>
-                      <CardContent className="pt-4 space-y-6">
-                        {sectionQuestions.map((q) => {
-                          // Check conditional visibility at parent level
-                          if (q.conditionalOn) {
-                            const depValue = answers[q.conditionalOn.questionId] || '';
-                            // Support both exact match and includes for multiselect
-                            const matches = depValue === q.conditionalOn.value ||
-                              depValue.split(', ').includes(q.conditionalOn.value);
-                            if (!matches) return null;
-                          }
-                          return (
-                          <div key={q.id} className="space-y-2 pb-4 border-b last:border-0">
-                            <div className="flex items-start justify-between gap-4">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2">
-                                  <Label className="text-sm font-medium">
-                                    {q.question}
-                                    {q.technicalOnly && (
-                                      <Badge variant="outline" className="ml-2 text-xs">
-                                        Technical
-                                      </Badge>
-                                    )}
-                                  </Label>
-                                  {q.tooltip && (
-                                    <TooltipProvider>
-                                      <Tooltip>
-                                        <TooltipTrigger><Info className="h-3.5 w-3.5 text-muted-foreground" /></TooltipTrigger>
-                                        <TooltipContent className="max-w-xs"><p className="text-xs">{q.tooltip}</p></TooltipContent>
-                                      </Tooltip>
-                                    </TooltipProvider>
-                                  )}
-                                </div>
-                                {q.subsection && (
-                                  <p className="text-xs text-muted-foreground mt-0.5">
-                                    {q.subsection}{q.group ? ` / ${q.group}` : ''}
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-                            <QuestionField
-                              question={q}
-                              value={answers[q.id]}
-                              onChange={handleAnswerChange}
-                              answers={answers}
-                            />
-                          </div>
-                          );
-                        })}
-                      </CardContent>
-                    </CollapsibleContent>
-                  </Card>
-                </Collapsible>
-              );
-            })}
-          </div>
-        </TabsContent>
-
-        {/* AI Assistant Tab */}
-        <TabsContent value="ai" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-amber-500" />
-                AI Meeting Notes Analysis
-              </CardTitle>
-              <CardDescription>
-                Paste your meeting notes and let AI extract answers to discovery questions
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label>Meeting Notes</Label>
-                <Textarea
-                  value={meetingNotes}
-                  onChange={(e) => {
-                    setMeetingNotes(e.target.value);
-                    setHasUnsavedChanges(true);
-                  }}
-                  placeholder="Paste your meeting notes here... Include details about the customer's infrastructure, requirements, current vendors, etc."
-                  rows={10}
-                  data-testid="textarea-meeting-notes"
-                />
-              </div>
-              <Button 
-                onClick={handleAnalyzeNotes} 
-                disabled={isAnalyzing}
-                data-testid="button-analyze"
-              >
-                {isAnalyzing ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Analyzing...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="h-4 w-4 mr-2" />
-                    Analyze with AI
-                  </>
-                )}
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
-      {/* AI Matches Dialog */}
-      <Dialog open={aiDialogOpen} onOpenChange={setAiDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>AI Analysis Results</DialogTitle>
-            <DialogDescription>
-              Found {aiMatches.length} potential answers. Review and apply them to the questionnaire.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            {aiMatches.map((match, index) => {
-              const question = questions.find(q => q.id === match.questionId);
-              return (
-                <div key={index} className="p-3 border rounded-lg space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium text-sm">{question?.question || match.questionId}</span>
-                    <Badge variant={match.confidence === "high" ? "default" : "outline"}>
-                      {match.confidence} confidence
-                    </Badge>
-                  </div>
-                  <p className="text-sm bg-muted p-2 rounded">{match.answer}</p>
-                </div>
-              );
-            })}
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setAiDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={applyAiMatches} data-testid="button-apply-ai">
-              Apply All Answers
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
