@@ -47,7 +47,7 @@ function TargetSolutionToggles() {
   );
 }
 
-// ===== Knowledge Workers Inline =====
+// ===== Knowledge Workers Inline (Stacked Math Formula) =====
 function KnowledgeWorkersInline() {
   const { answers, setAnswer, defaultAnswers } = useDiscovery();
   const kw = answers['ud-1'] || '';
@@ -65,31 +65,41 @@ function KnowledgeWorkersInline() {
   }, [kwNum, multNum, knownIPsOverride, calculatedIPs, setAnswer]);
 
   return (
-    <div className="flex items-center gap-2 flex-wrap" data-testid="kw-inline">
-      <div className="flex items-center gap-1.5">
-        <span className="text-xs text-muted-foreground font-medium">KW</span>
-        <Input type="number" value={kw} onChange={e => setAnswer('ud-1', e.target.value)} className="w-20 h-7 text-sm" placeholder="0" data-testid="input-kw" />
+    <div className="flex items-center gap-4" data-testid="kw-inline">
+      {/* Stacked Math Formula */}
+      <div className="flex flex-col items-center gap-0.5 p-2 bg-muted/50 rounded-md border">
+        <div className="flex items-center gap-1">
+          <Input type="number" value={kw} onChange={e => setAnswer('ud-1', e.target.value)} className="w-20 h-6 text-sm text-center" placeholder="0" data-testid="input-kw" />
+          <span className="text-xs text-muted-foreground">KW</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <span className="text-muted-foreground text-xs">×</span>
+          <Input type="number" step="0.5" value={mult} onChange={e => setAnswer('ipam-multiplier', e.target.value)} className="w-14 h-6 text-sm text-center" data-testid="input-mult" />
+          <span className="text-xs text-muted-foreground">mult</span>
+        </div>
+        <div className="border-t border-border w-full my-0.5" />
+        <div className="flex items-center gap-1">
+          {knownIPsOverride ? (
+            <Input type="number" value={answers['ipam-1'] || ''} onChange={e => setAnswer('ipam-1', e.target.value)} className="w-20 h-6 text-sm text-center border-amber-400" data-testid="input-ips-override" />
+          ) : (
+            <span className="text-sm font-bold tabular-nums text-primary" data-testid="calculated-ips">{activeIPs.toLocaleString()}</span>
+          )}
+          <span className="text-xs text-muted-foreground">IPs</span>
+        </div>
       </div>
-      <span className="text-muted-foreground text-sm">×</span>
+      
+      {/* Known IPs Override with Tooltip */}
       <div className="flex items-center gap-1.5">
-        <span className="text-xs text-muted-foreground font-medium">Mult</span>
-        <Input type="number" step="0.5" value={mult} onChange={e => setAnswer('ipam-multiplier', e.target.value)} className="w-16 h-7 text-sm" data-testid="input-mult" />
-      </div>
-      <span className="text-muted-foreground text-sm">=</span>
-      <div className="flex items-center gap-1.5">
-        <span className="text-xs text-muted-foreground font-medium">IPs</span>
-        {knownIPsOverride ? (
-          <Input type="number" value={answers['ipam-1'] || ''} onChange={e => setAnswer('ipam-1', e.target.value)} className="w-24 h-7 text-sm border-amber-400" data-testid="input-ips-override" />
-        ) : (
-          <span className="text-sm font-semibold tabular-nums min-w-[60px]" data-testid="calculated-ips">{activeIPs.toLocaleString()}</span>
-        )}
-      </div>
-      <div className="flex items-center gap-1">
         <input type="checkbox" checked={knownIPsOverride} onChange={e => {
           setAnswer('ipam-1-override', e.target.checked ? 'true' : 'false');
           if (!e.target.checked) setAnswer('ipam-1', String(calculatedIPs));
-        }} className="h-3 w-3" data-testid="checkbox-known-ips" />
-        <span className="text-xs text-muted-foreground">Known IPs</span>
+        }} className="h-3.5 w-3.5" data-testid="checkbox-known-ips" id="known-ips-checkbox" />
+        <label htmlFor="known-ips-checkbox" className="text-xs text-muted-foreground cursor-pointer" title="Override calculated IPs with a known value. Use this when you have actual IP counts from the customer's existing infrastructure.">
+          Known IPs
+        </label>
+        <span className="text-muted-foreground cursor-help" title="Check this to manually enter the IP count instead of calculating from Knowledge Workers">
+          <Info className="h-3 w-3" />
+        </span>
       </div>
     </div>
   );
