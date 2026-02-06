@@ -11,6 +11,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,8 +24,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import { 
   Building2, MapPin, Server, Package, DollarSign, Cpu, HardDrive, Shield, BarChart3,
-  Plus, Trash2, Download, FileText, Info, AlertTriangle, Star, Settings2
+  Plus, Trash2, Download, FileText, Info, AlertTriangle, Star, Settings2, FileSpreadsheet
 } from "lucide-react";
+import { jsPDF } from "jspdf";
+import "jspdf-autotable";
+import * as XLSX from "xlsx";
 import { 
   getSiteRecommendedModel,
   getDefaultHardwareSku,
