@@ -15,6 +15,7 @@ import { discoveryQuestions } from "@/lib/questions";
 import { DiscoveryProvider, useDiscovery } from "@/contexts/DiscoveryContext";
 import { AssessmentQuestions } from "./AssessmentQuestions";
 import { MeetingNotesAI } from "./MeetingNotesAI";
+import { TokenCalculatorSummary } from "./sizing";
 import yaml from "js-yaml";
 
 // ===== Target Solution Toggles =====
