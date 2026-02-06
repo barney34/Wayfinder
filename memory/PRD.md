@@ -123,6 +123,16 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 - **Test IDs**: platform-alert-dialog, platform-alert-cancel, platform-alert-confirm
 - **Bug Fix**: Fixed HTML nesting issue using asChild prop on AlertDialogDescription
 
+### Phase 11 — PDF/Excel Export & Model Math Fix (Complete - Feb 6, 2026)
+- **Export Dropdown Menu**: Unified export button with 4 options (CSV, Excel, PDF, YAML)
+- **Excel Export (xlsx)**: Multi-sheet export with Site Sizing, Bill of Materials, Summary sheets
+- **PDF Export (jspdf)**: Formatted report with summary boxes, site sizing table, BOM table, token summary
+- **Model Math Fix**: GM/GMC roles now use object capacity (not QPS/LPS)
+- **Multi-role Penalty**: DNS/DHCP combined role applies 1.3x multiRoleCapacityMultiplier
+- **Single-role Sizing**: DNS uses QPS + objects, DHCP uses LPS + objects
+- **Bug Fix**: Fixed jspdf-autotable v5 import pattern (autoTable(doc, {...}) instead of doc.autoTable())
+- **Dependencies Added**: jspdf, jspdf-autotable, xlsx
+
 ## Pending / Backlog
 
 ### P2
