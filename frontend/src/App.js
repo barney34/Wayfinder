@@ -1,53 +1,61 @@
-import { useEffect } from "react";
 import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
+import { Router, Route, Switch } from "wouter";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
+import { Toaster } from "@/components/ui/toaster";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { AppSidebar } from "@/components/AppSidebar";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import Dashboard from "@/pages/Dashboard";
+import Customers from "@/pages/Customers";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
-
-const Home = () => {
-  const helloWorldApi = async () => {
-    try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
-    }
-  };
-
-  useEffect(() => {
-    helloWorldApi();
-  }, []);
-
+function NotFound() {
   return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
+    <div className="flex flex-col items-center justify-center h-[50vh]">
+      <h1 className="text-4xl font-bold text-foreground mb-4">404</h1>
+      <p className="text-muted-foreground">Page not found</p>
     </div>
   );
-};
+}
+
+function AppContent() {
+  return (
+    <div className="flex min-h-screen w-full">
+      <AppSidebar />
+      <div className="flex flex-col flex-1 md:ml-64">
+        <header className="flex items-center justify-between gap-4 border-b px-6 py-3 sticky top-0 bg-background z-30">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl font-bold text-green-600">infoblox</span>
+            <span className="text-muted-foreground">|</span>
+            <h2 className="text-lg font-semibold text-foreground">
+              Design Questionnaire
+            </h2>
+          </div>
+          <ThemeToggle />
+        </header>
+        <main className="flex-1 overflow-auto p-6">
+          <Switch>
+            <Route path="/" component={Dashboard} />
+            <Route path="/customers" component={Customers} />
+            <Route path="/customers/:id" component={Customers} />
+            <Route component={NotFound} />
+          </Switch>
+        </main>
+      </div>
+    </div>
+  );
+}
 
 function App() {
   return (
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Router>
+          <AppContent />
+        </Router>
+        <Toaster />
+      </TooltipProvider>
+    </QueryClientProvider>
   );
 }
 
