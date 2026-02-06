@@ -61,13 +61,19 @@ export function SiteConfiguration({ value, onChange, questionId }) {
   
   // Merge Quick Capture data with local configuration
   const mergedSites = useMemo(() => {
-    if (!localConfig.autoSync) {
-      return localConfig.sites;
+    const configSites = Array.isArray(localConfig?.sites) ? localConfig.sites : [];
+    
+    if (!localConfig?.autoSync) {
+      return configSites;
     }
     
+    // Ensure arrays are defined
+    const dcs = Array.isArray(dataCenters) ? dataCenters : [];
+    const ctxSites = Array.isArray(contextSites) ? contextSites : [];
+    
     // Start with Data Centers (they become GM/GMC candidates)
-    const dcSites = dataCenters.map((dc, index) => {
-      const existing = localConfig.sites.find(s => s.sourceId === dc.id);
+    const dcSites = dcs.map((dc, index) => {
+      const existing = configSites.find(s => s.sourceId === dc.id);
       const kw = dc.knowledgeWorkers || 0;
       const numIPs = Math.round(kw * ipMultiplier);
       
@@ -87,8 +93,8 @@ export function SiteConfiguration({ value, onChange, questionId }) {
     });
     
     // Add branch/remote sites from context
-    const branchSites = contextSites.map((site, index) => {
-      const existing = localConfig.sites.find(s => s.sourceId === site.id);
+    const branchSites = ctxSites.map((site, index) => {
+      const existing = configSites.find(s => s.sourceId === site.id);
       const kw = site.knowledgeWorkers || 0;
       const numIPs = Math.round(kw * ipMultiplier);
       
@@ -108,7 +114,7 @@ export function SiteConfiguration({ value, onChange, questionId }) {
     });
     
     // Add any manual sites
-    const manualSites = localConfig.sites.filter(s => !s.sourceType);
+    const manualSites = configSites.filter(s => !s.sourceType);
     
     return [...dcSites, ...branchSites, ...manualSites];
   }, [dataCenters, contextSites, localConfig, ipMultiplier, dhcpPercent, globalPlatform]);
