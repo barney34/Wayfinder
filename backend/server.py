@@ -379,6 +379,10 @@ async def save_discovery_data(customer_id: str, data: DiscoveryData):
         "meetingNotes": data.meetingNotes,
         "contextFields": data.contextFields,
         "enabledSections": data.enabledSections,
+        "udsMembers": data.udsMembers,
+        "leaseTimeUnits": data.leaseTimeUnits,
+        "dataCenters": data.dataCenters,
+        "sites": data.sites,
         "lastSaved": now,
     }
     
