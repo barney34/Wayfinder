@@ -76,9 +76,15 @@ export function SiteConfiguration({ value, onChange, questionId }) {
   
   // Direct calculation (not memoized for debugging)
   const mergedSites = (() => {
+    console.log('[SiteConfiguration] IIFE started');
+    
     const configSites = Array.isArray(localConfig?.sites) ? localConfig.sites : [];
     
+    console.log('[SiteConfiguration] localConfig:', localConfig);
+    console.log('[SiteConfiguration] autoSync:', localConfig?.autoSync);
+    
     if (!localConfig?.autoSync) {
+      console.log('[SiteConfiguration] Early return - autoSync is false');
       return configSites;
     }
     
