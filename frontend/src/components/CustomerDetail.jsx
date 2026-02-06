@@ -786,7 +786,13 @@ export function CustomerDetail({ customer, onBack }) {
                     </CollapsibleTrigger>
                     <CollapsibleContent>
                       <CardContent className="pt-4 space-y-6">
-                        {sectionQuestions.map((q) => (
+                        {sectionQuestions.map((q) => {
+                          // Check conditional visibility at parent level
+                          if (q.conditionalOn) {
+                            const depValue = answers[q.conditionalOn.questionId];
+                            if (depValue !== q.conditionalOn.value) return null;
+                          }
+                          return (
                           <div key={q.id} className="space-y-2 pb-4 border-b last:border-0">
                             <div className="flex items-start justify-between gap-4">
                               <div className="flex-1">
@@ -822,7 +828,8 @@ export function CustomerDetail({ customer, onBack }) {
                               answers={answers}
                             />
                           </div>
-                        ))}
+                          );
+                        })}
                       </CardContent>
                     </CollapsibleContent>
                   </Card>
