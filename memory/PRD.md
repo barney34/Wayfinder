@@ -59,6 +59,8 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL/Drizzle) 
 - [x] **Cloud sync** - Data saved to MongoDB via API (GET/PUT /api/customers/{id}/discovery)
 - [x] Synced/Unsaved indicators with cloud icons
 - [x] Auto-expand customer groups on Customers page
+- [x] **YAML Export** - Full discovery data with readable structure
+- [x] **CSV Export** - One row per customer with all questions as columns
 - [x] Theme toggle (light/dark)
 
 ## Prioritized Backlog
