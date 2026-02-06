@@ -250,7 +250,7 @@ export function TokenCalculatorSummary() {
     });
     
     return [...dcSites, ...branchSites, ...manualSites];
-  }, [dataCenterIds, contextSiteIds, dataCenters, contextSites, siteOverrides, manualSites, ipMultiplier, dhcpPercent, globalPlatform, leaseTimeSeconds]);
+  }, [dataCenterIds, contextSiteIds, dataCenters, contextSites, siteOverrides, manualSites, ipMultiplier, dhcpPercent, platformMode, leaseTimeSeconds]);
   
   // Calculate totals
   const totals = useMemo(() => {
