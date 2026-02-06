@@ -372,12 +372,14 @@ async def generate_context(request: GenerateContextRequest):
             "migration": "Outline the recommended migration path and implementation approach.",
         }.get(request.contextType, f"Generate a summary for {request.contextType}.")
         
+        notes_section = f"Additional Context Notes:\n{notes_text}" if notes_text else ""
+        
         prompt = f"""{prompt_instructions}
 
 Discovery Questions and Answers:
 {answers_text}
 
-{f"Additional Context Notes:\n{notes_text}" if notes_text else ""}
+{notes_section}
 
 Provide a concise, professional summary (2-4 paragraphs)."""
 
