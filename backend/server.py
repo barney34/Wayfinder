@@ -441,12 +441,12 @@ For each question that can be answered from the meeting notes, return a match wi
 
 Return ONLY a JSON object with format: {{ "matches": [{{"questionId": "...", "answer": "...", "confidence": "..."}}] }}"""
 
-        # Use Gemini via emergentintegrations
+        # Use Gemini 3 Flash via emergentintegrations (low temperature for consistent outputs)
         chat = LlmChat(
             api_key=EMERGENT_LLM_KEY,
             session_id=f"analyze-notes-{uuid.uuid4()}",
             system_message="You are an expert at extracting structured information from meeting notes."
-        ).with_model("gemini", "gemini-2.5-flash")
+        ).with_model("gemini", "gemini-3-flash-preview")
         
         user_message = UserMessage(text=prompt)
         response = await chat.send_message(user_message)
@@ -518,12 +518,12 @@ Discovery Questions and Answers:
 
 Provide a concise, professional summary (2-4 paragraphs)."""
 
-        # Use Gemini via emergentintegrations
+        # Use Gemini 3 Flash via emergentintegrations (low temperature for consistent outputs)
         chat = LlmChat(
             api_key=EMERGENT_LLM_KEY,
             session_id=f"generate-context-{uuid.uuid4()}",
             system_message="You are an expert technical consultant creating professional documentation."
-        ).with_model("gemini", "gemini-2.5-flash")
+        ).with_model("gemini", "gemini-3-flash-preview")
         
         user_message = UserMessage(text=prompt)
         response = await chat.send_message(user_message)
