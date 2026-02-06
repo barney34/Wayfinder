@@ -134,36 +134,64 @@ export function TokenCalculatorSummary() {
     dataCenters = [], sites: contextSites = [], answers = {}, setAnswer 
   } = useDiscovery();
   
-  // Track manual site overrides
+  // Platform mode state (NIOS/UDDI/Hybrid)
+  const [platformMode, setPlatformMode] = useState('NIOS');
   const [siteOverrides, setSiteOverrides] = useState({});
   const [manualSites, setManualSites] = useState([]);
   const lastSavedRef = useRef(null);
   
+  // Recommended platform based on DC/Site counts
+  const recommendedMode = useMemo(() => 
+    getRecommendedPlatformMode(dataCenters.length, contextSites.length), 
+    [dataCenters.length, contextSites.length]
+  );
+  
   // Global settings
-  const globalPlatform = answers['ud-platform'] || 'NIOS (Physical/Virtual)';
   const dhcpPercent = parseInt(answers['dhcp-0-pct']) || 80;
   const leaseTimeSeconds = parseInt(answers['dhcp-3']) || 86400;
   const ipMultiplier = parseFloat(answers['ipam-multiplier']) || 2.5;
   const securityEnabled = answers['feature-security'] === 'Yes';
   const uddiEnabled = answers['feature-uddi'] === 'Yes';
   
+  // Get role options based on platform mode
+  const roleOptions = ROLE_OPTIONS_BY_MODE[platformMode] || ROLE_OPTIONS_BY_MODE.NIOS;
+  const platformOptions = PLATFORM_OPTIONS_BY_MODE[platformMode] || PLATFORM_OPTIONS_BY_MODE.NIOS;
+  
   // Create stable IDs for memoization
   const dataCenterIds = useMemo(() => dataCenters.map(dc => dc.id).join(','), [dataCenters]);
   const contextSiteIds = useMemo(() => contextSites.map(s => s.id).join(','), [contextSites]);
   
   // Build sites from Quick Capture + manual
+  // Note: For NIOS/Hybrid, GM and GMC use KW directly (not IPs)
   const sites = useMemo(() => {
     const dcSites = dataCenters.map((dc, index) => {
       const key = `dc-${dc.id}`;
       const override = siteOverrides[key] || {};
       const kw = dc.knowledgeWorkers || 0;
       const baseIPs = Math.round(kw * ipMultiplier);
-      const numIPs = override.numIPs !== undefined ? override.numIPs : baseIPs;
-      const role = override.role || (index === 0 ? 'GM' : 'GMC');
-      const platform = override.platform || 'NIOS';
+      
+      // Determine default role based on platform mode
+      let defaultRole = 'DNS/DHCP';
+      if (platformMode !== 'UDDI') {
+        defaultRole = index === 0 ? 'GM' : 'GMC';
+      }
+      
+      const role = override.role || defaultRole;
+      
+      // Default platform based on mode
+      let defaultPlatform = 'NIOS';
+      if (platformMode === 'UDDI') defaultPlatform = 'NXVS';
+      const platform = override.platform || defaultPlatform;
+      
+      // For GM/GMC in NIOS/Hybrid, IPs = KW (grid objects)
+      const isGridRole = role === 'GM' || role === 'GMC';
+      const numIPs = override.numIPs !== undefined 
+        ? override.numIPs 
+        : (isGridRole && platformMode !== 'UDDI' ? kw : baseIPs);
+      
       const dhcp = override.dhcpPercent ?? dhcpPercent;
       
-      const recommendedModel = getSiteRecommendedModel(numIPs, role, globalPlatform, dhcp, leaseTimeSeconds, platform);
+      const recommendedModel = getSiteRecommendedModel(numIPs, role, platformMode, dhcp, leaseTimeSeconds, platform);
       const hardwareOptions = getHardwareSkuOptions(recommendedModel);
       const defaultHardware = getDefaultHardwareSku(recommendedModel);
       
