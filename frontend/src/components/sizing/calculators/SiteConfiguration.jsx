@@ -39,118 +39,71 @@ const ROLE_OPTIONS = [
  * Integrates with Quick Capture bar data to automatically populate and size sites
  */
 export function SiteConfiguration({ value, onChange, questionId }) {
-  const { dataCenters = [], sites: contextSites = [], answers = {}, isHydrated } = useDiscovery();
+  const { dataCenters = [], sites: contextSites = [], answers = {} } = useDiscovery();
   
-  // Debug log to understand data state
-  console.log('[SiteConfiguration] Context data:', {
-    dataCentersCount: dataCenters.length,
-    contextSitesCount: contextSites.length,
-    isHydrated,
-    dataCenters: dataCenters.map(dc => ({ id: dc.id, name: dc.name, kw: dc.knowledgeWorkers })),
-  });
+  // Track the last onChange value to prevent loops
+  const lastOnChangeRef = useRef(null);
   
   // Parse local site configuration (for manual additions or overrides)
-  const [localConfig, setLocalConfig] = useState(() => {
-    try {
-      return value ? JSON.parse(value) : { sites: [], autoSync: true };
-    } catch {
-      return { sites: [], autoSync: true };
-    }
-  });
-
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [manualSites, setManualSites] = useState([]);
+  const [siteOverrides, setSiteOverrides] = useState({});
   
   // Global settings
   const globalPlatform = answers['ud-platform'] || 'NIOS (Physical/Virtual)';
   const dhcpPercent = parseInt(answers['dhcp-0-pct']) || 80;
   const leaseTimeSeconds = parseInt(answers['dhcp-3']) || 86400;
-  const knowledgeWorkers = parseInt(answers['ud-1']) || 0;
   const ipMultiplier = parseFloat(answers['ipam-multiplier']) || 2.5;
   
-  // Merge Quick Capture data with local configuration
-  // Force recalculation when data centers or sites change
-  const dataCenterIds = dataCenters.map(dc => dc.id).join(',');
-  const contextSiteIds = contextSites.map(s => s.id).join(',');
+  // Create stable IDs for memoization
+  const dataCenterIds = useMemo(() => dataCenters.map(dc => dc.id).join(','), [dataCenters]);
+  const contextSiteIds = useMemo(() => contextSites.map(s => s.id).join(','), [contextSites]);
   
-  console.log('[SiteConfiguration] Pre-memo IDs:', { dataCenterIds, contextSiteIds });
-  
-  // Direct calculation (not memoized for debugging)
-  const autoSync = localConfig?.autoSync !== false; // Default to true if not explicitly false
-  
-  const mergedSites = (() => {
-    console.log('[SiteConfiguration] IIFE started');
-    
-    const configSites = Array.isArray(localConfig?.sites) ? localConfig.sites : [];
-    
-    console.log('[SiteConfiguration] autoSync:', autoSync);
-    
-    if (!autoSync) {
-      console.log('[SiteConfiguration] Early return - autoSync is false');
-      return configSites;
-    }
-    
-    // Ensure arrays are defined
-    const dcs = dataCenters || [];
-    const ctxSites = contextSites || [];
-    
-    console.log('[SiteConfiguration] Merging:', { 
-      dcsLength: dcs.length, 
-      ctxSitesLength: ctxSites.length,
-      configSitesLength: configSites.length,
-      dcIds: dataCenterIds,
-      siteIds: contextSiteIds,
-    });
-    
+  // Merge Quick Capture data with manual sites and overrides
+  const mergedSites = useMemo(() => {
     // Start with Data Centers (they become GM/GMC candidates)
-    const dcSites = dcs.map((dc, index) => {
-      const existing = configSites.find(s => s.sourceId === dc.id);
+    const dcSites = dataCenters.map((dc, index) => {
+      const override = siteOverrides[`dc-${dc.id}`] || {};
       const kw = dc.knowledgeWorkers || 0;
-      const numIPs = Math.round(kw * ipMultiplier);
+      const numIPs = override.numIPsOverride ? override.numIPs : Math.round(kw * ipMultiplier);
       
       return {
-        id: existing?.id || `dc-site-${dc.id}`,
+        id: `dc-site-${dc.id}`,
         sourceId: dc.id,
         sourceType: 'dataCenter',
-        name: dc.name || `Data Center ${index + 1}`,
-        numIPs: existing?.numIPsOverride ? existing.numIPs : numIPs,
-        numIPsOverride: existing?.numIPsOverride || false,
-        role: existing?.role || (index === 0 ? 'GM' : 'GMC'),
-        platform: existing?.platform || 'NIOS',
-        dhcpPercent: existing?.dhcpPercent ?? dhcpPercent,
-        hardwareSku: existing?.hardwareSku || '',
+        name: override.name || dc.name || `Data Center ${index + 1}`,
+        numIPs,
+        numIPsOverride: override.numIPsOverride || false,
+        role: override.role || (index === 0 ? 'GM' : 'GMC'),
+        platform: override.platform || 'NIOS',
+        dhcpPercent: override.dhcpPercent ?? dhcpPercent,
+        hardwareSku: override.hardwareSku || '',
         knowledgeWorkers: kw,
       };
     });
     
     // Add branch/remote sites from context
-    const branchSites = ctxSites.map((site, index) => {
-      const existing = configSites.find(s => s.sourceId === site.id);
+    const branchSites = contextSites.map((site, index) => {
+      const override = siteOverrides[`site-${site.id}`] || {};
       const kw = site.knowledgeWorkers || 0;
-      const numIPs = Math.round(kw * ipMultiplier);
+      const numIPs = override.numIPsOverride ? override.numIPs : Math.round(kw * ipMultiplier);
       
       return {
-        id: existing?.id || `branch-site-${site.id}`,
+        id: `branch-site-${site.id}`,
         sourceId: site.id,
         sourceType: 'site',
-        name: site.name || `Site ${index + 1}`,
-        numIPs: existing?.numIPsOverride ? existing.numIPs : numIPs,
-        numIPsOverride: existing?.numIPsOverride || false,
-        role: existing?.role || 'DNS/DHCP',
-        platform: existing?.platform || (globalPlatform.includes('UDDI') ? 'NX' : 'NIOS'),
-        dhcpPercent: existing?.dhcpPercent ?? dhcpPercent,
-        hardwareSku: existing?.hardwareSku || '',
+        name: override.name || site.name || `Site ${index + 1}`,
+        numIPs,
+        numIPsOverride: override.numIPsOverride || false,
+        role: override.role || 'DNS/DHCP',
+        platform: override.platform || (globalPlatform.includes('UDDI') ? 'NX' : 'NIOS'),
+        dhcpPercent: override.dhcpPercent ?? dhcpPercent,
+        hardwareSku: override.hardwareSku || '',
         knowledgeWorkers: kw,
       };
     });
     
-    // Add any manual sites
-    const manualSites = configSites.filter(s => !s.sourceType);
-    
-    const result = [...dcSites, ...branchSites, ...manualSites];
-    console.log('[SiteConfiguration] Merged result:', result.length, 'sites');
-    
-    return result;
-  })();
+    return [...dcSites, ...branchSites, ...manualSites];
+  }, [dataCenterIds, contextSiteIds, dataCenters, contextSites, siteOverrides, manualSites, ipMultiplier, dhcpPercent, globalPlatform]);
 
   // Calculate recommended models for each site
   const sitesWithRecommendations = useMemo(() => {
@@ -190,9 +143,9 @@ export function SiteConfiguration({ value, onChange, questionId }) {
     return { totalIPs, totalKW, gmCount, gmcCount, memberCount };
   }, [sitesWithRecommendations]);
 
-  // Persist changes
+  // Persist changes - only when sites change and value is different
   useEffect(() => {
-    const config = {
+    const configStr = JSON.stringify({
       sites: sitesWithRecommendations.map(s => ({
         id: s.id,
         sourceId: s.sourceId,
@@ -207,48 +160,48 @@ export function SiteConfiguration({ value, onChange, questionId }) {
         knowledgeWorkers: s.knowledgeWorkers,
         recommendedModel: s.recommendedModel,
       })),
-      autoSync: localConfig.autoSync,
-    };
-    onChange(JSON.stringify(config));
-  }, [sitesWithRecommendations, localConfig.autoSync]);
+      autoSync: true,
+    });
+    
+    // Only call onChange if the value actually changed
+    if (configStr !== lastOnChangeRef.current) {
+      lastOnChangeRef.current = configStr;
+      onChange(configStr);
+    }
+  }, [sitesWithRecommendations, onChange]);
 
   // Update a site's configuration
-  const handleSiteUpdate = (siteId, field, value) => {
-    setLocalConfig(prev => {
-      const existingIdx = prev.sites.findIndex(s => s.id === siteId);
-      let updatedSites;
-      
-      if (existingIdx >= 0) {
-        updatedSites = prev.sites.map(s => 
-          s.id === siteId ? { ...s, [field]: value } : s
-        );
-      } else {
-        // Find the site from merged list and add to local config
-        const siteToCopy = mergedSites.find(s => s.id === siteId);
-        if (siteToCopy) {
-          updatedSites = [...prev.sites, { ...siteToCopy, [field]: value }];
-        } else {
-          return prev;
+  const handleSiteUpdate = useCallback((siteId, field, fieldValue) => {
+    // Determine if this is a synced site or manual site
+    const site = sitesWithRecommendations.find(s => s.id === siteId);
+    if (!site) return;
+    
+    if (site.sourceType) {
+      // This is a synced site from Quick Capture - use overrides
+      const key = site.sourceType === 'dataCenter' ? `dc-${site.sourceId}` : `site-${site.sourceId}`;
+      setSiteOverrides(prev => ({
+        ...prev,
+        [key]: {
+          ...prev[key],
+          [field]: fieldValue,
+          ...(field === 'numIPs' ? { numIPsOverride: true } : {}),
         }
-      }
-      
-      // Handle IP override toggle
-      if (field === 'numIPsOverride' && value === true) {
-        const siteIdx = updatedSites.findIndex(s => s.id === siteId);
-        if (siteIdx >= 0) {
-          updatedSites[siteIdx].numIPsOverride = true;
-        }
-      }
-      
-      return { ...prev, sites: updatedSites };
-    });
-  };
+      }));
+    } else {
+      // This is a manual site - update directly
+      setManualSites(prev => prev.map(s => 
+        s.id === siteId 
+          ? { ...s, [field]: fieldValue, ...(field === 'numIPs' ? { numIPsOverride: true } : {}) }
+          : s
+      ));
+    }
+  }, [sitesWithRecommendations]);
 
   // Add a manual site
-  const handleAddManualSite = () => {
+  const handleAddManualSite = useCallback(() => {
     const newSite = {
       id: `manual-${Date.now()}`,
-      name: `Manual Site ${localConfig.sites.filter(s => !s.sourceType).length + 1}`,
+      name: `Manual Site ${manualSites.length + 1}`,
       numIPs: 1000,
       numIPsOverride: true,
       role: 'DNS/DHCP',
@@ -257,20 +210,13 @@ export function SiteConfiguration({ value, onChange, questionId }) {
       hardwareSku: '',
       knowledgeWorkers: 0,
     };
-    
-    setLocalConfig(prev => ({
-      ...prev,
-      sites: [...prev.sites, newSite],
-    }));
-  };
+    setManualSites(prev => [...prev, newSite]);
+  }, [manualSites.length, globalPlatform, dhcpPercent]);
 
   // Remove a manual site
-  const handleRemoveSite = (siteId) => {
-    setLocalConfig(prev => ({
-      ...prev,
-      sites: prev.sites.filter(s => s.id !== siteId),
-    }));
-  };
+  const handleRemoveSite = useCallback((siteId) => {
+    setManualSites(prev => prev.filter(s => s.id !== siteId));
+  }, []);
 
   // Get icon for source type
   const getSourceIcon = (site) => {
