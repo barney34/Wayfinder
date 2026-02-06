@@ -87,17 +87,21 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 - Add/Duplicate/Delete member functionality
 - Locations dropdown reads from Quick Capture (DCs + Sites)
 
-## Pending / Backlog
+### Phase 7 — Missing Features Fix (Complete - Feb 6, 2026)
+- **Editable Site Sizing**: ALL fields now editable (name, IPs, role, platform, hardware SKU)
+- **CSV/YAML Export**: Download buttons for site-sizing-export.csv and .yaml
+- **Dossier Free Upsize**: Green card shows when within 2 units of next tier with token savings math
+- **Dossier Tier Display**: Shows current tier badge (Starter→Unlimited) with QPD/tokens math
+- **Floating Save Button**: Fixed bottom-right, appears when isDirty with "Unsaved changes" indicator
+- **Add Site Button**: Creates manual sites with defaults in Token Calculator Summary
 
-### P1 (Next Up)
-- ARB-Required question tagging
+## Pending / Backlog
 
 ### P2
 - AI Discovery Assistant (industry-specific follow-up questions)
 - Backend route refactoring (split server.py into routes/models)
 - Fix nested button warning in AccordionTrigger with Switch component
-- Floating Save Button enhancement
-- Export to PDF/Excel feature
+- Fix unique key warning in UDSMembersTable TableBody
 
 ## Test Reports
 - iteration_5.json: Post-migration (91 questions, 12 sections)
@@ -105,3 +109,4 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 - iteration_7.json: SiteConfiguration bug fix verification (100% pass rate)
 - iteration_8.json: TokenCalculatorSummary feature verification (100% pass rate)
 - iteration_9.json: UDSMembersTable feature verification (100% pass rate)
+- iteration_10.json: Missing features fix verification (100% pass rate)
