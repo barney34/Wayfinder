@@ -790,17 +790,27 @@ export function CustomerDetail({ customer, onBack }) {
                           <div key={q.id} className="space-y-2 pb-4 border-b last:border-0">
                             <div className="flex items-start justify-between gap-4">
                               <div className="flex-1">
-                                <Label className="text-sm font-medium">
-                                  {q.question}
-                                  {q.technicalOnly && (
-                                    <Badge variant="outline" className="ml-2 text-xs">
-                                      Technical
-                                    </Badge>
+                                <div className="flex items-center gap-2">
+                                  <Label className="text-sm font-medium">
+                                    {q.question}
+                                    {q.technicalOnly && (
+                                      <Badge variant="outline" className="ml-2 text-xs">
+                                        Technical
+                                      </Badge>
+                                    )}
+                                  </Label>
+                                  {q.tooltip && (
+                                    <TooltipProvider>
+                                      <Tooltip>
+                                        <TooltipTrigger><Info className="h-3.5 w-3.5 text-muted-foreground" /></TooltipTrigger>
+                                        <TooltipContent className="max-w-xs"><p className="text-xs">{q.tooltip}</p></TooltipContent>
+                                      </Tooltip>
+                                    </TooltipProvider>
                                   )}
-                                </Label>
+                                </div>
                                 {q.subsection && (
                                   <p className="text-xs text-muted-foreground mt-0.5">
-                                    {q.subsection}
+                                    {q.subsection}{q.group ? ` / ${q.group}` : ''}
                                   </p>
                                 )}
                               </div>
