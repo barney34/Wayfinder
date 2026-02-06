@@ -39,7 +39,7 @@ const ROLE_OPTIONS = [
  * Integrates with Quick Capture bar data to automatically populate and size sites
  */
 export function SiteConfiguration({ value, onChange, questionId }) {
-  const { dataCenters = [], sites: contextSites = [], answers = {} } = useDiscovery();
+  const { dataCenters = [], sites: contextSites = [], answers = {}, isHydrated } = useDiscovery();
   
   // Parse local site configuration (for manual additions or overrides)
   const [localConfig, setLocalConfig] = useState(() => {
