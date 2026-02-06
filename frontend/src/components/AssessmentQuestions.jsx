@@ -272,7 +272,7 @@ export function AssessmentQuestions({ questions, onAnswerChange }) {
       case 'tokenTotal':
         return <TokenTotalDisplay answers={answers} />;
       default:
-        return question.question?.length > 80
+        return q.question?.length > 80
           ? <Textarea value={currentValue} onChange={e => handleAnswerChange(q.id, e.target.value)} placeholder="Enter your answer..." rows={3} data-testid={`textarea-answer-${q.id}`} />
           : <Input value={currentValue} onChange={e => handleAnswerChange(q.id, e.target.value)} placeholder="Enter your answer..." data-testid={`input-answer-${q.id}`} />;
     }
