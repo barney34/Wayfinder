@@ -507,42 +507,44 @@ export function TokenCalculatorSummary() {
               <AlertTriangle className="h-5 w-5 text-amber-500" />
               Non-Recommended Platform Selected
             </AlertDialogTitle>
-            <AlertDialogDescription className="space-y-3">
-              <p>
-                You are switching from <strong>{recommendedMode}</strong> (recommended) to <strong>{pendingPlatformChange}</strong>.
-              </p>
-              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 text-sm">
-                <p className="font-medium text-amber-800 dark:text-amber-200 mb-1">Why is {recommendedMode} recommended?</p>
-                <p className="text-amber-700 dark:text-amber-300">
-                  Based on your configuration of <strong>{dataCenters.length} Data Centers</strong> and <strong>{contextSites.length} Sites</strong>:
+            <AlertDialogDescription asChild>
+              <div className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  You are switching from <strong>{recommendedMode}</strong> (recommended) to <strong>{pendingPlatformChange}</strong>.
                 </p>
-                <ul className="list-disc list-inside mt-2 text-amber-700 dark:text-amber-300 space-y-1">
-                  {recommendedMode === 'NIOS' && (
-                    <>
-                      <li>NIOS is ideal for smaller deployments (&lt;50 sites)</li>
-                      <li>Provides traditional Grid Master/GMC architecture</li>
-                      <li>Best for on-premises infrastructure</li>
-                    </>
-                  )}
-                  {recommendedMode === 'UDDI' && (
-                    <>
-                      <li>UDDI is optimized for large distributed deployments (&gt;50 sites)</li>
-                      <li>Cloud-native architecture with NIOS-X</li>
-                      <li>Simplified management without Grid Master</li>
-                    </>
-                  )}
-                  {recommendedMode === 'Hybrid' && (
-                    <>
-                      <li>Hybrid is recommended for multi-DC environments with 10+ sites</li>
-                      <li>Combines on-premises Grid with cloud scalability</li>
-                      <li>Flexible deployment options per site</li>
-                    </>
-                  )}
-                </ul>
+                <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 text-sm">
+                  <p className="font-medium text-amber-800 dark:text-amber-200 mb-1">Why is {recommendedMode} recommended?</p>
+                  <p className="text-amber-700 dark:text-amber-300">
+                    Based on your configuration of <strong>{dataCenters.length} Data Centers</strong> and <strong>{contextSites.length} Sites</strong>:
+                  </p>
+                  <ul className="list-disc list-inside mt-2 text-amber-700 dark:text-amber-300 space-y-1">
+                    {recommendedMode === 'NIOS' && (
+                      <>
+                        <li>NIOS is ideal for smaller deployments (&lt;50 sites)</li>
+                        <li>Provides traditional Grid Master/GMC architecture</li>
+                        <li>Best for on-premises infrastructure</li>
+                      </>
+                    )}
+                    {recommendedMode === 'UDDI' && (
+                      <>
+                        <li>UDDI is optimized for large distributed deployments (&gt;50 sites)</li>
+                        <li>Cloud-native architecture with NIOS-X</li>
+                        <li>Simplified management without Grid Master</li>
+                      </>
+                    )}
+                    {recommendedMode === 'Hybrid' && (
+                      <>
+                        <li>Hybrid is recommended for multi-DC environments with 10+ sites</li>
+                        <li>Combines on-premises Grid with cloud scalability</li>
+                        <li>Flexible deployment options per site</li>
+                      </>
+                    )}
+                  </ul>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Switching platforms will reset role assignments and may affect your sizing calculations.
+                </p>
               </div>
-              <p className="text-sm">
-                Switching platforms will reset role assignments and may affect your sizing calculations.
-              </p>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
