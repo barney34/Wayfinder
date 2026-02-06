@@ -1,116 +1,77 @@
 # DiscoveryTrackAI - Product Requirements Document
 
 ## Original Problem Statement
-Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL/Drizzle) to Emergent Platform (React/FastAPI/MongoDB) with Gemini AI integration.
-
-## Project Overview
-**Infoblox Customer Discovery & Technical Assessment System** - A tool for Sales Engineers to manage customer profiles, track discovery phases (PSAR, ARB, Design), and leverage AI for meeting notes analysis.
+Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emergent platform (React/FastAPI/MongoDB). The application is an Infoblox customer discovery and technical assessment questionnaire tool with AI-powered analysis.
 
 ## Tech Stack
-- **Frontend**: React.js + Tailwind CSS + shadcn/ui components
-- **Backend**: FastAPI (Python)
+- **Frontend**: React (JSX), Tailwind CSS, TanStack Query, wouter, Shadcn/UI
+- **Backend**: Python FastAPI, Pydantic, Motor (async MongoDB)
 - **Database**: MongoDB
-- **AI**: Google Gemini 2.5 Flash via Emergent LLM Key
+- **AI**: Google Gemini via emergentintegrations library
 
-## User Personas
-1. **Sales Engineers (SE)** - Primary users managing customer discovery
-2. **Technical Architects** - Review and validate customer requirements
-3. **Project Managers** - Track progress across customer engagements
+## Core Architecture
+```
+/app/
+├── backend/
+│   ├── server.py          # All API endpoints, DB models, questions data
+│   └── tests/             # Pytest tests
+├── frontend/src/
+│   ├── App.js             # Router (wouter)
+│   ├── components/
+│   │   ├── CustomerDetail.jsx  # Core questionnaire UI (~950 lines)
+│   │   ├── sizing/             # Token Calculator module
+│   │   │   ├── calculators/    # TD NIOS, Dossier, Lookalike, etc.
+│   │   │   ├── constants.js
+│   │   │   ├── parsers.js
+│   │   │   └── calculations.js
+│   │   └── ThemeToggle.jsx
+│   ├── lib/
+│   │   ├── tokenData.js        # Token models, server guardrails
+│   │   └── queryClient.js
+│   └── pages/
+│       └── Customers.jsx
+└── memory/
+    └── PRD.md
+```
 
-## Core Requirements (Static)
-- Customer management (CRUD operations)
-- PSAR/ARB/Design phase tracking with status badges
-- Discovery questionnaire system
-- AI-powered meeting notes analysis
-- Export/Import customer data
-- Multi-SE support with grouped views
+## DB Schema
+- **customers**: `{ id, name, nickname, opportunity, seName, status, psar, arb, design, createdAt, updatedAt }`
+- **discovery_data**: `{ customerId, answers, notes, meetingNotes, contextFields, enabledSections, lastSaved }`
 
-## What's Been Implemented
+## What's Implemented (as of Feb 6, 2026)
 
-### Session 1 - Feb 6, 2026
-- [x] Backend migration to FastAPI + MongoDB
-- [x] Customer CRUD API endpoints (/api/customers)
-- [x] Discovery questions API (/api/questions)
-- [x] AI endpoints (/api/analyze-notes, /api/generate-context)
-- [x] Frontend migration with React + Tailwind
-- [x] Dashboard with customer table and completion progress
-- [x] Customers page with SE grouping
-- [x] Status badges (PSAR/ARB/Design) with click-to-advance
-- [x] Search functionality
-- [x] Clone customer functionality
-- [x] Delete customer with confirmation
-- [x] Export customer data as JSON
-- [x] **Full Discovery Questionnaire UI** with all sections:
-  - Users - Devices - Sites
-  - Sizing Data
-  - IPAM (14 questions)
-  - Internal DNS
-  - External DNS
-  - DHCP
-  - Services
-  - Microsoft Management
-  - Asset/Network Insight
-  - Security
-  - Professional Services
-- [x] Multiple field types: multiselect, yesno, select, number, leaseTime
-- [x] Conditional questions (show/hide based on other answers)
-- [x] Section-based progress tracking
-- [x] AI Meeting Notes Analysis tab
-- [x] **Cloud sync** - Data saved to MongoDB via API (GET/PUT /api/customers/{id}/discovery)
-- [x] Synced/Unsaved indicators with cloud icons
-- [x] Auto-expand customer groups on Customers page
-- [x] **YAML Export** - Full discovery data with readable structure
-- [x] **CSV Export** - One row per customer with all questions as columns
-- [x] Theme toggle (light/dark)
+### Phase 1 — Base Migration (Complete)
+- FastAPI backend with MongoDB
+- Customer CRUD (create, read, update, delete)
+- Dashboard with customer list, grouped by SE
+- Basic questionnaire with ~48 questions
+- YAML & CSV export
+- Cloud sync (save/load to MongoDB)
+- Gemini AI integration (meeting notes analysis)
+- Dark mode toggle
 
-## Prioritized Backlog
+### Phase 2 — Full Migration (Complete - Feb 6, 2026)
+- **91 questions** across **12 sections**: Users-Devices-Sites, Sizing Data, IPAM, UDDI, Internal DNS, External DNS, DHCP, Services, Microsoft Management, Asset/Network Insight, Security, Professional Services
+- **Token Calculator** (Security section): TD Cloud, TD for NIOS, Reporting, Dossier, Lookalike Monitoring, Domain Takedown, SOC Insights, Summary Token Count
+- **Site Configuration** tool: add/remove sites with IPs, roles, platforms, DHCP%
+- **UDDI Estimator**: knowledge workers, devices per user, mode, server selections, calculated values
+- **Conditional question visibility**: supports yesno and multiselect conditions
+- **Tooltips** on questions with technical notes
+- **Group/subsection labels** on questions
+- Progress tracking counts only visible (non-hidden-conditional) questions
 
-### P0 - Critical (Completed ✅)
-- [x] Full discovery questionnaire form with all sections (IPAM, DNS, DHCP, Security, etc.)
-- [x] AI meeting notes analysis UI integration
+## Pending / Backlog
 
-### P1 - High Priority
-- [ ] AI Analyze button functional test (needs real meeting notes test)
-- [ ] Context summary generation UI
-- [ ] Site configuration tool
-- [ ] Token calculator for security configurations
-- [ ] ARB-required question tagging and validation gates
+### P1 — Feature Enhancements
+- ARB-Required question tagging with validation gates
+- Real-world testing of AI Meeting Notes Analysis (Gemini)
+- Advanced import/export (revision history, named saves, data import)
 
-### P2 - Medium Priority
-- [ ] Import customer data from JSON
-- [ ] Grid sizing tool
-- [ ] Industry-based AI question suggestions
-- [ ] Print-friendly reports
+### P2 — Polish & Extras
+- AI Discovery Assistant (industry-specific follow-up questions)
+- Comprehensive E2E test suite
+- Backend route refactoring (split server.py into modules)
 
-### P3 - Nice to Have
-- [ ] Real-time collaboration
-- [ ] Email notifications
-- [ ] CRM integration
-- [ ] Dashboard analytics charts
-
-## API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | /api/health | Health check |
-| GET | /api/customers | List all customers |
-| GET | /api/customers/:id | Get customer by ID |
-| POST | /api/customers | Create customer |
-| PATCH | /api/customers/:id | Update customer |
-| DELETE | /api/customers/:id | Delete customer |
-| GET | /api/questions | Get discovery questions |
-| POST | /api/analyze-notes | AI analyze meeting notes |
-| POST | /api/generate-context | AI generate context summary |
-
-## Next Tasks
-1. Build full discovery questionnaire UI with all sections
-2. Integrate AI analysis into customer detail page
-3. Add context summary generation to discovery flow
-4. Fix dark mode CSS variables
-5. Implement data persistence for questionnaire answers
-
-## Environment Variables
-- `MONGO_URL` - MongoDB connection string
-- `DB_NAME` - Database name (discovery_track_ai)
-- `EMERGENT_LLM_KEY` - Universal key for Gemini AI
-- `REACT_APP_BACKEND_URL` - Backend API URL
+## Test Reports
+- iteration_1-4.json: Pre-migration tests (YAML/CSV export, CRUD)
+- iteration_5.json: Full migration validation (100% pass - 91 questions, 12 sections, Token Calculator, conditionals, dark mode)
