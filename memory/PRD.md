@@ -114,10 +114,16 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 - **Visual Feedback**: Selected services shown in button, total overhead displayed in popover
 - **Export Integration**: CSV and YAML exports include services data
 
-## Pending / Backlog
+### Phase 10 — Platform Alert Dialog (Complete - Feb 6, 2026)
+- **Confirmation Alert**: Shows when switching from recommended to non-recommended platform
+- **Warning Content**: Explains why recommended platform is better with bullet points
+- **Dynamic Content**: Shows DC/Site count, recommended platform explanation based on selection
+- **Keep/Switch Actions**: Cancel keeps original platform, Confirm switches to selected
+- **No Alert on Return**: Alert does NOT show when switching back to recommended platform
+- **Test IDs**: platform-alert-dialog, platform-alert-cancel, platform-alert-confirm
+- **Bug Fix**: Fixed HTML nesting issue using asChild prop on AlertDialogDescription
 
-### P1
-- Alert for deviating from recommended platform (visual feedback modal)
+## Pending / Backlog
 
 ### P2
 - Verify Model Math for Multi-protocol (combined DNS/DHCP penalty calculation)
