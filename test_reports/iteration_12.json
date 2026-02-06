@@ -1,0 +1,88 @@
+{
+  "summary": "Iteration 12: Frontend-only testing of Services Multi-Select feature. All 9 requested features verified working correctly.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "passed_tests": [
+    "Services column appears in Site Sizing table header between Role and Platform columns",
+    "Services column header has info tooltip: 'Co-located services that can run on the same host. Each service adds performance overhead.'",
+    "Services button in each row shows 'None' by default with settings icon",
+    "Clicking Services button opens a popover with 'Co-located Services' title",
+    "Popover contains 5 service checkboxes: NTP, DFP, TFTP, FTP, HTTP",
+    "Each service shows its performance overhead percentage: NTP (no %), DFP +5%, TFTP +2%, FTP +2%, HTTP +3%",
+    "Selecting services updates the services display in the button (e.g., 'NTP, DFP')",
+    "Token calculation increases based on total service overhead: selecting DFP adds 5% to tokens (880 → 924)",
+    "Total overhead is shown at bottom of popover when services are selected (e.g., 'Total overhead: +5%')",
+    "Total Tokens summary card updates correctly (4,400 → 4,444 when DFP selected on first row)",
+    "CSV export button present with data-testid='export-csv'",
+    "YAML export button present with data-testid='export-yaml'",
+    "Code review confirms CSV export includes 'Services' column with services joined by semicolon",
+    "Code review confirms YAML export includes 'services' array for each site"
+  ],
+  "test_report_links": [
+    "/app/test_reports/iteration_12.json"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "TokenCalculatorSummary.jsx: ADDITIONAL_SERVICES constant correctly defines 5 services with impact percentages (lines 81-87)",
+    "TokenCalculatorSummary.jsx: getServiceImpact() function correctly calculates total overhead (lines 90-95)",
+    "TokenCalculatorSummary.jsx: toggleService() function correctly handles service selection/deselection (lines 373-383)",
+    "TokenCalculatorSummary.jsx: Services column popover UI well-implemented with checkboxes and overhead display (lines 661-702)",
+    "TokenCalculatorSummary.jsx: Token calculation correctly applies service impact: Math.ceil(baseTokens * (1 + serviceImpact / 100)) (lines 211-212, 255-256)",
+    "TokenCalculatorSummary.jsx: CSV export includes Services column (line 387-390)",
+    "TokenCalculatorSummary.jsx: YAML export includes services array (line 420)"
+  ],
+  "updated_files": [],
+  "success_rate": {
+    "backend": "N/A (frontend-only testing)",
+    "frontend": "100% (all 9 requested features verified)"
+  },
+  "test_credentials": "No authentication required",
+  "seed_data_creation": "Used existing 'Test Customer Frontend' with 4 DCs and 1 Site",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Services Multi-Select feature fully verified. Services column visible in Site Sizing table with info tooltip. Popover shows 5 services (NTP 0%, DFP +5%, TFTP +2%, FTP +2%, HTTP +3%). Token calculations update correctly based on service overhead. CSV and YAML exports include services data.",
+  "features_verified": {
+    "services_column": {
+      "location": "Between Role and Platform columns in Site Sizing table",
+      "header_tooltip": "Co-located services that can run on the same host. Each service adds performance overhead.",
+      "default_value": "None"
+    },
+    "services_popover": {
+      "title": "Co-located Services",
+      "description": "Select additional services running on this host. Each adds performance overhead.",
+      "services": [
+        {"name": "NTP", "description": "Network Time Protocol", "impact": "0%"},
+        {"name": "DFP", "description": "DNS Firewall Policy", "impact": "+5%"},
+        {"name": "TFTP", "description": "Trivial File Transfer", "impact": "+2%"},
+        {"name": "FTP", "description": "File Transfer Protocol", "impact": "+2%"},
+        {"name": "HTTP", "description": "HTTP File Distribution", "impact": "+3%"}
+      ],
+      "total_overhead_display": "Shows at bottom when services selected (e.g., 'Total overhead: +5%')"
+    },
+    "token_calculation": {
+      "formula": "adjustedTokens = Math.ceil(baseTokens * (1 + serviceImpact / 100))",
+      "example": "880 tokens with DFP (+5%) = 924 tokens",
+      "total_update": "4,400 → 4,444 when DFP selected on first row"
+    },
+    "exports": {
+      "csv": "Services column included with services joined by semicolon (e.g., 'NTP;DFP')",
+      "yaml": "services array included for each site (e.g., services: [NTP, DFP])"
+    }
+  },
+  "screenshots": [
+    ".screenshots/03_sizing_tab.png - Site Sizing table with Services column visible",
+    ".screenshots/04_services_popover.png - Services popover with 5 checkboxes and overhead percentages",
+    ".screenshots/05_dfp_selected.png - DFP selected showing +5% overhead",
+    ".screenshots/06_tokens_after_dfp.png - Tokens updated to 924 after DFP selection",
+    ".screenshots/08_multiple_services.png - Multiple services (NTP, DFP) selected",
+    ".screenshots/09_final_state.png - Final state showing NTP, DFP in Services column",
+    ".screenshots/11_services_tooltip.png - Services header tooltip visible"
+  ]
+}
