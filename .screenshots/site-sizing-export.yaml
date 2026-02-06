@@ -1,0 +1,52 @@
+# Site Sizing Export
+# Generated: 2026-02-06T14:27:20.511Z
+
+summary:
+  totalSites: 4
+  totalIPs: 75000
+  totalKW: 30000
+  totalTokens: 3520
+  partnerSku: IB-TOKENS-5K
+
+sites:
+  - name: "Main DC"
+    type: dataCenter
+    ips: 25000
+    knowledgeWorkers: 10000
+    role: GM
+    platform: NIOS
+    model: TE-926
+    hardwareSku: TE-906-HW-2AC
+    tokens: 880
+  - name: "DR DC"
+    type: dataCenter
+    ips: 25000
+    knowledgeWorkers: 10000
+    role: GMC
+    platform: NIOS
+    model: TE-926
+    hardwareSku: TE-906-HW-2AC
+    tokens: 880
+  - name: "Branch 1"
+    type: site
+    ips: 12500
+    knowledgeWorkers: 5000
+    role: DNS/DHCP
+    platform: NIOS
+    model: TE-926
+    hardwareSku: TE-906-HW-2AC
+    tokens: 880
+  - name: "Branch 2"
+    type: site
+    ips: 12500
+    knowledgeWorkers: 5000
+    role: DNS/DHCP
+    platform: NIOS
+    model: TE-926
+    hardwareSku: TE-906-HW-2AC
+    tokens: 880
+
+bom:
+  - sku: TE-906-HW-2AC
+    quantity: 4
+    sites: ["Main DC", "DR DC", "Branch 1", "Branch 2"]
