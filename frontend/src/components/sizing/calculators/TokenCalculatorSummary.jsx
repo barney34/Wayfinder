@@ -414,6 +414,48 @@ export function TokenCalculatorSummary() {
   
   return (
     <div className="space-y-6" data-testid="token-calculator-summary">
+      {/* Platform Mode Toggle */}
+      <Card className="bg-gradient-to-r from-blue-500/5 to-purple-500/5 border-blue-500/20">
+        <CardContent className="py-4">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-medium">Platform Mode:</span>
+              <ToggleGroup type="single" value={platformMode} onValueChange={v => v && setPlatformMode(v)} className="bg-muted rounded-lg p-1">
+                {PLATFORM_MODES.map(mode => (
+                  <ToggleGroupItem 
+                    key={mode.value} 
+                    value={mode.value} 
+                    className="px-4 py-1.5 text-sm data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                    data-testid={`platform-mode-${mode.value.toLowerCase()}`}
+                  >
+                    {mode.value === recommendedMode && <Star className="h-3 w-3 mr-1 inline" />}
+                    {mode.label}
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
+              {platformMode !== recommendedMode && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Badge variant="outline" className="text-amber-600 border-amber-500 gap-1">
+                        <AlertTriangle className="h-3 w-3" />
+                        Not Recommended
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Based on {dataCenters.length} DCs and {contextSites.length} sites, we recommend <strong>{recommendedMode}</strong>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {PLATFORM_MODES.find(m => m.value === platformMode)?.description}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+      
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
