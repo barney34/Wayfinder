@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { ArrowLeft, Save, Sparkles, ChevronDown, ChevronRight, FileText, Loader2, Check, X, Cloud, CloudOff } from "lucide-react";
+import { ArrowLeft, Save, Sparkles, ChevronDown, ChevronRight, FileText, Loader2, Check, X, Cloud, CloudOff, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -25,8 +25,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import yaml from 'js-yaml';
 
 const statusColors = {
   "not-submitted": "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400",
