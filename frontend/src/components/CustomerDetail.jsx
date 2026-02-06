@@ -92,97 +92,70 @@ function KnowledgeWorkersInline() {
 
 // ===== Quick Capture Bar Inline =====
 function QuickCaptureBarInline() {
-  const { dataCenters, sites, addDataCenter, deleteDataCenter, updateDataCenter, addSite, deleteSite, updateSite } = useDiscovery();
+  const { dataCenters, sites, addDataCenter, deleteDataCenter, updateDataCenter, addSite, deleteSite, updateSite, setAnswer } = useDiscovery();
   const [newDCName, setNewDCName] = useState('');
   const [newSiteName, setNewSiteName] = useState('');
-  const [showDCList, setShowDCList] = useState(false);
-  const [editingDC, setEditingDC] = useState(null);
-  const [editingDCName, setEditingDCName] = useState('');
-  const [editingSite, setEditingSite] = useState(null);
-  const [editingSiteName, setEditingSiteName] = useState('');
+  const [showDCDetails, setShowDCDetails] = useState(false);
+  const [showSiteDetails, setShowSiteDetails] = useState(false);
 
-  const handleAddDC = () => { if (newDCName.trim()) { addDataCenter(newDCName.trim()); setNewDCName(''); setShowDCList(true); } };
-  const handleAddSiteIndependent = () => { if (newSiteName.trim()) { addSite(newSiteName.trim(), null); setNewSiteName(''); setShowDCList(true); } };
-  const startEditDC = (id, name) => { setEditingDC(id); setEditingDCName(name); };
-  const saveEditDC = () => { if (editingDC && editingDCName.trim()) { updateDataCenter(editingDC, { name: editingDCName.trim() }); } setEditingDC(null); };
-  const startEditSite = (id, name) => { setEditingSite(id); setEditingSiteName(name); };
-  const saveEditSite = () => { if (editingSite && editingSiteName.trim()) { updateSite(editingSite, { name: editingSiteName.trim() }); } setEditingSite(null); };
+  const totalDCKW = dataCenters.reduce((sum, dc) => sum + (dc.knowledgeWorkers || 0), 0);
+  const totalSiteKW = sites.reduce((sum, site) => sum + (site.knowledgeWorkers || 0), 0);
+
+  // Auto-sync DC/Site counts to sizing answers
+  useEffect(() => { setAnswer('ud-5', dataCenters.length.toString()); }, [dataCenters.length, setAnswer]);
+  useEffect(() => { setAnswer('ud-7', sites.length.toString()); }, [sites.length, setAnswer]);
+
+  const handleAddDC = () => { if (newDCName.trim()) { addDataCenter(newDCName.trim()); setNewDCName(''); } };
+  const handleAddSiteIndependent = () => { if (newSiteName.trim()) { addSite(newSiteName.trim(), ''); setNewSiteName(''); } };
 
   return (
-    <div className="flex flex-col gap-2" data-testid="quick-capture-bar">
-      <div className="flex items-center gap-4 flex-wrap">
+    <div className="flex flex-col gap-3" data-testid="quick-capture-bar">
+      {/* DC Row */}
+      <div className="flex flex-col gap-1.5">
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 text-sm text-muted-foreground cursor-pointer" onClick={() => setShowDCList(!showDCList)}>
-            <Building2 className="h-3.5 w-3.5" />
+          <button type="button" onClick={() => setShowDCDetails(!showDCDetails)} className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex items-center gap-1" data-testid="toggle-dc-tags">
+            <ChevronRight className={`h-4 w-4 transition-transform ${showDCDetails ? 'rotate-90' : ''}`} />
             DCs: {dataCenters.length}
-            {showDCList ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
-          </div>
-          <div className="flex items-center gap-1">
-            <Input placeholder="DC name..." value={newDCName} onChange={e => setNewDCName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAddDC()} className="w-[120px] text-sm h-7" data-testid="input-new-dc-name" />
-            <Button variant="default" size="sm" onClick={handleAddDC} disabled={!newDCName.trim()} className="h-7 w-7 p-0" data-testid="button-add-dc"><Plus className="h-3.5 w-3.5" /></Button>
-          </div>
+          </button>
+          <span className="text-sm text-muted-foreground">KW: {totalDCKW.toLocaleString()}</span>
+          <Input placeholder="DC name..." value={newDCName} onChange={e => setNewDCName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAddDC()} className="w-[120px] h-8 text-sm" data-testid="input-new-dc-name" />
+          <Button variant="default" size="sm" className="h-8 w-8 p-0" onClick={handleAddDC} disabled={!newDCName.trim()} data-testid="button-add-dc"><Plus className="h-4 w-4" /></Button>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-            <MapPin className="h-3.5 w-3.5" />
-            Sites: {sites.length}
-          </div>
-          <div className="flex items-center gap-1">
-            <Input placeholder="Site name..." value={newSiteName} onChange={e => setNewSiteName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAddSiteIndependent()} className="w-[120px] text-sm h-7" data-testid="input-new-site-name" />
-            <Button variant="default" size="sm" onClick={handleAddSiteIndependent} disabled={!newSiteName.trim()} className="h-7 w-7 p-0" data-testid="button-add-site"><Plus className="h-3.5 w-3.5" /></Button>
-          </div>
-        </div>
-      </div>
-      {showDCList && (dataCenters.length > 0 || sites.filter(s => !s.dataCenterId).length > 0) && (
-        <div className="w-full mt-1 p-3 bg-background rounded-md border">
-          <div className="space-y-2">
+        {showDCDetails && dataCenters.length > 0 && (
+          <div className="flex flex-col gap-1.5 pl-5 pt-1">
             {dataCenters.map(dc => (
-              <div key={dc.id} className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <Building2 className="h-4 w-4 text-primary" />
-                  {editingDC === dc.id ? (
-                    <Input value={editingDCName} onChange={e => setEditingDCName(e.target.value)} onKeyDown={e => e.key === 'Enter' && saveEditDC()} onBlur={saveEditDC} className="h-7 w-[150px] text-sm" autoFocus />
-                  ) : (
-                    <span className="font-medium cursor-pointer hover:underline" onClick={() => startEditDC(dc.id, dc.name)}>{dc.name}</span>
-                  )}
-                  <span className="text-xs text-muted-foreground">({sites.filter(s => s.dataCenterId === dc.id).length} sites)</span>
-                  <Button variant="ghost" size="sm" className="p-1 h-auto" onClick={() => deleteDataCenter(dc.id)}><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
-                </div>
-                <div className="pl-6 space-y-1">
-                  {sites.filter(s => s.dataCenterId === dc.id).map(site => (
-                    <div key={site.id} className="flex items-center gap-2 text-sm">
-                      <MapPin className="h-3 w-3 text-muted-foreground" />
-                      {editingSite === site.id ? (
-                        <Input value={editingSiteName} onChange={e => setEditingSiteName(e.target.value)} onKeyDown={e => e.key === 'Enter' && saveEditSite()} onBlur={saveEditSite} className="h-6 w-[120px] text-sm" autoFocus />
-                      ) : (
-                        <span className="cursor-pointer hover:underline" onClick={() => startEditSite(site.id, site.name)}>{site.name}</span>
-                      )}
-                      <Button variant="ghost" size="sm" className="p-1 h-auto" onClick={() => deleteSite(site.id)}><Trash2 className="h-3 w-3 text-destructive" /></Button>
-                    </div>
-                  ))}
-                </div>
+              <div key={dc.id} className="flex items-center gap-2">
+                <Input value={dc.name} onChange={e => updateDataCenter(dc.id, { name: e.target.value })} className="w-[140px] h-7 text-sm" placeholder="DC Name" data-testid={`input-dc-name-${dc.id}`} />
+                <Input type="number" placeholder="KW" value={dc.knowledgeWorkers || ''} onChange={e => updateDataCenter(dc.id, { knowledgeWorkers: parseInt(e.target.value) || 0 })} className="w-[70px] h-7 text-sm" data-testid={`input-dc-kw-${dc.id}`} />
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => deleteDataCenter(dc.id)} data-testid={`delete-dc-${dc.id}`}><X className="h-4 w-4 text-muted-foreground hover:text-destructive" /></Button>
               </div>
             ))}
-            {/* Sites without a DC */}
-            {sites.filter(s => !s.dataCenterId).length > 0 && (
-              <div className="space-y-1">
-                <div className="text-xs text-muted-foreground font-medium">Standalone Sites</div>
-                {sites.filter(s => !s.dataCenterId).map(site => (
-                  <div key={site.id} className="flex items-center gap-2 text-sm pl-4">
-                    <MapPin className="h-3 w-3 text-muted-foreground" />
-                    {editingSite === site.id ? (
-                      <Input value={editingSiteName} onChange={e => setEditingSiteName(e.target.value)} onKeyDown={e => e.key === 'Enter' && saveEditSite()} onBlur={saveEditSite} className="h-6 w-[120px] text-sm" autoFocus />
-                    ) : (
-                      <span className="cursor-pointer hover:underline" onClick={() => startEditSite(site.id, site.name)}>{site.name}</span>
-                    )}
-                    <Button variant="ghost" size="sm" className="p-1 h-auto" onClick={() => deleteSite(site.id)}><Trash2 className="h-3 w-3 text-destructive" /></Button>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
+        )}
+      </div>
+      {/* Site Row */}
+      <div className="flex flex-col gap-1.5">
+        <div className="flex items-center gap-2">
+          <button type="button" onClick={() => setShowSiteDetails(!showSiteDetails)} className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex items-center gap-1" data-testid="toggle-site-tags">
+            <ChevronRight className={`h-4 w-4 transition-transform ${showSiteDetails ? 'rotate-90' : ''}`} />
+            Sites: {sites.length}
+          </button>
+          <span className="text-sm text-muted-foreground">KW: {totalSiteKW.toLocaleString()}</span>
+          <Input placeholder="Site name..." value={newSiteName} onChange={e => setNewSiteName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAddSiteIndependent()} className="w-[120px] h-8 text-sm" data-testid="input-new-site-name" />
+          <Button variant="default" size="sm" className="h-8 w-8 p-0" onClick={handleAddSiteIndependent} disabled={!newSiteName.trim()} data-testid="button-add-site"><Plus className="h-4 w-4" /></Button>
         </div>
-      )}
+        {showSiteDetails && sites.length > 0 && (
+          <div className="flex flex-col gap-1.5 pl-5 pt-1">
+            {sites.map(site => (
+              <div key={site.id} className="flex items-center gap-2">
+                <Input value={site.name} onChange={e => updateSite(site.id, { name: e.target.value })} className="w-[140px] h-7 text-sm" placeholder="Site Name" data-testid={`input-site-name-${site.id}`} />
+                <Input type="number" placeholder="KW" value={site.knowledgeWorkers || ''} onChange={e => updateSite(site.id, { knowledgeWorkers: parseInt(e.target.value) || 0 })} className="w-[70px] h-7 text-sm" data-testid={`input-site-kw-${site.id}`} />
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => deleteSite(site.id)} data-testid={`delete-site-${site.id}`}><X className="h-4 w-4 text-muted-foreground hover:text-destructive" /></Button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
