@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   TDNiosSection, DossierInput, LookalikeInput, AssetConfigInput,
   SocInsightsInput, DomainTakedownInput, ReportingInput, UDDIEstimator,
+  SiteConfiguration,
 } from "./sizing";
 
 // ===== SelectWithFreeform =====
