@@ -75,15 +75,16 @@ export function SiteConfiguration({ value, onChange, questionId }) {
   console.log('[SiteConfiguration] Pre-memo IDs:', { dataCenterIds, contextSiteIds });
   
   // Direct calculation (not memoized for debugging)
+  const autoSync = localConfig?.autoSync !== false; // Default to true if not explicitly false
+  
   const mergedSites = (() => {
     console.log('[SiteConfiguration] IIFE started');
     
     const configSites = Array.isArray(localConfig?.sites) ? localConfig.sites : [];
     
-    console.log('[SiteConfiguration] localConfig:', localConfig);
-    console.log('[SiteConfiguration] autoSync:', localConfig?.autoSync);
+    console.log('[SiteConfiguration] autoSync:', autoSync);
     
-    if (!localConfig?.autoSync) {
+    if (!autoSync) {
       console.log('[SiteConfiguration] Early return - autoSync is false');
       return configSites;
     }
