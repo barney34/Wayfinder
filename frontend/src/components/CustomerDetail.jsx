@@ -98,10 +98,10 @@ function QuestionField({ question, value, onChange, answers, onNoteChange, note 
   
   // Check if this question should be shown based on conditions
   if (conditionalOn) {
-    const dependentValue = answers[conditionalOn.questionId];
-    if (dependentValue !== conditionalOn.value) {
-      return null;
-    }
+    const dependentValue = answers[conditionalOn.questionId] || '';
+    const matches = dependentValue === conditionalOn.value ||
+      dependentValue.split(', ').includes(conditionalOn.value);
+    if (!matches) return null;
   }
 
   const currentValue = value ?? defaultValue ?? "";
