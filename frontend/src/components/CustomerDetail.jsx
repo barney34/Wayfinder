@@ -437,9 +437,16 @@ export function CustomerDetail({ customer, onBack }) {
 
   const sectionNames = Object.keys(sections);
 
-  // Calculate progress
-  const answeredCount = Object.keys(answers).filter(k => answers[k] && answers[k].trim()).length;
-  const totalQuestions = questions.filter(q => !q.hidden).length;
+  // Calculate progress - only count visible (non-conditional-hidden) questions
+  const visibleQuestions = questions.filter(q => {
+    if (q.hidden) return false;
+    if (q.conditionalOn) {
+      return answers[q.conditionalOn.questionId] === q.conditionalOn.value;
+    }
+    return true;
+  });
+  const answeredCount = visibleQuestions.filter(q => answers[q.id]?.trim()).length;
+  const totalQuestions = visibleQuestions.length;
   const progressPercent = totalQuestions > 0 ? Math.round((answeredCount / totalQuestions) * 100) : 0;
 
   // AI Analysis
