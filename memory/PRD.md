@@ -75,7 +75,6 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL/Drizzle) 
 - [ ] ARB-required question tagging and validation gates
 
 ### P2 - Medium Priority
-- [ ] Customer data persistence to backend (currently localStorage)
 - [ ] Import customer data from JSON
 - [ ] Grid sizing tool
 - [ ] Industry-based AI question suggestions
