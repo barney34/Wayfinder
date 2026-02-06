@@ -38,6 +38,7 @@ app.add_middleware(
 client = AsyncIOMotorClient(MONGO_URL)
 db = client[DB_NAME]
 customers_collection = db["customers"]
+discovery_collection = db["discovery_data"]
 
 # ========== Discovery Questions Data ==========
 DISCOVERY_QUESTIONS = [
