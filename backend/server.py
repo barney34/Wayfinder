@@ -158,6 +158,24 @@ class GenerateContextResponse(BaseModel):
     summary: str
 
 
+class DiscoveryData(BaseModel):
+    answers: Dict[str, str] = {}
+    notes: Dict[str, str] = {}
+    meetingNotes: str = ""
+    contextFields: Dict[str, str] = {}
+    enabledSections: Dict[str, bool] = {}
+
+
+class DiscoveryDataResponse(BaseModel):
+    customerId: str
+    answers: Dict[str, str] = {}
+    notes: Dict[str, str] = {}
+    meetingNotes: str = ""
+    contextFields: Dict[str, str] = {}
+    enabledSections: Dict[str, bool] = {}
+    lastSaved: Optional[datetime] = None
+
+
 # ========== Helper Functions ==========
 def customer_doc_to_response(doc: dict) -> dict:
     """Convert MongoDB document to response dict"""
