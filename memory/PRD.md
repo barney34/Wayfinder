@@ -36,12 +36,28 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL/Drizzle) 
 - [x] Dashboard with customer table and completion progress
 - [x] Customers page with SE grouping
 - [x] Status badges (PSAR/ARB/Design) with click-to-advance
-- [x] Customer detail view
 - [x] Search functionality
 - [x] Clone customer functionality
 - [x] Delete customer with confirmation
 - [x] Export customer data as JSON
-- [x] Theme toggle (light/dark - partially working)
+- [x] **Full Discovery Questionnaire UI** with all sections:
+  - Users - Devices - Sites
+  - Sizing Data
+  - IPAM (14 questions)
+  - Internal DNS
+  - External DNS
+  - DHCP
+  - Services
+  - Microsoft Management
+  - Asset/Network Insight
+  - Security
+  - Professional Services
+- [x] Multiple field types: multiselect, yesno, select, number, leaseTime
+- [x] Conditional questions (show/hide based on other answers)
+- [x] Section-based progress tracking
+- [x] AI Meeting Notes Analysis tab
+- [x] Save to localStorage with unsaved changes indicator
+- [x] Theme toggle (light/dark)
 
 ## Prioritized Backlog
 
