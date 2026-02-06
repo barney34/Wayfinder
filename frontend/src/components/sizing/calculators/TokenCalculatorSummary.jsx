@@ -1,56 +1,93 @@
-import { useMemo } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { useDiscovery } from "@/contexts/DiscoveryContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
-import { Building2, MapPin, Server, Package, DollarSign, Cpu, HardDrive, Shield, BarChart3 } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { 
-  calculateWorkloadRequirements, 
-  getPartnerSku, 
+  Building2, MapPin, Server, Package, DollarSign, Cpu, HardDrive, Shield, BarChart3,
+  Plus, Trash2, Download, FileText, Info
+} from "lucide-react";
+import { 
   getSiteRecommendedModel,
   getDefaultHardwareSku,
+  getHardwareSkuOptions,
+  isHardwareSkuLocked,
 } from "../calculations";
 import { 
   niosServerGuardrails, 
   uddiServerTokens,
   tokenModels,
 } from "@/lib/tokenData";
-import { hardwareSkuMapping } from "../constants";
+
+// Platform options
+const PLATFORM_OPTIONS = [
+  { value: 'NIOS', label: 'NIOS' },
+  { value: 'NIOS-HA', label: 'NIOS HA' },
+  { value: 'NX', label: 'NIOS-X' },
+  { value: 'NXaaS', label: 'NXaaS' },
+];
+
+// Role options
+const ROLE_OPTIONS = [
+  { value: 'GM', label: 'GM' },
+  { value: 'GMC', label: 'GMC' },
+  { value: 'DNS', label: 'DNS' },
+  { value: 'DHCP', label: 'DHCP' },
+  { value: 'DNS/DHCP', label: 'DNS/DHCP' },
+];
 
 // Get token count for a model
 function getTokensForModel(model) {
-  // Check NIOS servers
   const niosServer = niosServerGuardrails.find(s => s.model === model);
   if (niosServer) return niosServer.tokens;
-  
-  // Check UDDI servers
   const uddiServer = uddiServerTokens.find(s => s.serverSize === model || s.key === model);
   if (uddiServer) return uddiServer.tokens;
-  
-  // Check token models
   const tokenModel = tokenModels.find(t => t.appSize.toString() === model?.replace('TE-', ''));
   if (tokenModel) return tokenModel.tokens;
-  
   return 0;
 }
 
 // Calculate partner SKU from total tokens
 function getPartnerSkuFromTokens(totalTokens) {
-  if (totalTokens <= 5000) return { sku: 'IB-TOKENS-SECURITY-5K', description: '5,000 Token Pack' };
-  if (totalTokens <= 10000) return { sku: 'IB-TOKENS-SECURITY-10K', description: '10,000 Token Pack' };
-  if (totalTokens <= 17000) return { sku: 'IB-TOKENS-SECURITY-17K', description: '17,000 Token Pack' };
-  if (totalTokens <= 25000) return { sku: 'IB-TOKENS-SECURITY-25K', description: '25,000 Token Pack' };
-  if (totalTokens <= 50000) return { sku: 'IB-TOKENS-SECURITY-50K', description: '50,000 Token Pack' };
-  return { sku: 'IB-TOKENS-SECURITY-100K+', description: '100,000+ Token Pack (Custom)' };
+  if (totalTokens <= 5000) return { sku: 'IB-TOKENS-5K', description: '5,000 Token Pack' };
+  if (totalTokens <= 10000) return { sku: 'IB-TOKENS-10K', description: '10,000 Token Pack' };
+  if (totalTokens <= 17000) return { sku: 'IB-TOKENS-17K', description: '17,000 Token Pack' };
+  if (totalTokens <= 25000) return { sku: 'IB-TOKENS-25K', description: '25,000 Token Pack' };
+  if (totalTokens <= 50000) return { sku: 'IB-TOKENS-50K', description: '50,000 Token Pack' };
+  return { sku: 'IB-TOKENS-100K+', description: '100,000+ Token Pack' };
+}
+
+// Get SKU description
+function getSkuDescription(sku) {
+  const descriptions = {
+    'TE-906-HW-2AC': 'NIOS TE-926 (Dual AC)',
+    'TE-906-HW-AC': 'NIOS TE-926 (AC)',
+    'TE-1506-HW-AC': 'NIOS TE-1516',
+    'TE-1606-HW-AC': 'NIOS TE-1526',
+    'TE-2306-HW-AC': 'NIOS TE-2326',
+    'TE-4106-HW-AC': 'NIOS TE-4126',
+  };
+  return descriptions[sku] || sku;
 }
 
 /**
  * TokenCalculatorSummary Component
- * Provides a comprehensive view of site sizing, token calculations, and BOM
+ * EDITABLE site sizing, token calculations, BOM, and export
  */
 export function TokenCalculatorSummary() {
-  const { dataCenters = [], sites: contextSites = [], answers = {} } = useDiscovery();
+  const { 
+    dataCenters = [], sites: contextSites = [], answers = {}, setAnswer 
+  } = useDiscovery();
+  
+  // Track manual site overrides
+  const [siteOverrides, setSiteOverrides] = useState({});
+  const [manualSites, setManualSites] = useState([]);
+  const lastSavedRef = useRef(null);
   
   // Global settings
   const globalPlatform = answers['ud-platform'] || 'NIOS (Physical/Virtual)';
@@ -59,80 +96,79 @@ export function TokenCalculatorSummary() {
   const ipMultiplier = parseFloat(answers['ipam-multiplier']) || 2.5;
   const securityEnabled = answers['feature-security'] === 'Yes';
   const uddiEnabled = answers['feature-uddi'] === 'Yes';
-  const assetInsightsEnabled = answers['feature-asset insights'] === 'Yes';
   
-  // Parse site configuration from answers if available
-  const siteConfigValue = answers['sizing-1'];
-  const siteConfig = useMemo(() => {
-    try {
-      return siteConfigValue ? JSON.parse(siteConfigValue) : { sites: [] };
-    } catch {
-      return { sites: [] };
-    }
-  }, [siteConfigValue]);
+  // Create stable IDs for memoization
+  const dataCenterIds = useMemo(() => dataCenters.map(dc => dc.id).join(','), [dataCenters]);
+  const contextSiteIds = useMemo(() => contextSites.map(s => s.id).join(','), [contextSites]);
   
-  // Build sites from Quick Capture data or site configuration
+  // Build sites from Quick Capture + manual
   const sites = useMemo(() => {
-    // If we have site config with sites, use those
-    if (siteConfig.sites && siteConfig.sites.length > 0) {
-      return siteConfig.sites;
-    }
-    
-    // Otherwise build from Quick Capture data
     const dcSites = dataCenters.map((dc, index) => {
+      const key = `dc-${dc.id}`;
+      const override = siteOverrides[key] || {};
       const kw = dc.knowledgeWorkers || 0;
-      const numIPs = Math.round(kw * ipMultiplier);
-      const recommendedModel = getSiteRecommendedModel(
-        numIPs, 
-        index === 0 ? 'GM' : 'GMC', 
-        globalPlatform, 
-        dhcpPercent, 
-        leaseTimeSeconds, 
-        'NIOS'
-      );
+      const baseIPs = Math.round(kw * ipMultiplier);
+      const numIPs = override.numIPs !== undefined ? override.numIPs : baseIPs;
+      const role = override.role || (index === 0 ? 'GM' : 'GMC');
+      const platform = override.platform || 'NIOS';
+      const dhcp = override.dhcpPercent ?? dhcpPercent;
+      
+      const recommendedModel = getSiteRecommendedModel(numIPs, role, globalPlatform, dhcp, leaseTimeSeconds, platform);
+      const hardwareOptions = getHardwareSkuOptions(recommendedModel);
+      const defaultHardware = getDefaultHardwareSku(recommendedModel);
       
       return {
-        id: `dc-${dc.id}`,
-        name: dc.name || `Data Center ${index + 1}`,
+        id: key,
+        sourceId: dc.id,
         sourceType: 'dataCenter',
+        name: override.name || dc.name || `DC ${index + 1}`,
         numIPs,
+        numIPsAuto: baseIPs,
         knowledgeWorkers: kw,
-        role: index === 0 ? 'GM' : 'GMC',
-        platform: 'NIOS',
+        role,
+        platform,
+        dhcpPercent: dhcp,
         recommendedModel,
-        hardwareSku: getDefaultHardwareSku(recommendedModel),
+        hardwareSku: override.hardwareSku || defaultHardware,
+        hardwareOptions,
         tokens: getTokensForModel(recommendedModel),
       };
     });
     
     const branchSites = contextSites.map((site, index) => {
+      const key = `site-${site.id}`;
+      const override = siteOverrides[key] || {};
       const kw = site.knowledgeWorkers || 0;
-      const numIPs = Math.round(kw * ipMultiplier);
-      const recommendedModel = getSiteRecommendedModel(
-        numIPs, 
-        'DNS/DHCP', 
-        globalPlatform, 
-        dhcpPercent, 
-        leaseTimeSeconds, 
-        globalPlatform.includes('UDDI') ? 'NX' : 'NIOS'
-      );
+      const baseIPs = Math.round(kw * ipMultiplier);
+      const numIPs = override.numIPs !== undefined ? override.numIPs : baseIPs;
+      const role = override.role || 'DNS/DHCP';
+      const platform = override.platform || (globalPlatform.includes('UDDI') ? 'NX' : 'NIOS');
+      const dhcp = override.dhcpPercent ?? dhcpPercent;
+      
+      const recommendedModel = getSiteRecommendedModel(numIPs, role, globalPlatform, dhcp, leaseTimeSeconds, platform);
+      const hardwareOptions = getHardwareSkuOptions(recommendedModel);
+      const defaultHardware = getDefaultHardwareSku(recommendedModel);
       
       return {
-        id: `site-${site.id}`,
-        name: site.name || `Site ${index + 1}`,
+        id: key,
+        sourceId: site.id,
         sourceType: 'site',
+        name: override.name || site.name || `Site ${index + 1}`,
         numIPs,
+        numIPsAuto: baseIPs,
         knowledgeWorkers: kw,
-        role: 'DNS/DHCP',
-        platform: globalPlatform.includes('UDDI') ? 'NX' : 'NIOS',
+        role,
+        platform,
+        dhcpPercent: dhcp,
         recommendedModel,
-        hardwareSku: getDefaultHardwareSku(recommendedModel),
+        hardwareSku: override.hardwareSku || defaultHardware,
+        hardwareOptions,
         tokens: getTokensForModel(recommendedModel),
       };
     });
     
-    return [...dcSites, ...branchSites];
-  }, [dataCenters, contextSites, siteConfig, ipMultiplier, globalPlatform, dhcpPercent, leaseTimeSeconds]);
+    return [...dcSites, ...branchSites, ...manualSites];
+  }, [dataCenterIds, contextSiteIds, dataCenters, contextSites, siteOverrides, manualSites, ipMultiplier, dhcpPercent, globalPlatform, leaseTimeSeconds]);
   
   // Calculate totals
   const totals = useMemo(() => {
@@ -140,72 +176,155 @@ export function TokenCalculatorSummary() {
     const totalKW = sites.reduce((sum, s) => sum + (s.knowledgeWorkers || 0), 0);
     const infraTokens = sites.reduce((sum, s) => sum + (s.tokens || 0), 0);
     
-    // Get security tokens from answers
-    const tdCloudTokens = parseInt(answers['td-cloud-tokens']) || 0;
+    // Security tokens from answers
+    const tdTokens = parseInt(answers['td-cloud-tokens']) || 0;
     const dossierTokens = parseInt(answers['dossier-tokens']) || 0;
     const lookalikeTokens = parseInt(answers['lookalike-tokens']) || 0;
-    const socInsightsTokens = parseInt(answers['soc-insights-tokens']) || 0;
-    const domainTakedownTokens = parseInt(answers['domain-takedown-tokens']) || 0;
+    const socTokens = parseInt(answers['soc-insights-tokens']) || 0;
+    const domainTokens = parseInt(answers['domain-takedown-tokens']) || 0;
     const reportingTokens = parseInt(answers['reporting-tokens']) || 0;
-    
-    const securityTokens = securityEnabled ? (tdCloudTokens + dossierTokens + lookalikeTokens + socInsightsTokens + domainTakedownTokens + reportingTokens) : 0;
-    
-    // UDDI tokens
+    const securityTokens = securityEnabled ? (tdTokens + dossierTokens + lookalikeTokens + socTokens + domainTokens + reportingTokens) : 0;
     const uddiTokens = uddiEnabled ? (parseInt(answers['uddi-tokens']) || 0) : 0;
     
-    const totalTokens = infraTokens + securityTokens + uddiTokens;
-    
     return {
-      totalIPs,
-      totalKW,
-      infraTokens,
-      securityTokens,
-      uddiTokens,
-      totalTokens,
+      totalIPs, totalKW, infraTokens, securityTokens, uddiTokens,
+      totalTokens: infraTokens + securityTokens + uddiTokens,
       gmCount: sites.filter(s => s.role === 'GM').length,
       gmcCount: sites.filter(s => s.role === 'GMC').length,
       memberCount: sites.filter(s => !['GM', 'GMC'].includes(s.role)).length,
     };
   }, [sites, answers, securityEnabled, uddiEnabled]);
   
-  // Build BOM (Bill of Materials)
+  // Build BOM
   const bom = useMemo(() => {
     const bomItems = {};
-    
-    // Aggregate hardware by SKU
     sites.forEach(site => {
       const sku = site.hardwareSku || 'N/A';
       if (sku !== 'N/A') {
         if (!bomItems[sku]) {
-          bomItems[sku] = {
-            sku,
-            description: getSkuDescription(sku),
-            quantity: 0,
-            sites: [],
-          };
+          bomItems[sku] = { sku, description: getSkuDescription(sku), quantity: 0, sites: [] };
         }
         bomItems[sku].quantity += 1;
         bomItems[sku].sites.push(site.name);
       }
     });
-    
     return Object.values(bomItems);
   }, [sites]);
   
-  // Get partner SKU recommendation
-  const partnerSku = useMemo(() => {
-    return getPartnerSkuFromTokens(totals.totalTokens);
-  }, [totals.totalTokens]);
+  const partnerSku = useMemo(() => getPartnerSkuFromTokens(totals.totalTokens), [totals.totalTokens]);
   
-  if (sites.length === 0) {
+  // Update site field
+  const updateSite = useCallback((siteId, field, value) => {
+    const site = sites.find(s => s.id === siteId);
+    if (!site) return;
+    
+    if (site.sourceType) {
+      // Synced site - use overrides
+      setSiteOverrides(prev => ({
+        ...prev,
+        [siteId]: { ...prev[siteId], [field]: value }
+      }));
+    } else {
+      // Manual site
+      setManualSites(prev => prev.map(s => s.id === siteId ? { ...s, [field]: value } : s));
+    }
+  }, [sites]);
+  
+  // Add manual site
+  const addManualSite = useCallback(() => {
+    const newSite = {
+      id: `manual-${Date.now()}`,
+      name: `Site ${sites.length + 1}`,
+      numIPs: 1000,
+      numIPsAuto: 0,
+      knowledgeWorkers: 0,
+      role: 'DNS/DHCP',
+      platform: 'NIOS',
+      dhcpPercent,
+      recommendedModel: 'TE-926',
+      hardwareSku: 'TE-906-HW-2AC',
+      hardwareOptions: ['TE-906-HW-2AC', 'TE-906-HW-AC'],
+      tokens: 880,
+    };
+    setManualSites(prev => [...prev, newSite]);
+  }, [sites.length, dhcpPercent]);
+  
+  // Delete site
+  const deleteSite = useCallback((siteId) => {
+    setManualSites(prev => prev.filter(s => s.id !== siteId));
+    setSiteOverrides(prev => {
+      const next = { ...prev };
+      delete next[siteId];
+      return next;
+    });
+  }, []);
+  
+  // Export to CSV
+  const exportCSV = useCallback(() => {
+    const headers = ['Site Name', 'Type', 'IPs', 'KW', 'Role', 'Platform', 'Model', 'Hardware SKU', 'Tokens'];
+    const rows = sites.map(s => [
+      s.name, s.sourceType || 'Manual', s.numIPs, s.knowledgeWorkers, s.role, s.platform, s.recommendedModel, s.hardwareSku, s.tokens
+    ]);
+    rows.push(['TOTAL', '', totals.totalIPs, totals.totalKW, '', '', '', '', totals.infraTokens]);
+    
+    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'site-sizing-export.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [sites, totals]);
+  
+  // Export to YAML
+  const exportYAML = useCallback(() => {
+    const data = {
+      summary: {
+        totalSites: sites.length,
+        totalIPs: totals.totalIPs,
+        totalKW: totals.totalKW,
+        totalTokens: totals.totalTokens,
+        partnerSku: partnerSku.sku,
+      },
+      sites: sites.map(s => ({
+        name: s.name,
+        type: s.sourceType || 'manual',
+        ips: s.numIPs,
+        knowledgeWorkers: s.knowledgeWorkers,
+        role: s.role,
+        platform: s.platform,
+        model: s.recommendedModel,
+        hardwareSku: s.hardwareSku,
+        tokens: s.tokens,
+      })),
+      bom: bom.map(b => ({ sku: b.sku, quantity: b.quantity, sites: b.sites })),
+    };
+    
+    // Simple YAML formatting
+    const yaml = `# Site Sizing Export\n# Generated: ${new Date().toISOString()}\n\nsummary:\n  totalSites: ${data.summary.totalSites}\n  totalIPs: ${data.summary.totalIPs}\n  totalKW: ${data.summary.totalKW}\n  totalTokens: ${data.summary.totalTokens}\n  partnerSku: ${data.summary.partnerSku}\n\nsites:\n${data.sites.map(s => `  - name: "${s.name}"\n    type: ${s.type}\n    ips: ${s.ips}\n    knowledgeWorkers: ${s.knowledgeWorkers}\n    role: ${s.role}\n    platform: ${s.platform}\n    model: ${s.model}\n    hardwareSku: ${s.hardwareSku}\n    tokens: ${s.tokens}`).join('\n')}\n\nbom:\n${data.bom.map(b => `  - sku: ${b.sku}\n    quantity: ${b.quantity}\n    sites: [${b.sites.map(s => `"${s}"`).join(', ')}]`).join('\n')}`;
+    
+    const blob = new Blob([yaml], { type: 'text/yaml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'site-sizing-export.yaml';
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [sites, totals, partnerSku, bom]);
+  
+  if (sites.length === 0 && dataCenters.length === 0 && contextSites.length === 0) {
     return (
       <Card className="bg-muted/30">
         <CardContent className="py-8 text-center">
           <Server className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
           <h3 className="text-lg font-medium mb-2">No Sites Configured</h3>
-          <p className="text-sm text-muted-foreground">
-            Add Data Centers and Sites in the Quick Capture bar, or configure sites in the Sizing tab to see the summary.
+          <p className="text-sm text-muted-foreground mb-4">
+            Add Data Centers and Sites in the Quick Capture bar above, or add sites manually.
           </p>
+          <Button onClick={addManualSite} data-testid="add-first-site">
+            <Plus className="h-4 w-4 mr-2" /> Add Site
+          </Button>
         </CardContent>
       </Card>
     );
@@ -222,8 +341,8 @@ export function TokenCalculatorSummary() {
               <span className="text-sm text-muted-foreground">Total Sites</span>
             </div>
             <p className="text-2xl font-bold">{sites.length}</p>
-            <div className="flex gap-2 mt-1">
-              {totals.gmCount > 0 && <Badge variant="secondary" className="text-xs">{totals.gmCount} GM</Badge>}
+            <div className="flex gap-1 mt-1 flex-wrap">
+              {totals.gmCount > 0 && <Badge variant="default" className="text-xs">{totals.gmCount} GM</Badge>}
               {totals.gmcCount > 0 && <Badge variant="secondary" className="text-xs">{totals.gmcCount} GMC</Badge>}
               {totals.memberCount > 0 && <Badge variant="outline" className="text-xs">{totals.memberCount} Members</Badge>}
             </div>
@@ -237,7 +356,7 @@ export function TokenCalculatorSummary() {
               <span className="text-sm text-muted-foreground">Total IPs</span>
             </div>
             <p className="text-2xl font-bold">{totals.totalIPs.toLocaleString()}</p>
-            <p className="text-xs text-muted-foreground mt-1">{totals.totalKW.toLocaleString()} Knowledge Workers</p>
+            <p className="text-xs text-muted-foreground mt-1">{totals.totalKW.toLocaleString()} KW</p>
           </CardContent>
         </Card>
         
@@ -249,7 +368,7 @@ export function TokenCalculatorSummary() {
             </div>
             <p className="text-2xl font-bold">{totals.totalTokens.toLocaleString()}</p>
             <p className="text-xs text-muted-foreground mt-1">
-              Infra: {totals.infraTokens.toLocaleString()} | Security: {totals.securityTokens.toLocaleString()}
+              Infra: {totals.infraTokens.toLocaleString()}
             </p>
           </CardContent>
         </Card>
@@ -266,71 +385,159 @@ export function TokenCalculatorSummary() {
         </Card>
       </div>
       
-      {/* Site Sizing Recommendations */}
+      {/* EDITABLE Site Sizing Table */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <BarChart3 className="h-4 w-4" />
-            Site Sizing Recommendations
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Site Sizing Recommendations
+            </CardTitle>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={exportCSV} data-testid="export-csv">
+                <Download className="h-3 w-3 mr-1" /> CSV
+              </Button>
+              <Button variant="outline" size="sm" onClick={exportYAML} data-testid="export-yaml">
+                <FileText className="h-3 w-3 mr-1" /> YAML
+              </Button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="border rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50">
-                  <TableHead className="w-[40px]">Type</TableHead>
+                  <TableHead className="w-[30px]"></TableHead>
                   <TableHead>Site Name</TableHead>
-                  <TableHead className="w-[80px]">IPs</TableHead>
-                  <TableHead className="w-[80px]">KW</TableHead>
+                  <TableHead className="w-[90px]"># IPs</TableHead>
+                  <TableHead className="w-[70px]">KW</TableHead>
                   <TableHead className="w-[100px]">Role</TableHead>
-                  <TableHead className="w-[80px]">Platform</TableHead>
-                  <TableHead className="w-[100px]">Model</TableHead>
-                  <TableHead className="w-[140px]">Hardware SKU</TableHead>
-                  <TableHead className="w-[80px] text-right">Tokens</TableHead>
+                  <TableHead className="w-[100px]">Platform</TableHead>
+                  <TableHead className="w-[90px]">Model</TableHead>
+                  <TableHead className="w-[130px]">Hardware SKU</TableHead>
+                  <TableHead className="w-[70px] text-right">Tokens</TableHead>
+                  <TableHead className="w-[40px]"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {sites.map(site => (
-                  <TableRow key={site.id} data-testid={`summary-site-${site.id}`}>
+                  <TableRow key={site.id} data-testid={`site-row-${site.id}`}>
                     <TableCell>
                       {site.sourceType === 'dataCenter' ? (
                         <Building2 className="h-4 w-4 text-blue-500" />
-                      ) : (
+                      ) : site.sourceType === 'site' ? (
                         <MapPin className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <Server className="h-4 w-4 text-gray-400" />
                       )}
                     </TableCell>
-                    <TableCell className="font-medium">{site.name}</TableCell>
-                    <TableCell className="tabular-nums">{(site.numIPs || 0).toLocaleString()}</TableCell>
-                    <TableCell className="tabular-nums text-muted-foreground">{(site.knowledgeWorkers || 0).toLocaleString()}</TableCell>
                     <TableCell>
-                      <Badge variant={site.role === 'GM' ? 'default' : site.role === 'GMC' ? 'secondary' : 'outline'} className="text-xs">
-                        {site.role}
-                      </Badge>
+                      <Input
+                        value={site.name}
+                        onChange={e => updateSite(site.id, 'name', e.target.value)}
+                        className="h-7 text-sm"
+                        data-testid={`site-name-${site.id}`}
+                      />
                     </TableCell>
-                    <TableCell className="text-xs">{site.platform}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <Input
+                          type="number"
+                          value={site.numIPs}
+                          onChange={e => updateSite(site.id, 'numIPs', parseInt(e.target.value) || 0)}
+                          className="h-7 text-sm w-[70px]"
+                          data-testid={`site-ips-${site.id}`}
+                        />
+                        {site.numIPsAuto > 0 && site.numIPs !== site.numIPsAuto && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <Info className="h-3 w-3 text-amber-500" />
+                              </TooltipTrigger>
+                              <TooltipContent>Auto: {site.numIPsAuto.toLocaleString()}</TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground tabular-nums">
+                      {(site.knowledgeWorkers || 0).toLocaleString()}
+                    </TableCell>
+                    <TableCell>
+                      <Select value={site.role} onValueChange={v => updateSite(site.id, 'role', v)}>
+                        <SelectTrigger className="h-7 text-xs" data-testid={`site-role-${site.id}`}>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {ROLE_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell>
+                      <Select value={site.platform} onValueChange={v => updateSite(site.id, 'platform', v)}>
+                        <SelectTrigger className="h-7 text-xs" data-testid={`site-platform-${site.id}`}>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {PLATFORM_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="font-mono text-xs">{site.recommendedModel}</Badge>
                     </TableCell>
-                    <TableCell className="text-xs font-mono">{site.hardwareSku}</TableCell>
-                    <TableCell className="text-right tabular-nums font-medium">{(site.tokens || 0).toLocaleString()}</TableCell>
+                    <TableCell>
+                      <Select value={site.hardwareSku} onValueChange={v => updateSite(site.id, 'hardwareSku', v)}>
+                        <SelectTrigger className="h-7 text-xs" data-testid={`site-sku-${site.id}`}>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {(site.hardwareOptions || [site.hardwareSku]).map(o => (
+                            <SelectItem key={o} value={o}>{o}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell className="text-right tabular-nums font-medium">
+                      {(site.tokens || 0).toLocaleString()}
+                    </TableCell>
+                    <TableCell>
+                      {!site.sourceType && (
+                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => deleteSite(site.id)}>
+                          <Trash2 className="h-3 w-3 text-destructive" />
+                        </Button>
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))}
-                {/* Total row */}
+                {/* Total Row */}
                 <TableRow className="bg-muted/30 font-medium">
                   <TableCell colSpan={2}>Total</TableCell>
                   <TableCell className="tabular-nums">{totals.totalIPs.toLocaleString()}</TableCell>
                   <TableCell className="tabular-nums">{totals.totalKW.toLocaleString()}</TableCell>
                   <TableCell colSpan={4}></TableCell>
                   <TableCell className="text-right tabular-nums">{totals.infraTokens.toLocaleString()}</TableCell>
+                  <TableCell></TableCell>
                 </TableRow>
               </TableBody>
             </Table>
           </div>
+          
+          {/* Add Site Button */}
+          <div className="flex items-center justify-between mt-4">
+            <Button variant="outline" size="sm" onClick={addManualSite} data-testid="add-site-button">
+              <Plus className="h-4 w-4 mr-1" /> Add Site
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              <Info className="h-3 w-3 inline mr-1" />
+              Sites auto-sync from Quick Capture. All fields are editable.
+            </p>
+          </div>
         </CardContent>
       </Card>
       
-      {/* Bill of Materials */}
+      {/* BOM */}
       {bom.length > 0 && (
         <Card>
           <CardHeader className="pb-3">
@@ -346,22 +553,17 @@ export function TokenCalculatorSummary() {
                   <TableRow className="bg-muted/50">
                     <TableHead>Hardware SKU</TableHead>
                     <TableHead>Description</TableHead>
-                    <TableHead className="w-[80px] text-center">Qty</TableHead>
-                    <TableHead>Assigned Sites</TableHead>
+                    <TableHead className="w-[60px] text-center">Qty</TableHead>
+                    <TableHead>Sites</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {bom.map(item => (
-                    <TableRow key={item.sku} data-testid={`bom-item-${item.sku}`}>
+                    <TableRow key={item.sku}>
                       <TableCell className="font-mono font-medium">{item.sku}</TableCell>
                       <TableCell className="text-muted-foreground">{item.description}</TableCell>
-                      <TableCell className="text-center">
-                        <Badge variant="secondary">{item.quantity}</Badge>
-                      </TableCell>
-                      <TableCell className="text-sm">
-                        {item.sites.slice(0, 3).join(', ')}
-                        {item.sites.length > 3 && ` +${item.sites.length - 3} more`}
-                      </TableCell>
+                      <TableCell className="text-center"><Badge variant="secondary">{item.quantity}</Badge></TableCell>
+                      <TableCell className="text-sm">{item.sites.slice(0, 3).join(', ')}{item.sites.length > 3 && ` +${item.sites.length - 3}`}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -376,53 +578,29 @@ export function TokenCalculatorSummary() {
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
             <Shield className="h-4 w-4" />
-            Token Breakdown
+            Token Summary
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {/* Infrastructure Tokens */}
-            <div className="flex items-center justify-between py-2 border-b">
-              <div className="flex items-center gap-2">
-                <Server className="h-4 w-4 text-blue-500" />
-                <span>Infrastructure Tokens</span>
-              </div>
-              <span className="font-mono font-medium">{totals.infraTokens.toLocaleString()}</span>
+          <div className="space-y-3">
+            <div className="flex justify-between py-2 border-b">
+              <span className="flex items-center gap-2"><Server className="h-4 w-4 text-blue-500" />Infrastructure</span>
+              <span className="font-mono">{totals.infraTokens.toLocaleString()}</span>
             </div>
-            
-            {/* Security Tokens */}
-            <div className="flex items-center justify-between py-2 border-b">
-              <div className="flex items-center gap-2">
-                <Shield className="h-4 w-4 text-green-500" />
-                <span>Security Tokens</span>
-                {!securityEnabled && <Badge variant="outline" className="text-xs">Disabled</Badge>}
-              </div>
-              <span className="font-mono font-medium">{totals.securityTokens.toLocaleString()}</span>
+            <div className="flex justify-between py-2 border-b">
+              <span className="flex items-center gap-2"><Shield className="h-4 w-4 text-green-500" />Security {!securityEnabled && <Badge variant="outline" className="text-xs">Off</Badge>}</span>
+              <span className="font-mono">{totals.securityTokens.toLocaleString()}</span>
             </div>
-            
-            {/* UDDI Tokens */}
-            <div className="flex items-center justify-between py-2 border-b">
-              <div className="flex items-center gap-2">
-                <Cpu className="h-4 w-4 text-purple-500" />
-                <span>UDDI Tokens</span>
-                {!uddiEnabled && <Badge variant="outline" className="text-xs">Disabled</Badge>}
-              </div>
-              <span className="font-mono font-medium">{totals.uddiTokens.toLocaleString()}</span>
+            <div className="flex justify-between py-2 border-b">
+              <span className="flex items-center gap-2"><Cpu className="h-4 w-4 text-purple-500" />UDDI {!uddiEnabled && <Badge variant="outline" className="text-xs">Off</Badge>}</span>
+              <span className="font-mono">{totals.uddiTokens.toLocaleString()}</span>
             </div>
-            
             <Separator />
-            
-            {/* Total */}
-            <div className="flex items-center justify-between py-2">
-              <div className="flex items-center gap-2">
-                <Package className="h-4 w-4 text-primary" />
-                <span className="font-semibold">Total Tokens Required</span>
-              </div>
+            <div className="flex justify-between py-2">
+              <span className="font-semibold flex items-center gap-2"><Package className="h-4 w-4 text-primary" />Total Required</span>
               <span className="font-mono font-bold text-lg text-primary">{totals.totalTokens.toLocaleString()}</span>
             </div>
-            
-            {/* Partner SKU Recommendation */}
-            <div className="bg-primary/5 rounded-lg p-4 mt-4">
+            <div className="bg-primary/5 rounded-lg p-4 mt-2">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium">Recommended Partner SKU</p>
@@ -436,33 +614,6 @@ export function TokenCalculatorSummary() {
       </Card>
     </div>
   );
-}
-
-// Helper function to get SKU description
-function getSkuDescription(sku) {
-  const descriptions = {
-    'TE-906-HW-2AC': 'NIOS TE-926 Hardware (Dual AC)',
-    'TE-906-HW-AC': 'NIOS TE-926 Hardware (Single AC)',
-    'TE-1506-HW-AC': 'NIOS TE-1516 Hardware',
-    'TE-1506-HW-DC': 'NIOS TE-1516 Hardware (DC)',
-    'TE-1506-10GE-HW-AC': 'NIOS TE-1516 Hardware (10GE)',
-    'TE-1506-10GE-HW-DC': 'NIOS TE-1516 Hardware (10GE DC)',
-    'TE-1606-HW-AC': 'NIOS TE-1526 Hardware',
-    'TE-1606-HW-DC': 'NIOS TE-1526 Hardware (DC)',
-    'TE-1606-10GE-HW-AC': 'NIOS TE-1526 Hardware (10GE)',
-    'TE-1606-10GE-HW-DC': 'NIOS TE-1526 Hardware (10GE DC)',
-    'TE-2306-HW-AC': 'NIOS TE-2326 Hardware',
-    'TE-2306-HW-DC': 'NIOS TE-2326 Hardware (DC)',
-    'TE-2306-10GE-HW-AC': 'NIOS TE-2326 Hardware (10GE)',
-    'TE-2306-10GE-HW-DC': 'NIOS TE-2326 Hardware (10GE DC)',
-    'TE-4106-HW-AC': 'NIOS TE-4126 Hardware',
-    'TE-4106-HW-DC': 'NIOS TE-4126 Hardware (DC)',
-    'TE-4106-10GE-HW-AC': 'NIOS TE-4126 Hardware (10GE)',
-    'TE-4106-10GE-HW-DC': 'NIOS TE-4126 Hardware (10GE DC)',
-    'B1-105-HW-AC': 'BloxOne DDI Appliance (Small)',
-    'B1-212-HW-AC': 'BloxOne DDI Appliance (Medium)',
-  };
-  return descriptions[sku] || sku;
 }
 
 export default TokenCalculatorSummary;
