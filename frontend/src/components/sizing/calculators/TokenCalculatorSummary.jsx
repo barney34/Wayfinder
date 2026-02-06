@@ -576,7 +576,7 @@ export function TokenCalculatorSummary() {
     });
     
     // Site Sizing Table
-    doc.autoTable({
+    autoTable(doc, {
       startY: 55,
       head: [['Site Name', 'Type', '# IPs', 'KW', 'Role', 'Services', 'Platform', 'Model', 'SKU', 'Tokens']],
       body: [
