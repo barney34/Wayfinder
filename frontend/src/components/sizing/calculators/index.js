@@ -6,3 +6,4 @@ export { SocInsightsInput } from './SocInsightsSection';
 export { DomainTakedownInput } from './DomainTakedownSection';
 export { ReportingInput } from './ReportingSection';
 export { UDDIEstimator } from './UDDIEstimator';
+export { SiteConfiguration } from './SiteConfiguration';
