@@ -743,7 +743,7 @@ export function TokenCalculatorSummary() {
                   <TableCell colSpan={2}>Total</TableCell>
                   <TableCell className="tabular-nums">{totals.totalIPs.toLocaleString()}</TableCell>
                   <TableCell className="tabular-nums">{totals.totalKW.toLocaleString()}</TableCell>
-                  <TableCell colSpan={4}></TableCell>
+                  <TableCell colSpan={5}></TableCell>
                   <TableCell className="text-right tabular-nums">{totals.infraTokens.toLocaleString()}</TableCell>
                   <TableCell></TableCell>
                 </TableRow>
