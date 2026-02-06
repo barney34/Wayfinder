@@ -187,6 +187,7 @@ export function TokenCalculatorSummary() {
       }
       
       const role = override.role || defaultRole;
+      const services = override.services || [];
       
       // Default platform based on mode
       let defaultPlatform = 'NIOS';
@@ -205,6 +206,11 @@ export function TokenCalculatorSummary() {
       const hardwareOptions = getHardwareSkuOptions(recommendedModel);
       const defaultHardware = getDefaultHardwareSku(recommendedModel);
       
+      // Calculate tokens with service impact
+      const baseTokens = getTokensForModel(recommendedModel);
+      const serviceImpact = getServiceImpact(services);
+      const adjustedTokens = Math.ceil(baseTokens * (1 + serviceImpact / 100));
+      
       return {
         id: key,
         sourceId: dc.id,
@@ -214,12 +220,14 @@ export function TokenCalculatorSummary() {
         numIPsAuto: baseIPs,
         knowledgeWorkers: kw,
         role,
+        services,
         platform,
         dhcpPercent: dhcp,
         recommendedModel,
         hardwareSku: override.hardwareSku || defaultHardware,
         hardwareOptions,
-        tokens: getTokensForModel(recommendedModel),
+        tokens: adjustedTokens,
+        serviceImpact,
       };
     });
     
@@ -230,6 +238,7 @@ export function TokenCalculatorSummary() {
       const baseIPs = Math.round(kw * ipMultiplier);
       const numIPs = override.numIPs !== undefined ? override.numIPs : baseIPs;
       const role = override.role || 'DNS/DHCP';
+      const services = override.services || [];
       
       // Default platform based on mode
       let defaultPlatform = 'NIOS';
@@ -241,6 +250,11 @@ export function TokenCalculatorSummary() {
       const hardwareOptions = getHardwareSkuOptions(recommendedModel);
       const defaultHardware = getDefaultHardwareSku(recommendedModel);
       
+      // Calculate tokens with service impact
+      const baseTokens = getTokensForModel(recommendedModel);
+      const serviceImpact = getServiceImpact(services);
+      const adjustedTokens = Math.ceil(baseTokens * (1 + serviceImpact / 100));
+      
       return {
         id: key,
         sourceId: site.id,
@@ -250,12 +264,14 @@ export function TokenCalculatorSummary() {
         numIPsAuto: baseIPs,
         knowledgeWorkers: kw,
         role,
+        services,
         platform,
         dhcpPercent: dhcp,
         recommendedModel,
         hardwareSku: override.hardwareSku || defaultHardware,
         hardwareOptions,
-        tokens: getTokensForModel(recommendedModel),
+        tokens: adjustedTokens,
+        serviceImpact,
       };
     });
     
