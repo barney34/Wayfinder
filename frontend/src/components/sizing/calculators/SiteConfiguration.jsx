@@ -41,6 +41,14 @@ const ROLE_OPTIONS = [
 export function SiteConfiguration({ value, onChange, questionId }) {
   const { dataCenters = [], sites: contextSites = [], answers = {}, isHydrated } = useDiscovery();
   
+  // Debug log to understand data state
+  console.log('[SiteConfiguration] Context data:', {
+    dataCentersCount: dataCenters.length,
+    contextSitesCount: contextSites.length,
+    isHydrated,
+    dataCenters: dataCenters.map(dc => ({ id: dc.id, name: dc.name, kw: dc.knowledgeWorkers })),
+  });
+  
   // Parse local site configuration (for manual additions or overrides)
   const [localConfig, setLocalConfig] = useState(() => {
     try {
