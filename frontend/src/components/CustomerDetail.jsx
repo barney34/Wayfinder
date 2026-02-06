@@ -615,7 +615,10 @@ export function CustomerDetail({ customer, onBack }) {
           </TabsContent>
 
           <TabsContent value="sizing">
-            <AssessmentQuestions questions={sizingTabQuestions} />
+            <div className="space-y-6">
+              <TokenCalculatorSummary />
+              <AssessmentQuestions questions={sizingTabQuestions} />
+            </div>
           </TabsContent>
 
           <TabsContent value="tokens">
