@@ -95,9 +95,26 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 - **Floating Save Button**: Fixed bottom-right, appears when isDirty with "Unsaved changes" indicator
 - **Add Site Button**: Creates manual sites with defaults in Token Calculator Summary
 
+### Phase 8 — Platform Mode Toggle (Complete - Feb 6, 2026)
+- **NIOS/UDDI/Hybrid Platform Toggles**: ToggleGroup to switch between deployment modes
+- **Platform-Specific Role Options**: UDDI mode removes GM/GMC roles (only DNS, DHCP, DNS/DHCP available)
+- **Platform-Specific Dropdown Options**: NIOS shows Physical/Virtual/HA, UDDI shows NXVS/NXaaS, Hybrid shows all
+- **Recommended Platform Badge**: Star icon on recommended platform, "Not Recommended" warning when different platform selected
+- **Smart Platform Recommendation**: Based on DC/Site count (>50 sites = UDDI, 2+ DCs & >10 sites = Hybrid, else NIOS)
+- **IP Calculation Logic**: GM/GMC roles use KW directly (grid objects), DNS/DHCP roles use KW × multiplier
+- **Summary Badges Update**: Shows GM/GMC/Members breakdown for NIOS/Hybrid, Members only for UDDI
+- **Bug Fix**: Fixed UDDI detection in getSiteRecommendedModel() (was checking 'NX' instead of 'NXVS')
+- **Bug Fix**: Fixed duplicate closing bracket syntax error in CustomerDetail.jsx
+
 ## Pending / Backlog
 
+### P1
+- Multi-Select for Role Services (NTP, DFP, TFTP, FTP, HTTP can be co-located)
+- Alert for deviating from recommended platform (visual feedback)
+
 ### P2
+- Verify Model Math for Multi-protocol (combined DNS/DHCP penalty calculation)
+- Export to PDF/Excel
 - AI Discovery Assistant (industry-specific follow-up questions)
 - Backend route refactoring (split server.py into routes/models)
 - Fix nested button warning in AccordionTrigger with Switch component
@@ -110,3 +127,4 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 - iteration_8.json: TokenCalculatorSummary feature verification (100% pass rate)
 - iteration_9.json: UDSMembersTable feature verification (100% pass rate)
 - iteration_10.json: Missing features fix verification (100% pass rate)
+- iteration_11.json: Platform Mode Toggle verification (100% pass rate)
