@@ -371,11 +371,12 @@ export function TokenCalculatorSummary() {
   
   // Export to CSV
   const exportCSV = useCallback(() => {
-    const headers = ['Site Name', 'Type', 'IPs', 'KW', 'Role', 'Platform', 'Model', 'Hardware SKU', 'Tokens'];
+    const headers = ['Site Name', 'Type', 'IPs', 'KW', 'Role', 'Services', 'Platform', 'Model', 'Hardware SKU', 'Tokens'];
     const rows = sites.map(s => [
-      s.name, s.sourceType || 'Manual', s.numIPs, s.knowledgeWorkers, s.role, s.platform, s.recommendedModel, s.hardwareSku, s.tokens
+      s.name, s.sourceType || 'Manual', s.numIPs, s.knowledgeWorkers, s.role, 
+      (s.services || []).join(';') || '-', s.platform, s.recommendedModel, s.hardwareSku, s.tokens
     ]);
-    rows.push(['TOTAL', '', totals.totalIPs, totals.totalKW, '', '', '', '', totals.infraTokens]);
+    rows.push(['TOTAL', '', totals.totalIPs, totals.totalKW, '', '', '', '', '', totals.infraTokens]);
     
     const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
