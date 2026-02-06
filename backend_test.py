@@ -134,6 +134,77 @@ class DiscoveryTrackAPITester:
         }
         return self.run_test("Generate Context Summary", "POST", "/api/generate-context", 200, test_data)
 
+    def test_get_discovery_data_empty(self):
+        """Test getting discovery data when none exists"""
+        if not self.created_customer_id:
+            print("❌ Skipped - No customer ID available")
+            return False, {}
+        return self.run_test("Get Discovery Data (Empty)", "GET", f"/api/customers/{self.created_customer_id}/discovery", 200)
+
+    def test_save_discovery_data(self):
+        """Test saving discovery data"""
+        if not self.created_customer_id:
+            print("❌ Skipped - No customer ID available")
+            return False, {}
+        
+        discovery_data = {
+            "answers": {
+                "ud-1": "500",
+                "ud-5": "3",
+                "ud-7": "25",
+                "ipam-0": "Microsoft, Spreadsheets",
+                "ipam-2-toggle": "Yes",
+                "ipam-2": "We need to secure IPv6 and manage application controls"
+            },
+            "notes": {
+                "ud-1": "Approximately 500 knowledge workers",
+                "ipam-2": "Customer is concerned about IPv6 security"
+            },
+            "meetingNotes": "Customer has 500 users across 3 data centers. Currently using Microsoft for IPAM. Planning IPv6 migration.",
+            "contextFields": {},
+            "enabledSections": {}
+        }
+        return self.run_test("Save Discovery Data", "PUT", f"/api/customers/{self.created_customer_id}/discovery", 200, discovery_data)
+
+    def test_get_discovery_data_with_data(self):
+        """Test getting discovery data after saving"""
+        if not self.created_customer_id:
+            print("❌ Skipped - No customer ID available")
+            return False, {}
+        return self.run_test("Get Discovery Data (With Data)", "GET", f"/api/customers/{self.created_customer_id}/discovery", 200)
+
+    def test_update_discovery_data(self):
+        """Test updating existing discovery data"""
+        if not self.created_customer_id:
+            print("❌ Skipped - No customer ID available")
+            return False, {}
+        
+        updated_data = {
+            "answers": {
+                "ud-1": "750",  # Updated value
+                "ud-5": "5",    # Updated value
+                "ud-7": "30",   # Updated value
+                "ipam-0": "Microsoft, Bluecat",  # Updated value
+                "ipam-2-toggle": "Yes",
+                "ipam-2": "We need comprehensive IPv6 security strategy",
+                "dhcp-0": "Microsoft"  # New answer
+            },
+            "notes": {
+                "ud-1": "Updated to 750 knowledge workers after recent acquisition",
+                "ipam-2": "Customer wants enterprise-grade IPv6 security",
+                "dhcp-0": "Using Microsoft DHCP servers"
+            },
+            "meetingNotes": "Updated: Customer now has 750 users after acquisition. 5 data centers. Using Microsoft for IPAM and DHCP. IPv6 migration is priority.",
+            "contextFields": {},
+            "enabledSections": {}
+        }
+        return self.run_test("Update Discovery Data", "PUT", f"/api/customers/{self.created_customer_id}/discovery", 200, updated_data)
+
+    def test_get_discovery_nonexistent_customer(self):
+        """Test getting discovery data for nonexistent customer"""
+        fake_id = str(uuid.uuid4())
+        return self.run_test("Get Discovery Data (Nonexistent Customer)", "GET", f"/api/customers/{fake_id}/discovery", 404)
+
     def test_delete_customer(self):
         """Test deleting a customer"""
         if not self.created_customer_id:
