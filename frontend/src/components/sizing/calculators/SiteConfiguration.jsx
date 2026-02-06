@@ -68,6 +68,10 @@ export function SiteConfiguration({ value, onChange, questionId }) {
   const ipMultiplier = parseFloat(answers['ipam-multiplier']) || 2.5;
   
   // Merge Quick Capture data with local configuration
+  // Force recalculation when data centers or sites change
+  const dataCenterIds = dataCenters.map(dc => dc.id).join(',');
+  const contextSiteIds = contextSites.map(s => s.id).join(',');
+  
   const mergedSites = useMemo(() => {
     const configSites = Array.isArray(localConfig?.sites) ? localConfig.sites : [];
     
@@ -82,7 +86,9 @@ export function SiteConfiguration({ value, onChange, questionId }) {
     console.log('[SiteConfiguration] Merging:', { 
       dcsLength: dcs.length, 
       ctxSitesLength: ctxSites.length,
-      configSitesLength: configSites.length 
+      configSitesLength: configSites.length,
+      dcIds: dataCenterIds,
+      siteIds: contextSiteIds,
     });
     
     // Start with Data Centers (they become GM/GMC candidates)
@@ -134,7 +140,7 @@ export function SiteConfiguration({ value, onChange, questionId }) {
     console.log('[SiteConfiguration] Merged result:', result.length, 'sites');
     
     return result;
-  }, [dataCenters, contextSites, localConfig, ipMultiplier, dhcpPercent, globalPlatform]);
+  }, [dataCenterIds, contextSiteIds, localConfig, ipMultiplier, dhcpPercent, globalPlatform, dataCenters, contextSites]);
 
   // Calculate recommended models for each site
   const sitesWithRecommendations = useMemo(() => {
