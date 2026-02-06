@@ -1,0 +1,189 @@
+#!/usr/bin/env python3
+"""
+Backend API Testing for DiscoveryTrackAI
+Tests all CRUD operations and AI endpoints
+"""
+
+import requests
+import json
+import sys
+from datetime import datetime
+import uuid
+
+class DiscoveryTrackAPITester:
+    def __init__(self, base_url="https://ai-discover-5.preview.emergentagent.com"):
+        self.base_url = base_url
+        self.tests_run = 0
+        self.tests_passed = 0
+        self.created_customer_id = None
+
+    def run_test(self, name, method, endpoint, expected_status, data=None, headers=None):
+        """Run a single API test"""
+        url = f"{self.base_url}{endpoint}"
+        if headers is None:
+            headers = {'Content-Type': 'application/json'}
+
+        self.tests_run += 1
+        print(f"\n🔍 Testing {name}...")
+        print(f"   URL: {url}")
+        
+        try:
+            if method == 'GET':
+                response = requests.get(url, headers=headers, timeout=30)
+            elif method == 'POST':
+                response = requests.post(url, json=data, headers=headers, timeout=30)
+            elif method == 'PATCH':
+                response = requests.patch(url, json=data, headers=headers, timeout=30)
+            elif method == 'DELETE':
+                response = requests.delete(url, headers=headers, timeout=30)
+
+            success = response.status_code == expected_status
+            if success:
+                self.tests_passed += 1
+                print(f"✅ Passed - Status: {response.status_code}")
+                if response.content:
+                    try:
+                        response_data = response.json()
+                        print(f"   Response: {json.dumps(response_data, indent=2)[:200]}...")
+                        return True, response_data
+                    except:
+                        return True, {}
+                return True, {}
+            else:
+                print(f"❌ Failed - Expected {expected_status}, got {response.status_code}")
+                if response.content:
+                    print(f"   Response: {response.text[:500]}")
+                return False, {}
+
+        except requests.exceptions.Timeout:
+            print(f"❌ Failed - Request timeout")
+            return False, {}
+        except Exception as e:
+            print(f"❌ Failed - Error: {str(e)}")
+            return False, {}
+
+    def test_health_check(self):
+        """Test health check endpoint"""
+        return self.run_test("Health Check", "GET", "/api/health", 200)
+
+    def test_get_customers_empty(self):
+        """Test getting customers when none exist"""
+        return self.run_test("Get Customers (Empty)", "GET", "/api/customers", 200)
+
+    def test_create_customer(self):
+        """Test creating a new customer"""
+        test_data = {
+            "name": f"Test Customer {datetime.now().strftime('%H%M%S')}",
+            "nickname": "TestCorp",
+            "opportunity": "PSAR Review",
+            "seName": "John Doe"
+        }
+        success, response = self.run_test("Create Customer", "POST", "/api/customers", 201, test_data)
+        if success and response.get('id'):
+            self.created_customer_id = response['id']
+            print(f"   Created customer ID: {self.created_customer_id}")
+        return success, response
+
+    def test_get_customers_with_data(self):
+        """Test getting customers when data exists"""
+        return self.run_test("Get Customers (With Data)", "GET", "/api/customers", 200)
+
+    def test_get_customer_by_id(self):
+        """Test getting a specific customer by ID"""
+        if not self.created_customer_id:
+            print("❌ Skipped - No customer ID available")
+            return False, {}
+        return self.run_test("Get Customer by ID", "GET", f"/api/customers/{self.created_customer_id}", 200)
+
+    def test_update_customer(self):
+        """Test updating a customer"""
+        if not self.created_customer_id:
+            print("❌ Skipped - No customer ID available")
+            return False, {}
+        
+        update_data = {
+            "psar": "submitted",
+            "arb": "submitted",
+            "design": "started"
+        }
+        return self.run_test("Update Customer", "PATCH", f"/api/customers/{self.created_customer_id}", 200, update_data)
+
+    def test_get_questions(self):
+        """Test getting discovery questions"""
+        return self.run_test("Get Discovery Questions", "GET", "/api/questions", 200)
+
+    def test_analyze_notes(self):
+        """Test AI notes analysis"""
+        test_notes = {
+            "notes": "The customer has 500 users across 3 data centers. They are currently using Microsoft DNS and DHCP. They have about 1000 IP addresses in use and are considering IPv6 migration."
+        }
+        return self.run_test("Analyze Meeting Notes", "POST", "/api/analyze-notes", 200, test_notes)
+
+    def test_generate_context(self):
+        """Test AI context generation"""
+        test_data = {
+            "contextType": "environment",
+            "answers": {
+                "ud-1": "500",
+                "ud-5": "3",
+                "idns-0": "Microsoft"
+            },
+            "notes": {
+                "ud-1": "Approximately 500 knowledge workers across the organization"
+            }
+        }
+        return self.run_test("Generate Context Summary", "POST", "/api/generate-context", 200, test_data)
+
+    def test_delete_customer(self):
+        """Test deleting a customer"""
+        if not self.created_customer_id:
+            print("❌ Skipped - No customer ID available")
+            return False, {}
+        return self.run_test("Delete Customer", "DELETE", f"/api/customers/{self.created_customer_id}", 204)
+
+    def test_get_nonexistent_customer(self):
+        """Test getting a customer that doesn't exist"""
+        fake_id = str(uuid.uuid4())
+        return self.run_test("Get Nonexistent Customer", "GET", f"/api/customers/{fake_id}", 404)
+
+def main():
+    print("🚀 Starting DiscoveryTrackAI Backend API Tests")
+    print("=" * 60)
+    
+    tester = DiscoveryTrackAPITester()
+    
+    # Test sequence
+    tests = [
+        tester.test_health_check,
+        tester.test_get_customers_empty,
+        tester.test_create_customer,
+        tester.test_get_customers_with_data,
+        tester.test_get_customer_by_id,
+        tester.test_update_customer,
+        tester.test_get_questions,
+        tester.test_analyze_notes,
+        tester.test_generate_context,
+        tester.test_delete_customer,
+        tester.test_get_nonexistent_customer,
+    ]
+    
+    # Run all tests
+    for test in tests:
+        try:
+            test()
+        except Exception as e:
+            print(f"❌ Test failed with exception: {str(e)}")
+    
+    # Print results
+    print("\n" + "=" * 60)
+    print(f"📊 Test Results: {tester.tests_passed}/{tester.tests_run} tests passed")
+    
+    if tester.tests_passed == tester.tests_run:
+        print("🎉 All tests passed!")
+        return 0
+    else:
+        print("⚠️  Some tests failed")
+        return 1
+
+if __name__ == "__main__":
+    sys.exit(main())
