@@ -40,6 +40,8 @@ export function DiscoveryProvider({ children, customerId }) {
   const [sites, setSites] = useState([]);
   const [isHydrated, setIsHydrated] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState(null);
 
   // Load data from MongoDB on mount or customer change
   useEffect(() => {
