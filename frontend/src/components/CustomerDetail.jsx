@@ -790,7 +790,7 @@ export function CustomerDetail({ customer, onBack }) {
                             </CardTitle>
                           </div>
                           <Badge variant="outline">
-                            {sectionAnswered}/{sectionQuestions.length}
+                            {sectionAnswered}/{visibleSectionQs.length}
                           </Badge>
                         </div>
                       </CardHeader>
