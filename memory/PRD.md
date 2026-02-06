@@ -77,10 +77,19 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 - Partner SKU tiers: 5K, 10K, 17K, 25K, 50K, 100K+ based on total tokens
 - Real-time updates when Quick Capture data changes
 
+### Phase 6 — UDS Members Table (Complete - Feb 6, 2026)
+- **UDSMembersTable component** for managing grid members within sites
+- Member table with: Name, Location, Platform, Model/Size, Role, HA, Tokens
+- Platform support: NIOS Physical/Virtual/HA, NXVS, NXaaS
+- Role assignment: Grid Master, GMC, DNS, DHCP, DNS+DHCP, Reporting
+- Token calculation: NIOS by model (TE-926=880), UDDI by size (S=470)
+- Expandable rows for DNS/DHCP feature toggles with performance impact %
+- Add/Duplicate/Delete member functionality
+- Locations dropdown reads from Quick Capture (DCs + Sites)
+
 ## Pending / Backlog
 
 ### P1 (Next Up)
-- UDS Members Table (grid member management)
 - ARB-Required question tagging
 
 ### P2
@@ -88,9 +97,11 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 - Backend route refactoring (split server.py into routes/models)
 - Fix nested button warning in AccordionTrigger with Switch component
 - Floating Save Button enhancement
+- Export to PDF/Excel feature
 
 ## Test Reports
 - iteration_5.json: Post-migration (91 questions, 12 sections)
 - iteration_6.json: Full UI rewrite (Quick Capture, 6 tabs, Platform badges, auto-save)
 - iteration_7.json: SiteConfiguration bug fix verification (100% pass rate)
 - iteration_8.json: TokenCalculatorSummary feature verification (100% pass rate)
+- iteration_9.json: UDSMembersTable feature verification (100% pass rate)
