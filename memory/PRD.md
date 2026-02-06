@@ -7,7 +7,7 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 - **Frontend**: React (JSX), Tailwind CSS, TanStack Query, wouter, Shadcn/UI
 - **Backend**: Python FastAPI, Pydantic, Motor (async MongoDB)
 - **Database**: MongoDB
-- **AI**: Google Gemini via emergentintegrations library
+- **AI**: Google Gemini 3 Flash via emergentintegrations library (Emergent LLM Key)
 
 ## Core Architecture
 ```
@@ -23,7 +23,7 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 │   │   ├── AssessmentQuestions.jsx  # Section renderer with Enable toggles, notes
 │   │   ├── MeetingNotesAI.jsx   # AI meeting notes analysis
 │   │   └── sizing/              # Token Calculator module
-│   │       ├── calculators/     # TD NIOS, Dossier, Lookalike, etc.
+│   │       ├── calculators/     # TD NIOS, Dossier, Lookalike, SiteConfiguration, etc.
 │   │       ├── constants.js, parsers.js, calculations.js
 │   │       └── index.js
 │   ├── lib/
