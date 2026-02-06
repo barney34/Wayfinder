@@ -223,6 +223,129 @@ function QuestionField({ question, value, onChange, answers, onNoteChange, note 
   }
 }
 
+function SiteConfigurationField({ value, onChange, questionId, answers }) {
+  const [sites, setSites] = useState(() => {
+    try { return value ? JSON.parse(value) : []; } catch { return []; }
+  });
+
+  const addSite = () => {
+    const newSite = {
+      id: `site-${Date.now()}`, name: `Site ${sites.length + 1}`,
+      numIPs: 0, role: 'DNS/DHCP', platform: 'NIOS', dhcpPercent: 80,
+    };
+    const updated = [...sites, newSite];
+    setSites(updated);
+    onChange(JSON.stringify(updated));
+  };
+
+  const removeSite = (id) => {
+    const updated = sites.filter(s => s.id !== id);
+    setSites(updated);
+    onChange(JSON.stringify(updated));
+  };
+
+  const updateSite = (id, field, val) => {
+    const updated = sites.map(s => s.id === id ? { ...s, [field]: val } : s);
+    setSites(updated);
+    onChange(JSON.stringify(updated));
+  };
+
+  return (
+    <div className="space-y-3" data-testid={`site-config-${questionId}`}>
+      {sites.length > 0 && (
+        <div className="space-y-2">
+          <div className="grid grid-cols-6 gap-2 text-xs font-semibold text-muted-foreground px-2">
+            <span>Site Name</span><span># IPs</span><span>Role</span><span>Platform</span><span>DHCP %</span><span></span>
+          </div>
+          {sites.map((site) => (
+            <div key={site.id} className="grid grid-cols-6 gap-2 items-center bg-muted/40 rounded-md p-2">
+              <Input value={site.name} onChange={(e) => updateSite(site.id, 'name', e.target.value)} className="h-8 text-sm" />
+              <Input type="number" value={site.numIPs || ''} onChange={(e) => updateSite(site.id, 'numIPs', parseInt(e.target.value) || 0)} className="h-8 text-sm" />
+              <Select value={site.role} onValueChange={(v) => updateSite(site.id, 'role', v)}>
+                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="DNS/DHCP">DNS/DHCP</SelectItem><SelectItem value="DNS">DNS Only</SelectItem>
+                  <SelectItem value="DHCP">DHCP Only</SelectItem><SelectItem value="GM">GM</SelectItem><SelectItem value="GMC">GMC</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={site.platform} onValueChange={(v) => updateSite(site.id, 'platform', v)}>
+                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="NIOS">NIOS</SelectItem><SelectItem value="NIOS-HA">NIOS-HA</SelectItem>
+                  <SelectItem value="NX">NIOS-X</SelectItem><SelectItem value="NXaaS">NXaaS</SelectItem>
+                </SelectContent>
+              </Select>
+              <Input type="number" min="0" max="100" value={site.dhcpPercent} onChange={(e) => updateSite(site.id, 'dhcpPercent', parseInt(e.target.value) || 0)} className="h-8 text-sm" />
+              <Button variant="ghost" size="icon" onClick={() => removeSite(site.id)} className="h-8 w-8"><X className="h-3 w-3" /></Button>
+            </div>
+          ))}
+        </div>
+      )}
+      <Button variant="outline" size="sm" onClick={addSite} data-testid={`site-config-add-${questionId}`}>+ Add Site</Button>
+      {sites.length > 0 && (
+        <div className="text-xs text-muted-foreground">{sites.length} site(s) configured, {sites.reduce((s, site) => s + (site.numIPs || 0), 0).toLocaleString()} total IPs</div>
+      )}
+    </div>
+  );
+}
+
+function TokenTotalDisplay({ answers }) {
+  const assetConfig = safeParseAssetConfig(answers['beta-asset-config']);
+  const tdNios = safeParseTDNios(answers['beta-td-nios-section']);
+  const reporting = safeParseReporting(answers['beta-reporting']);
+  const dossier = safeParseDossier(answers['beta-dossier']);
+  const lookalike = safeParseLookalike(answers['beta-lookalike']);
+  const domainTakedown = safeParseDomainTakedown(answers['beta-domain-takedown']);
+  const socInsights = safeParseSocInsights(answers['beta-soc-insights']);
+
+  const tdCloudTokens = assetConfig.tdCloudEnabled ? (assetConfig.totalAssets || 0) * 3 : 0;
+  const tdNiosTokens = tdNios.enabled ? tdNios.tokens.reduce((sum, t) => sum + (t.tokens * (t.quantity || 1)), 0) : 0;
+  const dossierTokens = dossier.enabled ? (dossier.quantity || 0) * DOSSIER_TOKENS_PER_UNIT : 0;
+  const lookalikeTokens = lookalike.enabled ? (lookalike.quantity || 0) * LOOKALIKE_TOKENS_PER_UNIT : 0;
+  const domainTakedownTokens = domainTakedown.enabled ? (domainTakedown.quantity || 0) * DOMAIN_TAKEDOWN_TOKENS_PER_UNIT : 0;
+  const socInsightsTokens = socInsights.enabled ? (socInsights.calculatedTokens || 0) : 0;
+  const reportingTokens = reporting.enabled ? (reporting.securityEventsTokens || 0) : 0;
+
+  const totalTokens = tdCloudTokens + tdNiosTokens + dossierTokens + lookalikeTokens + domainTakedownTokens + socInsightsTokens + reportingTokens;
+  const tokenPacks = Math.ceil(totalTokens / 1000);
+
+  const items = [
+    { label: "TD Cloud", tokens: tdCloudTokens, show: assetConfig.tdCloudEnabled },
+    { label: "TD for NIOS", tokens: tdNiosTokens, show: tdNios.enabled },
+    { label: "Dossier", tokens: dossierTokens, show: dossier.enabled },
+    { label: "Lookalike", tokens: lookalikeTokens, show: lookalike.enabled },
+    { label: "Domain Takedown", tokens: domainTakedownTokens, show: domainTakedown.enabled },
+    { label: "SOC Insights", tokens: socInsightsTokens, show: socInsights.enabled },
+    { label: "Reporting", tokens: reportingTokens, show: reporting.enabled },
+  ].filter(i => i.show);
+
+  return (
+    <div className="p-4 bg-muted/50 rounded-lg space-y-3" data-testid="token-total-display">
+      {items.length > 0 && (
+        <div className="space-y-1">
+          {items.map(item => (
+            <div key={item.label} className="flex justify-between text-sm">
+              <span className="text-muted-foreground">{item.label}</span>
+              <span className="font-mono">{item.tokens.toLocaleString()}</span>
+            </div>
+          ))}
+          <div className="border-t border-border pt-2 mt-2 flex justify-between font-semibold">
+            <span>Total Tokens</span>
+            <span className="font-mono text-lg">{totalTokens.toLocaleString()}</span>
+          </div>
+          <div className="flex justify-between text-sm text-muted-foreground">
+            <span>Token Packs (1,000 per pack)</span>
+            <span className="font-mono">{tokenPacks.toLocaleString()}</span>
+          </div>
+        </div>
+      )}
+      {items.length === 0 && (
+        <p className="text-sm text-muted-foreground">Enable security features above to see token summary</p>
+      )}
+    </div>
+  );
+}
+
 export function CustomerDetail({ customer, onBack }) {
   const [answers, setAnswers] = useState({});
   const [notes, setNotes] = useState({});
