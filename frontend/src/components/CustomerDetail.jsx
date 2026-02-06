@@ -275,6 +275,7 @@ export function CustomerDetail({ customer, onBack }) {
   const [aiDialogOpen, setAiDialogOpen] = useState(false);
   const [aiMatches, setAiMatches] = useState([]);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [lastSaved, setLastSaved] = useState(null);
   const { toast } = useToast();
 
   // Fetch questions from API
@@ -282,38 +283,58 @@ export function CustomerDetail({ customer, onBack }) {
     queryKey: ['/api/questions'],
   });
 
-  // Load saved data from localStorage
-  useEffect(() => {
-    const storageKey = `discovery-${customer.id}`;
-    const saved = localStorage.getItem(storageKey);
-    if (saved) {
-      try {
-        const data = JSON.parse(saved);
-        setAnswers(data.answers || {});
-        setNotes(data.notes || {});
-        setMeetingNotes(data.meetingNotes || "");
-      } catch (e) {
-        console.error("Error loading saved data:", e);
-      }
-    }
-  }, [customer.id]);
+  // Fetch discovery data from API
+  const { data: discoveryData, isLoading: isLoadingDiscovery } = useQuery({
+    queryKey: [`/api/customers/${customer.id}/discovery`],
+    enabled: !!customer.id,
+  });
 
-  // Save to localStorage when data changes
+  // Load discovery data when fetched
+  useEffect(() => {
+    if (discoveryData) {
+      setAnswers(discoveryData.answers || {});
+      setNotes(discoveryData.notes || {});
+      setMeetingNotes(discoveryData.meetingNotes || "");
+      setLastSaved(discoveryData.lastSaved);
+      setHasUnsavedChanges(false);
+    }
+  }, [discoveryData]);
+
+  // Save mutation
+  const saveMutation = useMutation({
+    mutationFn: async (data) => {
+      const response = await apiRequest('PUT', `/api/customers/${customer.id}/discovery`, data);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setHasUnsavedChanges(false);
+      setLastSaved(data.lastSaved);
+      queryClient.invalidateQueries({ queryKey: ['/api/customers'] });
+      toast({
+        title: "Saved to Cloud",
+        description: "Discovery data synced successfully.",
+      });
+    },
+    onError: (error) => {
+      console.error("Save error:", error);
+      toast({
+        title: "Save Failed",
+        description: "Failed to save. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Save data to API
   const saveData = useCallback(() => {
-    const storageKey = `discovery-${customer.id}`;
-    const data = {
+    saveMutation.mutate({
       answers,
       notes,
       meetingNotes,
-      lastSaved: new Date().toISOString(),
-    };
-    localStorage.setItem(storageKey, JSON.stringify(data));
-    setHasUnsavedChanges(false);
-    toast({
-      title: "Saved",
-      description: "Discovery data saved locally.",
+      contextFields: {},
+      enabledSections: {},
     });
-  }, [customer.id, answers, notes, meetingNotes, toast]);
+  }, [answers, notes, meetingNotes, saveMutation]);
 
   const handleAnswerChange = (questionId, value) => {
     setAnswers(prev => ({ ...prev, [questionId]: value }));
