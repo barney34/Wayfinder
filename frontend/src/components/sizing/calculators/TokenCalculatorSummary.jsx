@@ -637,7 +637,7 @@ export function TokenCalculatorSummary() {
     doc.setFont('helvetica', 'bold');
     doc.text('Token Summary', 14, 15);
     
-    doc.autoTable({
+    autoTable(doc, {
       startY: 22,
       head: [['Category', 'Tokens', 'Status']],
       body: [
