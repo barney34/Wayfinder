@@ -13,4 +13,5 @@ export {
   UDDIEstimator,
   SiteConfiguration,
   TokenCalculatorSummary,
+  UDSMembersTable,
 } from './calculators';
