@@ -434,12 +434,34 @@ export function CustomerDetail({ customer, onBack }) {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          {hasUnsavedChanges && (
-            <span className="text-sm text-amber-600">Unsaved changes</span>
+          {lastSaved && !hasUnsavedChanges && (
+            <span className="text-sm text-green-600 flex items-center gap-1">
+              <Cloud className="h-4 w-4" />
+              Synced
+            </span>
           )}
-          <Button onClick={saveData} data-testid="button-save">
-            <Save className="h-4 w-4 mr-2" />
-            Save
+          {hasUnsavedChanges && (
+            <span className="text-sm text-amber-600 flex items-center gap-1">
+              <CloudOff className="h-4 w-4" />
+              Unsaved changes
+            </span>
+          )}
+          <Button 
+            onClick={saveData} 
+            disabled={saveMutation.isPending || !hasUnsavedChanges}
+            data-testid="button-save"
+          >
+            {saveMutation.isPending ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Cloud className="h-4 w-4 mr-2" />
+                Save to Cloud
+              </>
+            )}
           </Button>
         </div>
       </div>
