@@ -347,15 +347,17 @@ export function TokenCalculatorSummary() {
       numIPsAuto: 0,
       knowledgeWorkers: 0,
       role: 'DNS/DHCP',
-      platform: 'NIOS',
+      services: [],
+      platform: platformMode === 'UDDI' ? 'NXVS' : 'NIOS',
       dhcpPercent,
       recommendedModel: 'TE-926',
       hardwareSku: 'TE-906-HW-2AC',
       hardwareOptions: ['TE-906-HW-2AC', 'TE-906-HW-AC'],
       tokens: 880,
+      serviceImpact: 0,
     };
     setManualSites(prev => [...prev, newSite]);
-  }, [sites.length, dhcpPercent]);
+  }, [sites.length, dhcpPercent, platformMode]);
   
   // Delete site
   const deleteSite = useCallback((siteId) => {
