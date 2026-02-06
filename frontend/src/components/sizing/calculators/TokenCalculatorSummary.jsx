@@ -8,9 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { 
   Building2, MapPin, Server, Package, DollarSign, Cpu, HardDrive, Shield, BarChart3,
-  Plus, Trash2, Download, FileText, Info
+  Plus, Trash2, Download, FileText, Info, AlertTriangle, Star
 } from "lucide-react";
 import { 
   getSiteRecommendedModel,
@@ -24,21 +25,63 @@ import {
   tokenModels,
 } from "@/lib/tokenData";
 
-// Platform options
-const PLATFORM_OPTIONS = [
-  { value: 'NIOS', label: 'NIOS' },
-  { value: 'NIOS-HA', label: 'NIOS HA' },
-  { value: 'NX', label: 'NIOS-X' },
-  { value: 'NXaaS', label: 'NXaaS' },
+// Global platform modes
+const PLATFORM_MODES = [
+  { value: 'NIOS', label: 'NIOS', description: 'Traditional on-prem (Physical/Virtual)' },
+  { value: 'UDDI', label: 'UDDI', description: 'Cloud-native NIOS-X' },
+  { value: 'Hybrid', label: 'Hybrid', description: 'Mix of NIOS + UDDI' },
 ];
 
-// Role options
-const ROLE_OPTIONS = [
-  { value: 'GM', label: 'GM' },
-  { value: 'GMC', label: 'GMC' },
-  { value: 'DNS', label: 'DNS' },
-  { value: 'DHCP', label: 'DHCP' },
-  { value: 'DNS/DHCP', label: 'DNS/DHCP' },
+// Platform options per mode
+const PLATFORM_OPTIONS_BY_MODE = {
+  NIOS: [
+    { value: 'NIOS', label: 'NIOS Physical' },
+    { value: 'NIOS-V', label: 'NIOS Virtual' },
+    { value: 'NIOS-HA', label: 'NIOS HA Pair' },
+  ],
+  UDDI: [
+    { value: 'NXVS', label: 'NIOS-X Virtual Server' },
+    { value: 'NXaaS', label: 'NIOS-X as a Service' },
+  ],
+  Hybrid: [
+    { value: 'NIOS', label: 'NIOS Physical' },
+    { value: 'NIOS-V', label: 'NIOS Virtual' },
+    { value: 'NIOS-HA', label: 'NIOS HA Pair' },
+    { value: 'NXVS', label: 'NIOS-X VS' },
+    { value: 'NXaaS', label: 'NXaaS' },
+  ],
+};
+
+// Role options by platform mode (UDDI doesn't have GM/GMC)
+const ROLE_OPTIONS_BY_MODE = {
+  NIOS: [
+    { value: 'GM', label: 'GM', description: 'Grid Master' },
+    { value: 'GMC', label: 'GMC', description: 'Grid Master Candidate' },
+    { value: 'DNS', label: 'DNS', description: 'DNS Only' },
+    { value: 'DHCP', label: 'DHCP', description: 'DHCP Only' },
+    { value: 'DNS/DHCP', label: 'DNS/DHCP', description: 'DNS + DHCP' },
+  ],
+  UDDI: [
+    { value: 'DNS', label: 'DNS', description: 'DNS Only' },
+    { value: 'DHCP', label: 'DHCP', description: 'DHCP Only' },
+    { value: 'DNS/DHCP', label: 'DNS/DHCP', description: 'DNS + DHCP' },
+  ],
+  Hybrid: [
+    { value: 'GM', label: 'GM', description: 'Grid Master (NIOS only)' },
+    { value: 'GMC', label: 'GMC', description: 'Grid Master Candidate (NIOS only)' },
+    { value: 'DNS', label: 'DNS', description: 'DNS Only' },
+    { value: 'DHCP', label: 'DHCP', description: 'DHCP Only' },
+    { value: 'DNS/DHCP', label: 'DNS/DHCP', description: 'DNS + DHCP' },
+  ],
+};
+
+// Additional services (multi-select)
+const ADDITIONAL_SERVICES = [
+  { value: 'NTP', label: 'NTP', impact: 0 },
+  { value: 'DFP', label: 'DFP', impact: 5 },
+  { value: 'TFTP', label: 'TFTP', impact: 2 },
+  { value: 'FTP', label: 'FTP', impact: 2 },
+  { value: 'HTTP', label: 'HTTP', impact: 3 },
 ];
 
 // Get token count for a model
@@ -73,6 +116,13 @@ function getSkuDescription(sku) {
     'TE-4106-HW-AC': 'NIOS TE-4126',
   };
   return descriptions[sku] || sku;
+}
+
+// Get recommended platform based on site count and customer needs
+function getRecommendedPlatformMode(dcCount, siteCount) {
+  if (siteCount > 50) return 'UDDI'; // Large distributed = UDDI
+  if (dcCount >= 2 && siteCount > 10) return 'Hybrid';
+  return 'NIOS'; // Traditional
 }
 
 /**
