@@ -180,7 +180,6 @@ function QuickCaptureBarInline() {
                 <Button variant="ghost" size="icon" className="h-5 w-5 ml-1" onClick={() => deleteSite(site.id)} data-testid={`delete-site-${site.id}`}><X className="h-3 w-3 text-muted-foreground hover:text-destructive" /></Button>
               </div>
             ))}
-            ))}
           </div>
         )}
       </div>
