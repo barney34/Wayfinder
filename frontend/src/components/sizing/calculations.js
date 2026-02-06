@@ -80,7 +80,7 @@ export function findNIOSServerByPerformance(qps, lps, objects) {
 
 export function getSiteRecommendedModel(numIPs, role, platform, dhcpPercent, leaseTimeSeconds, sitePlatform) {
   const isUDDI = sitePlatform
-    ? (sitePlatform === 'NX' || sitePlatform === 'NXaaS')
+    ? (sitePlatform === 'NXVS' || sitePlatform === 'NXaaS')
     : (platform.includes('UDDI') || platform.includes('Hybrid'));
   const dhcpClients = Math.ceil(numIPs * (dhcpPercent / 100));
   const staticClients = numIPs - dhcpClients;
