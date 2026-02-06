@@ -1,0 +1,101 @@
+{
+  "summary": "Iteration 14: Frontend-only testing of PDF/Excel export and Model Math. Fixed critical PDF export bug (jspdf-autotable v5 import pattern). All export formats working. Model math logic verified correct in code.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "passed_tests": [
+    "Export dropdown appears with 4 options: CSV, Excel, PDF, YAML",
+    "Export as CSV downloads site-sizing-export.csv with all site data",
+    "Export as Excel downloads site-sizing-export.xlsx with 3 sheets (Site Sizing, Bill of Materials, Summary)",
+    "Export as PDF downloads site-sizing-export.pdf with formatted report including summary boxes and tables",
+    "Export as YAML downloads site-sizing-export.yaml with structured data",
+    "Model math code review: GM/GMC roles use object capacity for sizing (gridObjects = dnsObjects + dhcpObjects)",
+    "Model math code review: DNS/DHCP combined role applies multiRoleCapacityMultiplier (1.3x) to QPS and LPS",
+    "Model math code review: Single-role DNS uses QPS and dnsObjects for sizing",
+    "Model math code review: Single-role DHCP uses LPS and dhcpObjects for sizing"
+  ],
+  "bugs_fixed": [
+    {
+      "file": "/app/frontend/src/components/sizing/calculators/TokenCalculatorSummary.jsx",
+      "issue": "PDF export failing with 'doc.autoTable is not a function' error",
+      "root_cause": "jspdf-autotable v5.x changed import pattern - side-effect import no longer works",
+      "fix": "Changed from 'import \"jspdf-autotable\"' to 'import { autoTable } from \"jspdf-autotable\"' and updated all doc.autoTable({...}) calls to autoTable(doc, {...})"
+    }
+  ],
+  "test_report_links": [
+    "/app/test_reports/iteration_14.json"
+  ],
+  "action_items": [
+    "MINOR: Manual sites (added via 'Add Site' button) do not recalculate model when IPs change - they keep hardcoded TE-926 model. DC/branch sites work correctly."
+  ],
+  "critical_code_review_comments": [
+    "calculations.js Lines 98-114: GM/GMC roles correctly use gridObjects (dnsObjects + dhcpObjects) for sizing, NOT QPS/LPS",
+    "calculations.js Lines 117-147: DNS/DHCP combined role correctly applies multiRoleCapacityMultiplier (1.3x) to adjustedQPS and adjustedLPS",
+    "calculations.js Lines 150-166: DNS-only role correctly uses QPS and dnsObjects for sizing",
+    "calculations.js Lines 168-183: DHCP-only role correctly uses LPS and dhcpObjects for sizing",
+    "tokenData.js Line 80: multiRoleCapacityMultiplier is correctly set to 1.3",
+    "TokenCalculatorSummary.jsx Lines 388-406: Manual sites are created with hardcoded model values and don't recalculate when IPs change (minor issue)"
+  ],
+  "updated_files": [
+    "/app/frontend/src/components/sizing/calculators/TokenCalculatorSummary.jsx"
+  ],
+  "success_rate": {
+    "backend": "N/A (frontend-only testing)",
+    "frontend": "100% (all 9 requested features verified)"
+  },
+  "test_credentials": "No authentication required",
+  "seed_data_creation": "Used existing 'Test Customer Frontend' with 4 DCs and 1 Site",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "PDF/Excel export and model math features verified. Fixed jspdf-autotable v5 import issue. Export dropdown has 4 options (CSV, Excel, PDF, YAML). Excel creates 3 sheets. Model math logic is correct in code for all role types. Minor issue: manual sites don't recalculate model when IPs change.",
+  "export_verification": {
+    "csv": {
+      "filename": "site-sizing-export.csv",
+      "status": "working",
+      "content": "Site data with headers: Site Name, Type, IPs, KW, Role, Services, Platform, Model, Hardware SKU, Tokens"
+    },
+    "excel": {
+      "filename": "site-sizing-export.xlsx",
+      "status": "working",
+      "file_size": "21383 bytes",
+      "sheets": ["Site Sizing", "Bill of Materials", "Summary"]
+    },
+    "pdf": {
+      "filename": "site-sizing-export.pdf",
+      "status": "working",
+      "file_size": "27954 bytes",
+      "content": "Formatted report with summary boxes, site sizing table, BOM table, token summary"
+    },
+    "yaml": {
+      "filename": "site-sizing-export.yaml",
+      "status": "working",
+      "content": "Structured data with summary, sites array, and bom array"
+    }
+  },
+  "model_math_verification": {
+    "gm_gmc_roles": {
+      "sizing_method": "Object capacity (gridObjects = dnsObjects + dhcpObjects)",
+      "uses_qps_lps": false,
+      "status": "correct"
+    },
+    "dns_dhcp_combined": {
+      "sizing_method": "QPS, LPS, and combinedObjects with 1.3x multiplier",
+      "multiplier": 1.3,
+      "status": "correct"
+    },
+    "dns_only": {
+      "sizing_method": "QPS and dnsObjects",
+      "status": "correct"
+    },
+    "dhcp_only": {
+      "sizing_method": "LPS and dhcpObjects",
+      "status": "correct"
+    }
+  }
+}
