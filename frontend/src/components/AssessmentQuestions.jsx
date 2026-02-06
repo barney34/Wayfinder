@@ -441,38 +441,6 @@ function renderSectionQuestions(sectionQuestions, answers, expandedSubsections, 
   });
 }
 
-// ===== Site Config Field =====
-function SiteConfigField({ value, onChange, questionId, answers }) {
-  const [sites, setSites] = useState(() => { try { return value ? JSON.parse(value) : []; } catch { return []; } });
-  const addSite = () => {
-    const ns = { id: `site-${Date.now()}`, name: `Site ${sites.length + 1}`, numIPs: 0, role: 'DNS/DHCP', platform: 'NIOS', dhcpPercent: 80 };
-    const updated = [...sites, ns]; setSites(updated); onChange(JSON.stringify(updated));
-  };
-  const removeSite = (id) => { const u = sites.filter(s => s.id !== id); setSites(u); onChange(JSON.stringify(u)); };
-  const updateSite = (id, field, val) => { const u = sites.map(s => s.id === id ? { ...s, [field]: val } : s); setSites(u); onChange(JSON.stringify(u)); };
-  return (
-    <div className="space-y-3" data-testid={`site-config-${questionId}`}>
-      {sites.length > 0 && (
-        <div className="space-y-2">
-          <div className="grid grid-cols-6 gap-2 text-xs font-semibold text-muted-foreground px-2"><span>Site Name</span><span># IPs</span><span>Role</span><span>Platform</span><span>DHCP %</span><span></span></div>
-          {sites.map(site => (
-            <div key={site.id} className="grid grid-cols-6 gap-2 items-center bg-muted/40 rounded-md p-2">
-              <Input value={site.name} onChange={e => updateSite(site.id, 'name', e.target.value)} className="h-8 text-sm" />
-              <Input type="number" value={site.numIPs || ''} onChange={e => updateSite(site.id, 'numIPs', parseInt(e.target.value) || 0)} className="h-8 text-sm" />
-              <Select value={site.role} onValueChange={v => updateSite(site.id, 'role', v)}><SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="DNS/DHCP">DNS/DHCP</SelectItem><SelectItem value="DNS">DNS Only</SelectItem><SelectItem value="DHCP">DHCP Only</SelectItem><SelectItem value="GM">GM</SelectItem><SelectItem value="GMC">GMC</SelectItem></SelectContent></Select>
-              <Select value={site.platform} onValueChange={v => updateSite(site.id, 'platform', v)}><SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="NIOS">NIOS</SelectItem><SelectItem value="NIOS-HA">NIOS-HA</SelectItem><SelectItem value="NX">NIOS-X</SelectItem><SelectItem value="NXaaS">NXaaS</SelectItem></SelectContent></Select>
-              <Input type="number" min="0" max="100" value={site.dhcpPercent} onChange={e => updateSite(site.id, 'dhcpPercent', parseInt(e.target.value) || 0)} className="h-8 text-sm" />
-              <Button variant="ghost" size="icon" onClick={() => removeSite(site.id)} className="h-8 w-8"><X className="h-3 w-3" /></Button>
-            </div>
-          ))}
-        </div>
-      )}
-      <Button variant="outline" size="sm" onClick={addSite} data-testid={`site-config-add-${questionId}`}>+ Add Site</Button>
-      {sites.length > 0 && <div className="text-xs text-muted-foreground">{sites.length} site(s), {sites.reduce((s, site) => s + (site.numIPs || 0), 0).toLocaleString()} total IPs</div>}
-    </div>
-  );
-}
-
 // ===== Token Total Display =====
 function TokenTotalDisplay({ answers }) {
   const parse = (key, field, mult = 1) => { try { const d = JSON.parse(answers[key] || '{}'); return d.enabled ? (d[field] || 0) * mult : 0; } catch { return 0; } };
