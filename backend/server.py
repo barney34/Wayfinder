@@ -283,7 +283,73 @@ async def delete_customer(customer_id: str):
     result = await customers_collection.delete_one({"id": customer_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Customer not found")
+    # Also delete discovery data
+    await discovery_collection.delete_one({"customerId": customer_id})
     return None
+
+
+# ========== Discovery Data Routes ==========
+
+@app.get("/api/customers/{customer_id}/discovery")
+async def get_discovery_data(customer_id: str):
+    """Get discovery data for a customer"""
+    # Verify customer exists
+    customer = await customers_collection.find_one({"id": customer_id})
+    if not customer:
+        raise HTTPException(status_code=404, detail="Customer not found")
+    
+    # Get discovery data
+    discovery = await discovery_collection.find_one({"customerId": customer_id}, {"_id": 0})
+    
+    if not discovery:
+        # Return empty discovery data
+        return {
+            "customerId": customer_id,
+            "answers": {},
+            "notes": {},
+            "meetingNotes": "",
+            "contextFields": {},
+            "enabledSections": {},
+            "lastSaved": None,
+        }
+    
+    return discovery
+
+
+@app.put("/api/customers/{customer_id}/discovery")
+async def save_discovery_data(customer_id: str, data: DiscoveryData):
+    """Save discovery data for a customer"""
+    # Verify customer exists
+    customer = await customers_collection.find_one({"id": customer_id})
+    if not customer:
+        raise HTTPException(status_code=404, detail="Customer not found")
+    
+    now = datetime.now(timezone.utc)
+    
+    discovery_doc = {
+        "customerId": customer_id,
+        "answers": data.answers,
+        "notes": data.notes,
+        "meetingNotes": data.meetingNotes,
+        "contextFields": data.contextFields,
+        "enabledSections": data.enabledSections,
+        "lastSaved": now,
+    }
+    
+    # Upsert discovery data
+    await discovery_collection.update_one(
+        {"customerId": customer_id},
+        {"$set": discovery_doc},
+        upsert=True
+    )
+    
+    # Also update customer's updatedAt
+    await customers_collection.update_one(
+        {"id": customer_id},
+        {"$set": {"updatedAt": now}}
+    )
+    
+    return discovery_doc
 
 
 # ========== AI Routes ==========
