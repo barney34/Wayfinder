@@ -220,10 +220,14 @@ export function TokenCalculatorSummary() {
       const baseIPs = Math.round(kw * ipMultiplier);
       const numIPs = override.numIPs !== undefined ? override.numIPs : baseIPs;
       const role = override.role || 'DNS/DHCP';
-      const platform = override.platform || (globalPlatform.includes('UDDI') ? 'NX' : 'NIOS');
+      
+      // Default platform based on mode
+      let defaultPlatform = 'NIOS';
+      if (platformMode === 'UDDI') defaultPlatform = 'NXVS';
+      const platform = override.platform || defaultPlatform;
       const dhcp = override.dhcpPercent ?? dhcpPercent;
       
-      const recommendedModel = getSiteRecommendedModel(numIPs, role, globalPlatform, dhcp, leaseTimeSeconds, platform);
+      const recommendedModel = getSiteRecommendedModel(numIPs, role, platformMode, dhcp, leaseTimeSeconds, platform);
       const hardwareOptions = getHardwareSkuOptions(recommendedModel);
       const defaultHardware = getDefaultHardwareSku(recommendedModel);
       
