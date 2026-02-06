@@ -159,20 +159,27 @@ function QuickCaptureBarInline() {
         <div className="flex items-center gap-2">
           <button type="button" onClick={() => setShowSiteDetails(!showSiteDetails)} className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex items-center gap-1" data-testid="toggle-site-tags">
             <ChevronRight className={`h-4 w-4 transition-transform ${showSiteDetails ? 'rotate-90' : ''}`} />
+            <MapPin className="h-3.5 w-3.5" />
             Sites: {sites.length}
           </button>
-          <span className="text-sm text-muted-foreground">KW: {totalSiteKW.toLocaleString()}</span>
-          <Input placeholder="Site name..." value={newSiteName} onChange={e => setNewSiteName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAddSiteIndependent()} className="w-[120px] h-8 text-sm" data-testid="input-new-site-name" />
-          <Button variant="default" size="sm" className="h-8 w-8 p-0" onClick={handleAddSiteIndependent} disabled={!newSiteName.trim()} data-testid="button-add-site"><Plus className="h-4 w-4" /></Button>
+          <span className="text-sm text-muted-foreground font-medium">KW: {totalSiteKW.toLocaleString()}</span>
+          <div className="flex items-center gap-1 ml-2">
+            <Input placeholder="Site name" value={newSiteName} onChange={e => setNewSiteName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAddSiteIndependent()} className="w-[100px] h-7 text-sm" data-testid="input-new-site-name" />
+            <Button variant="default" size="sm" className="h-7 w-7 p-0" onClick={handleAddSiteIndependent} disabled={!newSiteName.trim()} data-testid="button-add-site"><Plus className="h-3.5 w-3.5" /></Button>
+          </div>
         </div>
         {showSiteDetails && sites.length > 0 && (
-          <div className="flex flex-col gap-1.5 pl-5 pt-1">
+          <div className="flex flex-wrap gap-2 pl-5 pt-1">
             {sites.map(site => (
-              <div key={site.id} className="flex items-center gap-2">
-                <Input value={site.name} onChange={e => updateSite(site.id, { name: e.target.value })} className="w-[140px] h-7 text-sm" placeholder="Site Name" data-testid={`input-site-name-${site.id}`} />
-                <Input type="number" placeholder="KW" value={site.knowledgeWorkers || ''} onChange={e => updateSite(site.id, { knowledgeWorkers: parseInt(e.target.value) || 0 })} className="w-[70px] h-7 text-sm" data-testid={`input-site-kw-${site.id}`} />
-                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => deleteSite(site.id)} data-testid={`delete-site-${site.id}`}><X className="h-4 w-4 text-muted-foreground hover:text-destructive" /></Button>
+              <div key={site.id} className="flex items-center gap-1 bg-green-500/10 border border-green-500/30 rounded-md px-2 py-1">
+                <MapPin className="h-3 w-3 text-green-500" />
+                <Input value={site.name} onChange={e => updateSite(site.id, { name: e.target.value })} className="w-[90px] h-6 text-xs bg-transparent border-0 p-0 focus-visible:ring-0" placeholder="Name" data-testid={`input-site-name-${site.id}`} />
+                <span className="text-xs text-muted-foreground">|</span>
+                <Input type="number" placeholder="KW" value={site.knowledgeWorkers || ''} onChange={e => updateSite(site.id, { knowledgeWorkers: parseInt(e.target.value) || 0 })} className="w-[50px] h-6 text-xs bg-transparent border-0 p-0 focus-visible:ring-0 text-right" data-testid={`input-site-kw-${site.id}`} />
+                <span className="text-xs text-muted-foreground">KW</span>
+                <Button variant="ghost" size="icon" className="h-5 w-5 ml-1" onClick={() => deleteSite(site.id)} data-testid={`delete-site-${site.id}`}><X className="h-3 w-3 text-muted-foreground hover:text-destructive" /></Button>
               </div>
+            ))}
             ))}
           </div>
         )}
