@@ -12,4 +12,5 @@ export {
   ReportingInput,
   UDDIEstimator,
   SiteConfiguration,
+  TokenCalculatorSummary,
 } from './calculators';
