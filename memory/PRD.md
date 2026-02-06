@@ -106,11 +106,18 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 - **Bug Fix**: Fixed UDDI detection in getSiteRecommendedModel() (was checking 'NX' instead of 'NXVS')
 - **Bug Fix**: Fixed duplicate closing bracket syntax error in CustomerDetail.jsx
 
+### Phase 9 — Services Multi-Select (Complete - Feb 6, 2026)
+- **Services Column**: New column in Site Sizing table between Role and Platform
+- **Co-located Services Popover**: Multi-select with 5 services (NTP, DFP, TFTP, FTP, HTTP)
+- **Performance Overhead**: Each service has impact percentage (NTP 0%, DFP +5%, TFTP +2%, FTP +2%, HTTP +3%)
+- **Token Calculation**: Tokens increase based on total service overhead (e.g., DFP adds 5% → 880→924)
+- **Visual Feedback**: Selected services shown in button, total overhead displayed in popover
+- **Export Integration**: CSV and YAML exports include services data
+
 ## Pending / Backlog
 
 ### P1
-- Multi-Select for Role Services (NTP, DFP, TFTP, FTP, HTTP can be co-located)
-- Alert for deviating from recommended platform (visual feedback)
+- Alert for deviating from recommended platform (visual feedback modal)
 
 ### P2
 - Verify Model Math for Multi-protocol (combined DNS/DHCP penalty calculation)
