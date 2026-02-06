@@ -160,11 +160,43 @@ export function TokenCalculatorSummary() {
   const [manualSites, setManualSites] = useState([]);
   const lastSavedRef = useRef(null);
   
+  // Alert dialog state for platform change confirmation
+  const [showPlatformAlert, setShowPlatformAlert] = useState(false);
+  const [pendingPlatformChange, setPendingPlatformChange] = useState(null);
+  
   // Recommended platform based on DC/Site counts
   const recommendedMode = useMemo(() => 
     getRecommendedPlatformMode(dataCenters.length, contextSites.length), 
     [dataCenters.length, contextSites.length]
   );
+  
+  // Handle platform mode change with confirmation for non-recommended
+  const handlePlatformModeChange = useCallback((newMode) => {
+    if (!newMode) return;
+    
+    // If switching to non-recommended platform, show confirmation
+    if (newMode !== recommendedMode && platformMode === recommendedMode) {
+      setPendingPlatformChange(newMode);
+      setShowPlatformAlert(true);
+    } else {
+      setPlatformMode(newMode);
+    }
+  }, [recommendedMode, platformMode]);
+  
+  // Confirm platform change
+  const confirmPlatformChange = useCallback(() => {
+    if (pendingPlatformChange) {
+      setPlatformMode(pendingPlatformChange);
+      setPendingPlatformChange(null);
+    }
+    setShowPlatformAlert(false);
+  }, [pendingPlatformChange]);
+  
+  // Cancel platform change
+  const cancelPlatformChange = useCallback(() => {
+    setPendingPlatformChange(null);
+    setShowPlatformAlert(false);
+  }, []);
   
   // Global settings
   const dhcpPercent = parseInt(answers['dhcp-0-pct']) || 80;
