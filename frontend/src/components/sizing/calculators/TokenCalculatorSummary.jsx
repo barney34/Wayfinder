@@ -845,12 +845,32 @@ export function TokenCalculatorSummary() {
               Site Sizing Recommendations
             </CardTitle>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={exportCSV} data-testid="export-csv">
-                <Download className="h-3 w-3 mr-1" /> CSV
-              </Button>
-              <Button variant="outline" size="sm" onClick={exportYAML} data-testid="export-yaml">
-                <FileText className="h-3 w-3 mr-1" /> YAML
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" data-testid="export-dropdown">
+                    <Download className="h-3 w-3 mr-1" /> Export
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={exportCSV} data-testid="export-csv">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Export as CSV
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={exportExcel} data-testid="export-excel">
+                    <FileSpreadsheet className="h-4 w-4 mr-2" />
+                    Export as Excel
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={exportPDF} data-testid="export-pdf">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Export as PDF
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={exportYAML} data-testid="export-yaml">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Export as YAML
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </CardHeader>
