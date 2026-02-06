@@ -68,8 +68,14 @@ export function SiteConfiguration({ value, onChange, questionId }) {
     }
     
     // Ensure arrays are defined
-    const dcs = Array.isArray(dataCenters) ? dataCenters : [];
-    const ctxSites = Array.isArray(contextSites) ? contextSites : [];
+    const dcs = dataCenters || [];
+    const ctxSites = contextSites || [];
+    
+    console.log('[SiteConfiguration] Merging:', { 
+      dcsLength: dcs.length, 
+      ctxSitesLength: ctxSites.length,
+      configSitesLength: configSites.length 
+    });
     
     // Start with Data Centers (they become GM/GMC candidates)
     const dcSites = dcs.map((dc, index) => {
@@ -116,7 +122,10 @@ export function SiteConfiguration({ value, onChange, questionId }) {
     // Add any manual sites
     const manualSites = configSites.filter(s => !s.sourceType);
     
-    return [...dcSites, ...branchSites, ...manualSites];
+    const result = [...dcSites, ...branchSites, ...manualSites];
+    console.log('[SiteConfiguration] Merged result:', result.length, 'sites');
+    
+    return result;
   }, [dataCenters, contextSites, localConfig, ipMultiplier, dhcpPercent, globalPlatform]);
 
   // Calculate recommended models for each site
