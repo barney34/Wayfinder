@@ -68,12 +68,18 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 - Manual site additions supported alongside auto-synced sites
 - **AI model upgraded**: Gemini 3 Flash via Emergent LLM Key for SmartFill features
 
+### Phase 5 — Token Calculator Summary (Complete - Feb 6, 2026)
+- **TokenCalculatorSummary component** provides comprehensive sizing overview
+- Summary cards: Total Sites, Total IPs, Total Tokens, Partner SKU recommendation
+- Site Sizing Recommendations table with role badges (GM/GMC/DNS/DHCP)
+- Bill of Materials (BOM) grid aggregating hardware SKUs with quantities
+- Token Breakdown: Infrastructure, Security, UDDI tokens with total
+- Partner SKU tiers: 5K, 10K, 17K, 25K, 50K, 100K+ based on total tokens
+- Real-time updates when Quick Capture data changes
+
 ## Pending / Backlog
 
-### P0 (Next Up)
-- Token Calculator Summary view (site-level auto-sizing recommendations, partner SKU calculations, BOM grid)
-
-### P1
+### P1 (Next Up)
 - UDS Members Table (grid member management)
 - ARB-Required question tagging
 
@@ -81,8 +87,10 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 - AI Discovery Assistant (industry-specific follow-up questions)
 - Backend route refactoring (split server.py into routes/models)
 - Fix nested button warning in AccordionTrigger with Switch component
+- Floating Save Button enhancement
 
 ## Test Reports
 - iteration_5.json: Post-migration (91 questions, 12 sections)
 - iteration_6.json: Full UI rewrite (Quick Capture, 6 tabs, Platform badges, auto-save)
 - iteration_7.json: SiteConfiguration bug fix verification (100% pass rate)
+- iteration_8.json: TokenCalculatorSummary feature verification (100% pass rate)
