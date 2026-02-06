@@ -56,7 +56,9 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL/Drizzle) 
 - [x] Conditional questions (show/hide based on other answers)
 - [x] Section-based progress tracking
 - [x] AI Meeting Notes Analysis tab
-- [x] Save to localStorage with unsaved changes indicator
+- [x] **Cloud sync** - Data saved to MongoDB via API (GET/PUT /api/customers/{id}/discovery)
+- [x] Synced/Unsaved indicators with cloud icons
+- [x] Auto-expand customer groups on Customers page
 - [x] Theme toggle (light/dark)
 
 ## Prioritized Backlog
