@@ -499,13 +499,74 @@ export function TokenCalculatorSummary() {
   
   return (
     <div className="space-y-6" data-testid="token-calculator-summary">
+      {/* Platform Change Confirmation Alert */}
+      <AlertDialog open={showPlatformAlert} onOpenChange={setShowPlatformAlert}>
+        <AlertDialogContent data-testid="platform-alert-dialog">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-amber-500" />
+              Non-Recommended Platform Selected
+            </AlertDialogTitle>
+            <AlertDialogDescription className="space-y-3">
+              <p>
+                You are switching from <strong>{recommendedMode}</strong> (recommended) to <strong>{pendingPlatformChange}</strong>.
+              </p>
+              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 text-sm">
+                <p className="font-medium text-amber-800 dark:text-amber-200 mb-1">Why is {recommendedMode} recommended?</p>
+                <p className="text-amber-700 dark:text-amber-300">
+                  Based on your configuration of <strong>{dataCenters.length} Data Centers</strong> and <strong>{contextSites.length} Sites</strong>:
+                </p>
+                <ul className="list-disc list-inside mt-2 text-amber-700 dark:text-amber-300 space-y-1">
+                  {recommendedMode === 'NIOS' && (
+                    <>
+                      <li>NIOS is ideal for smaller deployments (&lt;50 sites)</li>
+                      <li>Provides traditional Grid Master/GMC architecture</li>
+                      <li>Best for on-premises infrastructure</li>
+                    </>
+                  )}
+                  {recommendedMode === 'UDDI' && (
+                    <>
+                      <li>UDDI is optimized for large distributed deployments (&gt;50 sites)</li>
+                      <li>Cloud-native architecture with NIOS-X</li>
+                      <li>Simplified management without Grid Master</li>
+                    </>
+                  )}
+                  {recommendedMode === 'Hybrid' && (
+                    <>
+                      <li>Hybrid is recommended for multi-DC environments with 10+ sites</li>
+                      <li>Combines on-premises Grid with cloud scalability</li>
+                      <li>Flexible deployment options per site</li>
+                    </>
+                  )}
+                </ul>
+              </div>
+              <p className="text-sm">
+                Switching platforms will reset role assignments and may affect your sizing calculations.
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={cancelPlatformChange} data-testid="platform-alert-cancel">
+              Keep {recommendedMode}
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmPlatformChange} 
+              className="bg-amber-600 hover:bg-amber-700"
+              data-testid="platform-alert-confirm"
+            >
+              Switch to {pendingPlatformChange}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Platform Mode Toggle */}
       <Card className="bg-gradient-to-r from-blue-500/5 to-purple-500/5 border-blue-500/20">
         <CardContent className="py-4">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center gap-3">
               <span className="text-sm font-medium">Platform Mode:</span>
-              <ToggleGroup type="single" value={platformMode} onValueChange={v => v && setPlatformMode(v)} className="bg-muted rounded-lg p-1">
+              <ToggleGroup type="single" value={platformMode} onValueChange={handlePlatformModeChange} className="bg-muted rounded-lg p-1">
                 {PLATFORM_MODES.map(mode => (
                   <ToggleGroupItem 
                     key={mode.value} 
