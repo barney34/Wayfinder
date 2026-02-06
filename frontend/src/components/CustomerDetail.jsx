@@ -276,25 +276,44 @@ function ExportButton({ customerName, customerId }) {
 
 // ===== Save Button =====
 function HeaderSaveButton({ customerName, customerId }) {
-  const { isDirty } = useDiscovery();
+  const { answers, notes, contextFields, meetingNotes, enabledSections, isDirty } = useDiscovery();
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
 
-  const handleSave = async () => {
-    // The DiscoveryContext auto-saves, but we can trigger immediate save
+  const handleSave = () => {
     setSaving(true);
     try {
-      // Force a re-render which triggers the auto-save useEffect
-      toast({ title: "Saved", description: "Discovery data saved to cloud." });
+      // Create revision snapshot
+      const exportData = {
+        customer: customerName,
+        exportDate: new Date().toISOString(),
+        meetingNotes: meetingNotes || '',
+        discoveryAnswers: { ...answers },
+        discoveryNotes: { ...notes },
+        contextSummaries: { ...contextFields },
+        enabledSections,
+      };
+      addDynamicRevision(customerId, {
+        exportedAt: new Date().toISOString(),
+        format: 'save',
+        customerName,
+        name: `Save ${formatRevisionDate()}`,
+        payload: JSON.stringify(exportData, null, 2),
+      });
+      toast({ title: "Saved", description: "Discovery data saved to revision history." });
+    } catch (err) {
+      toast({ title: "Save failed", description: "Failed to save data.", variant: "destructive" });
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <Button variant="default" size="sm" onClick={handleSave} disabled={saving} data-testid="save-button">
+    <Button variant="outline" size="sm" onClick={handleSave} disabled={saving}
+      className="border-green-600 text-green-600 hover:bg-green-600/10 dark:border-green-500 dark:text-green-500"
+      data-testid="save-button">
       <Save className="h-4 w-4 mr-1" />
-      {saving ? 'Saving...' : isDirty ? 'Save' : 'Saved'}
+      {saving ? 'Saving...' : 'Save'}
     </Button>
   );
 }
