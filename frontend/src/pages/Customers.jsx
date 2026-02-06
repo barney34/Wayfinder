@@ -59,7 +59,7 @@ export default function Customers() {
   const [customerToDelete, setCustomerToDelete] = useState(null);
   const [cloneDialogOpen, setCloneDialogOpen] = useState(false);
   const [customerToClone, setCustomerToClone] = useState(null);
-  const [expandedGroups, setExpandedGroups] = useState(new Set());
+  const [expandedGroups, setExpandedGroups] = useState(new Set(['__all__'])); // Start with all expanded
   const [cloneName, setCloneName] = useState('');
   const [cloneOpportunity, setCloneOpportunity] = useState('');
   
