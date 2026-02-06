@@ -369,6 +369,19 @@ export function TokenCalculatorSummary() {
     });
   }, []);
   
+  // Toggle service for a site
+  const toggleService = useCallback((siteId, serviceValue) => {
+    const site = sites.find(s => s.id === siteId);
+    if (!site) return;
+    
+    const currentServices = site.services || [];
+    const newServices = currentServices.includes(serviceValue)
+      ? currentServices.filter(s => s !== serviceValue)
+      : [...currentServices, serviceValue];
+    
+    updateSite(siteId, 'services', newServices);
+  }, [sites, updateSite]);
+  
   // Export to CSV
   const exportCSV = useCallback(() => {
     const headers = ['Site Name', 'Type', 'IPs', 'KW', 'Role', 'Services', 'Platform', 'Model', 'Hardware SKU', 'Tokens'];
