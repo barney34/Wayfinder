@@ -8,3 +8,4 @@ export { ReportingInput } from './ReportingSection';
 export { UDDIEstimator } from './UDDIEstimator';
 export { SiteConfiguration } from './SiteConfiguration';
 export { TokenCalculatorSummary } from './TokenCalculatorSummary';
+export { UDSMembersTable } from './UDSMembersTable';
