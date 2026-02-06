@@ -465,6 +465,8 @@ export default function Customers() {
                       onExportCustomer={handleExportCustomer}
                       onDeleteCustomer={handleDeleteCustomer}
                       onCloneCustomer={handleCloneCustomer}
+                      onUpdateStatus={handleUpdateStatus}
+                      isUpdatingStatus={updateStatusMutation.isPending}
                     />
                   </div>
                 </CollapsibleContent>
