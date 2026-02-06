@@ -658,6 +658,50 @@ export function TokenCalculatorSummary() {
                       </Select>
                     </TableCell>
                     <TableCell>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" size="sm" className="h-7 text-xs w-full justify-between" data-testid={`site-services-${site.id}`}>
+                            {(site.services?.length || 0) > 0 ? (
+                              <span className="truncate">{site.services.join(', ')}</span>
+                            ) : (
+                              <span className="text-muted-foreground">None</span>
+                            )}
+                            <Settings2 className="h-3 w-3 ml-1 flex-shrink-0" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-56 p-3" align="start">
+                          <div className="space-y-3">
+                            <div className="font-medium text-sm">Co-located Services</div>
+                            <p className="text-xs text-muted-foreground">Select additional services running on this host. Each adds performance overhead.</p>
+                            <div className="space-y-2">
+                              {ADDITIONAL_SERVICES.map(svc => (
+                                <div key={svc.value} className="flex items-center gap-2">
+                                  <Checkbox
+                                    id={`${site.id}-${svc.value}`}
+                                    checked={(site.services || []).includes(svc.value)}
+                                    onCheckedChange={() => toggleService(site.id, svc.value)}
+                                    data-testid={`checkbox-${site.id}-${svc.value}`}
+                                  />
+                                  <label htmlFor={`${site.id}-${svc.value}`} className="flex-1 text-sm cursor-pointer">
+                                    {svc.label}
+                                    {svc.impact > 0 && (
+                                      <span className="text-xs text-amber-600 ml-1">+{svc.impact}%</span>
+                                    )}
+                                  </label>
+                                </div>
+                              ))}
+                            </div>
+                            {(site.serviceImpact || 0) > 0 && (
+                              <div className="pt-2 border-t text-xs">
+                                <span className="text-muted-foreground">Total overhead: </span>
+                                <span className="font-medium text-amber-600">+{site.serviceImpact}%</span>
+                              </div>
+                            )}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </TableCell>
+                    <TableCell>
                       <Select value={site.platform} onValueChange={v => updateSite(site.id, 'platform', v)}>
                         <SelectTrigger className="h-7 text-xs" data-testid={`site-platform-${site.id}`}>
                           <SelectValue />
