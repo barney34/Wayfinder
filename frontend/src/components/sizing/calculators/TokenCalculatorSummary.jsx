@@ -77,14 +77,22 @@ const ROLE_OPTIONS_BY_MODE = {
   ],
 };
 
-// Additional services (multi-select)
+// Additional services (multi-select) - can be co-located on same host
 const ADDITIONAL_SERVICES = [
-  { value: 'NTP', label: 'NTP', impact: 0 },
-  { value: 'DFP', label: 'DFP', impact: 5 },
-  { value: 'TFTP', label: 'TFTP', impact: 2 },
-  { value: 'FTP', label: 'FTP', impact: 2 },
-  { value: 'HTTP', label: 'HTTP', impact: 3 },
+  { value: 'NTP', label: 'NTP', description: 'Network Time Protocol', impact: 0 },
+  { value: 'DFP', label: 'DFP', description: 'DNS Firewall Policy', impact: 5 },
+  { value: 'TFTP', label: 'TFTP', description: 'Trivial File Transfer', impact: 2 },
+  { value: 'FTP', label: 'FTP', description: 'File Transfer Protocol', impact: 2 },
+  { value: 'HTTP', label: 'HTTP', description: 'HTTP File Distribution', impact: 3 },
 ];
+
+// Calculate total service impact percentage
+function getServiceImpact(services = []) {
+  return services.reduce((total, svc) => {
+    const service = ADDITIONAL_SERVICES.find(s => s.value === svc);
+    return total + (service?.impact || 0);
+  }, 0);
+}
 
 // Get token count for a model
 function getTokensForModel(model) {
