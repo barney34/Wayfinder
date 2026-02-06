@@ -1,89 +1,403 @@
-from fastapi import FastAPI, APIRouter
-from dotenv import load_dotenv
-from starlette.middleware.cors import CORSMiddleware
-from motor.motor_asyncio import AsyncIOMotorClient
+"""
+Infoblox Customer Discovery & Technical Assessment System - Backend
+FastAPI + MongoDB + Gemini AI
+"""
+
 import os
-import logging
-from pathlib import Path
-from pydantic import BaseModel, Field, ConfigDict
-from typing import List
+import json
 import uuid
 from datetime import datetime, timezone
+from typing import Optional, List, Dict, Any
+from dotenv import load_dotenv
 
+load_dotenv()
 
-ROOT_DIR = Path(__file__).parent
-load_dotenv(ROOT_DIR / '.env')
+from fastapi import FastAPI, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
+from motor.motor_asyncio import AsyncIOMotorClient
+from emergentintegrations.llm.chat import LlmChat, UserMessage
 
-# MongoDB connection
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+# ========== Configuration ==========
+MONGO_URL = os.environ.get("MONGO_URL", "mongodb://localhost:27017")
+DB_NAME = os.environ.get("DB_NAME", "discovery_track_ai")
+EMERGENT_LLM_KEY = os.environ.get("EMERGENT_LLM_KEY", "")
 
-# Create the main app without a prefix
-app = FastAPI()
-
-# Create a router with the /api prefix
-api_router = APIRouter(prefix="/api")
-
-
-# Define Models
-class StatusCheck(BaseModel):
-    model_config = ConfigDict(extra="ignore")  # Ignore MongoDB's _id field
-    
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-
-class StatusCheckCreate(BaseModel):
-    client_name: str
-
-# Add your routes to the router instead of directly to app
-@api_router.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.model_dump()
-    status_obj = StatusCheck(**status_dict)
-    
-    # Convert to dict and serialize datetime to ISO string for MongoDB
-    doc = status_obj.model_dump()
-    doc['timestamp'] = doc['timestamp'].isoformat()
-    
-    _ = await db.status_checks.insert_one(doc)
-    return status_obj
-
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    # Exclude MongoDB's _id field from the query results
-    status_checks = await db.status_checks.find({}, {"_id": 0}).to_list(1000)
-    
-    # Convert ISO string timestamps back to datetime objects
-    for check in status_checks:
-        if isinstance(check['timestamp'], str):
-            check['timestamp'] = datetime.fromisoformat(check['timestamp'])
-    
-    return status_checks
-
-# Include the router in the main app
-app.include_router(api_router)
+# ========== App Setup ==========
+app = FastAPI(title="DiscoveryTrackAI API", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# ========== Database Connection ==========
+client = AsyncIOMotorClient(MONGO_URL)
+db = client[DB_NAME]
+customers_collection = db["customers"]
 
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    client.close()
+# ========== Discovery Questions Data ==========
+DISCOVERY_QUESTIONS = [
+    {"id": "ud-platform", "section": "Users - Devices - Sites", "question": "Target Platform", "technicalOnly": True, "fieldType": "select", "options": ["NIOS (Physical/Virtual)", "UDDI (NIOS-X/NXaaS)", "Hybrid (NIOS GM + UDDI Members)"], "defaultValue": "NIOS (Physical/Virtual)", "hidden": True},
+    {"id": "ud-1", "section": "Users - Devices - Sites", "question": "Estimated number of knowledge workers", "technicalOnly": True},
+    {"id": "ud-site-config", "section": "Sizing Data", "question": "Site Configuration", "technicalOnly": True, "fieldType": "siteConfiguration"},
+    {"id": "ipam-0", "section": "IPAM", "question": "Who is your current platform/vendor?", "technicalOnly": False, "fieldType": "multiselect", "options": ["Spreadsheets", "Microsoft", "Bluecat", "EIP"], "allowFreeform": True},
+    {"id": "ud-5", "section": "IPAM", "subsection": "Sites & Locations", "question": "# of Data Centers", "technicalOnly": False, "fieldType": "number"},
+    {"id": "ud-7", "section": "IPAM", "subsection": "Sites & Locations", "question": "# of Sites", "technicalOnly": False, "fieldType": "number"},
+    {"id": "ipam-multiplier", "section": "IPAM", "question": "IP Addr Multiplier / Devices per User", "technicalOnly": True, "fieldType": "select", "options": ["2.5", "3.5"], "allowFreeform": True, "defaultValue": "2.5"},
+    {"id": "ud-2", "section": "IPAM", "question": "Is there a BYOD Policy in Place?", "technicalOnly": True, "fieldType": "yesno"},
+    {"id": "ipam-1", "section": "IPAM", "question": "Estimated number of active IP addresses", "technicalOnly": True, "fieldType": "ipCalculated"},
+    {"id": "ipam-2-toggle", "section": "IPAM", "question": "Are you considering IPv6?", "technicalOnly": False, "fieldType": "yesno"},
+    {"id": "ipam-2", "section": "IPAM", "question": "Beyond sizing, what are your plans and challenges for securing and managing IPv6 application controls?", "technicalOnly": False, "conditionalOn": {"questionId": "ipam-2-toggle", "value": "Yes"}},
+    {"id": "ipam-4", "section": "IPAM", "question": "Percentage of DHCP", "technicalOnly": True, "fieldType": "number", "defaultValue": "80"},
+    {"id": "ipam-5", "section": "IPAM", "question": "What is your IP plan for the future?", "technicalOnly": True},
+    {"id": "ipam-6", "section": "IPAM", "question": "What is your strategy to identify and eliminate unused IP addresses and orphaned assets?", "technicalOnly": False},
+    {"id": "ipam-7", "section": "IPAM", "question": "Will you leverage a single, unified management platform (like a portal) for all DDI across hybrid, multi-cloud?", "technicalOnly": False},
+    {"id": "ipam-9", "section": "IPAM", "question": "What cloud providers do you use today or in the future?", "technicalOnly": True, "fieldType": "multiselect", "options": ["AWS", "Azure", "GCP", "OCI", "Alibaba", "IBM"], "allowFreeform": True},
+    {"id": "ipam-10", "section": "IPAM", "question": "What specific IT/Security systems (e.g., SIEM/SOAR/ITSM) do you need seamless, automated DDI/Security integration with?", "technicalOnly": False},
+    {"id": "idns-0", "section": "Internal DNS", "question": "Who is your current platform/vendor?", "technicalOnly": True, "fieldType": "multiselect", "options": ["Microsoft", "BIND", "Bluecat", "EIP"], "allowFreeform": True},
+    {"id": "idns-servers", "section": "Internal DNS", "question": "How many servers running DNS?", "technicalOnly": True, "fieldType": "number"},
+    {"id": "idns-3", "section": "Internal DNS", "question": "Number of zones", "technicalOnly": True},
+    {"id": "idns-4", "section": "Internal DNS", "question": "Total number of records in all zones combined", "technicalOnly": True},
+    {"id": "idns-multiplier", "section": "Internal DNS", "question": "DNS Multiplier", "technicalOnly": True, "fieldType": "select", "options": ["2.5", "3"], "allowFreeform": True, "defaultValue": "2.5"},
+    {"id": "idns-2", "section": "Internal DNS", "question": "Queries per second rate, aggregate", "technicalOnly": True, "fieldType": "dnsAggregateCalculated"},
+    {"id": "idns-1", "section": "Internal DNS", "question": "Queries per second rate, per server", "technicalOnly": True, "fieldType": "dnsPerServerCalculated"},
+    {"id": "edns-0", "section": "External DNS", "question": "Who is your current platform/vendor?", "technicalOnly": True},
+    {"id": "edns-4", "section": "External DNS", "question": "Number of zones", "technicalOnly": True},
+    {"id": "edns-5", "section": "External DNS", "question": "Total number of records in all zones combined", "technicalOnly": True},
+    {"id": "dhcp-0", "section": "DHCP", "question": "Who is your current platform/vendor?", "technicalOnly": True, "fieldType": "multiselect", "options": ["Microsoft", "ISC", "Bluecat", "EIP"], "allowFreeform": True},
+    {"id": "dhcp-0-pct", "section": "DHCP", "question": "Percentage of DHCP", "technicalOnly": True, "fieldType": "number", "defaultValue": "80"},
+    {"id": "dhcp-servers", "section": "DHCP", "question": "How many DHCP servers?", "technicalOnly": True, "fieldType": "number"},
+    {"id": "dhcp-scopes", "section": "DHCP", "question": "How many total scopes?", "technicalOnly": True, "fieldType": "number"},
+    {"id": "dhcp-1", "section": "DHCP", "question": "What type(s) of DHCP redundancy will be implemented?", "technicalOnly": True, "fieldType": "select", "options": ["AAP", "AP", "AA", "FO"]},
+    {"id": "dhcp-3", "section": "DHCP", "question": "What is the average lease time for wireless devices?", "technicalOnly": True, "fieldType": "leaseTime", "defaultValue": "86400"},
+    {"id": "dhcp-4", "section": "DHCP", "question": "What is the average lease time for wired devices?", "technicalOnly": True, "fieldType": "leaseTime", "defaultValue": "604800"},
+    {"id": "dhcp-6", "section": "DHCP", "question": "What is the average lease time for IoT devices?", "technicalOnly": True, "fieldType": "leaseTime", "defaultValue": "604800"},
+    {"id": "svc-1", "section": "Services", "question": "Will NTP be enabled?", "technicalOnly": True},
+    {"id": "svc-2", "section": "Services", "question": "How will you centralize network data and DNS threat intelligence for your security ecosystem?", "technicalOnly": False},
+    {"id": "svc-3", "section": "Services", "question": "Will the Cloud Data Connector (CDC) be used?", "technicalOnly": True},
+    {"id": "ms-1", "section": "Microsoft Management", "question": "Are services enabled for Microsoft Management?", "technicalOnly": True, "fieldType": "yesno"},
+    {"id": "ms-2", "section": "Microsoft Management", "question": "What specific Microsoft components are you syncing/integrating with?", "technicalOnly": True, "fieldType": "multiselect", "options": ["MS DNS", "MS DHCP", "Sites/Services", "Users", "Event Log Collection"], "allowFreeform": True, "conditionalOn": {"questionId": "ms-1", "value": "Yes"}},
+    {"id": "ni-1", "section": "Asset/ Network Insight", "question": "What is the total number of active devices (including IoT/OT and cloud workloads) across your entire hybrid environment?", "technicalOnly": True, "fieldType": "ipCalculated"},
+    {"id": "ni-3", "section": "Asset/ Network Insight", "question": "What is the total number of SNMP/ SSH devices that will be managed/ interrogated?", "technicalOnly": True, "fieldType": "number"},
+    {"id": "sec-1", "section": "Security", "question": "What visibility and controls do you have to detect and block advanced threats (like ransomware or C2) that exploit the DNS layer?", "technicalOnly": False},
+    {"id": "sec-2", "section": "Security", "question": "How do you ensure your security tools are not overwhelmed by false positives and are using the earliest possible threat intelligence?", "technicalOnly": False},
+    {"id": "sec-3", "section": "Security", "question": "Are you concerned about lookalike domains (typosquatting), and what is your takedown strategy?", "technicalOnly": False},
+    {"id": "beta-enable", "section": "Security", "subsection": "Token Calculator", "question": "Enable", "technicalOnly": True, "fieldType": "enableSwitch", "defaultValue": "No"},
+    {"id": "ps-1", "section": "Professional Services", "question": "Are you interested in PS?", "technicalOnly": True, "fieldType": "yesno", "defaultValue": "Yes"},
+    {"id": "ps-2", "section": "Professional Services", "question": "What is your comfort level on number of Go-Lives?", "technicalOnly": True, "fieldType": "number"},
+    {"id": "ps-3", "section": "Professional Services", "question": "3rd Party Integrations", "technicalOnly": True, "fieldType": "multiselect", "options": ["NAC", "Vulnerability Scanner", "SIEM", "SOAR"], "allowFreeform": True},
+]
+
+
+# ========== Pydantic Models ==========
+class CustomerBase(BaseModel):
+    name: str
+    nickname: str = ""
+    opportunity: str = ""
+    seName: str = Field(default="", alias="se_name")
+    psar: str = "not-submitted"
+    arb: str = "not-submitted"
+    design: str = "not-started"
+
+    class Config:
+        populate_by_name = True
+
+
+class CustomerCreate(CustomerBase):
+    pass
+
+
+class CustomerUpdate(BaseModel):
+    name: Optional[str] = None
+    nickname: Optional[str] = None
+    opportunity: Optional[str] = None
+    seName: Optional[str] = Field(default=None, alias="se_name")
+    psar: Optional[str] = None
+    arb: Optional[str] = None
+    design: Optional[str] = None
+
+    class Config:
+        populate_by_name = True
+
+
+class CustomerResponse(CustomerBase):
+    id: str
+    createdAt: datetime = Field(alias="created_at")
+    updatedAt: datetime = Field(alias="updated_at")
+
+    class Config:
+        populate_by_name = True
+
+
+class AnalyzeNotesRequest(BaseModel):
+    notes: str
+
+
+class AnalyzeNotesMatch(BaseModel):
+    questionId: str
+    answer: str
+    confidence: str
+
+
+class AnalyzeNotesResponse(BaseModel):
+    matches: List[AnalyzeNotesMatch]
+
+
+class GenerateContextRequest(BaseModel):
+    contextType: str
+    answers: Dict[str, str]
+    notes: Dict[str, str] = {}
+
+
+class GenerateContextResponse(BaseModel):
+    summary: str
+
+
+# ========== Helper Functions ==========
+def customer_doc_to_response(doc: dict) -> dict:
+    """Convert MongoDB document to response dict"""
+    return {
+        "id": doc["id"],
+        "name": doc["name"],
+        "nickname": doc.get("nickname", ""),
+        "opportunity": doc.get("opportunity", ""),
+        "seName": doc.get("seName", doc.get("se_name", "")),
+        "psar": doc.get("psar", "not-submitted"),
+        "arb": doc.get("arb", "not-submitted"),
+        "design": doc.get("design", "not-started"),
+        "createdAt": doc.get("createdAt", doc.get("created_at", datetime.now(timezone.utc))),
+        "updatedAt": doc.get("updatedAt", doc.get("updated_at", datetime.now(timezone.utc))),
+    }
+
+
+# ========== API Routes ==========
+
+@app.get("/api/health")
+async def health_check():
+    """Health check endpoint"""
+    return {"status": "ok", "timestamp": datetime.now(timezone.utc).isoformat()}
+
+
+# ========== Customer CRUD ==========
+
+@app.get("/api/customers")
+async def get_customers():
+    """Get all customers"""
+    cursor = customers_collection.find({}, {"_id": 0})
+    customers = await cursor.to_list(length=1000)
+    return [customer_doc_to_response(c) for c in customers]
+
+
+@app.get("/api/customers/{customer_id}")
+async def get_customer(customer_id: str):
+    """Get a single customer by ID"""
+    customer = await customers_collection.find_one({"id": customer_id}, {"_id": 0})
+    if not customer:
+        raise HTTPException(status_code=404, detail="Customer not found")
+    return customer_doc_to_response(customer)
+
+
+@app.post("/api/customers", status_code=status.HTTP_201_CREATED)
+async def create_customer(customer: CustomerCreate):
+    """Create a new customer"""
+    now = datetime.now(timezone.utc)
+    customer_doc = {
+        "id": str(uuid.uuid4()),
+        "name": customer.name,
+        "nickname": customer.nickname,
+        "opportunity": customer.opportunity,
+        "seName": customer.seName,
+        "psar": customer.psar,
+        "arb": customer.arb,
+        "design": customer.design,
+        "createdAt": now,
+        "updatedAt": now,
+    }
+    await customers_collection.insert_one(customer_doc)
+    return customer_doc_to_response(customer_doc)
+
+
+@app.patch("/api/customers/{customer_id}")
+async def update_customer(customer_id: str, updates: CustomerUpdate):
+    """Update a customer"""
+    # Find existing customer first
+    existing = await customers_collection.find_one({"id": customer_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Customer not found")
+    
+    # Build update dict from non-None fields
+    update_data = {}
+    if updates.name is not None:
+        update_data["name"] = updates.name
+    if updates.nickname is not None:
+        update_data["nickname"] = updates.nickname
+    if updates.opportunity is not None:
+        update_data["opportunity"] = updates.opportunity
+    if updates.seName is not None:
+        update_data["seName"] = updates.seName
+    if updates.psar is not None:
+        update_data["psar"] = updates.psar
+    if updates.arb is not None:
+        update_data["arb"] = updates.arb
+    if updates.design is not None:
+        update_data["design"] = updates.design
+    
+    update_data["updatedAt"] = datetime.now(timezone.utc)
+    
+    await customers_collection.update_one(
+        {"id": customer_id},
+        {"$set": update_data}
+    )
+    
+    # Return updated document
+    updated = await customers_collection.find_one({"id": customer_id}, {"_id": 0})
+    return customer_doc_to_response(updated)
+
+
+@app.delete("/api/customers/{customer_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_customer(customer_id: str):
+    """Delete a customer"""
+    result = await customers_collection.delete_one({"id": customer_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Customer not found")
+    return None
+
+
+# ========== AI Routes ==========
+
+@app.get("/api/questions")
+async def get_questions():
+    """Get all discovery questions"""
+    return DISCOVERY_QUESTIONS
+
+
+@app.post("/api/analyze-notes")
+async def analyze_notes(request: AnalyzeNotesRequest):
+    """Analyze meeting notes and match to discovery questions using AI"""
+    if not request.notes or not request.notes.strip():
+        raise HTTPException(status_code=400, detail="Meeting notes are required")
+    
+    if not EMERGENT_LLM_KEY:
+        raise HTTPException(status_code=500, detail="AI integration not configured")
+    
+    try:
+        # Build questions list for prompt
+        questions_text = "\n".join([
+            f"ID: {q['id']}, Question: {q['question']}"
+            for q in DISCOVERY_QUESTIONS
+        ])
+        
+        prompt = f"""Analyze the following meeting notes and extract answers to discovery questions.
+
+Meeting Notes:
+{request.notes}
+
+Discovery Questions:
+{questions_text}
+
+For each question that can be answered from the meeting notes, return a match with:
+- questionId: the question ID
+- answer: the extracted answer (concise, matching the question format)
+- confidence: "high" or "medium"
+
+Return ONLY a JSON object with format: {{ "matches": [{{"questionId": "...", "answer": "...", "confidence": "..."}}] }}"""
+
+        # Use Gemini via emergentintegrations
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"analyze-notes-{uuid.uuid4()}",
+            system_message="You are an expert at extracting structured information from meeting notes."
+        ).with_model("gemini", "gemini-2.5-flash")
+        
+        user_message = UserMessage(text=prompt)
+        response = await chat.send_message(user_message)
+        
+        # Parse the JSON response
+        response_text = response.strip()
+        if response_text.startswith("```json"):
+            response_text = response_text[7:]
+        if response_text.startswith("```"):
+            response_text = response_text[3:]
+        if response_text.endswith("```"):
+            response_text = response_text[:-3]
+        response_text = response_text.strip()
+        
+        data = json.loads(response_text)
+        return data
+        
+    except json.JSONDecodeError as e:
+        print(f"JSON parse error: {e}")
+        return {"matches": []}
+    except Exception as e:
+        print(f"Error analyzing notes: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to analyze meeting notes: {str(e)}")
+
+
+@app.post("/api/generate-context")
+async def generate_context(request: GenerateContextRequest):
+    """Generate context summary using AI"""
+    if not request.contextType or not request.answers:
+        raise HTTPException(status_code=400, detail="Context type and answers are required")
+    
+    if not EMERGENT_LLM_KEY:
+        raise HTTPException(status_code=500, detail="AI integration not configured")
+    
+    try:
+        # Build question-answer pairs for prompt
+        answers_text_parts = []
+        for question_id, answer in request.answers.items():
+            question = next((q for q in DISCOVERY_QUESTIONS if q["id"] == question_id), None)
+            if question:
+                answers_text_parts.append(f"Q: {question['question']}\nA: {answer}")
+        answers_text = "\n\n".join(answers_text_parts)
+        
+        # Build notes text
+        notes_text_parts = []
+        for question_id, note in request.notes.items():
+            question = next((q for q in DISCOVERY_QUESTIONS if q["id"] == question_id), None)
+            if question and note:
+                notes_text_parts.append(f"Context for \"{question['question']}\":\n{note}")
+        notes_text = "\n\n".join(notes_text_parts) if notes_text_parts else ""
+        
+        # Build prompt based on context type
+        prompt_instructions = {
+            "environment": "Summarize the customer's current technical environment, including infrastructure, systems, and technology stack.",
+            "outcomes": "Summarize the desired business outcomes and goals the customer wants to achieve.",
+            "endState": "Describe the target end state and desired future architecture.",
+            "endstate": "Describe the target end state and desired future architecture.",
+            "migration": "Outline the recommended migration path and implementation approach.",
+        }.get(request.contextType, f"Generate a summary for {request.contextType}.")
+        
+        prompt = f"""{prompt_instructions}
+
+Discovery Questions and Answers:
+{answers_text}
+
+{f"Additional Context Notes:\n{notes_text}" if notes_text else ""}
+
+Provide a concise, professional summary (2-4 paragraphs)."""
+
+        # Use Gemini via emergentintegrations
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"generate-context-{uuid.uuid4()}",
+            system_message="You are an expert technical consultant creating professional documentation."
+        ).with_model("gemini", "gemini-2.5-flash")
+        
+        user_message = UserMessage(text=prompt)
+        response = await chat.send_message(user_message)
+        
+        return {"summary": response.strip()}
+        
+    except Exception as e:
+        print(f"Error generating context: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to generate context summary: {str(e)}")
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8001)
