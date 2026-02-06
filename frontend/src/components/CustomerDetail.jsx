@@ -16,6 +16,7 @@ import { DiscoveryProvider, useDiscovery } from "@/contexts/DiscoveryContext";
 import { AssessmentQuestions } from "./AssessmentQuestions";
 import { MeetingNotesAI } from "./MeetingNotesAI";
 import { TokenCalculatorSummary, UDSMembersTable } from "./sizing";
+import { FloatingSaveButton } from "./FloatingSaveButton";
 import yaml from "js-yaml";
 
 // ===== Target Solution Toggles =====
