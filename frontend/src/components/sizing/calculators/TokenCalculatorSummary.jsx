@@ -608,7 +608,7 @@ export function TokenCalculatorSummary() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {PLATFORM_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                          {platformOptions.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
                         </SelectContent>
                       </Select>
                     </TableCell>
