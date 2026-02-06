@@ -9,9 +9,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
 import { 
   Building2, MapPin, Server, Package, DollarSign, Cpu, HardDrive, Shield, BarChart3,
-  Plus, Trash2, Download, FileText, Info, AlertTriangle, Star
+  Plus, Trash2, Download, FileText, Info, AlertTriangle, Star, Settings2
 } from "lucide-react";
 import { 
   getSiteRecommendedModel,
