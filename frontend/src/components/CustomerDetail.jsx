@@ -441,7 +441,8 @@ export function CustomerDetail({ customer, onBack }) {
   const visibleQuestions = questions.filter(q => {
     if (q.hidden) return false;
     if (q.conditionalOn) {
-      return answers[q.conditionalOn.questionId] === q.conditionalOn.value;
+      const depValue = answers[q.conditionalOn.questionId] || '';
+      return depValue === q.conditionalOn.value || depValue.split(', ').includes(q.conditionalOn.value);
     }
     return true;
   });
