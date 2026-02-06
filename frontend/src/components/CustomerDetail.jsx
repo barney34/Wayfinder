@@ -757,7 +757,10 @@ export function CustomerDetail({ customer, onBack }) {
               
               // Count answered in section
               const visibleSectionQs = sectionQuestions.filter(q => {
-                if (q.conditionalOn) return answers[q.conditionalOn.questionId] === q.conditionalOn.value;
+                if (q.conditionalOn) {
+                  const depValue = answers[q.conditionalOn.questionId] || '';
+                  return depValue === q.conditionalOn.value || depValue.split(', ').includes(q.conditionalOn.value);
+                }
                 return true;
               });
               const sectionAnswered = visibleSectionQs.filter(q => answers[q.id]?.trim()).length;
