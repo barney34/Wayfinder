@@ -422,6 +422,118 @@ export function CustomerDetail({ customer, onBack }) {
     });
   };
 
+  // Export to YAML
+  const exportToYAML = () => {
+    const exportData = {
+      customer: {
+        name: customer.name,
+        nickname: customer.nickname || '',
+        opportunity: customer.opportunity || '',
+        seName: customer.seName || '',
+        psar: customer.psar,
+        arb: customer.arb,
+        design: customer.design,
+      },
+      exportDate: new Date().toISOString(),
+      discovery: {
+        answers: {},
+        notes: notes,
+        meetingNotes: meetingNotes,
+      },
+    };
+
+    // Map answers with question text for readability
+    questions.forEach(q => {
+      if (answers[q.id]) {
+        exportData.discovery.answers[q.id] = {
+          section: q.section,
+          question: q.question,
+          answer: answers[q.id],
+        };
+      }
+    });
+
+    const yamlStr = yaml.dump(exportData, { lineWidth: -1, noRefs: true });
+    const blob = new Blob([yamlStr], { type: 'text/yaml' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${customer.name.replace(/\s+/g, '_')}_discovery_${new Date().toISOString().split('T')[0]}.yaml`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "Exported YAML",
+      description: `Exported discovery data for ${customer.name}`,
+    });
+  };
+
+  // Export to CSV
+  const exportToCSV = () => {
+    // Build headers: Customer info + all question IDs
+    const questionIds = questions.filter(q => !q.hidden).map(q => q.id);
+    const headers = [
+      'Customer Name',
+      'Nickname', 
+      'Opportunity',
+      'SE Name',
+      'PSAR',
+      'ARB',
+      'Design',
+      'Export Date',
+      ...questionIds.map(id => {
+        const q = questions.find(q => q.id === id);
+        return q ? `${q.section}: ${q.question}` : id;
+      })
+    ];
+
+    // Build row values
+    const row = [
+      customer.name,
+      customer.nickname || '',
+      customer.opportunity || '',
+      customer.seName || '',
+      customer.psar,
+      customer.arb,
+      customer.design,
+      new Date().toISOString().split('T')[0],
+      ...questionIds.map(id => {
+        const val = answers[id] || '';
+        // Escape quotes and wrap in quotes if contains comma
+        if (val.includes(',') || val.includes('"') || val.includes('\n')) {
+          return `"${val.replace(/"/g, '""')}"`;
+        }
+        return val;
+      })
+    ];
+
+    // Escape headers too
+    const escapedHeaders = headers.map(h => {
+      if (h.includes(',') || h.includes('"')) {
+        return `"${h.replace(/"/g, '""')}"`;
+      }
+      return h;
+    });
+
+    const csvContent = [escapedHeaders.join(','), row.join(',')].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${customer.name.replace(/\s+/g, '_')}_discovery_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "Exported CSV",
+      description: `Exported discovery data for ${customer.name}`,
+    });
+  };
+
   return (
     <div className="space-y-6" data-testid="customer-detail-page">
       {/* Header */}
