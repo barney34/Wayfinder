@@ -27,7 +27,7 @@ import {
   Plus, Trash2, Download, FileText, Info, AlertTriangle, Star, Settings2, FileSpreadsheet
 } from "lucide-react";
 import { jsPDF } from "jspdf";
-import "jspdf-autotable";
+import { autoTable } from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import { 
   getSiteRecommendedModel,
