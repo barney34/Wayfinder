@@ -756,7 +756,11 @@ export function CustomerDetail({ customer, onBack }) {
               const config = sectionConfig[sectionName] || { color: "text-gray-600", bgColor: "bg-gray-50" };
               
               // Count answered in section
-              const sectionAnswered = sectionQuestions.filter(q => answers[q.id]?.trim()).length;
+              const visibleSectionQs = sectionQuestions.filter(q => {
+                if (q.conditionalOn) return answers[q.conditionalOn.questionId] === q.conditionalOn.value;
+                return true;
+              });
+              const sectionAnswered = visibleSectionQs.filter(q => answers[q.id]?.trim()).length;
               
               return (
                 <Collapsible
