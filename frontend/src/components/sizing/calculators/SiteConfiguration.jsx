@@ -72,7 +72,10 @@ export function SiteConfiguration({ value, onChange, questionId }) {
   const dataCenterIds = dataCenters.map(dc => dc.id).join(',');
   const contextSiteIds = contextSites.map(s => s.id).join(',');
   
-  const mergedSites = useMemo(() => {
+  console.log('[SiteConfiguration] Pre-memo IDs:', { dataCenterIds, contextSiteIds });
+  
+  // Direct calculation (not memoized for debugging)
+  const mergedSites = (() => {
     const configSites = Array.isArray(localConfig?.sites) ? localConfig.sites : [];
     
     if (!localConfig?.autoSync) {
