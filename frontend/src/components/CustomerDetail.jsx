@@ -130,19 +130,25 @@ function QuickCaptureBarInline() {
         <div className="flex items-center gap-2">
           <button type="button" onClick={() => setShowDCDetails(!showDCDetails)} className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex items-center gap-1" data-testid="toggle-dc-tags">
             <ChevronRight className={`h-4 w-4 transition-transform ${showDCDetails ? 'rotate-90' : ''}`} />
+            <Building2 className="h-3.5 w-3.5" />
             DCs: {dataCenters.length}
           </button>
-          <span className="text-sm text-muted-foreground">KW: {totalDCKW.toLocaleString()}</span>
-          <Input placeholder="DC name..." value={newDCName} onChange={e => setNewDCName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAddDC()} className="w-[120px] h-8 text-sm" data-testid="input-new-dc-name" />
-          <Button variant="default" size="sm" className="h-8 w-8 p-0" onClick={handleAddDC} disabled={!newDCName.trim()} data-testid="button-add-dc"><Plus className="h-4 w-4" /></Button>
+          <span className="text-sm text-muted-foreground font-medium">KW: {totalDCKW.toLocaleString()}</span>
+          <div className="flex items-center gap-1 ml-2">
+            <Input placeholder="DC name" value={newDCName} onChange={e => setNewDCName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAddDC()} className="w-[100px] h-7 text-sm" data-testid="input-new-dc-name" />
+            <Button variant="default" size="sm" className="h-7 w-7 p-0" onClick={handleAddDC} disabled={!newDCName.trim()} data-testid="button-add-dc"><Plus className="h-3.5 w-3.5" /></Button>
+          </div>
         </div>
         {showDCDetails && dataCenters.length > 0 && (
-          <div className="flex flex-col gap-1.5 pl-5 pt-1">
+          <div className="flex flex-wrap gap-2 pl-5 pt-1">
             {dataCenters.map(dc => (
-              <div key={dc.id} className="flex items-center gap-2">
-                <Input value={dc.name} onChange={e => updateDataCenter(dc.id, { name: e.target.value })} className="w-[140px] h-7 text-sm" placeholder="DC Name" data-testid={`input-dc-name-${dc.id}`} />
-                <Input type="number" placeholder="KW" value={dc.knowledgeWorkers || ''} onChange={e => updateDataCenter(dc.id, { knowledgeWorkers: parseInt(e.target.value) || 0 })} className="w-[70px] h-7 text-sm" data-testid={`input-dc-kw-${dc.id}`} />
-                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => deleteDataCenter(dc.id)} data-testid={`delete-dc-${dc.id}`}><X className="h-4 w-4 text-muted-foreground hover:text-destructive" /></Button>
+              <div key={dc.id} className="flex items-center gap-1 bg-blue-500/10 border border-blue-500/30 rounded-md px-2 py-1">
+                <Building2 className="h-3 w-3 text-blue-500" />
+                <Input value={dc.name} onChange={e => updateDataCenter(dc.id, { name: e.target.value })} className="w-[90px] h-6 text-xs bg-transparent border-0 p-0 focus-visible:ring-0" placeholder="Name" data-testid={`input-dc-name-${dc.id}`} />
+                <span className="text-xs text-muted-foreground">|</span>
+                <Input type="number" placeholder="KW" value={dc.knowledgeWorkers || ''} onChange={e => updateDataCenter(dc.id, { knowledgeWorkers: parseInt(e.target.value) || 0 })} className="w-[50px] h-6 text-xs bg-transparent border-0 p-0 focus-visible:ring-0 text-right" data-testid={`input-dc-kw-${dc.id}`} />
+                <span className="text-xs text-muted-foreground">KW</span>
+                <Button variant="ghost" size="icon" className="h-5 w-5 ml-1" onClick={() => deleteDataCenter(dc.id)} data-testid={`delete-dc-${dc.id}`}><X className="h-3 w-3 text-muted-foreground hover:text-destructive" /></Button>
               </div>
             ))}
           </div>
