@@ -251,6 +251,13 @@ export default function Customers() {
     return a.localeCompare(b);
   });
 
+  // Auto-expand all groups on first load
+  useEffect(() => {
+    if (filteredSeNames.length > 0 && expandedGroups.has('__all__')) {
+      setExpandedGroups(new Set(filteredSeNames));
+    }
+  }, [filteredSeNames.length]);
+
   const selectedCustomerData = selectedCustomer 
     ? (newlyCreatedCustomer?.id === selectedCustomer 
         ? newlyCreatedCustomer 
