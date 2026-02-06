@@ -143,7 +143,7 @@ export function SiteConfiguration({ value, onChange, questionId }) {
     console.log('[SiteConfiguration] Merged result:', result.length, 'sites');
     
     return result;
-  }, [dataCenterIds, contextSiteIds, localConfig, ipMultiplier, dhcpPercent, globalPlatform, dataCenters, contextSites]);
+  })();
 
   // Calculate recommended models for each site
   const sitesWithRecommendations = useMemo(() => {
