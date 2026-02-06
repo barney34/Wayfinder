@@ -85,13 +85,18 @@ export function DiscoveryProvider({ children, customerId }) {
   useEffect(() => {
     if (!customerId || !isHydrated || !isDirty) return;
     const timer = setTimeout(() => {
+      setIsSaving(true);
       const payload = {
         answers, notes, contextFields, meetingNotes,
         enabledSections, udsMembers, leaseTimeUnits, dataCenters, sites,
       };
       apiRequest('PUT', `/api/customers/${customerId}/discovery`, payload)
-        .then(() => setIsDirty(false))
-        .catch(err => console.error('Auto-save failed:', err));
+        .then(() => {
+          setIsDirty(false);
+          setLastSaved(new Date().toISOString());
+        })
+        .catch(err => console.error('Auto-save failed:', err))
+        .finally(() => setIsSaving(false));
     }, 2000);
     return () => clearTimeout(timer);
   }, [answers, notes, contextFields, meetingNotes, enabledSections, udsMembers, leaseTimeUnits, dataCenters, sites, customerId, isHydrated, isDirty]);
