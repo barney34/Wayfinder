@@ -11,4 +11,5 @@ export {
   DomainTakedownInput,
   ReportingInput,
   UDDIEstimator,
+  SiteConfiguration,
 } from './calculators';
