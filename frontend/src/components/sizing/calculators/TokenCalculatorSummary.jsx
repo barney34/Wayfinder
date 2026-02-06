@@ -594,7 +594,11 @@ export function TokenCalculatorSummary() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {ROLE_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                          {roleOptions.map(o => (
+                            <SelectItem key={o.value} value={o.value} title={o.description}>
+                              {o.label}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </TableCell>
