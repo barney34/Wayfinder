@@ -45,7 +45,7 @@ code {
         --radius: 0.5rem;
         --sidebar-width: 16rem;
     }
-    .dark {
+    html.dark, .dark {
         --background: 0 0% 5%;
         --foreground: 0 0% 98%;
         --card: 0 0% 7%;
