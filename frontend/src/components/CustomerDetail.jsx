@@ -79,17 +79,18 @@ const designLabels = {
 
 // Section icons and colors
 const sectionConfig = {
-  "Users - Devices - Sites": { color: "text-blue-600", bgColor: "bg-blue-50" },
-  "Sizing Data": { color: "text-purple-600", bgColor: "bg-purple-50" },
-  "IPAM": { color: "text-green-600", bgColor: "bg-green-50" },
-  "Internal DNS": { color: "text-orange-600", bgColor: "bg-orange-50" },
-  "External DNS": { color: "text-amber-600", bgColor: "bg-amber-50" },
-  "DHCP": { color: "text-cyan-600", bgColor: "bg-cyan-50" },
-  "Services": { color: "text-indigo-600", bgColor: "bg-indigo-50" },
-  "Microsoft Management": { color: "text-blue-500", bgColor: "bg-blue-50" },
-  "Asset/ Network Insight": { color: "text-teal-600", bgColor: "bg-teal-50" },
-  "Security": { color: "text-red-600", bgColor: "bg-red-50" },
-  "Professional Services": { color: "text-violet-600", bgColor: "bg-violet-50" },
+  "Users - Devices - Sites": { color: "text-blue-600", bgColor: "bg-blue-50 dark:bg-blue-950/30" },
+  "Sizing Data": { color: "text-purple-600", bgColor: "bg-purple-50 dark:bg-purple-950/30" },
+  "IPAM": { color: "text-green-600", bgColor: "bg-green-50 dark:bg-green-950/30" },
+  "UDDI": { color: "text-sky-600", bgColor: "bg-sky-50 dark:bg-sky-950/30" },
+  "Internal DNS": { color: "text-orange-600", bgColor: "bg-orange-50 dark:bg-orange-950/30" },
+  "External DNS": { color: "text-amber-600", bgColor: "bg-amber-50 dark:bg-amber-950/30" },
+  "DHCP": { color: "text-cyan-600", bgColor: "bg-cyan-50 dark:bg-cyan-950/30" },
+  "Services": { color: "text-indigo-600", bgColor: "bg-indigo-50 dark:bg-indigo-950/30" },
+  "Microsoft Management": { color: "text-blue-500", bgColor: "bg-blue-50 dark:bg-blue-950/30" },
+  "Asset/ Network Insight": { color: "text-teal-600", bgColor: "bg-teal-50 dark:bg-teal-950/30" },
+  "Security": { color: "text-red-600", bgColor: "bg-red-50 dark:bg-red-950/30" },
+  "Professional Services": { color: "text-violet-600", bgColor: "bg-violet-50 dark:bg-violet-950/30" },
 };
 
 function QuestionField({ question, value, onChange, answers, onNoteChange, note }) {
