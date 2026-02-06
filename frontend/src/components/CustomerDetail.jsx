@@ -111,22 +111,8 @@ function QuestionField({ question, value, onChange, answers, onNoteChange, note 
     case "yesno":
       return (
         <div className="flex items-center gap-4">
-          <Button
-            variant={currentValue === "Yes" ? "default" : "outline"}
-            size="sm"
-            onClick={() => onChange(id, "Yes")}
-            data-testid={`${id}-yes`}
-          >
-            Yes
-          </Button>
-          <Button
-            variant={currentValue === "No" ? "default" : "outline"}
-            size="sm"
-            onClick={() => onChange(id, "No")}
-            data-testid={`${id}-no`}
-          >
-            No
-          </Button>
+          <Button variant={currentValue === "Yes" ? "default" : "outline"} size="sm" onClick={() => onChange(id, "Yes")} data-testid={`${id}-yes`}>Yes</Button>
+          <Button variant={currentValue === "No" ? "default" : "outline"} size="sm" onClick={() => onChange(id, "No")} data-testid={`${id}-no`}>No</Button>
         </div>
       );
 
@@ -144,95 +130,46 @@ function QuestionField({ question, value, onChange, answers, onNoteChange, note 
         </Select>
       );
 
-    case "multiselect":
+    case "multiselect": {
       const selectedValues = currentValue ? currentValue.split(", ").filter(Boolean) : [];
       return (
         <div className="space-y-2">
           <div className="flex flex-wrap gap-2">
             {options?.map((opt) => (
-              <Button
-                key={opt}
-                variant={selectedValues.includes(opt) ? "default" : "outline"}
-                size="sm"
-                onClick={() => {
-                  const newValues = selectedValues.includes(opt)
-                    ? selectedValues.filter(v => v !== opt)
-                    : [...selectedValues, opt];
-                  onChange(id, newValues.join(", "));
-                }}
-                data-testid={`${id}-${opt.toLowerCase().replace(/\s+/g, '-')}`}
-              >
-                {selectedValues.includes(opt) && <Check className="h-3 w-3 mr-1" />}
-                {opt}
+              <Button key={opt} variant={selectedValues.includes(opt) ? "default" : "outline"} size="sm" onClick={() => { const newValues = selectedValues.includes(opt) ? selectedValues.filter(v => v !== opt) : [...selectedValues, opt]; onChange(id, newValues.join(", ")); }} data-testid={`${id}-${opt.toLowerCase().replace(/\s+/g, '-')}`}>
+                {selectedValues.includes(opt) && <Check className="h-3 w-3 mr-1" />}{opt}
               </Button>
             ))}
           </div>
           {allowFreeform && (
-            <Input
-              placeholder="Add other (comma-separated)..."
-              className="max-w-md mt-2"
-              onBlur={(e) => {
-                if (e.target.value) {
-                  const existing = selectedValues.filter(v => !options?.includes(v));
-                  const newOther = e.target.value.split(",").map(s => s.trim()).filter(Boolean);
-                  const newValues = [...selectedValues.filter(v => options?.includes(v)), ...existing, ...newOther];
-                  onChange(id, [...new Set(newValues)].join(", "));
-                  e.target.value = "";
-                }
-              }}
-              data-testid={`${id}-other`}
-            />
+            <Input placeholder="Add other (comma-separated)..." className="max-w-md mt-2" onBlur={(e) => { if (e.target.value) { const existing = selectedValues.filter(v => !options?.includes(v)); const newOther = e.target.value.split(",").map(s => s.trim()).filter(Boolean); const newValues = [...selectedValues.filter(v => options?.includes(v)), ...existing, ...newOther]; onChange(id, [...new Set(newValues)].join(", ")); e.target.value = ""; } }} data-testid={`${id}-other`} />
           )}
         </div>
       );
+    }
 
     case "number":
-      return (
-        <Input
-          type="number"
-          value={currentValue}
-          onChange={(e) => onChange(id, e.target.value)}
-          className="max-w-xs"
-          placeholder="Enter a number"
-          data-testid={`${id}-input`}
-        />
-      );
+      return <Input type="number" value={currentValue} onChange={(e) => onChange(id, e.target.value)} className="max-w-xs" placeholder="Enter a number" data-testid={`${id}-input`} />;
 
-    case "leaseTime":
+    case "leaseTime": {
       const leaseOptions = [
-        { label: "1 hour", value: "3600" },
-        { label: "4 hours", value: "14400" },
-        { label: "8 hours", value: "28800" },
-        { label: "1 day", value: "86400" },
-        { label: "3 days", value: "259200" },
-        { label: "7 days", value: "604800" },
-        { label: "14 days", value: "1209600" },
-        { label: "30 days", value: "2592000" },
+        { label: "1 hour", value: "3600" }, { label: "4 hours", value: "14400" }, { label: "8 hours", value: "28800" },
+        { label: "1 day", value: "86400" }, { label: "3 days", value: "259200" }, { label: "7 days", value: "604800" },
+        { label: "14 days", value: "1209600" }, { label: "30 days", value: "2592000" },
       ];
       return (
         <Select value={currentValue} onValueChange={(val) => onChange(id, val)}>
-          <SelectTrigger className="w-full max-w-md" data-testid={`${id}-select`}>
-            <SelectValue placeholder="Select lease time" />
-          </SelectTrigger>
-          <SelectContent>
-            {leaseOptions.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-            ))}
-          </SelectContent>
+          <SelectTrigger className="w-full max-w-md" data-testid={`${id}-select`}><SelectValue placeholder="Select lease time" /></SelectTrigger>
+          <SelectContent>{leaseOptions.map((opt) => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}</SelectContent>
         </Select>
       );
+    }
 
     case "enableSwitch":
       return (
         <div className="flex items-center gap-2">
-          <Switch
-            checked={currentValue === "Yes"}
-            onCheckedChange={(checked) => onChange(id, checked ? "Yes" : "No")}
-            data-testid={`${id}-switch`}
-          />
-          <span className="text-sm text-muted-foreground">
-            {currentValue === "Yes" ? "Enabled" : "Disabled"}
-          </span>
+          <Switch checked={currentValue === "Yes"} onCheckedChange={(checked) => onChange(id, checked ? "Yes" : "No")} data-testid={`${id}-switch`} />
+          <span className="text-sm text-muted-foreground">{currentValue === "Yes" ? "Enabled" : "Disabled"}</span>
         </div>
       );
 
@@ -241,58 +178,48 @@ function QuestionField({ question, value, onChange, answers, onNoteChange, note 
     case "dnsPerServerCalculated":
       return (
         <div className="space-y-2">
-          <Input
-            type="text"
-            value={currentValue}
-            onChange={(e) => onChange(id, e.target.value)}
-            className="max-w-xs"
-            placeholder="Calculated or enter manually"
-            data-testid={`${id}-input`}
-          />
-          <p className="text-xs text-muted-foreground">
-            Auto-calculated based on other inputs, or enter manually
-          </p>
+          <Input type="text" value={currentValue} onChange={(e) => onChange(id, e.target.value)} className="max-w-xs" placeholder="Calculated or enter manually" data-testid={`${id}-input`} />
+          <p className="text-xs text-muted-foreground">Auto-calculated based on other inputs, or enter manually</p>
         </div>
       );
 
     case "siteConfiguration":
       return (
-        <div className="text-sm text-muted-foreground">
-          <p>Site configuration tool will be added here</p>
-          <Textarea
-            value={currentValue}
-            onChange={(e) => onChange(id, e.target.value)}
-            placeholder="Enter site configuration details..."
-            className="mt-2"
-            rows={3}
-            data-testid={`${id}-textarea`}
-          />
-        </div>
+        <SiteConfigurationField value={currentValue} onChange={(val) => onChange(id, val)} questionId={id} answers={answers} />
       );
 
-    default:
-      // Default text input or textarea for longer questions
+    case "tdNiosSection":
+      return <TDNiosSection value={currentValue} onChange={(val) => onChange(id, val)} questionId={id} />;
+
+    case "assetConfigInput":
+      return <AssetConfigInput value={currentValue} onChange={(val) => onChange(id, val)} questionId={id} knowledgeWorkers={answers['ud-1']} />;
+
+    case "reportingInput":
+      return <ReportingInput value={currentValue} onChange={(val) => onChange(id, val)} questionId={id} knowledgeWorkers={answers['ud-1']} assetConfigValue={answers['beta-asset-config']} />;
+
+    case "dossierInput":
+      return <DossierInput value={currentValue} onChange={(val) => onChange(id, val)} questionId={id} />;
+
+    case "lookalikeInput":
+      return <LookalikeInput value={currentValue} onChange={(val) => onChange(id, val)} questionId={id} />;
+
+    case "domainTakedownInput":
+      return <DomainTakedownInput value={currentValue} onChange={(val) => onChange(id, val)} questionId={id} />;
+
+    case "socInsightsInput":
+      return <SocInsightsInput value={currentValue} onChange={(val) => onChange(id, val)} questionId={id} knowledgeWorkers={answers['ud-1']} assetConfigValue={answers['beta-asset-config']} />;
+
+    case "uddiEstimator":
+      return <UDDIEstimator value={currentValue} onChange={(val) => onChange(id, val)} questionId={id} />;
+
+    case "tokenTotal":
+      return <TokenTotalDisplay answers={answers} />;
+
+    default: {
       const isLongQuestion = question.question.length > 60;
-      if (isLongQuestion) {
-        return (
-          <Textarea
-            value={currentValue}
-            onChange={(e) => onChange(id, e.target.value)}
-            placeholder="Enter your answer..."
-            rows={3}
-            data-testid={`${id}-textarea`}
-          />
-        );
-      }
-      return (
-        <Input
-          type="text"
-          value={currentValue}
-          onChange={(e) => onChange(id, e.target.value)}
-          placeholder="Enter your answer..."
-          data-testid={`${id}-input`}
-        />
-      );
+      if (isLongQuestion) return <Textarea value={currentValue} onChange={(e) => onChange(id, e.target.value)} placeholder="Enter your answer..." rows={3} data-testid={`${id}-textarea`} />;
+      return <Input type="text" value={currentValue} onChange={(e) => onChange(id, e.target.value)} placeholder="Enter your answer..." data-testid={`${id}-input`} />;
+    }
   }
 }
 
