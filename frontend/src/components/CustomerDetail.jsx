@@ -650,6 +650,9 @@ export function CustomerDetail({ customer, onBack }) {
           </TabsContent>
         </Tabs>
       </div>
+      
+      {/* Floating Save Button */}
+      <FloatingSaveButton />
     </DiscoveryProvider>
   );
 }
