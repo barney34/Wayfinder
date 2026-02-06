@@ -582,6 +582,22 @@ export function CustomerDetail({ customer, onBack }) {
               </>
             )}
           </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" data-testid="button-export">
+                <Download className="h-4 w-4 mr-2" />
+                Export
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={exportToYAML} data-testid="export-yaml">
+                Export as YAML
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={exportToCSV} data-testid="export-csv">
+                Export as CSV
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
