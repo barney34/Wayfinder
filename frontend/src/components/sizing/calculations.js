@@ -82,41 +82,104 @@ export function getSiteRecommendedModel(numIPs, role, platform, dhcpPercent, lea
   const isUDDI = sitePlatform
     ? (sitePlatform === 'NXVS' || sitePlatform === 'NXaaS')
     : (platform.includes('UDDI') || platform.includes('Hybrid'));
+  
   const dhcpClients = Math.ceil(numIPs * (dhcpPercent / 100));
   const staticClients = numIPs - dhcpClients;
-
+  
+  // Calculate base workload metrics
+  const qps = Math.ceil(numIPs / (isUDDI ? 50 : niosGridConstants.peakQpsDivisor));
+  const lps = Math.max(1, Math.ceil(dhcpClients / niosGridConstants.lpsAggregateSeconds));
+  const dnsObjects = (dhcpClients * niosGridConstants.dnsRecordsPerDhcpClient) + 
+                     (staticClients * niosGridConstants.dnsRecordsPerStaticClient);
+  const dhcpObjects = dhcpClients * niosGridConstants.dhcpLeaseObjectsPerClient;
+  
+  // Handle Grid Master and Grid Master Candidate roles
+  // GM/GMC primarily care about object capacity, not QPS/LPS
+  if (role === 'GM' || role === 'GMC') {
+    // Grid objects = total managed objects across the grid
+    const gridObjects = dnsObjects + dhcpObjects;
+    
+    if (isUDDI) {
+      // UDDI doesn't have GM/GMC - should not reach here, but fallback to S
+      return 'S';
+    }
+    
+    // For NIOS GM/GMC, size based on object capacity with buffer
+    for (const server of niosServerGuardrails) {
+      if (server.maxDbObj * (niosGridConstants.maxDbUtilizationPercent / 100) >= gridObjects) {
+        return server.model;
+      }
+    }
+    return 'TE-4126';
+  }
+  
+  // Handle combined DNS/DHCP role with multi-role penalty
+  if (role === 'DNS/DHCP') {
+    const combinedObjects = dnsObjects + dhcpObjects;
+    
+    // Apply multi-role capacity multiplier (need more capacity for combined workload)
+    const adjustedQPS = Math.ceil(qps * niosGridConstants.multiRoleCapacityMultiplier);
+    const adjustedLPS = Math.ceil(lps * niosGridConstants.multiRoleCapacityMultiplier);
+    
+    if (isUDDI) {
+      for (const server of nxvsServers) {
+        const effectiveQPS = server.qps * (niosGridConstants.maxDbUtilizationPercent / 100);
+        const effectiveLPS = server.lps * (niosGridConstants.maxDbUtilizationPercent / 100);
+        const effectiveObjects = server.objects * (niosGridConstants.maxDbUtilizationPercent / 100);
+        
+        if (effectiveQPS >= adjustedQPS && effectiveLPS >= adjustedLPS && effectiveObjects >= combinedObjects) {
+          return server.serverSize;
+        }
+      }
+      return 'XL';
+    } else {
+      for (const server of niosServerGuardrails) {
+        const effectiveQPS = server.maxQPS * (niosGridConstants.maxDbUtilizationPercent / 100);
+        const effectiveLPS = server.maxLPS * (niosGridConstants.maxDbUtilizationPercent / 100);
+        const effectiveObjects = server.maxDbObj * (niosGridConstants.maxDbUtilizationPercent / 100);
+        
+        if (effectiveQPS >= adjustedQPS && effectiveLPS >= adjustedLPS && effectiveObjects >= combinedObjects) {
+          return server.model;
+        }
+      }
+      return 'TE-4126';
+    }
+  }
+  
+  // Handle DNS-only role
+  if (role === 'DNS') {
+    if (isUDDI) {
+      for (const server of nxvsServers) {
+        if (server.qps * 0.6 >= qps && server.objects * 0.6 >= dnsObjects) {
+          return server.serverSize;
+        }
+      }
+      return 'XL';
+    } else {
+      for (const server of niosServerGuardrails) {
+        if (server.maxQPS * 0.6 >= qps && server.maxDbObj * 0.6 >= dnsObjects) {
+          return server.model;
+        }
+      }
+      return 'TE-4126';
+    }
+  }
+  
+  // Handle DHCP-only role (default case)
   if (isUDDI) {
-    if (role === 'DNS') {
-      const qps = Math.ceil(numIPs / 50);
-      const objects = (dhcpClients * 3) + (staticClients * 2);
-      for (const server of nxvsServers) {
-        if (server.qps * 0.6 >= qps && server.objects * 0.6 >= objects) return server.serverSize;
+    for (const server of nxvsServers) {
+      if (server.lps * 0.6 >= lps && server.objects * 0.6 >= dhcpObjects) {
+        return server.serverSize;
       }
-      return 'XL';
-    } else {
-      const lps = Math.max(1, Math.ceil(dhcpClients / niosGridConstants.lpsAggregateSeconds));
-      const objects = dhcpClients * 2;
-      for (const server of nxvsServers) {
-        if (server.lps * 0.6 >= lps && server.objects * 0.6 >= objects) return server.serverSize;
-      }
-      return 'XL';
     }
+    return 'XL';
   } else {
-    if (role === 'DNS') {
-      const qps = Math.ceil(numIPs / niosGridConstants.peakQpsDivisor);
-      const objects = (dhcpClients * 3) + (staticClients * 2);
-      for (const server of niosServerGuardrails) {
-        if (server.maxQPS * 0.6 >= qps && server.maxDbObj * 0.6 >= objects) return server.model;
+    for (const server of niosServerGuardrails) {
+      if (server.maxLPS * 0.6 >= lps && server.maxDbObj * 0.6 >= dhcpObjects) {
+        return server.model;
       }
-      return 'TE-4126';
-    } else {
-      const lps = Math.max(1, Math.ceil(dhcpClients / niosGridConstants.lpsAggregateSeconds));
-      const objects = dhcpClients * 2;
-      for (const server of niosServerGuardrails) {
-        if (server.maxLPS * 0.6 >= lps && server.maxDbObj * 0.6 >= objects) return server.model;
-      }
-      return 'TE-4126';
     }
+    return 'TE-4126';
   }
 }
 
