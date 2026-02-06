@@ -15,13 +15,16 @@ export function FloatingSaveButton({ onSave, className }) {
   const [error, setError] = useState(null);
   
   // Show "Saved" indicator briefly after save
+  const [prevLastSaved, setPrevLastSaved] = useState(null);
+  
   useEffect(() => {
-    if (lastSaved && !isSaving) {
+    if (lastSaved && lastSaved !== prevLastSaved && !isSaving) {
+      setPrevLastSaved(lastSaved);
       setShowSaved(true);
       const timer = setTimeout(() => setShowSaved(false), 2000);
       return () => clearTimeout(timer);
     }
-  }, [lastSaved, isSaving]);
+  }, [lastSaved, isSaving, prevLastSaved]);
   
   const handleSave = async () => {
     try {
