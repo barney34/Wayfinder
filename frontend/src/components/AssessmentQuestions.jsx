@@ -269,7 +269,7 @@ export function AssessmentQuestions({ questions, onAnswerChange }) {
       case 'uddiEstimator':
         return <UDDIEstimator value={currentValue} onChange={v => handleAnswerChange(q.id, v)} questionId={q.id} />;
       case 'siteConfiguration':
-        return <SiteConfigField value={currentValue} onChange={v => handleAnswerChange(q.id, v)} questionId={q.id} answers={answers} />;
+        return <SiteConfiguration value={currentValue} onChange={v => handleAnswerChange(q.id, v)} questionId={q.id} />;
       case 'tokenTotal':
         return <TokenTotalDisplay answers={answers} />;
       default:
