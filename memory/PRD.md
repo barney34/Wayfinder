@@ -59,17 +59,30 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 - Per-question notes, SmartFill (MeetingNotesAI + ContextFields), Import (JSON/YAML/CSV)
 - Version Control: auto-saves (10 slots) + named revisions (5 slots) with restore
 
+### Phase 4 — Site Configuration Integration (Complete - Feb 6, 2026)
+- **SiteConfiguration component** fully integrated with Quick Capture bar
+- Auto-sync: Data Centers and Sites from Quick Capture automatically populate Sizing table
+- IP calculation: Knowledge Workers × multiplier (default 2.5)
+- Role assignment: First DC → Grid Master, subsequent DCs → Grid Master Candidate, Sites → DNS+DHCP
+- Hardware SKU recommendations based on site sizing
+- Manual site additions supported alongside auto-synced sites
+- **AI model upgraded**: Gemini 3 Flash via Emergent LLM Key for SmartFill features
+
 ## Pending / Backlog
+
+### P0 (Next Up)
+- Token Calculator Summary view (site-level auto-sizing recommendations, partner SKU calculations, BOM grid)
 
 ### P1
 - UDS Members Table (grid member management)
-- Advanced Token Calculator summary (site-level auto-sizing, partner SKU, BOM)
 - ARB-Required question tagging
 
 ### P2
 - AI Discovery Assistant (industry-specific follow-up questions)
-- Backend route refactoring
+- Backend route refactoring (split server.py into routes/models)
+- Fix nested button warning in AccordionTrigger with Switch component
 
 ## Test Reports
 - iteration_5.json: Post-migration (91 questions, 12 sections)
 - iteration_6.json: Full UI rewrite (Quick Capture, 6 tabs, Platform badges, auto-save)
+- iteration_7.json: SiteConfiguration bug fix verification (100% pass rate)
