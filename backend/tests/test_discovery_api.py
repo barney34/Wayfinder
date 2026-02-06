@@ -366,5 +366,159 @@ class TestTokenCalculatorQuestions:
         print("✓ All Token Calculator questions exist with correct conditional dependencies")
 
 
+class TestNewDiscoveryFields:
+    """Tests for new discovery data fields: udsMembers, leaseTimeUnits, dataCenters, sites"""
+    
+    @pytest.fixture(autouse=True)
+    def setup_test_customer(self):
+        """Create a test customer for new field tests"""
+        test_name = f"TEST_NewFields_{uuid.uuid4().hex[:8]}"
+        response = requests.post(f"{BASE_URL}/api/customers", json={
+            "name": test_name
+        })
+        self.customer_id = response.json()["id"]
+        yield
+        # Cleanup
+        requests.delete(f"{BASE_URL}/api/customers/{self.customer_id}")
+    
+    def test_save_and_retrieve_data_centers(self):
+        """Test saving and retrieving dataCenters field"""
+        discovery_payload = {
+            "answers": {},
+            "notes": {},
+            "meetingNotes": "",
+            "contextFields": {},
+            "enabledSections": {},
+            "udsMembers": [],
+            "leaseTimeUnits": {},
+            "dataCenters": [
+                {"id": "dc-1", "name": "Primary DC"},
+                {"id": "dc-2", "name": "Secondary DC"}
+            ],
+            "sites": []
+        }
+        
+        put_response = requests.put(
+            f"{BASE_URL}/api/customers/{self.customer_id}/discovery",
+            json=discovery_payload
+        )
+        assert put_response.status_code == 200
+        
+        # Retrieve and verify
+        get_response = requests.get(f"{BASE_URL}/api/customers/{self.customer_id}/discovery")
+        assert get_response.status_code == 200
+        retrieved = get_response.json()
+        
+        assert "dataCenters" in retrieved
+        assert len(retrieved["dataCenters"]) == 2
+        assert retrieved["dataCenters"][0]["name"] == "Primary DC"
+        assert retrieved["dataCenters"][1]["name"] == "Secondary DC"
+        print("✓ dataCenters field save and retrieve verified")
+    
+    def test_save_and_retrieve_sites(self):
+        """Test saving and retrieving sites field"""
+        discovery_payload = {
+            "answers": {},
+            "notes": {},
+            "meetingNotes": "",
+            "contextFields": {},
+            "enabledSections": {},
+            "udsMembers": [],
+            "leaseTimeUnits": {},
+            "dataCenters": [{"id": "dc-1", "name": "Main DC"}],
+            "sites": [
+                {"id": "site-1", "name": "HQ Site", "dataCenterId": "dc-1"},
+                {"id": "site-2", "name": "Remote Site", "dataCenterId": None}
+            ]
+        }
+        
+        put_response = requests.put(
+            f"{BASE_URL}/api/customers/{self.customer_id}/discovery",
+            json=discovery_payload
+        )
+        assert put_response.status_code == 200
+        
+        # Retrieve and verify
+        get_response = requests.get(f"{BASE_URL}/api/customers/{self.customer_id}/discovery")
+        assert get_response.status_code == 200
+        retrieved = get_response.json()
+        
+        assert "sites" in retrieved
+        assert len(retrieved["sites"]) == 2
+        assert retrieved["sites"][0]["name"] == "HQ Site"
+        assert retrieved["sites"][0]["dataCenterId"] == "dc-1"
+        assert retrieved["sites"][1]["name"] == "Remote Site"
+        assert retrieved["sites"][1]["dataCenterId"] is None
+        print("✓ sites field save and retrieve verified")
+    
+    def test_save_and_retrieve_uds_members(self):
+        """Test saving and retrieving udsMembers field"""
+        discovery_payload = {
+            "answers": {},
+            "notes": {},
+            "meetingNotes": "",
+            "contextFields": {},
+            "enabledSections": {},
+            "udsMembers": [
+                {"id": "uds-1", "type": "DNS", "count": 10},
+                {"id": "uds-2", "type": "DHCP", "count": 5}
+            ],
+            "leaseTimeUnits": {},
+            "dataCenters": [],
+            "sites": []
+        }
+        
+        put_response = requests.put(
+            f"{BASE_URL}/api/customers/{self.customer_id}/discovery",
+            json=discovery_payload
+        )
+        assert put_response.status_code == 200
+        
+        # Retrieve and verify
+        get_response = requests.get(f"{BASE_URL}/api/customers/{self.customer_id}/discovery")
+        assert get_response.status_code == 200
+        retrieved = get_response.json()
+        
+        assert "udsMembers" in retrieved
+        assert len(retrieved["udsMembers"]) == 2
+        assert retrieved["udsMembers"][0]["type"] == "DNS"
+        print("✓ udsMembers field save and retrieve verified")
+    
+    def test_save_and_retrieve_lease_time_units(self):
+        """Test saving and retrieving leaseTimeUnits field"""
+        discovery_payload = {
+            "answers": {},
+            "notes": {},
+            "meetingNotes": "",
+            "contextFields": {},
+            "enabledSections": {},
+            "udsMembers": [],
+            "leaseTimeUnits": {
+                "dhcp-3": "days",
+                "dhcp-4": "hours",
+                "dhcp-6": "minutes"
+            },
+            "dataCenters": [],
+            "sites": []
+        }
+        
+        put_response = requests.put(
+            f"{BASE_URL}/api/customers/{self.customer_id}/discovery",
+            json=discovery_payload
+        )
+        assert put_response.status_code == 200
+        
+        # Retrieve and verify
+        get_response = requests.get(f"{BASE_URL}/api/customers/{self.customer_id}/discovery")
+        assert get_response.status_code == 200
+        retrieved = get_response.json()
+        
+        assert "leaseTimeUnits" in retrieved
+        assert retrieved["leaseTimeUnits"]["dhcp-3"] == "days"
+        assert retrieved["leaseTimeUnits"]["dhcp-4"] == "hours"
+        assert retrieved["leaseTimeUnits"]["dhcp-6"] == "minutes"
+        print("✓ leaseTimeUnits field save and retrieve verified")
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])
