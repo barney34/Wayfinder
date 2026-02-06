@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Save, Sparkles, ChevronDown, ChevronRight, FileText, Loader2, Check, X } from "lucide-react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { ArrowLeft, Save, Sparkles, ChevronDown, ChevronRight, FileText, Loader2, Check, X, Cloud, CloudOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
