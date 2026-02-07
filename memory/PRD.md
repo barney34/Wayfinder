@@ -133,6 +133,17 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 - **Bug Fix**: Fixed jspdf-autotable v5 import pattern (autoTable(doc, {...}) instead of doc.autoTable())
 - **Dependencies Added**: jspdf, jspdf-autotable, xlsx
 
+### Phase 12 — Quick Capture UI Overhaul (Complete - Feb 7, 2026)
+- **Rapid Entry Mode**: DC/Site toggle buttons with Name and KW fields for fast data entry
+- **Press Enter to Add**: Instant add with fields auto-clearing for next entry
+- **Two-Column Layout**: Data Centers on left, Sites on right with auto-wrapping grid
+- **Dynamic Island Tags**: Compact pill-shaped tags with in-place editing (click to edit)
+- **Consolidated IP Calculation**: Inline formula (KW × mult = IPs) with Auto/Manual toggle
+- **Legend Footer**: "DC = Data Center(s) • KW = Knowledge Workers"
+- **Platform Mode Inline**: NIOS/UDDI/Hybrid toggle moved to Site Sizing Recommendations header
+- **Consolidated Summary Bar**: Single row showing Sites, IPs, Tokens, Partner SKU
+- **KW Formatting**: Auto K/M suffix for large numbers (15K, 1.5M)
+
 ## Pending / Backlog
 
 ### P2
