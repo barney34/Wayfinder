@@ -488,7 +488,7 @@ export function TokenCalculatorSummary() {
   const exportExcel = useCallback(() => {
     // Site Sizing sheet
     const siteData = [
-      ['Site Name', 'Type', '# IPs', 'KW', 'Role', 'Services', 'Platform', 'Model', 'Hardware SKU', 'Tokens'],
+      ['Location', 'Type', '# IPs', 'KW', 'Role', 'Services', 'Platform', 'Model', 'Hardware SKU', 'Tokens'],
       ...sites.map(s => [
         s.name, s.sourceType || 'Manual', s.numIPs, s.knowledgeWorkers, s.role,
         (s.services || []).join(', ') || '-', s.platform, s.recommendedModel, s.hardwareSku, s.tokens
