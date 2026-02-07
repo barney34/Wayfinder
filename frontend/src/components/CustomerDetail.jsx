@@ -47,7 +47,7 @@ function TargetSolutionToggles() {
   );
 }
 
-// ===== Knowledge Workers Inline (Stacked Math Formula) =====
+// ===== Knowledge Workers Inline (IP Calculation Card) =====
 function KnowledgeWorkersInline() {
   const { answers, setAnswer, defaultAnswers } = useDiscovery();
   const kw = answers['ud-1'] || '';
@@ -65,45 +65,78 @@ function KnowledgeWorkersInline() {
   }, [kwNum, multNum, knownIPsOverride, calculatedIPs, setAnswer]);
 
   return (
-    <div className="flex flex-col gap-2" data-testid="kw-inline">
-      <span className="text-[10px] text-muted-foreground uppercase tracking-wide text-center">IP Calculation</span>
-      <div className="flex items-center gap-4">
-        {/* Stacked Math Formula */}
-        <div className="flex flex-col items-center gap-1 p-3 bg-muted/50 rounded-md border min-w-[140px]">
-          <div className="flex items-center gap-2">
-            <Input type="number" value={kw} onChange={e => setAnswer('ud-1', e.target.value)} className="w-20 h-7 text-sm text-center font-mono" placeholder="0" data-testid="input-kw" />
-            <span className="text-xs text-muted-foreground whitespace-nowrap">KW</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-muted-foreground text-sm">×</span>
-            <Input type="number" step="0.5" value={mult} onChange={e => setAnswer('ipam-multiplier', e.target.value)} className="w-16 h-7 text-sm text-center font-mono" data-testid="input-mult" />
-            <span className="text-xs text-muted-foreground whitespace-nowrap">mult</span>
-          </div>
-          <div className="border-t border-border w-full my-1" />
-          <div className="flex items-center gap-2">
-            {knownIPsOverride ? (
-              <Input type="number" value={answers['ipam-1'] || ''} onChange={e => setAnswer('ipam-1', e.target.value)} className="w-20 h-7 text-sm text-center font-mono border-amber-400" data-testid="input-ips-override" />
-            ) : (
-              <span className="text-lg font-bold tabular-nums text-primary" data-testid="calculated-ips">{activeIPs.toLocaleString()}</span>
-            )}
-            <span className="text-xs text-muted-foreground whitespace-nowrap">IPs</span>
-          </div>
-        </div>
-        
-        {/* Known IPs Override with Tooltip */}
-        <div className="flex flex-col items-start gap-1">
-          <div className="flex items-center gap-1.5">
-            <input type="checkbox" checked={knownIPsOverride} onChange={e => {
+    <div className="relative flex flex-col items-center justify-center p-4 bg-gradient-to-br from-muted/40 to-muted/60 rounded-xl border shadow-sm min-w-[180px]" data-testid="kw-inline">
+      {/* Known IPs Toggle - Top Right */}
+      <div className="absolute top-2 right-2 flex items-center gap-1.5">
+        <label className="relative inline-flex items-center cursor-pointer" title="Toggle to manually enter known IP count">
+          <input 
+            type="checkbox" 
+            checked={knownIPsOverride} 
+            onChange={e => {
               setAnswer('ipam-1-override', e.target.checked ? 'true' : 'false');
               if (!e.target.checked) setAnswer('ipam-1', String(calculatedIPs));
-            }} className="h-3.5 w-3.5" data-testid="checkbox-known-ips" id="known-ips-checkbox" />
-            <label htmlFor="known-ips-checkbox" className="text-xs text-muted-foreground cursor-pointer whitespace-nowrap" title="Override calculated IPs with a known value">
-              Known IPs
-            </label>
-            <span className="text-muted-foreground cursor-help" title="Check this to manually enter the IP count">
-              <Info className="h-3 w-3" />
-            </span>
-          </div>
+            }} 
+            className="sr-only peer" 
+            data-testid="checkbox-known-ips" 
+          />
+          <div className="w-8 h-4 bg-muted-foreground/30 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-amber-500"></div>
+        </label>
+        <span className="text-[9px] text-muted-foreground uppercase tracking-wide">Known</span>
+      </div>
+      
+      {/* Title */}
+      <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-3">IP Calculation</span>
+      
+      {/* Stacked Math Formula - Centered */}
+      <div className="flex flex-col items-center gap-2">
+        {/* KW Row */}
+        <div className="flex items-center justify-center gap-2">
+          <input 
+            type="number" 
+            value={kw} 
+            onChange={e => setAnswer('ud-1', e.target.value)} 
+            className="w-20 h-8 text-center text-sm font-mono bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
+            placeholder="0" 
+            data-testid="input-kw" 
+          />
+          <span className="text-[10px] text-muted-foreground font-medium w-8">KW</span>
+        </div>
+        
+        {/* Multiplier Row */}
+        <div className="flex items-center justify-center gap-2">
+          <span className="text-muted-foreground font-medium w-4 text-center">×</span>
+          <input 
+            type="number" 
+            step="0.5" 
+            value={mult} 
+            onChange={e => setAnswer('ipam-multiplier', e.target.value)} 
+            className="w-14 h-8 text-center text-sm font-mono bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
+            data-testid="input-mult" 
+          />
+          <span className="text-[10px] text-muted-foreground font-medium w-8">mult</span>
+        </div>
+        
+        {/* Divider */}
+        <div className="w-24 h-px bg-border my-1" />
+        
+        {/* Result Row */}
+        <div className="flex items-center justify-center gap-2">
+          {knownIPsOverride ? (
+            <input 
+              type="number" 
+              value={answers['ipam-1'] || ''} 
+              onChange={e => setAnswer('ipam-1', e.target.value)} 
+              className="w-20 h-8 text-center text-sm font-mono bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-400 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
+              data-testid="input-ips-override" 
+            />
+          ) : (
+            <div className="w-20 h-8 flex items-center justify-center bg-primary/10 rounded-md">
+              <span className="text-base font-bold tabular-nums text-primary" data-testid="calculated-ips">
+                {activeIPs.toLocaleString()}
+              </span>
+            </div>
+          )}
+          <span className="text-[10px] text-muted-foreground font-medium w-8">IPs</span>
         </div>
       </div>
     </div>
