@@ -144,23 +144,19 @@ function KnowledgeWorkersInline() {
 }
 
 // ===== Dynamic Island Tag Component =====
-function DynamicIslandTag({ id, name, kw, color, icon: Icon, onUpdate, onDelete, testIdPrefix }) {
+function DynamicIslandTag({ id, name, kw, color, onUpdate, onDelete, testIdPrefix }) {
   const [isEditingName, setIsEditingName] = useState(false);
   const [isEditingKW, setIsEditingKW] = useState(false);
   const [editName, setEditName] = useState(name);
   const [editKW, setEditKW] = useState(kw?.toString() || '');
   
   const colorClasses = color === 'blue' 
-    ? 'bg-blue-500/15 border-blue-500/40 hover:bg-blue-500/25 hover:border-blue-500/60' 
-    : 'bg-green-500/15 border-green-500/40 hover:bg-green-500/25 hover:border-green-500/60';
-  const iconColor = color === 'blue' ? 'text-blue-500' : 'text-green-500';
+    ? 'bg-blue-500/15 border-blue-500/40 hover:bg-blue-500/25' 
+    : 'bg-green-500/15 border-green-500/40 hover:bg-green-500/25';
   
   const handleNameSave = () => {
-    if (editName.trim()) {
-      onUpdate({ name: editName.trim() });
-    } else {
-      setEditName(name);
-    }
+    if (editName.trim()) onUpdate({ name: editName.trim() });
+    else setEditName(name);
     setIsEditingName(false);
   };
   
@@ -169,14 +165,15 @@ function DynamicIslandTag({ id, name, kw, color, icon: Icon, onUpdate, onDelete,
     setIsEditingKW(false);
   };
 
+  // Format KW with K suffix for thousands
+  const formatKW = (val) => {
+    if (val >= 1000) return `${(val / 1000).toFixed(val % 1000 === 0 ? 0 : 1)}K`;
+    return val.toString();
+  };
+
   return (
-    <div 
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border transition-all duration-300 ease-out transform hover:scale-[1.02] ${colorClasses}`}
-      style={{ minHeight: '28px' }}
-    >
-      <Icon className={`h-3 w-3 ${iconColor} flex-shrink-0`} />
-      
-      {/* Name - Click to Edit */}
+    <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-xs transition-all duration-200 ${colorClasses}`}>
+      {/* Name */}
       {isEditingName ? (
         <input
           type="text"
@@ -184,24 +181,18 @@ function DynamicIslandTag({ id, name, kw, color, icon: Icon, onUpdate, onDelete,
           onChange={e => setEditName(e.target.value)}
           onBlur={handleNameSave}
           onKeyDown={e => { if (e.key === 'Enter') handleNameSave(); if (e.key === 'Escape') { setEditName(name); setIsEditingName(false); } }}
-          className="w-16 h-5 px-1 text-xs bg-background/80 border border-input rounded focus:outline-none focus:ring-1 focus:ring-primary"
+          className="w-14 h-4 px-1 text-[11px] bg-background border rounded focus:outline-none focus:ring-1 focus:ring-primary"
           autoFocus
-          data-testid={`${testIdPrefix}-name-input-${id}`}
         />
       ) : (
-        <span 
-          onClick={() => setIsEditingName(true)}
-          className="text-xs font-medium cursor-pointer hover:underline truncate max-w-[80px]"
-          title={name}
-          data-testid={`${testIdPrefix}-name-${id}`}
-        >
+        <span onClick={() => setIsEditingName(true)} className="font-medium cursor-pointer hover:underline truncate max-w-[60px]" title={name}>
           {name || 'Unnamed'}
         </span>
       )}
       
-      <span className="text-muted-foreground/50 text-[10px]">•</span>
+      <span className="text-muted-foreground/50">•</span>
       
-      {/* KW - Click to Edit */}
+      {/* KW */}
       {isEditingKW ? (
         <input
           type="number"
@@ -209,209 +200,296 @@ function DynamicIslandTag({ id, name, kw, color, icon: Icon, onUpdate, onDelete,
           onChange={e => setEditKW(e.target.value)}
           onBlur={handleKWSave}
           onKeyDown={e => { if (e.key === 'Enter') handleKWSave(); if (e.key === 'Escape') { setEditKW(kw?.toString() || ''); setIsEditingKW(false); } }}
-          className="w-14 h-5 px-1 text-xs bg-background/80 border border-input rounded text-right focus:outline-none focus:ring-1 focus:ring-primary"
+          className="w-12 h-4 px-1 text-[11px] bg-background border rounded text-right focus:outline-none focus:ring-1 focus:ring-primary"
           autoFocus
-          data-testid={`${testIdPrefix}-kw-input-${id}`}
         />
       ) : (
-        <span 
-          onClick={() => setIsEditingKW(true)}
-          className="text-xs tabular-nums cursor-pointer hover:underline"
-          data-testid={`${testIdPrefix}-kw-${id}`}
-        >
-          {(kw || 0).toLocaleString()}
+        <span onClick={() => setIsEditingKW(true)} className="tabular-nums cursor-pointer hover:underline">
+          {formatKW(kw || 0)}
         </span>
       )}
-      <span className="text-[9px] text-muted-foreground">KW</span>
       
-      {/* Delete Button */}
-      <button 
-        onClick={(e) => { e.stopPropagation(); onDelete(); }}
-        className="ml-0.5 p-0.5 rounded-full hover:bg-destructive/20 transition-colors"
-        data-testid={`${testIdPrefix}-delete-${id}`}
-      >
+      {/* Delete */}
+      <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="ml-0.5 p-0.5 rounded-full hover:bg-destructive/20">
         <X className="h-2.5 w-2.5 text-muted-foreground hover:text-destructive" />
       </button>
     </div>
   );
 }
 
-// ===== Quick Capture Bar Inline =====
+// ===== Quick Capture Bar =====
 function QuickCaptureBarInline() {
-  const { dataCenters, sites, addDataCenter, deleteDataCenter, updateDataCenter, addSite, deleteSite, updateSite, setAnswer } = useDiscovery();
-  const [newDCName, setNewDCName] = useState('');
-  const [newDCKW, setNewDCKW] = useState('');
-  const [newSiteName, setNewSiteName] = useState('');
-  const [newSiteKW, setNewSiteKW] = useState('');
-  const [showDCDetails, setShowDCDetails] = useState(true);
-  const [showSiteDetails, setShowSiteDetails] = useState(true);
+  const { dataCenters, sites, addDataCenter, deleteDataCenter, updateDataCenter, addSite, deleteSite, updateSite, setAnswer, answers, defaultAnswers } = useDiscovery();
+  const [entryType, setEntryType] = useState('dc');
+  const [entryName, setEntryName] = useState('');
+  const [entryKW, setEntryKW] = useState('');
+  const [showDCs, setShowDCs] = useState(true);
+  const [showSites, setShowSites] = useState(true);
+  const [lastAdded, setLastAdded] = useState(null);
+  const nameInputRef = useRef(null);
 
   const totalDCKW = dataCenters.reduce((sum, dc) => sum + (dc.knowledgeWorkers || 0), 0);
   const totalSiteKW = sites.reduce((sum, site) => sum + (site.knowledgeWorkers || 0), 0);
+  const totalKW = totalDCKW + totalSiteKW;
 
-  // Auto-sync DC/Site counts to sizing answers
+  // IP Calculation
+  const kw = answers['ud-1'] || '';
+  const mult = answers['ipam-multiplier'] || defaultAnswers['ipam-multiplier'] || '2.5';
+  const kwNum = parseInt(kw) || 0;
+  const multNum = parseFloat(mult) || 2.5;
+  const calculatedIPs = Math.round(kwNum * multNum);
+  const manualOverride = answers['ipam-1-override'] === 'true';
+  const activeIPs = manualOverride ? (parseInt(answers['ipam-1']) || 0) : calculatedIPs;
+
+  // Auto-sync
   useEffect(() => { setAnswer('ud-5', dataCenters.length.toString()); }, [dataCenters.length, setAnswer]);
   useEffect(() => { setAnswer('ud-7', sites.length.toString()); }, [sites.length, setAnswer]);
+  useEffect(() => {
+    if (!manualOverride && kwNum > 0) setAnswer('ipam-1', String(calculatedIPs));
+  }, [kwNum, multNum, manualOverride, calculatedIPs, setAnswer]);
 
-  const handleAddDC = () => { 
-    if (newDCName.trim()) { 
-      addDataCenter(newDCName.trim(), parseInt(newDCKW) || 0); 
-      setNewDCName(''); 
-      setNewDCKW('');
-    } 
+  // Rapid entry handler
+  const handleAdd = () => {
+    if (!entryName.trim()) return;
+    const kwVal = parseInt(entryKW) || 0;
+    let newId;
+    if (entryType === 'dc') {
+      newId = addDataCenter(entryName.trim(), kwVal);
+    } else {
+      newId = addSite(entryName.trim(), '', kwVal);
+    }
+    setLastAdded(newId);
+    setEntryName('');
+    setEntryKW('');
+    setTimeout(() => setLastAdded(null), 1000);
+    nameInputRef.current?.focus();
   };
-  const handleAddSiteIndependent = () => { 
-    if (newSiteName.trim()) { 
-      addSite(newSiteName.trim(), '', parseInt(newSiteKW) || 0); 
-      setNewSiteName(''); 
-      setNewSiteKW('');
-    } 
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAdd();
+    }
+  };
+
+  // Format KW with K suffix
+  const formatKW = (val) => {
+    if (val >= 1000000) return `${(val / 1000000).toFixed(1)}M`;
+    if (val >= 1000) return `${(val / 1000).toFixed(val % 1000 === 0 ? 0 : 1)}K`;
+    return val.toString();
   };
 
   return (
-    <div className="flex flex-col gap-3" data-testid="quick-capture-bar">
-      {/* DC Section */}
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-4">
-          {/* DC Header */}
-          <button 
-            type="button" 
-            onClick={() => setShowDCDetails(!showDCDetails)} 
-            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-            data-testid="toggle-dc-tags"
-          >
-            <ChevronRight className={`h-3.5 w-3.5 transition-transform duration-200 ${showDCDetails ? 'rotate-90' : ''}`} />
-            <Building2 className="h-3.5 w-3.5 text-blue-500" />
-            <span className="uppercase tracking-wide font-medium">Data Centers</span>
-            <span className="px-1.5 py-0.5 bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded-full text-[10px] font-semibold">{dataCenters.length}</span>
-          </button>
-          
-          <span className="text-xs text-muted-foreground">
-            Total: <span className="font-semibold tabular-nums text-foreground">{totalDCKW.toLocaleString()}</span> KW
-          </span>
-          
-          {/* Add DC - Compact */}
-          <div className="flex items-center gap-1 ml-auto">
-            <Input 
-              placeholder="Name" 
-              value={newDCName} 
-              onChange={e => setNewDCName(e.target.value)} 
-              onKeyDown={e => e.key === 'Enter' && handleAddDC()} 
-              className="w-20 h-6 text-xs px-2" 
-              data-testid="input-new-dc-name" 
-            />
-            <Input 
-              type="number" 
-              placeholder="KW" 
-              value={newDCKW} 
-              onChange={e => setNewDCKW(e.target.value)} 
-              onKeyDown={e => e.key === 'Enter' && handleAddDC()} 
-              className="w-14 h-6 text-xs px-2" 
-              data-testid="input-new-dc-kw" 
-            />
-            <Button 
-              variant="default" 
-              size="sm" 
-              className="h-6 w-6 p-0 rounded-full" 
-              onClick={handleAddDC} 
-              disabled={!newDCName.trim()} 
-              data-testid="button-add-dc"
-            >
-              <Plus className="h-3 w-3" />
-            </Button>
-          </div>
-        </div>
-        
-        {/* DC Dynamic Island Tags */}
-        {showDCDetails && dataCenters.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 pl-5 animate-in fade-in slide-in-from-top-1 duration-200">
-            {dataCenters.map(dc => (
-              <DynamicIslandTag
-                key={dc.id}
-                id={dc.id}
-                name={dc.name}
-                kw={dc.knowledgeWorkers}
-                color="blue"
-                icon={Building2}
-                onUpdate={(updates) => updateDataCenter(dc.id, updates)}
-                onDelete={() => deleteDataCenter(dc.id)}
-                testIdPrefix="dc"
-              />
-            ))}
-          </div>
-        )}
+    <div className="flex flex-col gap-3 p-4 bg-muted/30 rounded-lg border" data-testid="quick-capture-bar">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium">Quick Capture</span>
       </div>
       
-      {/* Site Section */}
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-4">
-          {/* Site Header */}
-          <button 
-            type="button" 
-            onClick={() => setShowSiteDetails(!showSiteDetails)} 
-            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-            data-testid="toggle-site-tags"
+      {/* Rapid Entry Bar */}
+      <div className="flex items-center gap-3 p-2 bg-background rounded-md border">
+        {/* DC/Site Radio */}
+        <div className="flex items-center gap-1 bg-muted rounded-full p-0.5">
+          <button
+            type="button"
+            onClick={() => { setEntryType('dc'); nameInputRef.current?.focus(); }}
+            onKeyDown={(e) => { if (e.key === 'd' || e.key === 'D') setEntryType('dc'); }}
+            className={`px-2.5 py-1 text-xs font-medium rounded-full transition-all ${entryType === 'dc' ? 'bg-blue-500 text-white' : 'text-muted-foreground hover:text-foreground'}`}
+            data-testid="entry-type-dc"
           >
-            <ChevronRight className={`h-3.5 w-3.5 transition-transform duration-200 ${showSiteDetails ? 'rotate-90' : ''}`} />
-            <MapPin className="h-3.5 w-3.5 text-green-500" />
-            <span className="uppercase tracking-wide font-medium">Sites</span>
-            <span className="px-1.5 py-0.5 bg-green-500/20 text-green-600 dark:text-green-400 rounded-full text-[10px] font-semibold">{sites.length}</span>
+            DC
+          </button>
+          <button
+            type="button"
+            onClick={() => { setEntryType('site'); nameInputRef.current?.focus(); }}
+            onKeyDown={(e) => { if (e.key === 's' || e.key === 'S') setEntryType('site'); }}
+            className={`px-2.5 py-1 text-xs font-medium rounded-full transition-all ${entryType === 'site' ? 'bg-green-500 text-white' : 'text-muted-foreground hover:text-foreground'}`}
+            data-testid="entry-type-site"
+          >
+            Site
+          </button>
+        </div>
+        
+        {/* Name Input */}
+        <div className="flex items-center gap-1">
+          <span className="text-xs text-muted-foreground">Name</span>
+          <input
+            ref={nameInputRef}
+            type="text"
+            value={entryName}
+            onChange={e => setEntryName(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={entryType === 'dc' ? 'e.g. Atlanta-DC1' : 'e.g. LA-Branch'}
+            className="w-32 h-7 px-2 text-sm bg-background border rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
+            data-testid="entry-name"
+          />
+        </div>
+        
+        {/* KW Input */}
+        <div className="flex items-center gap-1">
+          <span className="text-xs text-muted-foreground">KW</span>
+          <input
+            type="number"
+            value={entryKW}
+            onChange={e => setEntryKW(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="0"
+            className="w-20 h-7 px-2 text-sm bg-background border rounded focus:outline-none focus:ring-2 focus:ring-primary/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            data-testid="entry-kw"
+          />
+        </div>
+        
+        {/* Add Button */}
+        <Button
+          variant="default"
+          size="sm"
+          className="h-7 px-3"
+          onClick={handleAdd}
+          disabled={!entryName.trim()}
+          data-testid="entry-add"
+        >
+          <Plus className="h-3 w-3 mr-1" />
+          Add
+        </Button>
+        
+        <span className="text-[10px] text-muted-foreground ml-auto">Press Enter ↵ to add</span>
+      </div>
+      
+      {/* Two Column Grid: DCs | Sites */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* Data Centers Column */}
+        <div className="flex flex-col gap-2">
+          <button
+            type="button"
+            onClick={() => setShowDCs(!showDCs)}
+            className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ChevronRight className={`h-3 w-3 transition-transform ${showDCs ? 'rotate-90' : ''}`} />
+            <Building2 className="h-3.5 w-3.5 text-blue-500" />
+            <span className="font-medium">Data Centers</span>
+            <span className="px-1.5 py-0.5 bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded-full text-[10px] font-semibold">{dataCenters.length}</span>
+            <span className="text-muted-foreground">• {formatKW(totalDCKW)} KW</span>
           </button>
           
-          <span className="text-xs text-muted-foreground">
-            Total: <span className="font-semibold tabular-nums text-foreground">{totalSiteKW.toLocaleString()}</span> KW
-          </span>
+          {showDCs && dataCenters.length > 0 && (
+            <div className="grid grid-cols-2 gap-1 pl-5 animate-in fade-in slide-in-from-top-1 duration-200">
+              {dataCenters.map(dc => (
+                <DynamicIslandTag
+                  key={dc.id}
+                  id={dc.id}
+                  name={dc.name}
+                  kw={dc.knowledgeWorkers}
+                  color="blue"
+                  onUpdate={(updates) => updateDataCenter(dc.id, updates)}
+                  onDelete={() => deleteDataCenter(dc.id)}
+                  testIdPrefix="dc"
+                />
+              ))}
+            </div>
+          )}
           
-          {/* Add Site - Compact */}
-          <div className="flex items-center gap-1 ml-auto">
-            <Input 
-              placeholder="Name" 
-              value={newSiteName} 
-              onChange={e => setNewSiteName(e.target.value)} 
-              onKeyDown={e => e.key === 'Enter' && handleAddSiteIndependent()} 
-              className="w-20 h-6 text-xs px-2" 
-              data-testid="input-new-site-name" 
+          {showDCs && dataCenters.length === 0 && (
+            <div className="pl-5 text-xs text-muted-foreground italic">No data centers yet</div>
+          )}
+        </div>
+        
+        {/* Sites Column */}
+        <div className="flex flex-col gap-2">
+          <button
+            type="button"
+            onClick={() => setShowSites(!showSites)}
+            className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ChevronRight className={`h-3 w-3 transition-transform ${showSites ? 'rotate-90' : ''}`} />
+            <MapPin className="h-3.5 w-3.5 text-green-500" />
+            <span className="font-medium">Sites</span>
+            <span className="px-1.5 py-0.5 bg-green-500/20 text-green-600 dark:text-green-400 rounded-full text-[10px] font-semibold">{sites.length}</span>
+            <span className="text-muted-foreground">• {formatKW(totalSiteKW)} KW</span>
+          </button>
+          
+          {showSites && sites.length > 0 && (
+            <div className="grid grid-cols-2 gap-1 pl-5 animate-in fade-in slide-in-from-top-1 duration-200">
+              {sites.map(site => (
+                <DynamicIslandTag
+                  key={site.id}
+                  id={site.id}
+                  name={site.name}
+                  kw={site.knowledgeWorkers}
+                  color="green"
+                  onUpdate={(updates) => updateSite(site.id, updates)}
+                  onDelete={() => deleteSite(site.id)}
+                  testIdPrefix="site"
+                />
+              ))}
+            </div>
+          )}
+          
+          {showSites && sites.length === 0 && (
+            <div className="pl-5 text-xs text-muted-foreground italic">No sites yet</div>
+          )}
+        </div>
+      </div>
+      
+      {/* IP Calculation Row */}
+      <div className="flex items-center justify-between pt-2 border-t">
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-muted-foreground">IP Calculation:</span>
+          <div className="flex items-center gap-1.5 text-sm">
+            <input
+              type="number"
+              value={kw}
+              onChange={e => setAnswer('ud-1', e.target.value)}
+              className="w-16 h-6 px-1.5 text-center text-xs font-mono bg-background border rounded [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              placeholder="0"
+              data-testid="ip-calc-kw"
             />
-            <Input 
-              type="number" 
-              placeholder="KW" 
-              value={newSiteKW} 
-              onChange={e => setNewSiteKW(e.target.value)} 
-              onKeyDown={e => e.key === 'Enter' && handleAddSiteIndependent()} 
-              className="w-14 h-6 text-xs px-2" 
-              data-testid="input-new-site-kw" 
+            <span className="text-muted-foreground">×</span>
+            <input
+              type="number"
+              step="0.5"
+              value={mult}
+              onChange={e => setAnswer('ipam-multiplier', e.target.value)}
+              className="w-12 h-6 px-1.5 text-center text-xs font-mono bg-background border rounded [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              data-testid="ip-calc-mult"
             />
-            <Button 
-              variant="default" 
-              size="sm" 
-              className="h-6 w-6 p-0 rounded-full" 
-              onClick={handleAddSiteIndependent} 
-              disabled={!newSiteName.trim()} 
-              data-testid="button-add-site"
-            >
-              <Plus className="h-3 w-3" />
-            </Button>
+            <span className="text-muted-foreground">=</span>
+            {manualOverride ? (
+              <input
+                type="number"
+                value={answers['ipam-1'] || ''}
+                onChange={e => setAnswer('ipam-1', e.target.value)}
+                className="w-20 h-6 px-1.5 text-center text-xs font-mono bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-400 rounded [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                data-testid="ip-calc-override"
+              />
+            ) : (
+              <span className="font-bold tabular-nums text-primary" data-testid="ip-calc-result">{activeIPs.toLocaleString()}</span>
+            )}
+            <span className="text-xs text-muted-foreground">IPs</span>
           </div>
         </div>
         
-        {/* Site Dynamic Island Tags */}
-        {showSiteDetails && sites.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 pl-5 animate-in fade-in slide-in-from-top-1 duration-200">
-            {sites.map(site => (
-              <DynamicIslandTag
-                key={site.id}
-                id={site.id}
-                name={site.name}
-                kw={site.knowledgeWorkers}
-                color="green"
-                icon={MapPin}
-                onUpdate={(updates) => updateSite(site.id, updates)}
-                onDelete={() => deleteSite(site.id)}
-                testIdPrefix="site"
-              />
-            ))}
-          </div>
-        )}
+        {/* Auto/Manual Toggle */}
+        <div className="flex items-center gap-2">
+          <span className={`text-xs ${!manualOverride ? 'text-primary font-medium' : 'text-muted-foreground'}`}>Auto</span>
+          <button
+            type="button"
+            onClick={() => {
+              const newVal = !manualOverride;
+              setAnswer('ipam-1-override', newVal ? 'true' : 'false');
+              if (!newVal) setAnswer('ipam-1', String(calculatedIPs));
+            }}
+            className={`relative w-10 h-5 rounded-full transition-colors ${manualOverride ? 'bg-amber-500' : 'bg-muted-foreground/30'}`}
+            data-testid="ip-calc-toggle"
+          >
+            <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${manualOverride ? 'translate-x-5' : 'translate-x-0.5'}`} />
+          </button>
+          <span className={`text-xs ${manualOverride ? 'text-amber-600 font-medium' : 'text-muted-foreground'}`}>Manual</span>
+        </div>
+      </div>
+      
+      {/* Legend */}
+      <div className="text-[10px] text-muted-foreground text-center border-t pt-2">
+        DC = Data Center(s) • KW = Knowledge Workers
       </div>
     </div>
   );
