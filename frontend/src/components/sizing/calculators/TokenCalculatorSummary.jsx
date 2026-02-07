@@ -858,7 +858,7 @@ export function TokenCalculatorSummary() {
               <TableHeader>
                 <TableRow className="bg-muted/50">
                   <TableHead className="w-[30px]"></TableHead>
-                  <TableHead className="min-w-[120px]">Site Name</TableHead>
+                  <TableHead className="min-w-[120px]">Location</TableHead>
                   <TableHead className="w-[80px]"># IPs</TableHead>
                   <TableHead className="w-[60px]">KW</TableHead>
                   <TableHead className="w-[90px]">Role</TableHead>
