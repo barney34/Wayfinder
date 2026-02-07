@@ -266,7 +266,7 @@ export function SiteConfiguration({ value, onChange, questionId }) {
             <TableHeader>
               <TableRow className="bg-muted/50">
                 <TableHead className="w-[50px]">Type</TableHead>
-                <TableHead>Site Name</TableHead>
+                <TableHead>Location</TableHead>
                 <TableHead className="w-[100px]"># IPs</TableHead>
                 <TableHead className="w-[100px]">KW</TableHead>
                 <TableHead className="w-[120px]">Role</TableHead>
