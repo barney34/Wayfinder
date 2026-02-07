@@ -69,51 +69,31 @@ function DynamicIslandTag({ id, name, kw, color, onUpdate, onDelete, testIdPrefi
     setIsEditingKW(false);
   };
 
-  // Format KW with K suffix for thousands
   const formatKW = (val) => {
+    if (val >= 1000000) return `${(val / 1000000).toFixed(1)}M`;
     if (val >= 1000) return `${(val / 1000).toFixed(val % 1000 === 0 ? 0 : 1)}K`;
     return val.toString();
   };
 
   return (
     <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-xs transition-all duration-200 ${colorClasses}`}>
-      {/* Name */}
       {isEditingName ? (
-        <input
-          type="text"
-          value={editName}
-          onChange={e => setEditName(e.target.value)}
-          onBlur={handleNameSave}
+        <input type="text" value={editName} onChange={e => setEditName(e.target.value)} onBlur={handleNameSave}
           onKeyDown={e => { if (e.key === 'Enter') handleNameSave(); if (e.key === 'Escape') { setEditName(name); setIsEditingName(false); } }}
-          className="w-14 h-4 px-1 text-[11px] bg-background border rounded focus:outline-none focus:ring-1 focus:ring-primary"
-          autoFocus
-        />
+          className="w-14 h-4 px-1 text-[11px] bg-background border rounded focus:outline-none focus:ring-1 focus:ring-primary" autoFocus />
       ) : (
         <span onClick={() => setIsEditingName(true)} className="font-medium cursor-pointer hover:underline truncate max-w-[60px]" title={name}>
           {name || 'Unnamed'}
         </span>
       )}
-      
       <span className="text-muted-foreground/50">•</span>
-      
-      {/* KW */}
       {isEditingKW ? (
-        <input
-          type="number"
-          value={editKW}
-          onChange={e => setEditKW(e.target.value)}
-          onBlur={handleKWSave}
+        <input type="number" value={editKW} onChange={e => setEditKW(e.target.value)} onBlur={handleKWSave}
           onKeyDown={e => { if (e.key === 'Enter') handleKWSave(); if (e.key === 'Escape') { setEditKW(kw?.toString() || ''); setIsEditingKW(false); } }}
-          className="w-12 h-4 px-1 text-[11px] bg-background border rounded text-right focus:outline-none focus:ring-1 focus:ring-primary"
-          autoFocus
-        />
+          className="w-12 h-4 px-1 text-[11px] bg-background border rounded text-right focus:outline-none focus:ring-1 focus:ring-primary" autoFocus />
       ) : (
-        <span onClick={() => setIsEditingKW(true)} className="tabular-nums cursor-pointer hover:underline">
-          {formatKW(kw || 0)}
-        </span>
+        <span onClick={() => setIsEditingKW(true)} className="tabular-nums cursor-pointer hover:underline">{formatKW(kw || 0)}</span>
       )}
-      
-      {/* Delete */}
       <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="ml-0.5 p-0.5 rounded-full hover:bg-destructive/20">
         <X className="h-2.5 w-2.5 text-muted-foreground hover:text-destructive" />
       </button>
@@ -129,12 +109,11 @@ function QuickCaptureBarInline() {
   const [entryKW, setEntryKW] = useState('');
   const [showDCs, setShowDCs] = useState(true);
   const [showSites, setShowSites] = useState(true);
-  const [lastAdded, setLastAdded] = useState(null);
   const nameInputRef = useRef(null);
+  const kwInputRef = useRef(null);
 
   const totalDCKW = dataCenters.reduce((sum, dc) => sum + (dc.knowledgeWorkers || 0), 0);
   const totalSiteKW = sites.reduce((sum, site) => sum + (site.knowledgeWorkers || 0), 0);
-  const totalKW = totalDCKW + totalSiteKW;
 
   // IP Calculation
   const kw = answers['ud-1'] || '';
@@ -156,27 +135,20 @@ function QuickCaptureBarInline() {
   const handleAdd = () => {
     if (!entryName.trim()) return;
     const kwVal = parseInt(entryKW) || 0;
-    let newId;
     if (entryType === 'dc') {
-      newId = addDataCenter(entryName.trim(), kwVal);
+      addDataCenter(entryName.trim(), kwVal);
     } else {
-      newId = addSite(entryName.trim(), '', kwVal);
+      addSite(entryName.trim(), '', kwVal);
     }
-    setLastAdded(newId);
     setEntryName('');
     setEntryKW('');
-    setTimeout(() => setLastAdded(null), 1000);
     nameInputRef.current?.focus();
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleAdd();
-    }
+    if (e.key === 'Enter') { e.preventDefault(); handleAdd(); }
   };
 
-  // Format KW with K suffix
   const formatKW = (val) => {
     if (val >= 1000000) return `${(val / 1000000).toFixed(1)}M`;
     if (val >= 1000) return `${(val / 1000).toFixed(val % 1000 === 0 ? 0 : 1)}K`;
@@ -185,215 +157,157 @@ function QuickCaptureBarInline() {
 
   return (
     <div className="flex flex-col gap-3 p-4 bg-muted/30 rounded-lg border" data-testid="quick-capture-bar">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-medium">Quick Capture</span>
+      {/* Header - Centered */}
+      <div className="text-center">
+        <h3 className="text-sm font-semibold">Quick Capture</h3>
+        <p className="text-[10px] text-muted-foreground mt-0.5">DC = Data Center(s) • KW = Knowledge Workers</p>
       </div>
       
-      {/* Rapid Entry Bar */}
-      <div className="flex items-center gap-3 p-2 bg-background rounded-md border">
-        {/* DC/Site Radio */}
-        <div className="flex items-center gap-1 bg-muted rounded-full p-0.5">
-          <button
-            type="button"
-            onClick={() => { setEntryType('dc'); nameInputRef.current?.focus(); }}
-            onKeyDown={(e) => { if (e.key === 'd' || e.key === 'D') setEntryType('dc'); }}
-            className={`px-2.5 py-1 text-xs font-medium rounded-full transition-all ${entryType === 'dc' ? 'bg-blue-500 text-white' : 'text-muted-foreground hover:text-foreground'}`}
-            data-testid="entry-type-dc"
-          >
-            DC
-          </button>
-          <button
-            type="button"
-            onClick={() => { setEntryType('site'); nameInputRef.current?.focus(); }}
-            onKeyDown={(e) => { if (e.key === 's' || e.key === 'S') setEntryType('site'); }}
-            className={`px-2.5 py-1 text-xs font-medium rounded-full transition-all ${entryType === 'site' ? 'bg-green-500 text-white' : 'text-muted-foreground hover:text-foreground'}`}
-            data-testid="entry-type-site"
-          >
-            Site
-          </button>
-        </div>
-        
-        {/* Name Input */}
-        <div className="flex items-center gap-1">
-          <span className="text-xs text-muted-foreground">Name</span>
-          <input
-            ref={nameInputRef}
-            type="text"
-            value={entryName}
-            onChange={e => setEntryName(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={entryType === 'dc' ? 'e.g. Atlanta-DC1' : 'e.g. LA-Branch'}
-            className="w-32 h-7 px-2 text-sm bg-background border rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
-            data-testid="entry-name"
-          />
-        </div>
-        
-        {/* KW Input */}
-        <div className="flex items-center gap-1">
-          <span className="text-xs text-muted-foreground">KW</span>
-          <input
-            type="number"
-            value={entryKW}
-            onChange={e => setEntryKW(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="0"
-            className="w-20 h-7 px-2 text-sm bg-background border rounded focus:outline-none focus:ring-2 focus:ring-primary/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-            data-testid="entry-kw"
-          />
-        </div>
-        
-        {/* Add Button */}
-        <Button
-          variant="default"
-          size="sm"
-          className="h-7 px-3"
-          onClick={handleAdd}
-          disabled={!entryName.trim()}
-          data-testid="entry-add"
-        >
-          <Plus className="h-3 w-3 mr-1" />
-          Add
-        </Button>
-        
-        <span className="text-[10px] text-muted-foreground ml-auto">Press Enter ↵ to add</span>
-      </div>
-      
-      {/* Two Column Grid: DCs | Sites */}
-      <div className="grid grid-cols-2 gap-4">
-        {/* Data Centers Column */}
-        <div className="flex flex-col gap-2">
-          <button
-            type="button"
-            onClick={() => setShowDCs(!showDCs)}
-            className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ChevronRight className={`h-3 w-3 transition-transform ${showDCs ? 'rotate-90' : ''}`} />
-            <Building2 className="h-3.5 w-3.5 text-blue-500" />
-            <span className="font-medium">Data Centers</span>
-            <span className="px-1.5 py-0.5 bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded-full text-[10px] font-semibold">{dataCenters.length}</span>
-            <span className="text-muted-foreground">• {formatKW(totalDCKW)} KW</span>
-          </button>
+      {/* Main Layout: IP Calc (Left) | Entry + Tags (Right) */}
+      <div className="flex gap-4">
+        {/* LEFT: IP Calculation - Vertical Math Flow */}
+        <div className="flex flex-col items-center p-3 bg-background rounded-lg border min-w-[140px]">
+          <span className="text-[10px] text-muted-foreground uppercase tracking-wide mb-2">IP Calculation</span>
           
-          {showDCs && dataCenters.length > 0 && (
-            <div className="grid grid-cols-2 gap-1 pl-5 animate-in fade-in slide-in-from-top-1 duration-200">
-              {dataCenters.map(dc => (
-                <DynamicIslandTag
-                  key={dc.id}
-                  id={dc.id}
-                  name={dc.name}
-                  kw={dc.knowledgeWorkers}
-                  color="blue"
-                  onUpdate={(updates) => updateDataCenter(dc.id, updates)}
-                  onDelete={() => deleteDataCenter(dc.id)}
-                  testIdPrefix="dc"
-                />
-              ))}
-            </div>
-          )}
-          
-          {showDCs && dataCenters.length === 0 && (
-            <div className="pl-5 text-xs text-muted-foreground italic">No data centers yet</div>
-          )}
-        </div>
-        
-        {/* Sites Column */}
-        <div className="flex flex-col gap-2">
-          <button
-            type="button"
-            onClick={() => setShowSites(!showSites)}
-            className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ChevronRight className={`h-3 w-3 transition-transform ${showSites ? 'rotate-90' : ''}`} />
-            <MapPin className="h-3.5 w-3.5 text-green-500" />
-            <span className="font-medium">Sites</span>
-            <span className="px-1.5 py-0.5 bg-green-500/20 text-green-600 dark:text-green-400 rounded-full text-[10px] font-semibold">{sites.length}</span>
-            <span className="text-muted-foreground">• {formatKW(totalSiteKW)} KW</span>
-          </button>
-          
-          {showSites && sites.length > 0 && (
-            <div className="grid grid-cols-2 gap-1 pl-5 animate-in fade-in slide-in-from-top-1 duration-200">
-              {sites.map(site => (
-                <DynamicIslandTag
-                  key={site.id}
-                  id={site.id}
-                  name={site.name}
-                  kw={site.knowledgeWorkers}
-                  color="green"
-                  onUpdate={(updates) => updateSite(site.id, updates)}
-                  onDelete={() => deleteSite(site.id)}
-                  testIdPrefix="site"
-                />
-              ))}
-            </div>
-          )}
-          
-          {showSites && sites.length === 0 && (
-            <div className="pl-5 text-xs text-muted-foreground italic">No sites yet</div>
-          )}
-        </div>
-      </div>
-      
-      {/* IP Calculation Row */}
-      <div className="flex items-center justify-between pt-2 border-t">
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-muted-foreground">IP Calculation:</span>
-          <div className="flex items-center gap-1.5 text-sm">
+          {/* KW Input */}
+          <div className="flex items-center gap-1.5">
             <input
+              ref={kwInputRef}
               type="number"
               value={kw}
               onChange={e => setAnswer('ud-1', e.target.value)}
-              className="w-16 h-6 px-1.5 text-center text-xs font-mono bg-background border rounded [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="w-20 h-8 text-center text-sm font-mono bg-muted/50 border rounded focus:outline-none focus:ring-2 focus:ring-primary/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               placeholder="0"
               data-testid="ip-calc-kw"
             />
-            <span className="text-muted-foreground">×</span>
+            <span className="text-[10px] text-muted-foreground w-6">KW</span>
+          </div>
+          
+          {/* Multiplier */}
+          <div className="flex items-center gap-1.5 mt-1">
+            <span className="text-muted-foreground w-4 text-center">×</span>
             <input
               type="number"
               step="0.5"
               value={mult}
               onChange={e => setAnswer('ipam-multiplier', e.target.value)}
-              className="w-12 h-6 px-1.5 text-center text-xs font-mono bg-background border rounded [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="w-14 h-7 text-center text-sm font-mono bg-muted/50 border rounded focus:outline-none focus:ring-2 focus:ring-primary/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               data-testid="ip-calc-mult"
             />
-            <span className="text-muted-foreground">=</span>
+            <span className="text-[10px] text-muted-foreground w-6">mult</span>
+          </div>
+          
+          {/* Divider */}
+          <div className="w-20 h-px bg-border my-2" />
+          
+          {/* Result */}
+          <div className="flex items-center gap-1.5">
             {manualOverride ? (
               <input
                 type="number"
                 value={answers['ipam-1'] || ''}
                 onChange={e => setAnswer('ipam-1', e.target.value)}
-                className="w-20 h-6 px-1.5 text-center text-xs font-mono bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-400 rounded [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-20 h-8 text-center text-sm font-mono bg-amber-100 dark:bg-amber-900/30 border-2 border-amber-400 rounded focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 data-testid="ip-calc-override"
               />
             ) : (
-              <span className="font-bold tabular-nums text-primary" data-testid="ip-calc-result">{activeIPs.toLocaleString()}</span>
+              <div className="w-20 h-8 flex items-center justify-center bg-primary/10 rounded">
+                <span className="text-sm font-bold tabular-nums text-primary">{activeIPs.toLocaleString()}</span>
+              </div>
             )}
-            <span className="text-xs text-muted-foreground">IPs</span>
+            <span className="text-[10px] text-muted-foreground w-6">IPs</span>
+          </div>
+          
+          {/* Auto/Manual Toggle - Compact */}
+          <div className="flex items-center gap-1.5 mt-3 pt-2 border-t w-full justify-center">
+            <span className={`text-[10px] ${!manualOverride ? 'text-primary font-medium' : 'text-muted-foreground'}`}>Auto</span>
+            <button
+              type="button"
+              onClick={() => {
+                const newVal = !manualOverride;
+                setAnswer('ipam-1-override', newVal ? 'true' : 'false');
+                if (!newVal) setAnswer('ipam-1', String(calculatedIPs));
+              }}
+              className={`relative w-8 h-4 rounded-full transition-colors ${manualOverride ? 'bg-amber-500' : 'bg-muted-foreground/30'}`}
+              data-testid="ip-calc-toggle"
+            >
+              <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform ${manualOverride ? 'translate-x-4' : 'translate-x-0.5'}`} />
+            </button>
+            <span className={`text-[10px] ${manualOverride ? 'text-amber-600 font-medium' : 'text-muted-foreground'}`}>Manual</span>
           </div>
         </div>
         
-        {/* Auto/Manual Toggle */}
-        <div className="flex items-center gap-2">
-          <span className={`text-xs ${!manualOverride ? 'text-primary font-medium' : 'text-muted-foreground'}`}>Auto</span>
-          <button
-            type="button"
-            onClick={() => {
-              const newVal = !manualOverride;
-              setAnswer('ipam-1-override', newVal ? 'true' : 'false');
-              if (!newVal) setAnswer('ipam-1', String(calculatedIPs));
-            }}
-            className={`relative w-10 h-5 rounded-full transition-colors ${manualOverride ? 'bg-amber-500' : 'bg-muted-foreground/30'}`}
-            data-testid="ip-calc-toggle"
-          >
-            <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${manualOverride ? 'translate-x-5' : 'translate-x-0.5'}`} />
-          </button>
-          <span className={`text-xs ${manualOverride ? 'text-amber-600 font-medium' : 'text-muted-foreground'}`}>Manual</span>
+        {/* RIGHT: Entry + Tags */}
+        <div className="flex-1 flex flex-col gap-3">
+          {/* Rapid Entry Bar */}
+          <div className="flex items-center gap-2 p-2 bg-background rounded-md border">
+            <div className="flex items-center gap-0.5 bg-muted rounded-full p-0.5">
+              <button type="button" onClick={() => { setEntryType('dc'); nameInputRef.current?.focus(); }}
+                className={`px-2 py-0.5 text-[11px] font-medium rounded-full transition-all ${entryType === 'dc' ? 'bg-blue-500 text-white' : 'text-muted-foreground hover:text-foreground'}`}
+                data-testid="entry-type-dc">DC</button>
+              <button type="button" onClick={() => { setEntryType('site'); nameInputRef.current?.focus(); }}
+                className={`px-2 py-0.5 text-[11px] font-medium rounded-full transition-all ${entryType === 'site' ? 'bg-green-500 text-white' : 'text-muted-foreground hover:text-foreground'}`}
+                data-testid="entry-type-site">Site</button>
+            </div>
+            <input ref={nameInputRef} type="text" value={entryName} onChange={e => setEntryName(e.target.value)} onKeyDown={handleKeyDown}
+              placeholder={entryType === 'dc' ? 'DC name' : 'Site name'}
+              className="w-24 h-6 px-2 text-xs bg-background border rounded focus:outline-none focus:ring-1 focus:ring-primary"
+              data-testid="entry-name" />
+            <input type="number" value={entryKW} onChange={e => setEntryKW(e.target.value)} onKeyDown={handleKeyDown}
+              placeholder="KW"
+              className="w-16 h-6 px-2 text-xs bg-background border rounded focus:outline-none focus:ring-1 focus:ring-primary [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              data-testid="entry-kw" />
+            <Button variant="default" size="sm" className="h-6 px-2 text-xs" onClick={handleAdd} disabled={!entryName.trim()} data-testid="entry-add">
+              <Plus className="h-3 w-3 mr-0.5" />Add
+            </Button>
+            <span className="text-[9px] text-muted-foreground ml-auto">↵ Enter</span>
+          </div>
+          
+          {/* Two Column Grid: DCs | Sites */}
+          <div className="grid grid-cols-2 gap-3">
+            {/* Data Centers */}
+            <div className="flex flex-col gap-1.5">
+              <button type="button" onClick={() => setShowDCs(!showDCs)}
+                className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground transition-colors">
+                <ChevronRight className={`h-3 w-3 transition-transform ${showDCs ? 'rotate-90' : ''}`} />
+                <Building2 className="h-3 w-3 text-blue-500" />
+                <span className="font-medium">Data Centers</span>
+                <span className="px-1 py-0.5 bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded-full text-[9px] font-semibold">{dataCenters.length}</span>
+                <span className="text-muted-foreground text-[10px]">• {formatKW(totalDCKW)}</span>
+              </button>
+              {showDCs && dataCenters.length > 0 && (
+                <div className="grid grid-cols-2 gap-1 pl-4">
+                  {dataCenters.map(dc => (
+                    <DynamicIslandTag key={dc.id} id={dc.id} name={dc.name} kw={dc.knowledgeWorkers} color="blue"
+                      onUpdate={(updates) => updateDataCenter(dc.id, updates)} onDelete={() => deleteDataCenter(dc.id)} testIdPrefix="dc" />
+                  ))}
+                </div>
+              )}
+              {showDCs && dataCenters.length === 0 && <div className="pl-4 text-[10px] text-muted-foreground italic">No data centers</div>}
+            </div>
+            
+            {/* Sites */}
+            <div className="flex flex-col gap-1.5">
+              <button type="button" onClick={() => setShowSites(!showSites)}
+                className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground transition-colors">
+                <ChevronRight className={`h-3 w-3 transition-transform ${showSites ? 'rotate-90' : ''}`} />
+                <MapPin className="h-3 w-3 text-green-500" />
+                <span className="font-medium">Sites</span>
+                <span className="px-1 py-0.5 bg-green-500/20 text-green-600 dark:text-green-400 rounded-full text-[9px] font-semibold">{sites.length}</span>
+                <span className="text-muted-foreground text-[10px]">• {formatKW(totalSiteKW)}</span>
+              </button>
+              {showSites && sites.length > 0 && (
+                <div className="grid grid-cols-2 gap-1 pl-4">
+                  {sites.map(site => (
+                    <DynamicIslandTag key={site.id} id={site.id} name={site.name} kw={site.knowledgeWorkers} color="green"
+                      onUpdate={(updates) => updateSite(site.id, updates)} onDelete={() => deleteSite(site.id)} testIdPrefix="site" />
+                  ))}
+                </div>
+              )}
+              {showSites && sites.length === 0 && <div className="pl-4 text-[10px] text-muted-foreground italic">No sites</div>}
+            </div>
+          </div>
         </div>
-      </div>
-      
-      {/* Legend */}
-      <div className="text-[10px] text-muted-foreground text-center border-t pt-2">
-        DC = Data Center(s) • KW = Knowledge Workers
       </div>
     </div>
   );
