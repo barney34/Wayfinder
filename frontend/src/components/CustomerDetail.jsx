@@ -110,6 +110,99 @@ function KnowledgeWorkersInline() {
   );
 }
 
+// ===== Dynamic Island Tag Component =====
+function DynamicIslandTag({ id, name, kw, color, icon: Icon, onUpdate, onDelete, testIdPrefix }) {
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [isEditingKW, setIsEditingKW] = useState(false);
+  const [editName, setEditName] = useState(name);
+  const [editKW, setEditKW] = useState(kw?.toString() || '');
+  
+  const colorClasses = color === 'blue' 
+    ? 'bg-blue-500/15 border-blue-500/40 hover:bg-blue-500/25 hover:border-blue-500/60' 
+    : 'bg-green-500/15 border-green-500/40 hover:bg-green-500/25 hover:border-green-500/60';
+  const iconColor = color === 'blue' ? 'text-blue-500' : 'text-green-500';
+  
+  const handleNameSave = () => {
+    if (editName.trim()) {
+      onUpdate({ name: editName.trim() });
+    } else {
+      setEditName(name);
+    }
+    setIsEditingName(false);
+  };
+  
+  const handleKWSave = () => {
+    onUpdate({ knowledgeWorkers: parseInt(editKW) || 0 });
+    setIsEditingKW(false);
+  };
+
+  return (
+    <div 
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border transition-all duration-300 ease-out transform hover:scale-[1.02] ${colorClasses}`}
+      style={{ minHeight: '28px' }}
+    >
+      <Icon className={`h-3 w-3 ${iconColor} flex-shrink-0`} />
+      
+      {/* Name - Click to Edit */}
+      {isEditingName ? (
+        <input
+          type="text"
+          value={editName}
+          onChange={e => setEditName(e.target.value)}
+          onBlur={handleNameSave}
+          onKeyDown={e => { if (e.key === 'Enter') handleNameSave(); if (e.key === 'Escape') { setEditName(name); setIsEditingName(false); } }}
+          className="w-16 h-5 px-1 text-xs bg-background/80 border border-input rounded focus:outline-none focus:ring-1 focus:ring-primary"
+          autoFocus
+          data-testid={`${testIdPrefix}-name-input-${id}`}
+        />
+      ) : (
+        <span 
+          onClick={() => setIsEditingName(true)}
+          className="text-xs font-medium cursor-pointer hover:underline truncate max-w-[80px]"
+          title={name}
+          data-testid={`${testIdPrefix}-name-${id}`}
+        >
+          {name || 'Unnamed'}
+        </span>
+      )}
+      
+      <span className="text-muted-foreground/50 text-[10px]">•</span>
+      
+      {/* KW - Click to Edit */}
+      {isEditingKW ? (
+        <input
+          type="number"
+          value={editKW}
+          onChange={e => setEditKW(e.target.value)}
+          onBlur={handleKWSave}
+          onKeyDown={e => { if (e.key === 'Enter') handleKWSave(); if (e.key === 'Escape') { setEditKW(kw?.toString() || ''); setIsEditingKW(false); } }}
+          className="w-14 h-5 px-1 text-xs bg-background/80 border border-input rounded text-right focus:outline-none focus:ring-1 focus:ring-primary"
+          autoFocus
+          data-testid={`${testIdPrefix}-kw-input-${id}`}
+        />
+      ) : (
+        <span 
+          onClick={() => setIsEditingKW(true)}
+          className="text-xs tabular-nums cursor-pointer hover:underline"
+          data-testid={`${testIdPrefix}-kw-${id}`}
+        >
+          {(kw || 0).toLocaleString()}
+        </span>
+      )}
+      <span className="text-[9px] text-muted-foreground">KW</span>
+      
+      {/* Delete Button */}
+      <button 
+        onClick={(e) => { e.stopPropagation(); onDelete(); }}
+        className="ml-0.5 p-0.5 rounded-full hover:bg-destructive/20 transition-colors"
+        data-testid={`${testIdPrefix}-delete-${id}`}
+      >
+        <X className="h-2.5 w-2.5 text-muted-foreground hover:text-destructive" />
+      </button>
+    </div>
+  );
+}
+
 // ===== Quick Capture Bar Inline =====
 function QuickCaptureBarInline() {
   const { dataCenters, sites, addDataCenter, deleteDataCenter, updateDataCenter, addSite, deleteSite, updateSite, setAnswer } = useDiscovery();
@@ -117,8 +210,8 @@ function QuickCaptureBarInline() {
   const [newDCKW, setNewDCKW] = useState('');
   const [newSiteName, setNewSiteName] = useState('');
   const [newSiteKW, setNewSiteKW] = useState('');
-  const [showDCDetails, setShowDCDetails] = useState(false);
-  const [showSiteDetails, setShowSiteDetails] = useState(false);
+  const [showDCDetails, setShowDCDetails] = useState(true);
+  const [showSiteDetails, setShowSiteDetails] = useState(true);
 
   const totalDCKW = dataCenters.reduce((sum, dc) => sum + (dc.knowledgeWorkers || 0), 0);
   const totalSiteKW = sites.reduce((sum, site) => sum + (site.knowledgeWorkers || 0), 0);
@@ -143,51 +236,153 @@ function QuickCaptureBarInline() {
   };
 
   return (
-    <div className="flex flex-col gap-4" data-testid="quick-capture-bar">
-      {/* DC Row */}
+    <div className="flex flex-col gap-3" data-testid="quick-capture-bar">
+      {/* DC Section */}
       <div className="flex flex-col gap-2">
-        {/* Header Row with Labels */}
-        <div className="flex items-end gap-6">
-          {/* DC Count Section */}
-          <div className="flex flex-col">
-            <span className="text-[10px] text-muted-foreground uppercase tracking-wide mb-0.5">Data Center(s)</span>
-            <button type="button" onClick={() => setShowDCDetails(!showDCDetails)} className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex items-center gap-1" data-testid="toggle-dc-tags">
-              <ChevronRight className={`h-4 w-4 transition-transform ${showDCDetails ? 'rotate-90' : ''}`} />
-              <Building2 className="h-3.5 w-3.5 text-blue-500" />
-              <span className="font-medium">{dataCenters.length}</span>
-            </button>
-          </div>
+        <div className="flex items-center gap-4">
+          {/* DC Header */}
+          <button 
+            type="button" 
+            onClick={() => setShowDCDetails(!showDCDetails)} 
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            data-testid="toggle-dc-tags"
+          >
+            <ChevronRight className={`h-3.5 w-3.5 transition-transform duration-200 ${showDCDetails ? 'rotate-90' : ''}`} />
+            <Building2 className="h-3.5 w-3.5 text-blue-500" />
+            <span className="uppercase tracking-wide font-medium">Data Centers</span>
+            <span className="px-1.5 py-0.5 bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded-full text-[10px] font-semibold">{dataCenters.length}</span>
+          </button>
           
-          {/* Total KW Section */}
-          <div className="flex flex-col">
-            <span className="text-[10px] text-muted-foreground uppercase tracking-wide mb-0.5">Knowledge Workers</span>
-            <span className="text-sm font-semibold tabular-nums">{totalDCKW.toLocaleString()}</span>
-          </div>
+          <span className="text-xs text-muted-foreground">
+            Total: <span className="font-semibold tabular-nums text-foreground">{totalDCKW.toLocaleString()}</span> KW
+          </span>
           
-          {/* Add DC Form - Name + KW side by side */}
-          <div className="flex items-center gap-2 ml-4">
-            <Input placeholder="DC name" value={newDCName} onChange={e => setNewDCName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAddDC()} className="w-[120px] h-7 text-sm" data-testid="input-new-dc-name" />
-            <Input type="number" placeholder="KW" value={newDCKW} onChange={e => setNewDCKW(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAddDC()} className="w-[70px] h-7 text-sm" data-testid="input-new-dc-kw" />
-            <Button variant="default" size="sm" className="h-7 w-7 p-0" onClick={handleAddDC} disabled={!newDCName.trim()} data-testid="button-add-dc"><Plus className="h-3.5 w-3.5" /></Button>
+          {/* Add DC - Compact */}
+          <div className="flex items-center gap-1 ml-auto">
+            <Input 
+              placeholder="Name" 
+              value={newDCName} 
+              onChange={e => setNewDCName(e.target.value)} 
+              onKeyDown={e => e.key === 'Enter' && handleAddDC()} 
+              className="w-20 h-6 text-xs px-2" 
+              data-testid="input-new-dc-name" 
+            />
+            <Input 
+              type="number" 
+              placeholder="KW" 
+              value={newDCKW} 
+              onChange={e => setNewDCKW(e.target.value)} 
+              onKeyDown={e => e.key === 'Enter' && handleAddDC()} 
+              className="w-14 h-6 text-xs px-2" 
+              data-testid="input-new-dc-kw" 
+            />
+            <Button 
+              variant="default" 
+              size="sm" 
+              className="h-6 w-6 p-0 rounded-full" 
+              onClick={handleAddDC} 
+              disabled={!newDCName.trim()} 
+              data-testid="button-add-dc"
+            >
+              <Plus className="h-3 w-3" />
+            </Button>
           </div>
         </div>
         
-        {/* DC Details */}
+        {/* DC Dynamic Island Tags */}
         {showDCDetails && dataCenters.length > 0 && (
-          <div className="flex flex-wrap gap-2 pl-5 pt-1">
+          <div className="flex flex-wrap gap-1.5 pl-5 animate-in fade-in slide-in-from-top-1 duration-200">
             {dataCenters.map(dc => (
-              <div key={dc.id} className="flex items-center gap-1.5 bg-blue-500/10 border border-blue-500/30 rounded-md px-2 py-1">
-                <Building2 className="h-3 w-3 text-blue-500" />
-                <Input value={dc.name} onChange={e => updateDataCenter(dc.id, { name: e.target.value })} className="w-[100px] h-6 text-xs bg-transparent border-0 p-0 focus-visible:ring-0" placeholder="Name" data-testid={`input-dc-name-${dc.id}`} />
-                <Input type="number" placeholder="KW" value={dc.knowledgeWorkers || ''} onChange={e => updateDataCenter(dc.id, { knowledgeWorkers: parseInt(e.target.value) || 0 })} className="w-[60px] h-6 text-xs bg-transparent border-0 p-0 focus-visible:ring-0 text-right" data-testid={`input-dc-kw-${dc.id}`} />
-                <span className="text-[10px] text-muted-foreground">KW</span>
-                <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => deleteDataCenter(dc.id)} data-testid={`delete-dc-${dc.id}`}><X className="h-3 w-3 text-muted-foreground hover:text-destructive" /></Button>
-              </div>
+              <DynamicIslandTag
+                key={dc.id}
+                id={dc.id}
+                name={dc.name}
+                kw={dc.knowledgeWorkers}
+                color="blue"
+                icon={Building2}
+                onUpdate={(updates) => updateDataCenter(dc.id, updates)}
+                onDelete={() => deleteDataCenter(dc.id)}
+                testIdPrefix="dc"
+              />
             ))}
           </div>
         )}
       </div>
       
+      {/* Site Section */}
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-4">
+          {/* Site Header */}
+          <button 
+            type="button" 
+            onClick={() => setShowSiteDetails(!showSiteDetails)} 
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            data-testid="toggle-site-tags"
+          >
+            <ChevronRight className={`h-3.5 w-3.5 transition-transform duration-200 ${showSiteDetails ? 'rotate-90' : ''}`} />
+            <MapPin className="h-3.5 w-3.5 text-green-500" />
+            <span className="uppercase tracking-wide font-medium">Sites</span>
+            <span className="px-1.5 py-0.5 bg-green-500/20 text-green-600 dark:text-green-400 rounded-full text-[10px] font-semibold">{sites.length}</span>
+          </button>
+          
+          <span className="text-xs text-muted-foreground">
+            Total: <span className="font-semibold tabular-nums text-foreground">{totalSiteKW.toLocaleString()}</span> KW
+          </span>
+          
+          {/* Add Site - Compact */}
+          <div className="flex items-center gap-1 ml-auto">
+            <Input 
+              placeholder="Name" 
+              value={newSiteName} 
+              onChange={e => setNewSiteName(e.target.value)} 
+              onKeyDown={e => e.key === 'Enter' && handleAddSiteIndependent()} 
+              className="w-20 h-6 text-xs px-2" 
+              data-testid="input-new-site-name" 
+            />
+            <Input 
+              type="number" 
+              placeholder="KW" 
+              value={newSiteKW} 
+              onChange={e => setNewSiteKW(e.target.value)} 
+              onKeyDown={e => e.key === 'Enter' && handleAddSiteIndependent()} 
+              className="w-14 h-6 text-xs px-2" 
+              data-testid="input-new-site-kw" 
+            />
+            <Button 
+              variant="default" 
+              size="sm" 
+              className="h-6 w-6 p-0 rounded-full" 
+              onClick={handleAddSiteIndependent} 
+              disabled={!newSiteName.trim()} 
+              data-testid="button-add-site"
+            >
+              <Plus className="h-3 w-3" />
+            </Button>
+          </div>
+        </div>
+        
+        {/* Site Dynamic Island Tags */}
+        {showSiteDetails && sites.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 pl-5 animate-in fade-in slide-in-from-top-1 duration-200">
+            {sites.map(site => (
+              <DynamicIslandTag
+                key={site.id}
+                id={site.id}
+                name={site.name}
+                kw={site.knowledgeWorkers}
+                color="green"
+                icon={MapPin}
+                onUpdate={(updates) => updateSite(site.id, updates)}
+                onDelete={() => deleteSite(site.id)}
+                testIdPrefix="site"
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
       {/* Site Row */}
       <div className="flex flex-col gap-2">
         {/* Header Row with Labels */}
