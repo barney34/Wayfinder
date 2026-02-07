@@ -234,14 +234,6 @@ function QuickCaptureBarInline() {
     </div>
   );
 }
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
 
 // ===== Context Fields (SmartFill) =====
 function ContextFields() {
