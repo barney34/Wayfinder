@@ -216,9 +216,9 @@ export function DiscoveryProvider({ children, customerId }) {
     markDirty();
   }, [markDirty]);
 
-  const addDataCenter = useCallback((name) => {
+  const addDataCenter = useCallback((name, knowledgeWorkers = 0) => {
     const id = `dc-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    setDataCenters(prev => [...prev, { id, name }]);
+    setDataCenters(prev => [...prev, { id, name, knowledgeWorkers }]);
     markDirty();
     return id;
   }, [markDirty]);
@@ -234,9 +234,9 @@ export function DiscoveryProvider({ children, customerId }) {
     markDirty();
   }, [markDirty]);
 
-  const addSite = useCallback((name, dataCenterId) => {
+  const addSite = useCallback((name, dataCenterId, knowledgeWorkers = 0) => {
     const id = `site-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    setSites(prev => [...prev, { id, name, dataCenterId }]);
+    setSites(prev => [...prev, { id, name, dataCenterId, knowledgeWorkers }]);
     markDirty();
     return id;
   }, [markDirty]);
