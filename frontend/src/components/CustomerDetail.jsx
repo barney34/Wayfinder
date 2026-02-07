@@ -820,21 +820,8 @@ export function CustomerDetail({ customer, onBack }) {
               </div>
             </div>
 
-            {/* Row 2: Quick Capture + Knowledge Workers */}
-            <div className="flex flex-col gap-3 p-4 bg-muted/30 rounded-lg border border-border/50">
-              <div className="w-full text-center">
-                <span className="text-sm font-medium text-foreground">Quick Capture & Sizing Requirements</span>
-              </div>
-              <div className="flex flex-wrap items-start gap-8">
-                <div className="flex-1 min-w-[400px]">
-                  <QuickCaptureBarInline />
-                </div>
-                <div className="border-l border-border/50 self-stretch" />
-                <div className="flex-shrink-0">
-                  <KnowledgeWorkersInline />
-                </div>
-              </div>
-            </div>
+            {/* Row 2: Quick Capture */}
+            <QuickCaptureBarInline />
 
             {/* Row 3: Tabs */}
             <div className="flex justify-center w-full">
