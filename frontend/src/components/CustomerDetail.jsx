@@ -48,7 +48,7 @@ function TargetSolutionToggles() {
 }
 
 // ===== Dynamic Island Tag Component =====
-function DynamicIslandTag({ id, name, kw, color, onUpdate, onDelete, testIdPrefix }) {
+function DynamicIslandTag({ id, name, kw, color, onUpdate, onDelete }) {
   const [isEditingName, setIsEditingName] = useState(false);
   const [isEditingKW, setIsEditingKW] = useState(false);
   const [editName, setEditName] = useState(name);
@@ -76,26 +76,26 @@ function DynamicIslandTag({ id, name, kw, color, onUpdate, onDelete, testIdPrefi
   };
 
   return (
-    <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-xs transition-all duration-200 ${colorClasses}`}>
+    <div className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full border text-[10px] transition-all duration-200 ${colorClasses}`}>
       {isEditingName ? (
         <input type="text" value={editName} onChange={e => setEditName(e.target.value)} onBlur={handleNameSave}
           onKeyDown={e => { if (e.key === 'Enter') handleNameSave(); if (e.key === 'Escape') { setEditName(name); setIsEditingName(false); } }}
-          className="w-14 h-4 px-1 text-[11px] bg-background border rounded focus:outline-none focus:ring-1 focus:ring-primary" autoFocus />
+          className="w-12 h-3.5 px-0.5 text-[10px] bg-background border rounded focus:outline-none" autoFocus />
       ) : (
-        <span onClick={() => setIsEditingName(true)} className="font-medium cursor-pointer hover:underline truncate max-w-[60px]" title={name}>
-          {name || 'Unnamed'}
+        <span onClick={() => setIsEditingName(true)} className="font-medium cursor-pointer hover:underline truncate max-w-[50px]" title={name}>
+          {name || '?'}
         </span>
       )}
-      <span className="text-muted-foreground/50">•</span>
+      <span className="text-muted-foreground/40">•</span>
       {isEditingKW ? (
         <input type="number" value={editKW} onChange={e => setEditKW(e.target.value)} onBlur={handleKWSave}
           onKeyDown={e => { if (e.key === 'Enter') handleKWSave(); if (e.key === 'Escape') { setEditKW(kw?.toString() || ''); setIsEditingKW(false); } }}
-          className="w-12 h-4 px-1 text-[11px] bg-background border rounded text-right focus:outline-none focus:ring-1 focus:ring-primary" autoFocus />
+          className="w-10 h-3.5 px-0.5 text-[10px] bg-background border rounded text-right focus:outline-none" autoFocus />
       ) : (
         <span onClick={() => setIsEditingKW(true)} className="tabular-nums cursor-pointer hover:underline">{formatKW(kw || 0)}</span>
       )}
-      <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="ml-0.5 p-0.5 rounded-full hover:bg-destructive/20">
-        <X className="h-2.5 w-2.5 text-muted-foreground hover:text-destructive" />
+      <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="p-0.5 rounded-full hover:bg-destructive/20">
+        <X className="h-2 w-2 text-muted-foreground hover:text-destructive" />
       </button>
     </div>
   );
@@ -109,8 +109,8 @@ function QuickCaptureBarInline() {
   const [entryKW, setEntryKW] = useState('');
   const [showDCs, setShowDCs] = useState(true);
   const [showSites, setShowSites] = useState(true);
+  const [platformMode, setPlatformMode] = useState('NIOS');
   const nameInputRef = useRef(null);
-  const kwInputRef = useRef(null);
 
   const totalDCKW = dataCenters.reduce((sum, dc) => sum + (dc.knowledgeWorkers || 0), 0);
   const totalSiteKW = sites.reduce((sum, site) => sum + (site.knowledgeWorkers || 0), 0);
@@ -122,7 +122,8 @@ function QuickCaptureBarInline() {
   const multNum = parseFloat(mult) || 2.5;
   const calculatedIPs = Math.round(kwNum * multNum);
   const manualOverride = answers['ipam-1-override'] === 'true';
-  const activeIPs = manualOverride ? (parseInt(answers['ipam-1']) || 0) : calculatedIPs;
+  const manualIPs = parseInt(answers['ipam-1']) || 0;
+  const activeIPs = manualOverride ? manualIPs : calculatedIPs;
 
   // Auto-sync
   useEffect(() => { setAnswer('ud-5', dataCenters.length.toString()); }, [dataCenters.length, setAnswer]);
@@ -131,17 +132,52 @@ function QuickCaptureBarInline() {
     if (!manualOverride && kwNum > 0) setAnswer('ipam-1', String(calculatedIPs));
   }, [kwNum, multNum, manualOverride, calculatedIPs, setAnswer]);
 
+  // Auto-populate KW when DC selected - use IP Calc KW (or manual override value)
+  useEffect(() => {
+    if (entryType === 'dc' && entryKW === '') {
+      if (manualOverride && manualIPs > 0) {
+        setEntryKW(manualIPs.toString());
+      } else if (kwNum > 0) {
+        setEntryKW(kwNum.toString());
+      }
+    }
+  }, [entryType, kwNum, manualOverride, manualIPs]);
+
+  // When switching to DC, pre-fill KW
+  const handleEntryTypeChange = (type) => {
+    setEntryType(type);
+    if (type === 'dc') {
+      if (manualOverride && manualIPs > 0) {
+        setEntryKW(manualIPs.toString());
+      } else if (kwNum > 0) {
+        setEntryKW(kwNum.toString());
+      }
+    } else {
+      setEntryKW('');
+    }
+    nameInputRef.current?.focus();
+  };
+
   // Rapid entry handler
   const handleAdd = () => {
     if (!entryName.trim()) return;
-    const kwVal = parseInt(entryKW) || 0;
+    // For DC in manual mode, use the override value
+    const kwVal = entryType === 'dc' && manualOverride && manualIPs > 0 
+      ? manualIPs 
+      : (parseInt(entryKW) || 0);
+    
     if (entryType === 'dc') {
       addDataCenter(entryName.trim(), kwVal);
     } else {
-      addSite(entryName.trim(), '', kwVal);
+      addSite(entryName.trim(), '', parseInt(entryKW) || 0);
     }
     setEntryName('');
-    setEntryKW('');
+    // Reset KW - will auto-populate again for DC
+    if (entryType === 'dc') {
+      setEntryKW(manualOverride && manualIPs > 0 ? manualIPs.toString() : kwNum.toString());
+    } else {
+      setEntryKW('');
+    }
     nameInputRef.current?.focus();
   };
 
@@ -155,72 +191,82 @@ function QuickCaptureBarInline() {
     return val.toString();
   };
 
+  // Platform modes
+  const PLATFORM_MODES = [
+    { value: 'NIOS', label: 'NIOS' },
+    { value: 'UDDI', label: 'UDDI' },
+    { value: 'Hybrid', label: 'Hybrid' },
+  ];
+
+  // Store platform mode in answers for Sizing tab to use
+  useEffect(() => {
+    setAnswer('platform-mode', platformMode);
+  }, [platformMode, setAnswer]);
+
   return (
-    <div className="flex flex-col gap-3 p-4 bg-muted/30 rounded-lg border" data-testid="quick-capture-bar">
+    <div className="flex flex-col gap-2 p-3 bg-muted/30 rounded-lg border" data-testid="quick-capture-bar">
       {/* Header - Centered */}
       <div className="text-center">
         <h3 className="text-sm font-semibold">Quick Capture</h3>
-        <p className="text-[10px] text-muted-foreground mt-0.5">DC = Data Center(s) • KW = Knowledge Workers</p>
+        <p className="text-[9px] text-muted-foreground">DC = Data Center(s) • KW = Knowledge Workers</p>
       </div>
       
       {/* Main Layout: IP Calc (Left) | Entry + Tags (Right) */}
-      <div className="flex gap-4">
+      <div className="flex gap-3">
         {/* LEFT: IP Calculation - Vertical Math Flow */}
-        <div className="flex flex-col items-center p-3 bg-background rounded-lg border min-w-[140px]">
-          <span className="text-[10px] text-muted-foreground uppercase tracking-wide mb-2">IP Calculation</span>
+        <div className="flex flex-col items-center p-2 bg-background rounded-lg border min-w-[120px]">
+          <span className="text-[9px] text-muted-foreground uppercase tracking-wide mb-1.5">IP Calculation</span>
           
           {/* KW Input */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
             <input
-              ref={kwInputRef}
               type="number"
               value={kw}
               onChange={e => setAnswer('ud-1', e.target.value)}
-              className="w-20 h-8 text-center text-sm font-mono bg-muted/50 border rounded focus:outline-none focus:ring-2 focus:ring-primary/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="w-16 h-7 text-center text-sm font-mono bg-muted/50 border rounded focus:outline-none focus:ring-2 focus:ring-primary/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               placeholder="0"
               data-testid="ip-calc-kw"
             />
-            <span className="text-[10px] text-muted-foreground w-6">KW</span>
+            <span className="text-[9px] text-muted-foreground">KW</span>
           </div>
           
           {/* Multiplier */}
-          <div className="flex items-center gap-1.5 mt-1">
-            <span className="text-muted-foreground w-4 text-center">×</span>
+          <div className="flex items-center gap-1 mt-0.5">
+            <span className="text-muted-foreground text-xs">×</span>
             <input
               type="number"
               step="0.5"
               value={mult}
               onChange={e => setAnswer('ipam-multiplier', e.target.value)}
-              className="w-14 h-7 text-center text-sm font-mono bg-muted/50 border rounded focus:outline-none focus:ring-2 focus:ring-primary/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="w-10 h-6 text-center text-xs font-mono bg-muted/50 border rounded focus:outline-none focus:ring-1 focus:ring-primary/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               data-testid="ip-calc-mult"
             />
-            <span className="text-[10px] text-muted-foreground w-6">mult</span>
           </div>
           
           {/* Divider */}
-          <div className="w-20 h-px bg-border my-2" />
+          <div className="w-16 h-px bg-border my-1.5" />
           
-          {/* Result */}
-          <div className="flex items-center gap-1.5">
+          {/* Result - LARGER */}
+          <div className="flex items-center gap-1">
             {manualOverride ? (
               <input
                 type="number"
                 value={answers['ipam-1'] || ''}
                 onChange={e => setAnswer('ipam-1', e.target.value)}
-                className="w-20 h-8 text-center text-sm font-mono bg-amber-100 dark:bg-amber-900/30 border-2 border-amber-400 rounded focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-20 h-9 text-center text-lg font-bold font-mono bg-amber-100 dark:bg-amber-900/30 border-2 border-amber-400 rounded focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 data-testid="ip-calc-override"
               />
             ) : (
-              <div className="w-20 h-8 flex items-center justify-center bg-primary/10 rounded">
-                <span className="text-sm font-bold tabular-nums text-primary">{activeIPs.toLocaleString()}</span>
+              <div className="w-20 h-9 flex items-center justify-center bg-primary/10 rounded border border-primary/30">
+                <span className="text-lg font-bold tabular-nums text-primary">{activeIPs.toLocaleString()}</span>
               </div>
             )}
-            <span className="text-[10px] text-muted-foreground w-6">IPs</span>
+            <span className="text-[9px] text-muted-foreground">IPs</span>
           </div>
           
           {/* Auto/Manual Toggle - Compact */}
-          <div className="flex items-center gap-1.5 mt-3 pt-2 border-t w-full justify-center">
-            <span className={`text-[10px] ${!manualOverride ? 'text-primary font-medium' : 'text-muted-foreground'}`}>Auto</span>
+          <div className="flex items-center gap-1 mt-2 pt-1.5 border-t w-full justify-center">
+            <span className={`text-[9px] ${!manualOverride ? 'text-primary font-semibold' : 'text-muted-foreground'}`}>Auto</span>
             <button
               type="button"
               onClick={() => {
@@ -228,83 +274,101 @@ function QuickCaptureBarInline() {
                 setAnswer('ipam-1-override', newVal ? 'true' : 'false');
                 if (!newVal) setAnswer('ipam-1', String(calculatedIPs));
               }}
-              className={`relative w-8 h-4 rounded-full transition-colors ${manualOverride ? 'bg-amber-500' : 'bg-muted-foreground/30'}`}
+              className={`relative w-7 h-3.5 rounded-full transition-colors ${manualOverride ? 'bg-amber-500' : 'bg-muted-foreground/30'}`}
               data-testid="ip-calc-toggle"
             >
-              <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform ${manualOverride ? 'translate-x-4' : 'translate-x-0.5'}`} />
+              <div className={`absolute top-0.5 w-2.5 h-2.5 bg-white rounded-full shadow transition-transform ${manualOverride ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
             </button>
-            <span className={`text-[10px] ${manualOverride ? 'text-amber-600 font-medium' : 'text-muted-foreground'}`}>Manual</span>
+            <span className={`text-[9px] ${manualOverride ? 'text-amber-600 font-semibold' : 'text-muted-foreground'}`}>Manual</span>
           </div>
         </div>
         
-        {/* RIGHT: Entry + Tags */}
-        <div className="flex-1 flex flex-col gap-3">
+        {/* RIGHT: Entry + Platform + Tags */}
+        <div className="flex-1 flex flex-col gap-2">
           {/* Rapid Entry Bar */}
-          <div className="flex items-center gap-2 p-2 bg-background rounded-md border">
+          <div className="flex items-center gap-1.5 p-1.5 bg-background rounded-md border">
             <div className="flex items-center gap-0.5 bg-muted rounded-full p-0.5">
-              <button type="button" onClick={() => { setEntryType('dc'); nameInputRef.current?.focus(); }}
-                className={`px-2 py-0.5 text-[11px] font-medium rounded-full transition-all ${entryType === 'dc' ? 'bg-blue-500 text-white' : 'text-muted-foreground hover:text-foreground'}`}
+              <button type="button" onClick={() => handleEntryTypeChange('dc')}
+                className={`px-2 py-0.5 text-[10px] font-medium rounded-full transition-all ${entryType === 'dc' ? 'bg-blue-500 text-white' : 'text-muted-foreground hover:text-foreground'}`}
                 data-testid="entry-type-dc">DC</button>
-              <button type="button" onClick={() => { setEntryType('site'); nameInputRef.current?.focus(); }}
-                className={`px-2 py-0.5 text-[11px] font-medium rounded-full transition-all ${entryType === 'site' ? 'bg-green-500 text-white' : 'text-muted-foreground hover:text-foreground'}`}
+              <button type="button" onClick={() => handleEntryTypeChange('site')}
+                className={`px-2 py-0.5 text-[10px] font-medium rounded-full transition-all ${entryType === 'site' ? 'bg-green-500 text-white' : 'text-muted-foreground hover:text-foreground'}`}
                 data-testid="entry-type-site">Site</button>
             </div>
             <input ref={nameInputRef} type="text" value={entryName} onChange={e => setEntryName(e.target.value)} onKeyDown={handleKeyDown}
               placeholder={entryType === 'dc' ? 'DC name' : 'Site name'}
-              className="w-24 h-6 px-2 text-xs bg-background border rounded focus:outline-none focus:ring-1 focus:ring-primary"
+              className="flex-1 min-w-[60px] h-5 px-1.5 text-[11px] bg-background border rounded focus:outline-none focus:ring-1 focus:ring-primary"
               data-testid="entry-name" />
             <input type="number" value={entryKW} onChange={e => setEntryKW(e.target.value)} onKeyDown={handleKeyDown}
               placeholder="KW"
-              className="w-16 h-6 px-2 text-xs bg-background border rounded focus:outline-none focus:ring-1 focus:ring-primary [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="w-14 h-5 px-1.5 text-[11px] bg-background border rounded focus:outline-none focus:ring-1 focus:ring-primary [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               data-testid="entry-kw" />
-            <Button variant="default" size="sm" className="h-6 px-2 text-xs" onClick={handleAdd} disabled={!entryName.trim()} data-testid="entry-add">
-              <Plus className="h-3 w-3 mr-0.5" />Add
+            <Button variant="default" size="sm" className="h-5 px-1.5 text-[10px]" onClick={handleAdd} disabled={!entryName.trim()} data-testid="entry-add">
+              <Plus className="h-2.5 w-2.5 mr-0.5" />Add
             </Button>
-            <span className="text-[9px] text-muted-foreground ml-auto">↵ Enter</span>
+            <span className="text-[8px] text-muted-foreground">↵</span>
           </div>
           
-          {/* Two Column Grid: DCs | Sites */}
-          <div className="grid grid-cols-2 gap-3">
+          {/* Platform Toggle - Centered */}
+          <div className="flex justify-center">
+            <div className="flex items-center gap-0.5 bg-muted rounded-md p-0.5">
+              {PLATFORM_MODES.map(mode => (
+                <button
+                  key={mode.value}
+                  type="button"
+                  onClick={() => setPlatformMode(mode.value)}
+                  className={`px-2.5 py-1 text-[10px] font-medium rounded transition-all ${platformMode === mode.value ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                  data-testid={`platform-mode-${mode.value.toLowerCase()}`}
+                >
+                  {mode.value === 'NIOS' && <Star className="h-2 w-2 mr-0.5 inline" />}
+                  {mode.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          {/* Two Column Grid: DCs | Sites (renamed to Locations) */}
+          <div className="grid grid-cols-2 gap-2">
             {/* Data Centers */}
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-1">
               <button type="button" onClick={() => setShowDCs(!showDCs)}
-                className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground transition-colors">
-                <ChevronRight className={`h-3 w-3 transition-transform ${showDCs ? 'rotate-90' : ''}`} />
-                <Building2 className="h-3 w-3 text-blue-500" />
+                className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors">
+                <ChevronRight className={`h-2.5 w-2.5 transition-transform ${showDCs ? 'rotate-90' : ''}`} />
+                <Building2 className="h-2.5 w-2.5 text-blue-500" />
                 <span className="font-medium">Data Centers</span>
-                <span className="px-1 py-0.5 bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded-full text-[9px] font-semibold">{dataCenters.length}</span>
-                <span className="text-muted-foreground text-[10px]">• {formatKW(totalDCKW)}</span>
+                <span className="px-1 bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded-full text-[8px] font-semibold">{dataCenters.length}</span>
+                <span className="text-[9px]">• {formatKW(totalDCKW)}</span>
               </button>
               {showDCs && dataCenters.length > 0 && (
-                <div className="grid grid-cols-2 gap-1 pl-4">
+                <div className="grid grid-cols-2 gap-0.5 pl-3">
                   {dataCenters.map(dc => (
                     <DynamicIslandTag key={dc.id} id={dc.id} name={dc.name} kw={dc.knowledgeWorkers} color="blue"
-                      onUpdate={(updates) => updateDataCenter(dc.id, updates)} onDelete={() => deleteDataCenter(dc.id)} testIdPrefix="dc" />
+                      onUpdate={(updates) => updateDataCenter(dc.id, updates)} onDelete={() => deleteDataCenter(dc.id)} />
                   ))}
                 </div>
               )}
-              {showDCs && dataCenters.length === 0 && <div className="pl-4 text-[10px] text-muted-foreground italic">No data centers</div>}
+              {showDCs && dataCenters.length === 0 && <div className="pl-3 text-[9px] text-muted-foreground italic">No data centers</div>}
             </div>
             
-            {/* Sites */}
-            <div className="flex flex-col gap-1.5">
+            {/* Locations (was Sites) */}
+            <div className="flex flex-col gap-1">
               <button type="button" onClick={() => setShowSites(!showSites)}
-                className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground transition-colors">
-                <ChevronRight className={`h-3 w-3 transition-transform ${showSites ? 'rotate-90' : ''}`} />
-                <MapPin className="h-3 w-3 text-green-500" />
-                <span className="font-medium">Sites</span>
-                <span className="px-1 py-0.5 bg-green-500/20 text-green-600 dark:text-green-400 rounded-full text-[9px] font-semibold">{sites.length}</span>
-                <span className="text-muted-foreground text-[10px]">• {formatKW(totalSiteKW)}</span>
+                className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors">
+                <ChevronRight className={`h-2.5 w-2.5 transition-transform ${showSites ? 'rotate-90' : ''}`} />
+                <MapPin className="h-2.5 w-2.5 text-green-500" />
+                <span className="font-medium">Locations</span>
+                <span className="px-1 bg-green-500/20 text-green-600 dark:text-green-400 rounded-full text-[8px] font-semibold">{sites.length}</span>
+                <span className="text-[9px]">• {formatKW(totalSiteKW)}</span>
               </button>
               {showSites && sites.length > 0 && (
-                <div className="grid grid-cols-2 gap-1 pl-4">
+                <div className="grid grid-cols-2 gap-0.5 pl-3">
                   {sites.map(site => (
                     <DynamicIslandTag key={site.id} id={site.id} name={site.name} kw={site.knowledgeWorkers} color="green"
-                      onUpdate={(updates) => updateSite(site.id, updates)} onDelete={() => deleteSite(site.id)} testIdPrefix="site" />
+                      onUpdate={(updates) => updateSite(site.id, updates)} onDelete={() => deleteSite(site.id)} />
                   ))}
                 </div>
               )}
-              {showSites && sites.length === 0 && <div className="pl-4 text-[10px] text-muted-foreground italic">No sites</div>}
+              {showSites && sites.length === 0 && <div className="pl-3 text-[9px] text-muted-foreground italic">No locations</div>}
             </div>
           </div>
         </div>
