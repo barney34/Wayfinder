@@ -578,7 +578,7 @@ export function TokenCalculatorSummary() {
     // Site Sizing Table
     autoTable(doc, {
       startY: 55,
-      head: [['Site Name', 'Type', '# IPs', 'KW', 'Role', 'Services', 'Platform', 'Model', 'SKU', 'Tokens']],
+      head: [['Location', 'Type', '# IPs', 'KW', 'Role', 'Services', 'Platform', 'Model', 'SKU', 'Tokens']],
       body: [
         ...sites.map(s => [
           s.name, s.sourceType || 'Manual', s.numIPs.toLocaleString(), s.knowledgeWorkers.toLocaleString(),
