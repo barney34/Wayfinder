@@ -741,73 +741,118 @@ export function TokenCalculatorSummary() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Platform Mode Toggle */}
-      <Card className="bg-gradient-to-r from-blue-500/5 to-purple-500/5 border-blue-500/20">
-        <CardContent className="py-4">
-          <div className="flex items-center justify-between flex-wrap gap-4">
+      {/* Site Sizing Header with Platform Mode and Summary */}
+      <Card>
+        <CardHeader className="pb-2">
+          <div className="flex items-center justify-between flex-wrap gap-3">
             <div className="flex items-center gap-3">
-              <span className="text-sm font-medium">Platform Mode:</span>
-              <ToggleGroup type="single" value={platformMode} onValueChange={handlePlatformModeChange} className="bg-muted rounded-lg p-1">
-                {PLATFORM_MODES.map(mode => (
-                  <ToggleGroupItem 
-                    key={mode.value} 
-                    value={mode.value} 
-                    className="px-4 py-1.5 text-sm data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-                    data-testid={`platform-mode-${mode.value.toLowerCase()}`}
-                  >
-                    {mode.value === recommendedMode && <Star className="h-3 w-3 mr-1 inline" />}
-                    {mode.label}
-                  </ToggleGroupItem>
-                ))}
-              </ToggleGroup>
-              {platformMode !== recommendedMode && (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <Badge variant="outline" className="text-amber-600 border-amber-500 gap-1">
-                        <AlertTriangle className="h-3 w-3" />
-                        Not Recommended
-                      </Badge>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      Based on {dataCenters.length} DCs and {contextSites.length} sites, we recommend <strong>{recommendedMode}</strong>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+              <CardTitle className="text-base flex items-center gap-2">
+                <BarChart3 className="h-4 w-4" />
+                Site Sizing Recommendations
+              </CardTitle>
+              
+              {/* Platform Mode Toggle - Inline */}
+              <div className="flex items-center gap-2 ml-4">
+                <ToggleGroup type="single" value={platformMode} onValueChange={handlePlatformModeChange} className="bg-muted rounded-md p-0.5">
+                  {PLATFORM_MODES.map(mode => (
+                    <ToggleGroupItem 
+                      key={mode.value} 
+                      value={mode.value} 
+                      className="px-2.5 py-1 text-xs data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                      data-testid={`platform-mode-${mode.value.toLowerCase()}`}
+                    >
+                      {mode.value === recommendedMode && <Star className="h-2.5 w-2.5 mr-1 inline" />}
+                      {mode.label}
+                    </ToggleGroupItem>
+                  ))}
+                </ToggleGroup>
+                {platformMode !== recommendedMode && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Badge variant="outline" className="text-amber-600 border-amber-500 gap-1 text-[10px] px-1.5 py-0">
+                          <AlertTriangle className="h-2.5 w-2.5" />
+                          Not Recommended
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        Based on {dataCenters.length} DCs and {contextSites.length} sites, we recommend <strong>{recommendedMode}</strong>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+              </div>
+            </div>
+            
+            {/* Export Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" data-testid="export-dropdown">
+                  <Download className="h-3 w-3 mr-1" /> Export
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={exportCSV} data-testid="export-csv">
+                  <FileText className="h-4 w-4 mr-2" />
+                  Export as CSV
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={exportExcel} data-testid="export-excel">
+                  <FileSpreadsheet className="h-4 w-4 mr-2" />
+                  Export as Excel
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={exportPDF} data-testid="export-pdf">
+                  <FileText className="h-4 w-4 mr-2" />
+                  Export as PDF
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={exportYAML} data-testid="export-yaml">
+                  <FileText className="h-4 w-4 mr-2" />
+                  Export as YAML
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </CardHeader>
+        
+        {/* Consolidated Summary Bar */}
+        <CardContent className="pt-0 pb-3">
+          <div className="flex items-center gap-6 p-3 bg-muted/50 rounded-lg border">
+            <div className="flex items-center gap-2">
+              <Server className="h-4 w-4 text-blue-500" />
+              <span className="text-sm font-bold">{sites.length}</span>
+              <span className="text-xs text-muted-foreground">Sites</span>
+              {(totals.gmCount > 0 || totals.gmcCount > 0) && (
+                <span className="text-[10px] text-muted-foreground">
+                  ({totals.gmCount} GM, {totals.gmcCount} GMC, {totals.memberCount} Mem)
+                </span>
               )}
             </div>
-            <p className="text-xs text-muted-foreground">
-              {PLATFORM_MODES.find(m => m.value === platformMode)?.description}
-            </p>
+            <div className="h-4 w-px bg-border" />
+            <div className="flex items-center gap-2">
+              <Cpu className="h-4 w-4 text-green-500" />
+              <span className="text-sm font-bold">{totals.totalIPs.toLocaleString()}</span>
+              <span className="text-xs text-muted-foreground">IPs</span>
+              <span className="text-[10px] text-muted-foreground">({totals.totalKW.toLocaleString()} KW)</span>
+            </div>
+            <div className="h-4 w-px bg-border" />
+            <div className="flex items-center gap-2">
+              <Package className="h-4 w-4 text-purple-500" />
+              <span className="text-sm font-bold">{totals.totalTokens.toLocaleString()}</span>
+              <span className="text-xs text-muted-foreground">Tokens</span>
+            </div>
+            <div className="h-4 w-px bg-border" />
+            <div className="flex items-center gap-2">
+              <DollarSign className="h-4 w-4 text-amber-500" />
+              <span className="text-sm font-bold">{partnerSku.sku}</span>
+              <span className="text-xs text-muted-foreground">{partnerSku.description}</span>
+            </div>
           </div>
         </CardContent>
       </Card>
       
-      {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Server className="h-4 w-4 text-blue-500" />
-              <span className="text-sm text-muted-foreground">Total Sites</span>
-            </div>
-            <p className="text-2xl font-bold">{sites.length}</p>
-            <div className="flex gap-1 mt-1 flex-wrap">
-              {totals.gmCount > 0 && <Badge variant="default" className="text-xs">{totals.gmCount} GM</Badge>}
-              {totals.gmcCount > 0 && <Badge variant="secondary" className="text-xs">{totals.gmcCount} GMC</Badge>}
-              {totals.memberCount > 0 && <Badge variant="outline" className="text-xs">{totals.memberCount} Members</Badge>}
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="pt-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Cpu className="h-4 w-4 text-green-500" />
-              <span className="text-sm text-muted-foreground">Total IPs</span>
-            </div>
-            <p className="text-2xl font-bold">{totals.totalIPs.toLocaleString()}</p>
-            <p className="text-xs text-muted-foreground mt-1">{totals.totalKW.toLocaleString()} KW</p>
+      {/* Site Sizing Table */}
+      <Card>
+        <CardContent className="pt-4">
           </CardContent>
         </Card>
         
