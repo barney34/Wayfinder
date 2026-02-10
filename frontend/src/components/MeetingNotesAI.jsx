@@ -1,10 +1,10 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Sparkles, Check, X, Loader2, Upload, FileText } from "lucide-react";
+import { Sparkles, Check, X, Loader2, Upload, FileText, ChevronDown, ChevronUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useDiscovery } from "@/contexts/DiscoveryContext";
 import { discoveryQuestions } from "@/lib/questions";
@@ -14,9 +14,18 @@ export function MeetingNotesAI() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [matches, setMatches] = useState([]);
   const [uploadedFileName, setUploadedFileName] = useState(null);
+  const [isExpanded, setIsExpanded] = useState(false);
   const fileInputRef = useRef(null);
+  const textareaRef = useRef(null);
   const { toast } = useToast();
   const API_URL = process.env.REACT_APP_BACKEND_URL;
+
+  // Auto-expand when user starts typing
+  useEffect(() => {
+    if (meetingNotes.length > 0) {
+      setIsExpanded(true);
+    }
+  }, [meetingNotes]);
 
   const handleAnalyze = async () => {
     if (!meetingNotes.trim()) { toast({ title: "No meeting notes", description: "Please enter meeting notes to analyze", variant: "destructive" }); return; }
@@ -50,6 +59,7 @@ export function MeetingNotesAI() {
       const text = await file.text();
       setMeetingNotes(text);
       setUploadedFileName(file.name);
+      setIsExpanded(true);
       toast({ title: "Document uploaded", description: `Loaded content from ${file.name}` });
     } catch (error) {
       toast({ title: "Error reading file", description: "Failed to extract text.", variant: "destructive" });
@@ -58,55 +68,108 @@ export function MeetingNotesAI() {
   };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
+    <div className="space-y-4">
+      {/* Compact Meeting Notes Input */}
       <Card>
-        <CardHeader><CardTitle className="text-lg">Meeting Notes</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
+        <CardHeader className="pb-2">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-sm lg:text-base flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Meeting Notes
+            </CardTitle>
             <div className="flex items-center gap-2">
               <input ref={fileInputRef} type="file" accept=".txt" onChange={handleFileUpload} className="hidden" data-testid="input-file-upload" />
-              <Button variant="outline" onClick={() => fileInputRef.current?.click()} className="w-full" data-testid="button-upload-document"><Upload className="mr-2 h-4 w-4" />Upload Document (.txt)</Button>
+              <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} data-testid="button-upload-document">
+                <Upload className="h-3 w-3 mr-1" />Upload
+              </Button>
+              <Button 
+                variant="default" 
+                size="sm" 
+                onClick={handleAnalyze} 
+                disabled={!meetingNotes.trim() || isProcessing}
+                data-testid="button-analyze-notes"
+              >
+                {isProcessing ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Sparkles className="h-3 w-3 mr-1" />}
+                Analyze
+              </Button>
             </div>
-            {uploadedFileName && <div className="flex items-center gap-2 text-sm text-muted-foreground"><FileText className="h-4 w-4" /><span>{uploadedFileName}</span></div>}
           </div>
-          <Textarea value={meetingNotes} onChange={e => setMeetingNotes(e.target.value)} placeholder="Upload a document or paste/type your meeting notes here. AI will analyze and extract answers to discovery questions..." className="min-h-[400px] resize-y" data-testid="input-meeting-notes" />
-          <Button onClick={handleAnalyze} disabled={!meetingNotes.trim() || isProcessing} className="w-full" data-testid="button-analyze-notes">
-            {isProcessing ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Analyzing with AI...</> : <><Sparkles className="mr-2 h-4 w-4" />Analyze with AI</>}
-          </Button>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-          <CardTitle className="text-lg">Matched Answers</CardTitle>
-          {matches.length > 0 && <Button size="sm" onClick={handleAcceptAll} data-testid="button-accept-all">Accept All</Button>}
+          {uploadedFileName && (
+            <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+              <FileText className="h-3 w-3" />
+              <span>{uploadedFileName}</span>
+            </div>
+          )}
         </CardHeader>
-        <CardContent>
-          <ScrollArea className="h-[400px] pr-4">
-            {matches.length === 0 ? (
-              <div className="flex h-[300px] items-center justify-center text-center"><p className="text-sm text-muted-foreground">{isProcessing ? 'Processing your meeting notes...' : 'No matches yet. Add meeting notes and click "Analyze with AI" to get started.'}</p></div>
-            ) : (
-              <div className="space-y-4">
-                {matches.map(match => (
-                  <Card key={match.questionId} data-testid={`match-${match.questionId}`}>
-                    <CardContent className="p-4 space-y-3">
-                      <div className="flex items-start justify-between gap-2">
-                        <Badge variant="secondary" className="text-xs">{match.section}</Badge>
-                        <Badge variant="outline" className={match.confidence > 0.8 ? 'border-green-500 text-green-700 dark:text-green-400' : 'border-yellow-500 text-yellow-700 dark:text-yellow-400'}>{Math.round(match.confidence * 100)}% confidence</Badge>
-                      </div>
-                      <div><p className="text-xs font-medium text-muted-foreground mb-1">Question:</p><p className="text-sm font-medium">{match.question}</p></div>
-                      <div><p className="text-xs font-medium text-muted-foreground mb-1">Extracted Answer:</p><p className="text-sm text-foreground">{match.extractedAnswer}</p></div>
-                      <div className="flex gap-2 pt-2">
-                        <Button size="sm" onClick={() => handleAccept(match.questionId)} className="flex-1" data-testid={`button-accept-${match.questionId}`}><Check className="mr-1 h-3 w-3" />Accept</Button>
-                        <Button size="sm" variant="outline" onClick={() => handleReject(match.questionId)} className="flex-1" data-testid={`button-reject-${match.questionId}`}><X className="mr-1 h-3 w-3" />Reject</Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+        <CardContent className="pt-0">
+          <div className="relative">
+            <Textarea 
+              ref={textareaRef}
+              value={meetingNotes} 
+              onChange={e => setMeetingNotes(e.target.value)} 
+              placeholder="Paste meeting notes here... (auto-expands as you type)"
+              className={`resize-none transition-all duration-200 ${isExpanded ? 'min-h-[200px]' : 'min-h-[80px]'}`}
+              onFocus={() => setIsExpanded(true)}
+              data-testid="input-meeting-notes" 
+            />
+            {meetingNotes.length > 0 && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="absolute bottom-2 right-2 h-6 text-xs"
+                onClick={() => setIsExpanded(!isExpanded)}
+              >
+                {isExpanded ? <><ChevronUp className="h-3 w-3 mr-1" />Collapse</> : <><ChevronDown className="h-3 w-3 mr-1" />Expand</>}
+              </Button>
             )}
-          </ScrollArea>
+          </div>
+          <p className="text-xs text-muted-foreground mt-2">
+            Paste meeting notes, call transcripts, or discovery conversations. AI will extract answers to discovery questions.
+          </p>
         </CardContent>
       </Card>
+
+      {/* Matched Answers - Only show when there are matches */}
+      {matches.length > 0 && (
+        <Card>
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm lg:text-base flex items-center gap-2">
+                <Sparkles className="h-4 w-4" />
+                Matched Answers
+                <Badge variant="secondary" className="text-xs">{matches.length}</Badge>
+              </CardTitle>
+              <Button size="sm" onClick={handleAcceptAll} data-testid="button-accept-all">
+                <Check className="h-3 w-3 mr-1" />Accept All
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="grid gap-3 lg:grid-cols-2">
+              {matches.map(match => (
+                <div key={match.questionId} className="border rounded-lg p-3 space-y-2" data-testid={`match-${match.questionId}`}>
+                  <div className="flex items-start justify-between gap-2">
+                    <Badge variant="outline" className="text-xs">{match.section}</Badge>
+                    <Badge variant="outline" className={`text-xs ${match.confidence > 0.8 ? 'border-green-500 text-green-600' : 'border-yellow-500 text-yellow-600'}`}>
+                      {Math.round(match.confidence * 100)}%
+                    </Badge>
+                  </div>
+                  <p className="text-xs font-medium truncate" title={match.question}>{match.question}</p>
+                  <p className="text-sm bg-muted/50 rounded p-2">{match.extractedAnswer}</p>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="default" className="flex-1 h-7 text-xs" onClick={() => handleAccept(match.questionId)} data-testid={`button-accept-${match.questionId}`}>
+                      <Check className="h-3 w-3 mr-1" />Accept
+                    </Button>
+                    <Button size="sm" variant="outline" className="flex-1 h-7 text-xs" onClick={() => handleReject(match.questionId)} data-testid={`button-reject-${match.questionId}`}>
+                      <X className="h-3 w-3 mr-1" />Reject
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
