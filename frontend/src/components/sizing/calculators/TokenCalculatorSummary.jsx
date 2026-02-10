@@ -155,11 +155,10 @@ function getRecommendedPlatformMode(dcCount, siteCount) {
  */
 export function TokenCalculatorSummary() {
   const { 
-    dataCenters = [], sites: contextSites = [], answers = {}, setAnswer 
+    dataCenters = [], sites: contextSites = [], answers = {}, setAnswer, platformMode, setPlatformMode 
   } = useDiscovery();
   
-  // Platform mode state (NIOS/UDDI/Hybrid)
-  const [platformMode, setPlatformMode] = useState('NIOS');
+  // Site overrides and manual sites state
   const [siteOverrides, setSiteOverrides] = useState({});
   const [manualSites, setManualSites] = useState([]);
   const lastSavedRef = useRef(null);
@@ -185,7 +184,7 @@ export function TokenCalculatorSummary() {
     } else {
       setPlatformMode(newMode);
     }
-  }, [recommendedMode, platformMode]);
+  }, [recommendedMode, platformMode, setPlatformMode]);
   
   // Confirm platform change
   const confirmPlatformChange = useCallback(() => {
@@ -194,7 +193,7 @@ export function TokenCalculatorSummary() {
       setPendingPlatformChange(null);
     }
     setShowPlatformAlert(false);
-  }, [pendingPlatformChange]);
+  }, [pendingPlatformChange, setPlatformMode]);
   
   // Cancel platform change
   const cancelPlatformChange = useCallback(() => {
@@ -209,6 +208,13 @@ export function TokenCalculatorSummary() {
   const securityEnabled = answers['feature-security'] === 'Yes';
   const uddiEnabled = answers['feature-uddi'] === 'Yes';
   
+  // Get the IP Calculator value - this should be used for DC IPs
+  const manualOverride = answers['ipam-1-override'] === 'true';
+  const kwNum = parseInt(answers['ud-1']) || 0;
+  const calculatedIPs = Math.round(kwNum * ipMultiplier);
+  const manualIPs = parseInt(answers['ipam-1']) || 0;
+  const ipCalcValue = manualOverride ? manualIPs : calculatedIPs;
+  
   // Get role options based on platform mode
   const roleOptions = ROLE_OPTIONS_BY_MODE[platformMode] || ROLE_OPTIONS_BY_MODE.NIOS;
   const platformOptions = PLATFORM_OPTIONS_BY_MODE[platformMode] || PLATFORM_OPTIONS_BY_MODE.NIOS;
@@ -218,13 +224,12 @@ export function TokenCalculatorSummary() {
   const contextSiteIds = useMemo(() => contextSites.map(s => s.id).join(','), [contextSites]);
   
   // Build sites from Quick Capture + manual
-  // Note: For NIOS/Hybrid, GM and GMC use KW directly (not IPs)
+  // DC sites use the IP Calculator value, branch sites use their own KW
   const sites = useMemo(() => {
     const dcSites = dataCenters.map((dc, index) => {
       const key = `dc-${dc.id}`;
       const override = siteOverrides[key] || {};
       const kw = dc.knowledgeWorkers || 0;
-      const baseIPs = Math.round(kw * ipMultiplier);
       
       // Determine default role based on platform mode
       let defaultRole = 'DNS/DHCP';
@@ -240,15 +245,20 @@ export function TokenCalculatorSummary() {
       if (platformMode === 'UDDI') defaultPlatform = 'NXVS';
       const platform = override.platform || defaultPlatform;
       
-      // For GM/GMC in NIOS/Hybrid, IPs = KW (grid objects)
-      const isGridRole = role === 'GM' || role === 'GMC';
+      // Use IP Calculator value for DCs (unless overridden)
+      // For GM/GMC roles, use the IP calc value as grid objects
       const numIPs = override.numIPs !== undefined 
         ? override.numIPs 
-        : (isGridRole && platformMode !== 'UDDI' ? kw : baseIPs);
+        : ipCalcValue;
       
       const dhcp = override.dhcpPercent ?? dhcpPercent;
       
-      const recommendedModel = getSiteRecommendedModel(numIPs, role, platformMode, dhcp, leaseTimeSeconds, platform);
+      // Add service IPs to GM sizing (services add capacity requirements)
+      const serviceCount = services.length;
+      const serviceIPs = (role === 'GM' || role === 'GMC') ? serviceCount * 100 : 0; // Each service adds ~100 IPs capacity need
+      const totalIPs = numIPs + serviceIPs;
+      
+      const recommendedModel = getSiteRecommendedModel(totalIPs, role, platformMode, dhcp, leaseTimeSeconds, platform);
       const hardwareOptions = getHardwareSkuOptions(recommendedModel);
       const defaultHardware = getDefaultHardwareSku(recommendedModel);
       
