@@ -7,10 +7,11 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { ChevronDown, ChevronUp, ChevronRight, X, Plus, Info, MessageSquare } from "lucide-react";
+import { ChevronDown, ChevronUp, ChevronRight, X, Plus, Info, MessageSquare, Check } from "lucide-react";
 import { useDiscovery } from "@/contexts/DiscoveryContext";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -18,6 +19,58 @@ import {
   SocInsightsInput, DomainTakedownInput, ReportingInput, UDDIEstimator,
   SiteConfiguration,
 } from "./sizing";
+
+// ===== InlineCheckboxSelect (for compact single-select) =====
+function InlineCheckboxSelect({ questionId, options, value, onChange }) {
+  return (
+    <div className="flex flex-wrap gap-x-3 gap-y-1">
+      {options.slice(0, 6).map(opt => (
+        <label key={opt} className="flex items-center gap-1.5 cursor-pointer group" data-testid={`checkbox-${questionId}-${opt}`}>
+          <Checkbox 
+            checked={value === opt} 
+            onCheckedChange={(checked) => onChange(checked ? opt : '')}
+            className="h-4 w-4"
+          />
+          <span className="text-xs text-muted-foreground group-hover:text-foreground">{opt}</span>
+        </label>
+      ))}
+      {options.length > 6 && (
+        <span className="text-xs text-muted-foreground">+{options.length - 6} more</span>
+      )}
+    </div>
+  );
+}
+
+// ===== InlineCheckboxMulti (for compact multi-select) =====
+function InlineCheckboxMulti({ questionId, options, value, onChange }) {
+  const selectedValues = value ? value.split(',').map(v => v.trim()).filter(Boolean) : [];
+  
+  const toggleOption = (opt) => {
+    if (selectedValues.includes(opt)) {
+      onChange(selectedValues.filter(v => v !== opt).join(', '));
+    } else {
+      onChange([...selectedValues, opt].join(', '));
+    }
+  };
+  
+  return (
+    <div className="flex flex-wrap gap-x-3 gap-y-1">
+      {options.slice(0, 6).map(opt => (
+        <label key={opt} className="flex items-center gap-1.5 cursor-pointer group" data-testid={`checkbox-${questionId}-${opt}`}>
+          <Checkbox 
+            checked={selectedValues.includes(opt)} 
+            onCheckedChange={() => toggleOption(opt)}
+            className="h-4 w-4"
+          />
+          <span className="text-xs text-muted-foreground group-hover:text-foreground">{opt}</span>
+        </label>
+      ))}
+      {options.length > 6 && (
+        <span className="text-xs text-muted-foreground">+{options.length - 6} more</span>
+      )}
+    </div>
+  );
+}
 
 // ===== SelectWithFreeform =====
 function SelectWithFreeform({ questionId, options, value, onChange }) {
