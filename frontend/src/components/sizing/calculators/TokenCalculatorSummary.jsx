@@ -272,8 +272,8 @@ export function TokenCalculatorSummary() {
         sourceId: dc.id,
         sourceType: 'dataCenter',
         name: override.name || dc.name || `DC ${index + 1}`,
-        numIPs,
-        numIPsAuto: baseIPs,
+        numIPs: totalIPs,
+        numIPsAuto: ipCalcValue,
         knowledgeWorkers: kw,
         role,
         services,
@@ -332,7 +332,7 @@ export function TokenCalculatorSummary() {
     });
     
     return [...dcSites, ...branchSites, ...manualSites];
-  }, [dataCenterIds, contextSiteIds, dataCenters, contextSites, siteOverrides, manualSites, ipMultiplier, dhcpPercent, platformMode, leaseTimeSeconds]);
+  }, [dataCenterIds, contextSiteIds, dataCenters, contextSites, siteOverrides, manualSites, ipMultiplier, dhcpPercent, platformMode, leaseTimeSeconds, ipCalcValue]);
   
   // Calculate totals
   const totals = useMemo(() => {
