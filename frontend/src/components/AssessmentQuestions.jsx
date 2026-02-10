@@ -324,7 +324,9 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
           // Separate into short (3-col) and long (full-width) questions
           const isShortQuestion = (q) => {
             const ft = detectFieldType(q);
-            return ['yesno', 'select', 'number', 'enableSwitch', 'leaseTime'].includes(ft) && q.question.length < 50;
+            // Include text/freeform if question is short - field will be hidden until note clicked
+            if (q.question.length < 50) return true;
+            return ['yesno', 'select', 'number', 'enableSwitch', 'leaseTime'].includes(ft);
           };
 
           // Get non-conditional short questions for 3-column grid
@@ -332,7 +334,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
             !q.isConditional && isShortQuestion(q)
           );
           
-          // Get long questions (full width)
+          // Get long questions (full width) - only very long questions
           const longQuestions = allQuestionsWithMeta.filter(q => 
             !q.isConditional && !isShortQuestion(q) && q.conditionMet
           );
@@ -349,13 +351,21 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
           const getConditionals = (parentId) => 
             allQuestionsWithMeta.filter(q => q.isConditional && q.conditionalOn?.questionId === parentId && q.conditionMet);
 
+          // Check if question is freeform/text type
+          const isFreeformQuestion = (q) => {
+            const ft = detectFieldType(q);
+            return ft === 'text' && !q.options;
+          };
+
           // Render a single question cell
           const renderQuestionCell = (q, colIndex) => {
             const hasNote = notes[q.id]?.trim();
             const isNoteExpanded = expandedNotes[q.id];
             const conditionals = getConditionals(q.id);
-            // More visible column shading - middle column gets gray background
-            const bgClass = colIndex === 1 ? 'bg-gray-50 dark:bg-gray-900/30' : 'bg-background';
+            const isFreeform = isFreeformQuestion(q);
+            const hasAnswer = answers[q.id]?.trim();
+            // Column shading - middle column gets subtle gray
+            const bgClass = colIndex === 1 ? 'bg-gray-50 dark:bg-gray-900/20' : 'bg-background';
             
             return (
               <div key={q.id} className={`${bgClass}`}>
@@ -366,11 +376,16 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                       {q.question}
                     </span>
                     <div className="flex items-center gap-1.5 flex-shrink-0">
-                      {renderField(q)}
+                      {/* For freeform questions, only show field when expanded OR has answer */}
+                      {isFreeform ? (
+                        (isNoteExpanded || hasAnswer) ? renderField(q) : null
+                      ) : (
+                        renderField(q)
+                      )}
                       <button 
-                        className={`p-1 rounded transition-colors ${hasNote ? 'text-blue-500 bg-blue-50 hover:bg-blue-100' : 'text-gray-300 hover:text-gray-400 hover:bg-gray-50'}`}
+                        className={`p-1 rounded transition-colors ${hasNote || (isFreeform && hasAnswer) ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100' : 'text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
                         onClick={() => setExpandedNotes(p => ({ ...p, [q.id]: !p[q.id] }))}
-                        title={hasNote ? "View note" : "Add note"}
+                        title={isFreeform ? (hasAnswer ? "Edit answer" : "Add answer") : (hasNote ? "View note" : "Add note")}
                         data-testid={`toggle-note-${q.id}`}
                       >
                         <MessageSquare className="h-3.5 w-3.5" />
