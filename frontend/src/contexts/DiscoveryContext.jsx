@@ -258,6 +258,10 @@ export function DiscoveryProvider({ children, customerId }) {
     markDirty();
   }, [markDirty]);
 
+  const setSizingSummary = useCallback((summary) => {
+    setSizingSummaryState(summary);
+  }, []);
+
   const defaultAnswers = getDefaultAnswers();
 
   return (
