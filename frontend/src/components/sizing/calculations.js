@@ -78,7 +78,9 @@ export function findNIOSServerByPerformance(qps, lps, objects) {
   return 'TE-4126';
 }
 
-export function getSiteRecommendedModel(numIPs, role, platform, dhcpPercent, leaseTimeSeconds, sitePlatform) {
+export function getSiteRecommendedModel(numIPs, role, platform, dhcpPercent, leaseTimeSeconds, sitePlatform, options = {}) {
+  const { isSpoke = false, hubLPS = 0 } = options;
+  
   const isUDDI = sitePlatform
     ? (sitePlatform === 'NXVS' || sitePlatform === 'NXaaS')
     : (platform.includes('UDDI') || platform.includes('Hybrid'));
@@ -87,11 +89,21 @@ export function getSiteRecommendedModel(numIPs, role, platform, dhcpPercent, lea
   const staticClients = numIPs - dhcpClients;
   
   // Calculate base workload metrics
-  const qps = Math.ceil(numIPs / (isUDDI ? 50 : niosGridConstants.peakQpsDivisor));
-  const lps = Math.max(1, Math.ceil(dhcpClients / niosGridConstants.lpsAggregateSeconds));
+  let qps = Math.ceil(numIPs / (isUDDI ? 50 : niosGridConstants.peakQpsDivisor));
+  let lps = Math.max(1, Math.ceil(dhcpClients / niosGridConstants.lpsAggregateSeconds));
   const dnsObjects = (dhcpClients * niosGridConstants.dnsRecordsPerDhcpClient) + 
                      (staticClients * niosGridConstants.dnsRecordsPerStaticClient);
   const dhcpObjects = dhcpClients * niosGridConstants.dhcpLeaseObjectsPerClient;
+  
+  // If this is a Hub, add LPS from all spokes
+  if (hubLPS > 0) {
+    lps += hubLPS;
+  }
+  
+  // If this is a Spoke, apply 50% LPS penalty (forwarding to Hub)
+  if (isSpoke) {
+    lps = Math.ceil(lps * 2); // Need 2x capacity to handle same workload
+  }
   
   // Handle Grid Master and Grid Master Candidate roles
   // GM/GMC primarily care about object capacity, not QPS/LPS
