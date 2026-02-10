@@ -228,14 +228,15 @@ export function TokenCalculatorSummary() {
   // Build sites from Quick Capture + manual
   // DC sites use the IP Calculator value, branch sites use their own KW
   const sites = useMemo(() => {
-    const dcSites = dataCenters.map((dc, index) => {
-      const key = `dc-${dc.id}`;
+    // First pass: Build basic site data without Hub/Spoke calculations
+    const buildBasicSite = (source, index, type) => {
+      const key = type === 'dataCenter' ? `dc-${source.id}` : `site-${source.id}`;
       const override = siteOverrides[key] || {};
-      const kw = dc.knowledgeWorkers || 0;
+      const kw = source.knowledgeWorkers || 0;
       
-      // Determine default role based on platform mode
+      // Determine default role based on platform mode and type
       let defaultRole = 'DNS/DHCP';
-      if (platformMode !== 'UDDI') {
+      if (type === 'dataCenter' && platformMode !== 'UDDI') {
         defaultRole = index === 0 ? 'GM' : 'GMC';
       }
       
@@ -247,93 +248,98 @@ export function TokenCalculatorSummary() {
       if (platformMode === 'UDDI') defaultPlatform = 'NXVS';
       const platform = override.platform || defaultPlatform;
       
-      // Use IP Calculator value for DCs (unless overridden)
-      // For GM/GMC roles, use the IP calc value as grid objects
-      const numIPs = override.numIPs !== undefined 
-        ? override.numIPs 
-        : ipCalcValue;
+      // Calculate IPs
+      let numIPs;
+      if (type === 'dataCenter') {
+        numIPs = override.numIPs !== undefined ? override.numIPs : ipCalcValue;
+        // Add service IPs to GM sizing
+        const serviceCount = services.length;
+        const serviceIPs = (role === 'GM' || role === 'GMC') ? serviceCount * 100 : 0;
+        numIPs += serviceIPs;
+      } else {
+        const baseIPs = Math.round(kw * ipMultiplier);
+        numIPs = override.numIPs !== undefined ? override.numIPs : baseIPs;
+      }
       
       const dhcp = override.dhcpPercent ?? dhcpPercent;
-      
-      // Add service IPs to GM sizing (services add capacity requirements)
-      const serviceCount = services.length;
-      const serviceIPs = (role === 'GM' || role === 'GMC') ? serviceCount * 100 : 0; // Each service adds ~100 IPs capacity need
-      const totalIPs = numIPs + serviceIPs;
-      
-      const recommendedModel = getSiteRecommendedModel(totalIPs, role, platformMode, dhcp, leaseTimeSeconds, platform);
-      const hardwareOptions = getHardwareSkuOptions(recommendedModel);
-      const defaultHardware = getDefaultHardwareSku(recommendedModel);
-      
-      // Calculate tokens with service impact
-      const baseTokens = getTokensForModel(recommendedModel);
-      const serviceImpact = getServiceImpact(services);
-      const adjustedTokens = Math.ceil(baseTokens * (1 + serviceImpact / 100));
+      const dhcpPartner = override.dhcpPartner || null; // ID of the Hub site
+      const serverCount = override.serverCount || 1;
       
       return {
         id: key,
-        sourceId: dc.id,
-        sourceType: 'dataCenter',
-        name: override.name || dc.name || `DC ${index + 1}`,
-        numIPs: totalIPs,
-        numIPsAuto: ipCalcValue,
-        knowledgeWorkers: kw,
-        role,
-        services,
-        platform,
-        dhcpPercent: dhcp,
-        recommendedModel,
-        hardwareSku: override.hardwareSku || defaultHardware,
-        hardwareOptions,
-        tokens: adjustedTokens,
-        serviceImpact,
-      };
-    });
-    
-    const branchSites = contextSites.map((site, index) => {
-      const key = `site-${site.id}`;
-      const override = siteOverrides[key] || {};
-      const kw = site.knowledgeWorkers || 0;
-      const baseIPs = Math.round(kw * ipMultiplier);
-      const numIPs = override.numIPs !== undefined ? override.numIPs : baseIPs;
-      const role = override.role || 'DNS/DHCP';
-      const services = override.services || [];
-      
-      // Default platform based on mode
-      let defaultPlatform = 'NIOS';
-      if (platformMode === 'UDDI') defaultPlatform = 'NXVS';
-      const platform = override.platform || defaultPlatform;
-      const dhcp = override.dhcpPercent ?? dhcpPercent;
-      
-      const recommendedModel = getSiteRecommendedModel(numIPs, role, platformMode, dhcp, leaseTimeSeconds, platform);
-      const hardwareOptions = getHardwareSkuOptions(recommendedModel);
-      const defaultHardware = getDefaultHardwareSku(recommendedModel);
-      
-      // Calculate tokens with service impact
-      const baseTokens = getTokensForModel(recommendedModel);
-      const serviceImpact = getServiceImpact(services);
-      const adjustedTokens = Math.ceil(baseTokens * (1 + serviceImpact / 100));
-      
-      return {
-        id: key,
-        sourceId: site.id,
-        sourceType: 'site',
-        name: override.name || site.name || `Site ${index + 1}`,
+        sourceId: source.id,
+        sourceType: type,
+        name: override.name || source.name || `${type === 'dataCenter' ? 'DC' : 'Site'} ${index + 1}`,
         numIPs,
-        numIPsAuto: baseIPs,
+        numIPsAuto: type === 'dataCenter' ? ipCalcValue : Math.round(kw * ipMultiplier),
         knowledgeWorkers: kw,
         role,
         services,
         platform,
         dhcpPercent: dhcp,
-        recommendedModel,
-        hardwareSku: override.hardwareSku || defaultHardware,
-        hardwareOptions,
-        tokens: adjustedTokens,
-        serviceImpact,
+        dhcpPartner,
+        serverCount,
       };
+    };
+    
+    // Build all basic sites
+    const dcSites = dataCenters.map((dc, i) => buildBasicSite(dc, i, 'dataCenter'));
+    const branchSites = contextSites.map((site, i) => buildBasicSite(site, i, 'site'));
+    const allBasicSites = [...dcSites, ...branchSites, ...manualSites.map((s, i) => ({
+      ...s,
+      dhcpPartner: siteOverrides[s.id]?.dhcpPartner || s.dhcpPartner || null,
+      serverCount: siteOverrides[s.id]?.serverCount || s.serverCount || 1,
+    }))];
+    
+    // Calculate Hub LPS for each potential Hub (sites with spokes pointing to them)
+    const hubLPSMap = {};
+    allBasicSites.forEach(site => {
+      if (site.dhcpPartner) {
+        // This site is a Spoke - add its LPS to the Hub
+        const spokeLPS = calculateSiteLPS(site.numIPs, site.dhcpPercent, site.role);
+        hubLPSMap[site.dhcpPartner] = (hubLPSMap[site.dhcpPartner] || 0) + spokeLPS;
+      }
     });
     
-    return [...dcSites, ...branchSites, ...manualSites];
+    // Second pass: Calculate model/tokens with Hub/Spoke awareness
+    return allBasicSites.map(site => {
+      const isSpoke = !!site.dhcpPartner;
+      const hubLPS = hubLPSMap[site.id] || 0;
+      const isHub = hubLPS > 0;
+      
+      // Calculate recommended model with Hub/Spoke options
+      const recommendedModel = getSiteRecommendedModel(
+        site.numIPs, 
+        site.role, 
+        platformMode, 
+        site.dhcpPercent, 
+        leaseTimeSeconds, 
+        site.platform,
+        { isSpoke, hubLPS }
+      );
+      
+      const hardwareOptions = getHardwareSkuOptions(recommendedModel);
+      const defaultHardware = getDefaultHardwareSku(recommendedModel);
+      
+      // Calculate tokens with service impact and server count
+      const baseTokens = getTokensForModel(recommendedModel);
+      const serviceImpact = getServiceImpact(site.services);
+      const singleServerTokens = Math.ceil(baseTokens * (1 + serviceImpact / 100));
+      const adjustedTokens = singleServerTokens * site.serverCount;
+      
+      return {
+        ...site,
+        recommendedModel,
+        hardwareSku: siteOverrides[site.id]?.hardwareSku || defaultHardware,
+        hardwareOptions,
+        tokens: adjustedTokens,
+        tokensPerServer: singleServerTokens,
+        serviceImpact,
+        isHub,
+        isSpoke,
+        hubLPS,
+      };
+    });
   }, [dataCenterIds, contextSiteIds, dataCenters, contextSites, siteOverrides, manualSites, ipMultiplier, dhcpPercent, platformMode, leaseTimeSeconds, ipCalcValue]);
   
   // Calculate totals
