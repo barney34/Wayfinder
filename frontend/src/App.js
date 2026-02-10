@@ -22,18 +22,18 @@ function AppContent() {
   return (
     <div className="flex min-h-screen w-full">
       <AppSidebar />
-      <div className="flex flex-col flex-1 md:ml-64">
-        <header className="flex items-center justify-between gap-4 border-b px-6 py-3 sticky top-0 bg-background z-30">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl font-bold text-green-600">infoblox</span>
+      <div className="flex flex-col flex-1 md:ml-48">
+        <header className="flex items-center justify-between gap-4 border-b px-4 py-2 sticky top-0 bg-background z-30">
+          <div className="flex items-center gap-2">
+            <span className="text-xl font-bold text-green-600">infoblox</span>
             <span className="text-muted-foreground">|</span>
-            <h2 className="text-lg font-semibold text-foreground">
+            <h2 className="text-base font-semibold text-foreground">
               Design Questionnaire
             </h2>
           </div>
           <ThemeToggle />
         </header>
-        <main className="flex-1 overflow-auto p-6">
+        <main className="flex-1 overflow-auto px-4 py-3">
           <Switch>
             <Route path="/" component={Dashboard} />
             <Route path="/customers" component={Customers} />
