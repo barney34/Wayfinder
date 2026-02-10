@@ -203,7 +203,11 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 
 ## Pending / Backlog
 
+### P1
+- **UDDI Sizing Penalties**: Add specific performance penalties for UDDI platform (Hub & Spoke, multi-protocol) - awaiting user-provided numbers
+
 ### P2
+- **Display Sizing Math**: Show content from sizing-math.md as help/info panel within Sizing tab
 - AI Discovery Assistant (industry-specific follow-up questions)
 - Backend route refactoring (split server.py into routes/models)
 - Refactor large components (CustomerDetail.jsx, TokenCalculatorSummary.jsx) into smaller sub-components
