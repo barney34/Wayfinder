@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discovery Mockup - 3 Column Layout</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .toggle-switch { position: relative; width: 36px; height: 20px; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; cursor: pointer; inset: 0; background-color: #ccc; border-radius: 20px; transition: .2s; }
+    .toggle-slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; border-radius: 50%; transition: .2s; }
+    input:checked + .toggle-slider { background-color: #22c55e; }
+    input:checked + .toggle-slider:before { transform: translateX(16px); }
+    .note-indicator { width: 6px; height: 6px; background: #3b82f6; border-radius: 50%; }
+    .question-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid #e5e7eb; }
+    .question-label { flex: 1; font-size: 13px; color: #374151; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .dotted-line { flex: 1; border-bottom: 1px dotted #d1d5db; margin: 0 8px; min-width: 20px; }
+    .conditional-indent { margin-left: 24px; border-left: 2px solid #3b82f6; padding-left: 12px; background: #f0f9ff; }
+  </style>
+</head>
+<body class="bg-gray-100 p-6">
+  <div class="max-w-7xl mx-auto">
+    <h1 class="text-xl font-bold mb-4">Discovery Questions - Mockup (3-Column Layout)</h1>
+    
+    <!-- Section Header -->
+    <div class="bg-white rounded-lg shadow-sm mb-4">
+      <div class="flex items-center justify-between px-4 py-3 border-b bg-gray-50 rounded-t-lg">
+        <h2 class="font-semibold text-gray-800">IPAM</h2>
+        <div class="flex items-center gap-2">
+          <label class="toggle-switch">
+            <input type="checkbox" checked>
+            <span class="toggle-slider"></span>
+          </label>
+          <span class="text-xs text-gray-500">On</span>
+        </div>
+      </div>
+      
+      <!-- 3-Column Grid -->
+      <div class="p-4">
+        <div class="grid grid-cols-3 gap-x-6 gap-y-0">
+          
+          <!-- Row 1 -->
+          <div class="question-row">
+            <span class="question-label">Current platform/vendor?</span>
+            <span class="dotted-line"></span>
+            <select class="h-7 text-xs border rounded px-2 w-28">
+              <option>Select...</option>
+              <option>Microsoft</option>
+              <option>Bluecat</option>
+            </select>
+            <button class="text-gray-300 hover:text-blue-500" title="Add note">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
+            </button>
+          </div>
+          
+          <div class="question-row">
+            <span class="question-label"># of Data Centers</span>
+            <span class="dotted-line"></span>
+            <input type="number" value="4" class="h-7 text-xs border rounded px-2 w-16 text-right">
+            <button class="text-gray-300 hover:text-blue-500" title="Add note">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
+            </button>
+          </div>
+          
+          <div class="question-row">
+            <span class="question-label"># of Sites</span>
+            <span class="dotted-line"></span>
+            <input type="number" value="200" class="h-7 text-xs border rounded px-2 w-16 text-right">
+            <button class="text-gray-300 hover:text-blue-500" title="Add note">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
+            </button>
+          </div>
+          
+          <!-- Row 2 -->
+          <div class="question-row">
+            <span class="question-label">IP Addr Multiplier</span>
+            <span class="dotted-line"></span>
+            <select class="h-7 text-xs border rounded px-2 w-20">
+              <option>2.5</option>
+              <option>3.5</option>
+            </select>
+            <button class="text-gray-300 hover:text-blue-500" title="Add note">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
+            </button>
+          </div>
+          
+          <div class="question-row">
+            <span class="question-label">BYOD Policy in Place?</span>
+            <span class="dotted-line"></span>
+            <label class="toggle-switch">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+            <button class="text-blue-500" title="Has note">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
+            </button>
+          </div>
+          
+          <div class="question-row">
+            <span class="question-label">% of DHCP</span>
+            <span class="dotted-line"></span>
+            <input type="number" value="80" class="h-7 text-xs border rounded px-2 w-16 text-right">
+            <span class="text-xs text-gray-400">%</span>
+            <button class="text-gray-300 hover:text-blue-500" title="Add note">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
+            </button>
+          </div>
+          
+          <!-- Row 3 - With Conditional -->
+          <div class="question-row">
+            <span class="question-label">Considering IPv6?</span>
+            <span class="dotted-line"></span>
+            <label class="toggle-switch">
+              <input type="checkbox" checked id="ipv6-toggle">
+              <span class="toggle-slider"></span>
+            </label>
+            <button class="text-gray-300 hover:text-blue-500" title="Add note">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
+            </button>
+          </div>
+          
+          <div class="question-row">
+            <span class="question-label">Active IP addresses</span>
+            <span class="dotted-line"></span>
+            <input type="text" value="125,000" class="h-7 text-xs border rounded px-2 w-20 text-right">
+            <button class="text-gray-300 hover:text-blue-500" title="Add note">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
+            </button>
+          </div>
+          
+          <div class="question-row">
+            <span class="question-label">Cloud providers?</span>
+            <span class="dotted-line"></span>
+            <select class="h-7 text-xs border rounded px-2 w-28">
+              <option>2 selected</option>
+            </select>
+            <button class="text-gray-300 hover:text-blue-500" title="Add note">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Conditional Question - Indented Below Parent -->
+        <div class="conditional-indent mt-2 mb-2 rounded">
+          <div class="text-xs text-blue-600 font-medium mb-1">↳ Follow-up (IPv6 = Yes)</div>
+          <div class="grid grid-cols-2 gap-x-6">
+            <div class="question-row border-b-0">
+              <span class="question-label">IPv6 plans & challenges?</span>
+              <span class="dotted-line"></span>
+              <input type="text" placeholder="Enter details..." class="h-7 text-xs border rounded px-2 flex-1 max-w-[200px]">
+            </div>
+            <div class="question-row border-b-0">
+              <span class="question-label">IPv6 in sizing calcs?</span>
+              <span class="dotted-line"></span>
+              <label class="toggle-switch">
+                <input type="checkbox">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Inline Note Example -->
+        <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-xs">
+          <div class="flex items-start gap-2">
+            <svg class="w-4 h-4 text-yellow-600 mt-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
+            <div class="flex-1">
+              <div class="font-medium text-yellow-800">Note for "BYOD Policy in Place?"</div>
+              <input type="text" value="Customer allows 3 devices per user, policy reviewed annually" class="w-full mt-1 h-6 text-xs border border-yellow-300 rounded px-2 bg-white">
+            </div>
+            <button class="text-yellow-600 hover:text-yellow-800">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Another Section for comparison -->
+    <div class="bg-white rounded-lg shadow-sm mb-4">
+      <div class="flex items-center justify-between px-4 py-3 border-b bg-gray-50 rounded-t-lg">
+        <h2 class="font-semibold text-gray-800">Internal DNS</h2>
+        <div class="flex items-center gap-2">
+          <label class="toggle-switch">
+            <input type="checkbox" checked>
+            <span class="toggle-slider"></span>
+          </label>
+          <span class="text-xs text-gray-500">On</span>
+        </div>
+      </div>
+      
+      <div class="p-4">
+        <div class="grid grid-cols-3 gap-x-6 gap-y-0">
+          <div class="question-row">
+            <span class="question-label">Current platform?</span>
+            <span class="dotted-line"></span>
+            <select class="h-7 text-xs border rounded px-2 w-28">
+              <option>Microsoft</option>
+            </select>
+            <button class="text-gray-300 hover:text-blue-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg></button>
+          </div>
+          
+          <div class="question-row">
+            <span class="question-label"># of forests</span>
+            <span class="dotted-line"></span>
+            <input type="number" value="2" class="h-7 text-xs border rounded px-2 w-16 text-right">
+            <button class="text-gray-300 hover:text-blue-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg></button>
+          </div>
+          
+          <div class="question-row">
+            <span class="question-label">Servers running DNS</span>
+            <span class="dotted-line"></span>
+            <input type="number" value="12" class="h-7 text-xs border rounded px-2 w-16 text-right">
+            <button class="text-gray-300 hover:text-blue-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg></button>
+          </div>
+          
+          <div class="question-row">
+            <span class="question-label"># of zones</span>
+            <span class="dotted-line"></span>
+            <input type="number" value="450" class="h-7 text-xs border rounded px-2 w-16 text-right">
+            <button class="text-gray-300 hover:text-blue-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg></button>
+          </div>
+          
+          <div class="question-row">
+            <span class="question-label">Total records</span>
+            <span class="dotted-line"></span>
+            <input type="text" value="1.2M" class="h-7 text-xs border rounded px-2 w-16 text-right">
+            <button class="text-gray-300 hover:text-blue-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg></button>
+          </div>
+          
+          <div class="question-row">
+            <span class="question-label">GSS-TSIG enabled?</span>
+            <span class="dotted-line"></span>
+            <label class="toggle-switch">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+            <button class="text-gray-300 hover:text-blue-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Legend -->
+    <div class="bg-white rounded-lg shadow-sm p-4">
+      <h3 class="font-semibold text-gray-800 mb-3">Design Features</h3>
+      <div class="grid grid-cols-2 gap-4 text-sm">
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-4 bg-green-500 rounded"></div>
+          <span>Toggle switches for Yes/No (compact)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-0.5 border-b border-dotted border-gray-400 flex-1 max-w-[40px]"></div>
+          <span>Dotted line connects question to answer</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-4 bg-blue-100 border-l-2 border-blue-500"></div>
+          <span>Indented conditional questions</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 24 24"><path d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
+          <span>Blue = has note, Gray = no note</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-4 bg-yellow-50 border border-yellow-200 rounded"></div>
+          <span>Inline note editing (expands below grid)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-0.5 bg-gray-200"></div>
+          <span>Border-bottom separates each row</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
