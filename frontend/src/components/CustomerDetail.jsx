@@ -745,64 +745,62 @@ export function CustomerDetail({ customer, onBack }) {
       <div className="flex flex-col h-[calc(100vh-60px)]">
         <Tabs defaultValue="discovery" className="flex flex-col h-full">
           {/* Sticky header - Fixed at top */}
-          <div className="flex-shrink-0 bg-background pb-2 space-y-2 border-b border-border/50">
+          <div className="flex-shrink-0 bg-background pb-3 lg:pb-4 space-y-3 lg:space-y-4 border-b border-border/50 px-4 lg:px-6">
             {/* Row 1: Back + Customer/Opportunity | Platform | Save/Export */}
-            <div className="flex items-start justify-between pt-3 gap-4 max-w-5xl mx-auto w-full">
-              <div className="flex items-start gap-2">
-                <Button variant="ghost" size="icon" onClick={onBack} className="mt-0.5 h-8 w-8" data-testid="button-back"><ArrowLeft className="h-4 w-4" /></Button>
-                <div className="flex flex-col gap-0.5">
+            <div className="flex items-start justify-between pt-3 lg:pt-4 gap-4">
+              <div className="flex items-start gap-2 lg:gap-3">
+                <Button variant="ghost" size="icon" onClick={onBack} className="mt-0.5 h-8 w-8 lg:h-10 lg:w-10" data-testid="button-back"><ArrowLeft className="h-4 w-4 lg:h-5 lg:w-5" /></Button>
+                <div className="flex flex-col gap-1">
                   {isEditingName ? (
                     <div className="flex items-center gap-2">
-                      <Input value={editName} onChange={e => setEditName(e.target.value)} className="text-sm font-medium h-7 w-40" autoFocus
+                      <Input value={editName} onChange={e => setEditName(e.target.value)} className="text-sm lg:text-base font-medium h-8 lg:h-10 w-48 lg:w-64" autoFocus
                         onKeyDown={e => { if (e.key === 'Enter') handleSaveName(); if (e.key === 'Escape') { setEditName(currentName); setIsEditingName(false); } }} data-testid="input-edit-name" />
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleSaveName}><Check className="h-3 w-3 text-green-600" /></Button>
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => { setEditName(currentName); setIsEditingName(false); }}><X className="h-3 w-3 text-destructive" /></Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 lg:h-8 lg:w-8" onClick={handleSaveName}><Check className="h-4 w-4 text-green-600" /></Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 lg:h-8 lg:w-8" onClick={() => { setEditName(currentName); setIsEditingName(false); }}><X className="h-4 w-4 text-destructive" /></Button>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-1.5 group">
-                      <span className="text-xs text-muted-foreground">Customer:</span>
-                      <span className="text-sm font-medium text-foreground">{currentName}</span>
-                      <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity h-5 w-5" onClick={() => setIsEditingName(true)} data-testid="button-edit-name"><Pencil className="h-2.5 w-2.5" /></Button>
+                    <div className="flex items-center gap-2 group">
+                      <span className="text-xs lg:text-sm text-muted-foreground">Customer:</span>
+                      <span className="text-sm lg:text-lg font-medium text-foreground">{currentName}</span>
+                      <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6" onClick={() => setIsEditingName(true)} data-testid="button-edit-name"><Pencil className="h-3 w-3" /></Button>
                     </div>
                   )}
                   {isEditingOpportunity ? (
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground">Opportunity:</span>
-                      <Input value={editOpportunity} onChange={e => setEditOpportunity(e.target.value)} className="text-sm font-medium h-7 w-40" autoFocus
+                      <span className="text-xs lg:text-sm text-muted-foreground">Opportunity:</span>
+                      <Input value={editOpportunity} onChange={e => setEditOpportunity(e.target.value)} className="text-sm lg:text-base font-medium h-8 lg:h-10 w-48 lg:w-64" autoFocus
                         onKeyDown={e => { if (e.key === 'Enter') handleSaveOpportunity(); if (e.key === 'Escape') { setEditOpportunity(currentOpportunity); setIsEditingOpportunity(false); } }} data-testid="input-edit-opportunity" />
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleSaveOpportunity}><Check className="h-3 w-3 text-green-600" /></Button>
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => { setEditOpportunity(currentOpportunity); setIsEditingOpportunity(false); }}><X className="h-3 w-3 text-destructive" /></Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 lg:h-8 lg:w-8" onClick={handleSaveOpportunity}><Check className="h-4 w-4 text-green-600" /></Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 lg:h-8 lg:w-8" onClick={() => { setEditOpportunity(currentOpportunity); setIsEditingOpportunity(false); }}><X className="h-4 w-4 text-destructive" /></Button>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-1.5 group">
-                      <span className="text-xs text-muted-foreground">Opportunity:</span>
-                      <span className="text-sm font-medium text-foreground">{currentOpportunity || '-'}</span>
-                      <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity h-5 w-5" onClick={() => setIsEditingOpportunity(true)} data-testid="button-edit-opportunity"><Pencil className="h-2.5 w-2.5" /></Button>
+                    <div className="flex items-center gap-2 group">
+                      <span className="text-xs lg:text-sm text-muted-foreground">Opportunity:</span>
+                      <span className="text-sm lg:text-lg font-medium text-foreground">{currentOpportunity || '-'}</span>
+                      <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6" onClick={() => setIsEditingOpportunity(true)} data-testid="button-edit-opportunity"><Pencil className="h-3 w-3" /></Button>
                     </div>
                   )}
                 </div>
               </div>
-              <div className="flex flex-col gap-0.5 items-center">
-                <span className="text-[10px] text-muted-foreground font-medium">Platform</span>
+              <div className="flex flex-col gap-1 items-center">
+                <span className="text-xs lg:text-sm text-muted-foreground font-medium">Platform</span>
                 <TargetSolutionToggles />
               </div>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2">
                 <HeaderSaveButton customerName={currentName} customerId={customer.id} />
                 <ExportButton customerName={currentName} customerId={customer.id} />
               </div>
             </div>
 
-            {/* Row 2: Quick Capture - Constrained width */}
-            <div className="max-w-5xl mx-auto w-full">
-              <QuickCaptureBarInline />
-            </div>
+            {/* Row 2: Quick Capture - Full width */}
+            <QuickCaptureBarInline />
 
             {/* Row 3: Tabs */}
             <div className="flex justify-center w-full">
-              <TabsList className="bg-transparent gap-1 p-0 flex-nowrap overflow-x-auto">
+              <TabsList className="bg-transparent gap-1 lg:gap-2 p-0 flex-nowrap overflow-x-auto">
                 {['discovery', 'sizing', 'tokens', 'notes', 'import', 'versions'].map(tab => (
                   <TabsTrigger key={tab} value={tab} data-testid={`tab-${tab}`}
-                    className="data-[state=active]:border-2 data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent border border-input rounded-md px-2.5 py-1 text-xs">
+                    className="data-[state=active]:border-2 data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent border border-input rounded-md px-3 lg:px-5 py-1.5 lg:py-2 text-xs lg:text-sm">
                     {tab === 'notes' ? 'SmartFill' : tab === 'versions' ? 'Versions' : tab.charAt(0).toUpperCase() + tab.slice(1)}
                   </TabsTrigger>
                 ))}
@@ -810,15 +808,15 @@ export function CustomerDetail({ customer, onBack }) {
             </div>
           </div>
 
-          {/* Scrollable content area */}
+          {/* Scrollable content area - Full width with padding */}
           <div className="flex-1 overflow-y-auto">
-            <div className="max-w-5xl mx-auto w-full py-4 space-y-4">
+            <div className="px-4 lg:px-6 py-4 lg:py-6 space-y-4 lg:space-y-6">
               <TabsContent value="discovery" className="mt-0">
                 <AssessmentQuestions questions={discoveryTabQuestions} />
               </TabsContent>
 
               <TabsContent value="sizing" className="mt-0">
-                <div className="space-y-4">
+                <div className="space-y-4 lg:space-y-6">
                   <TokenCalculatorSummary />
                   <UDSMembersTable />
                   <AssessmentQuestions questions={sizingTabQuestions} />
@@ -827,7 +825,7 @@ export function CustomerDetail({ customer, onBack }) {
 
               <TabsContent value="tokens" className="mt-0">
                 <div className="space-y-4">
-                  <h2 className="text-base font-semibold">Calculators</h2>
+                  <h2 className="text-base lg:text-lg font-semibold">Calculators</h2>
                   <AssessmentQuestions questions={[...securityTokenQuestions, ...uddiTokenQuestions]} />
                 </div>
               </TabsContent>
