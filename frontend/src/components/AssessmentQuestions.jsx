@@ -540,24 +540,6 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                 </div>
               )}
                         </div>
-                        
-                        {/* Conditional questions for long questions */}
-                        {conditionals.map(cq => (
-                          <div key={cq.id} className="border-l-2 border-blue-400 bg-blue-50/50 ml-4 mr-4 mb-2" data-testid={`question-${cq.id}`}>
-                            <div className="px-3 py-2">
-                              <div className="text-[10px] text-blue-600 font-medium mb-1">↳ If {cq.conditionalOn.value}:</div>
-                              <div className="flex items-center justify-between gap-2">
-                                <span className="text-xs text-foreground">{cq.question}</span>
-                                <div className="flex-shrink-0">{renderField(cq)}</div>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
             </div>
           );
         })}
