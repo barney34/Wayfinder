@@ -795,6 +795,30 @@ export function TokenCalculatorSummary() {
                       </Tooltip>
                     </TooltipProvider>
                   </TableHead>
+                  <TableHead className="w-24 lg:w-28 text-xs lg:text-sm">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger className="flex items-center gap-1">
+                          DHCP Partner <Info className="h-3 w-3" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          Select a Hub site for DHCP failover. Spokes forward DHCP to their Hub (50% LPS penalty).
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </TableHead>
+                  <TableHead className="w-14 lg:w-16 text-xs lg:text-sm">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger className="flex items-center gap-1">
+                          Srv# <Info className="h-3 w-3" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          Number of identical servers at this location. Tokens multiply by server count.
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </TableHead>
                   <TableHead className="text-xs lg:text-sm">Platform</TableHead>
                   <TableHead className="w-16 lg:w-20 text-xs lg:text-sm">Model</TableHead>
                   <TableHead className="text-xs lg:text-sm">Hardware SKU</TableHead>
