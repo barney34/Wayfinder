@@ -517,67 +517,28 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
               <div className="bg-muted/50 border-b px-4 py-2 flex items-center justify-between">
                 <h3 className="text-sm font-semibold">{section}</h3>
                 <div className="flex items-center gap-2">
-                  <Switch checked={isSectionEnabled} onCheckedChange={c => handleSectionToggle(section, c)} data-testid={`switch-section-${section.replace(/\s/g, '-')}`} />
+                  <Checkbox checked={isSectionEnabled} onCheckedChange={c => handleSectionToggle(section, c)} className="h-4 w-4" data-testid={`switch-section-${section.replace(/\s/g, '-')}`} />
                   <span className="text-xs text-muted-foreground">{isSectionEnabled ? 'On' : 'Off'}</span>
                 </div>
               </div>
 
-              {/* 3-Column Grid for Short Questions */}
-              {isSectionEnabled && shortQuestions.length > 0 && (
+              {/* 3-Column Grid for ALL Questions */}
+              {isSectionEnabled && gridQuestions.length > 0 && (
                 <div className="grid grid-cols-1 lg:grid-cols-3">
                   {/* Column 1 */}
-                  <div className="border-r border-border/30">
-                    {col1.map(q => renderQuestionCell(q, 0))}
+                  <div className="lg:border-r border-border/40">
+                    {col1.map((q, i) => renderQuestionCell(q, 0, i))}
                   </div>
                   {/* Column 2 (shaded) */}
-                  <div className="border-r border-border/30">
-                    {col2.map(q => renderQuestionCell(q, 1))}
+                  <div className="lg:border-r border-border/40">
+                    {col2.map((q, i) => renderQuestionCell(q, 1, i))}
                   </div>
                   {/* Column 3 */}
                   <div>
-                    {col3.map(q => renderQuestionCell(q, 2))}
+                    {col3.map((q, i) => renderQuestionCell(q, 2, i))}
                   </div>
                 </div>
               )}
-
-              {/* Full-Width for Long Questions */}
-              {isSectionEnabled && longQuestions.length > 0 && (
-                <div className="border-t border-border/50">
-                  {longQuestions.map(q => {
-                    const hasNote = notes[q.id]?.trim();
-                    const isNoteExpanded = expandedNotes[q.id];
-                    const conditionals = getConditionals(q.id);
-                    
-                    return (
-                      <div key={q.id}>
-                        <div className="px-4 py-3 border-b border-border/30" data-testid={`question-${q.id}`}>
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="flex-1">
-                              <Label className="text-xs font-medium">{q.question}</Label>
-                              <div className="mt-1.5">{renderField(q)}</div>
-                            </div>
-                            <button 
-                              className={`p-1 rounded transition-colors mt-0.5 ${hasNote ? 'text-blue-500 bg-blue-50 hover:bg-blue-100' : 'text-gray-300 hover:text-gray-400 hover:bg-gray-50'}`}
-                              onClick={() => setExpandedNotes(p => ({ ...p, [q.id]: !p[q.id] }))}
-                              data-testid={`toggle-note-${q.id}`}
-                            >
-                              <MessageSquare className="h-3.5 w-3.5" />
-                            </button>
-                          </div>
-                          
-                          {/* Inline note */}
-                          {isNoteExpanded && (
-                            <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
-                              <input
-                                type="text"
-                                value={notes[q.id] || ''}
-                                onChange={e => setNote(q.id, e.target.value)}
-                                placeholder="Add a note..."
-                                className="w-full bg-transparent border-none outline-none text-yellow-800 placeholder-yellow-600"
-                                data-testid={`note-${q.id}`}
-                              />
-                            </div>
-                          )}
                         </div>
                         
                         {/* Conditional questions for long questions */}
