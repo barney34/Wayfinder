@@ -93,7 +93,7 @@ function SelectWithFreeform({ questionId, options, value, onChange }) {
 }
 
 // ===== MultiSelectField =====
-function MultiSelectField({ questionId, options, optionsWithPermission = [], optionsWithVendor = [], value, onChange, allowFreeform }) {
+function MultiSelectField({ questionId, options, optionsWithPermission = [], optionsWithVendor = [], value, onChange, allowFreeform, compact = false }) {
   const [freeformInput, setFreeformInput] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [vendorInputs, setVendorInputs] = useState({});
@@ -122,44 +122,46 @@ function MultiSelectField({ questionId, options, optionsWithPermission = [], opt
   const addFreeformValue = () => { const t = freeformInput.trim(); if (t && !selectedValues.includes(t)) { onChange([...selectedValues, t].join(', ')); setFreeformInput(''); } };
 
   return (
-    <div className="space-y-2">
+    <div className={compact ? "space-y-1" : "space-y-2"}>
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" className="w-full justify-between font-normal" data-testid={`multiselect-trigger-${questionId}`}>
-            <span className="text-muted-foreground">{selectedValues.length === 0 ? 'Select options...' : `${selectedValues.length} selected`}</span>
-            <ChevronDown className="h-4 w-4 opacity-50" />
+          <Button variant="outline" className={`justify-between font-normal ${compact ? 'h-7 text-xs px-2 min-w-[100px]' : 'w-full'}`} data-testid={`multiselect-trigger-${questionId}`}>
+            <span className="text-muted-foreground truncate">{selectedValues.length === 0 ? 'Select...' : `${selectedValues.length} selected`}</span>
+            <ChevronDown className="h-3 w-3 opacity-50 ml-1" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[350px] p-2" align="start">
-          <div className="space-y-1">
+        <PopoverContent className="w-[320px] p-2" align="start" onInteractOutside={(e) => e.preventDefault()}>
+          <div className="space-y-0.5 max-h-[300px] overflow-y-auto">
             {options.map(option => {
               const needsPerm = optionsWithPermission.includes(option);
               const needsVendor = optionsWithVendor.includes(option);
               const isSelected = isOptionSelected(option);
               return (
                 <div key={option} className="space-y-1">
-                  <div className="flex items-center gap-2 p-2 rounded-md hover:bg-muted/50" data-testid={`multiselect-option-${questionId}-${option.replace(/\s/g, '-')}`}>
-                    <Switch checked={isSelected} onCheckedChange={() => toggleOption(option)} onClick={e => e.stopPropagation()} />
-                    <span className="text-xs cursor-pointer">{option}</span>
-                    {needsVendor && isSelected && (
-                      <div className="flex-1 flex items-center gap-1" onClick={e => e.stopPropagation()}>
-                        <Input placeholder="Add vendor..." value={vendorInputs[option] || ''} onChange={e => setVendorInputs(p => ({ ...p, [option]: e.target.value }))}
-                          onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addVendor(option, vendorInputs[option]); } }} className="flex-1 h-7 text-sm" />
-                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => addVendor(option, vendorInputs[option])} disabled={!vendorInputs[option]?.trim()}><Plus className="h-3 w-3" /></Button>
-                      </div>
-                    )}
+                  <label className="flex items-center gap-2 p-1.5 rounded-md hover:bg-muted/50 cursor-pointer" data-testid={`multiselect-option-${questionId}-${option.replace(/\s/g, '-')}`}>
+                    <Checkbox checked={isSelected} onCheckedChange={() => toggleOption(option)} className="h-4 w-4" />
+                    <span className="text-xs flex-1">{option}</span>
                     {needsPerm && isSelected && (
                       <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-                        <Button size="sm" variant={getOptionPermission(option) === 'R/W' ? 'default' : 'outline'} className="h-6 px-2 text-xs" onClick={() => setPermission(option, 'R/W')}>R/W</Button>
-                        <Button size="sm" variant={getOptionPermission(option) === 'R/O' ? 'default' : 'outline'} className="h-6 px-2 text-xs" onClick={() => setPermission(option, 'R/O')}>R/O</Button>
+                        <Button size="sm" variant={getOptionPermission(option) === 'R/W' ? 'default' : 'outline'} className="h-5 px-1.5 text-[10px]" onClick={() => setPermission(option, 'R/W')}>R/W</Button>
+                        <Button size="sm" variant={getOptionPermission(option) === 'R/O' ? 'default' : 'outline'} className="h-5 px-1.5 text-[10px]" onClick={() => setPermission(option, 'R/O')}>R/O</Button>
                       </div>
                     )}
-                  </div>
-                  {needsVendor && isSelected && getOptionVendors(option).length > 0 && (
-                    <div className="flex flex-wrap gap-1 pl-8 pb-1">
-                      {getOptionVendors(option).map(vendor => (
-                        <Badge key={vendor} variant="secondary" className="gap-1 pr-1 text-xs">{vendor}<button onClick={e => { e.stopPropagation(); removeVendor(option, vendor); }} className="ml-1 rounded-full hover:bg-muted p-0.5"><X className="h-2 w-2" /></button></Badge>
-                      ))}
+                  </label>
+                  {needsVendor && isSelected && (
+                    <div className="pl-6 pb-1 space-y-1">
+                      <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                        <Input placeholder="Add vendor..." value={vendorInputs[option] || ''} onChange={e => setVendorInputs(p => ({ ...p, [option]: e.target.value }))}
+                          onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addVendor(option, vendorInputs[option]); } }} className="flex-1 h-6 text-xs" />
+                        <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => addVendor(option, vendorInputs[option])} disabled={!vendorInputs[option]?.trim()}><Plus className="h-3 w-3" /></Button>
+                      </div>
+                      {getOptionVendors(option).length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {getOptionVendors(option).map(vendor => (
+                            <Badge key={vendor} variant="secondary" className="gap-1 pr-1 text-[10px] h-5">{vendor}<button onClick={e => { e.stopPropagation(); removeVendor(option, vendor); }} className="ml-1 rounded-full hover:bg-muted p-0.5"><X className="h-2 w-2" /></button></Badge>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -167,16 +169,20 @@ function MultiSelectField({ questionId, options, optionsWithPermission = [], opt
             })}
           </div>
           {allowFreeform && (
-            <div className="border-t mt-2 pt-2"><div className="flex gap-2">
-              <Input placeholder="Add other..." value={freeformInput} onChange={e => setFreeformInput(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addFreeformValue(); } }} className="flex-1" data-testid={`multiselect-freeform-${questionId}`} />
-              <Button size="icon" variant="outline" onClick={addFreeformValue} disabled={!freeformInput.trim()}><Plus className="h-4 w-4" /></Button>
+            <div className="border-t mt-2 pt-2"><div className="flex gap-1">
+              <Input placeholder="Add other..." value={freeformInput} onChange={e => setFreeformInput(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addFreeformValue(); } }} className="flex-1 h-7 text-xs" data-testid={`multiselect-freeform-${questionId}`} />
+              <Button size="icon" variant="outline" className="h-7 w-7" onClick={addFreeformValue} disabled={!freeformInput.trim()}><Plus className="h-3 w-3" /></Button>
             </div></div>
           )}
+          <div className="border-t mt-2 pt-2 flex justify-end">
+            <Button size="sm" variant="default" className="h-7 text-xs" onClick={() => setIsOpen(false)}>Done</Button>
+          </div>
         </PopoverContent>
       </Popover>
-      {selectedValues.length > 0 && (
+      {!compact && selectedValues.length > 0 && (
         <div className="flex flex-wrap gap-1">
-          {selectedValues.map(val => <Badge key={val} variant="secondary" className="gap-1 pr-1">{val}<button onClick={() => removeValue(val)} className="ml-1 rounded-full hover:bg-muted p-0.5"><X className="h-3 w-3" /></button></Badge>)}
+          {selectedValues.map(val => <Badge key={val} variant="secondary" className="gap-1 pr-1 text-xs">{val}<button onClick={() => removeValue(val)} className="ml-1 rounded-full hover:bg-muted p-0.5"><X className="h-3 w-3" /></button></Badge>)}
+        </div>
         </div>
       )}
     </div>
