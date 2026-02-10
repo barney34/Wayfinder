@@ -198,69 +198,69 @@ function QuickCaptureBarInline() {
   ];
 
   return (
-    <div className="flex flex-col gap-2 p-3 bg-muted/30 rounded-lg border" data-testid="quick-capture-bar">
+    <div className="flex flex-col gap-1.5 p-2 bg-muted/30 rounded-lg border" data-testid="quick-capture-bar">
       {/* Header - Centered */}
       <div className="text-center">
-        <h3 className="text-sm font-semibold">Quick Capture</h3>
-        <p className="text-[9px] text-muted-foreground">DC = Data Center(s) • KW = Knowledge Workers</p>
+        <h3 className="text-xs font-semibold">Quick Capture</h3>
+        <p className="text-[8px] text-muted-foreground">DC = Data Center(s) • KW = Knowledge Workers</p>
       </div>
       
       {/* Main Layout: IP Calc (Left) | Entry + Tags (Right) */}
-      <div className="flex gap-3">
-        {/* LEFT: IP Calculation - Vertical Math Flow */}
-        <div className="flex flex-col items-center p-2 bg-background rounded-lg border min-w-[120px]">
-          <span className="text-[9px] text-muted-foreground uppercase tracking-wide mb-1.5">IP Calculation</span>
+      <div className="flex gap-2">
+        {/* LEFT: IP Calculation - Compact Vertical Math Flow */}
+        <div className="flex flex-col items-center p-1.5 bg-background rounded-md border w-[100px] flex-shrink-0">
+          <span className="text-[8px] text-muted-foreground uppercase tracking-wide mb-1">IP Calc</span>
           
           {/* KW Input */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5">
             <input
               type="number"
               value={kw}
               onChange={e => setAnswer('ud-1', e.target.value)}
-              className="w-16 h-7 text-center text-sm font-mono bg-muted/50 border rounded focus:outline-none focus:ring-2 focus:ring-primary/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="w-14 h-6 text-center text-xs font-mono bg-muted/50 border rounded focus:outline-none focus:ring-1 focus:ring-primary/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               placeholder="0"
               data-testid="ip-calc-kw"
             />
-            <span className="text-[9px] text-muted-foreground">KW</span>
+            <span className="text-[8px] text-muted-foreground">KW</span>
           </div>
           
           {/* Multiplier */}
-          <div className="flex items-center gap-1 mt-0.5">
-            <span className="text-muted-foreground text-xs">×</span>
+          <div className="flex items-center gap-0.5 mt-0.5">
+            <span className="text-muted-foreground text-[10px]">×</span>
             <input
               type="number"
               step="0.5"
               value={mult}
               onChange={e => setAnswer('ipam-multiplier', e.target.value)}
-              className="w-10 h-6 text-center text-xs font-mono bg-muted/50 border rounded focus:outline-none focus:ring-1 focus:ring-primary/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="w-8 h-5 text-center text-[10px] font-mono bg-muted/50 border rounded focus:outline-none focus:ring-1 focus:ring-primary/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               data-testid="ip-calc-mult"
             />
           </div>
           
           {/* Divider */}
-          <div className="w-16 h-px bg-border my-1.5" />
+          <div className="w-12 h-px bg-border my-1" />
           
-          {/* Result - LARGER */}
-          <div className="flex items-center gap-1">
+          {/* Result */}
+          <div className="flex items-center gap-0.5">
             {manualOverride ? (
               <input
                 type="number"
                 value={answers['ipam-1'] || ''}
                 onChange={e => setAnswer('ipam-1', e.target.value)}
-                className="w-20 h-9 text-center text-lg font-bold font-mono bg-amber-100 dark:bg-amber-900/30 border-2 border-amber-400 rounded focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-16 h-7 text-center text-sm font-bold font-mono bg-amber-100 dark:bg-amber-900/30 border border-amber-400 rounded focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 data-testid="ip-calc-override"
               />
             ) : (
-              <div className="w-20 h-9 flex items-center justify-center bg-primary/10 rounded border border-primary/30">
-                <span className="text-lg font-bold tabular-nums text-primary">{activeIPs.toLocaleString()}</span>
+              <div className="w-16 h-7 flex items-center justify-center bg-primary/10 rounded border border-primary/30">
+                <span className="text-sm font-bold tabular-nums text-primary">{activeIPs.toLocaleString()}</span>
               </div>
             )}
-            <span className="text-[9px] text-muted-foreground">IPs</span>
+            <span className="text-[8px] text-muted-foreground">IPs</span>
           </div>
           
           {/* Auto/Manual Toggle - Compact */}
-          <div className="flex items-center gap-1 mt-2 pt-1.5 border-t w-full justify-center">
-            <span className={`text-[9px] ${!manualOverride ? 'text-primary font-semibold' : 'text-muted-foreground'}`}>Auto</span>
+          <div className="flex items-center gap-0.5 mt-1 pt-1 border-t w-full justify-center">
+            <span className={`text-[8px] ${!manualOverride ? 'text-primary font-semibold' : 'text-muted-foreground'}`}>Auto</span>
             <button
               type="button"
               onClick={() => {
@@ -268,39 +268,39 @@ function QuickCaptureBarInline() {
                 setAnswer('ipam-1-override', newVal ? 'true' : 'false');
                 if (!newVal) setAnswer('ipam-1', String(calculatedIPs));
               }}
-              className={`relative w-7 h-3.5 rounded-full transition-colors ${manualOverride ? 'bg-amber-500' : 'bg-muted-foreground/30'}`}
+              className={`relative w-6 h-3 rounded-full transition-colors ${manualOverride ? 'bg-amber-500' : 'bg-muted-foreground/30'}`}
               data-testid="ip-calc-toggle"
             >
-              <div className={`absolute top-0.5 w-2.5 h-2.5 bg-white rounded-full shadow transition-transform ${manualOverride ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
+              <div className={`absolute top-0.5 w-2 h-2 bg-white rounded-full shadow transition-transform ${manualOverride ? 'translate-x-3' : 'translate-x-0.5'}`} />
             </button>
-            <span className={`text-[9px] ${manualOverride ? 'text-amber-600 font-semibold' : 'text-muted-foreground'}`}>Manual</span>
+            <span className={`text-[8px] ${manualOverride ? 'text-amber-600 font-semibold' : 'text-muted-foreground'}`}>Man</span>
           </div>
         </div>
         
         {/* RIGHT: Entry + Platform + Tags */}
-        <div className="flex-1 flex flex-col gap-2">
-          {/* Rapid Entry Bar */}
-          <div className="flex items-center gap-1.5 p-1.5 bg-background rounded-md border">
+        <div className="flex-1 flex flex-col gap-1.5 min-w-0">
+          {/* Rapid Entry Bar - Constrained */}
+          <div className="flex items-center gap-1 p-1 bg-background rounded-md border">
             <div className="flex items-center gap-0.5 bg-muted rounded-full p-0.5">
               <button type="button" onClick={() => handleEntryTypeChange('dc')}
-                className={`px-2 py-0.5 text-[10px] font-medium rounded-full transition-all ${entryType === 'dc' ? 'bg-blue-500 text-white' : 'text-muted-foreground hover:text-foreground'}`}
+                className={`px-1.5 py-0.5 text-[9px] font-medium rounded-full transition-all ${entryType === 'dc' ? 'bg-blue-500 text-white' : 'text-muted-foreground hover:text-foreground'}`}
                 data-testid="entry-type-dc">DC</button>
               <button type="button" onClick={() => handleEntryTypeChange('site')}
-                className={`px-2 py-0.5 text-[10px] font-medium rounded-full transition-all ${entryType === 'site' ? 'bg-green-500 text-white' : 'text-muted-foreground hover:text-foreground'}`}
+                className={`px-1.5 py-0.5 text-[9px] font-medium rounded-full transition-all ${entryType === 'site' ? 'bg-green-500 text-white' : 'text-muted-foreground hover:text-foreground'}`}
                 data-testid="entry-type-site">Site</button>
             </div>
             <input ref={nameInputRef} type="text" value={entryName} onChange={e => setEntryName(e.target.value)} onKeyDown={handleKeyDown}
               placeholder={entryType === 'dc' ? 'DC name' : 'Site name'}
-              className="flex-1 min-w-[60px] h-5 px-1.5 text-[11px] bg-background border rounded focus:outline-none focus:ring-1 focus:ring-primary"
+              className="flex-1 min-w-[50px] max-w-[120px] h-5 px-1 text-[10px] bg-background border rounded focus:outline-none focus:ring-1 focus:ring-primary"
               data-testid="entry-name" />
             <input type="number" value={entryKW} onChange={e => setEntryKW(e.target.value)} onKeyDown={handleKeyDown}
               placeholder="KW"
-              className="w-14 h-5 px-1.5 text-[11px] bg-background border rounded focus:outline-none focus:ring-1 focus:ring-primary [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="w-12 h-5 px-1 text-[10px] bg-background border rounded focus:outline-none focus:ring-1 focus:ring-primary [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               data-testid="entry-kw" />
-            <Button variant="default" size="sm" className="h-5 px-1.5 text-[10px]" onClick={handleAdd} disabled={!entryName.trim()} data-testid="entry-add">
+            <Button variant="default" size="sm" className="h-5 px-1.5 text-[9px]" onClick={handleAdd} disabled={!entryName.trim()} data-testid="entry-add">
               <Plus className="h-2.5 w-2.5 mr-0.5" />Add
             </Button>
-            <span className="text-[8px] text-muted-foreground">↵</span>
+            <span className="text-[7px] text-muted-foreground">↵</span>
           </div>
           
           {/* Platform Toggle - Centered */}
@@ -311,7 +311,7 @@ function QuickCaptureBarInline() {
                   key={mode.value}
                   type="button"
                   onClick={() => setPlatformMode(mode.value)}
-                  className={`px-2.5 py-1 text-[10px] font-medium rounded transition-all ${platformMode === mode.value ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                  className={`px-2 py-0.5 text-[9px] font-medium rounded transition-all ${platformMode === mode.value ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
                   data-testid={`platform-mode-${mode.value.toLowerCase()}`}
                 >
                   {mode.value === 'NIOS' && <Star className="h-2 w-2 mr-0.5 inline" />}
@@ -321,17 +321,17 @@ function QuickCaptureBarInline() {
             </div>
           </div>
           
-          {/* Two Column Grid: DCs | Sites (renamed to Locations) */}
-          <div className="grid grid-cols-2 gap-2">
+          {/* Two Column Grid: DCs | Sites */}
+          <div className="grid grid-cols-2 gap-1.5">
             {/* Data Centers */}
             <div className="flex flex-col gap-0.5">
               <button type="button" onClick={() => setShowDCs(!showDCs)}
-                className="flex items-center gap-1 text-[9px] text-muted-foreground hover:text-foreground transition-colors">
+                className="flex items-center gap-0.5 text-[8px] text-muted-foreground hover:text-foreground transition-colors">
                 <ChevronRight className={`h-2 w-2 transition-transform ${showDCs ? 'rotate-90' : ''}`} />
                 <Building2 className="h-2 w-2 text-blue-500" />
                 <span className="font-medium">DCs</span>
-                <span className="px-0.5 bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded text-[8px] font-semibold">{dataCenters.length}</span>
-                <span className="text-[8px]">• {formatKW(totalDCKW)}</span>
+                <span className="px-0.5 bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded text-[7px] font-semibold">{dataCenters.length}</span>
+                <span className="text-[7px]">• {formatKW(totalDCKW)}</span>
               </button>
               {showDCs && dataCenters.length > 0 && (
                 <div className="flex flex-wrap gap-0.5 pl-2">
@@ -341,18 +341,18 @@ function QuickCaptureBarInline() {
                   ))}
                 </div>
               )}
-              {showDCs && dataCenters.length === 0 && <div className="pl-2 text-[8px] text-muted-foreground italic">No DCs</div>}
+              {showDCs && dataCenters.length === 0 && <div className="pl-2 text-[7px] text-muted-foreground italic">No DCs</div>}
             </div>
             
             {/* Locations (was Sites) */}
             <div className="flex flex-col gap-0.5">
               <button type="button" onClick={() => setShowSites(!showSites)}
-                className="flex items-center gap-1 text-[9px] text-muted-foreground hover:text-foreground transition-colors">
+                className="flex items-center gap-0.5 text-[8px] text-muted-foreground hover:text-foreground transition-colors">
                 <ChevronRight className={`h-2 w-2 transition-transform ${showSites ? 'rotate-90' : ''}`} />
                 <MapPin className="h-2 w-2 text-green-500" />
                 <span className="font-medium">Locations</span>
-                <span className="px-0.5 bg-green-500/20 text-green-600 dark:text-green-400 rounded text-[8px] font-semibold">{sites.length}</span>
-                <span className="text-[8px]">• {formatKW(totalSiteKW)}</span>
+                <span className="px-0.5 bg-green-500/20 text-green-600 dark:text-green-400 rounded text-[7px] font-semibold">{sites.length}</span>
+                <span className="text-[7px]">• {formatKW(totalSiteKW)}</span>
               </button>
               {showSites && sites.length > 0 && (
                 <div className="flex flex-wrap gap-0.5 pl-2">
@@ -362,7 +362,7 @@ function QuickCaptureBarInline() {
                   ))}
                 </div>
               )}
-              {showSites && sites.length === 0 && <div className="pl-2 text-[8px] text-muted-foreground italic">No locations</div>}
+              {showSites && sites.length === 0 && <div className="pl-2 text-[7px] text-muted-foreground italic">No locations</div>}
             </div>
           </div>
         </div>
