@@ -291,7 +291,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
     }
   };
 
-  // Compact 2-column layout for Discovery
+  // Compact 3-column layout for Discovery (v2 design)
   if (compact) {
     return (
       <div className="space-y-3">
@@ -304,31 +304,118 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
         {Object.entries(grouped).map(([section, sectionQuestions]) => {
           const isSectionEnabled = enabledSections[section] !== false;
           
-          // Filter visible questions
-          const visibleQuestions = sectionQuestions.filter(q => {
-            if (q.hidden) return false;
-            if (q.conditionalOn) {
+          // Get all questions including conditionals, mark which are conditional
+          const allQuestionsWithMeta = sectionQuestions.map(q => {
+            if (q.hidden) return null;
+            const isConditional = !!q.conditionalOn;
+            let conditionMet = true;
+            let parentQuestion = null;
+            
+            if (isConditional) {
               const parentAnswer = answers[q.conditionalOn.questionId] || '';
-              const conditionMet = parentAnswer === q.conditionalOn.value || parentAnswer.split(',').map(v => v.trim()).includes(q.conditionalOn.value);
-              if (!conditionMet) return false;
+              conditionMet = parentAnswer === q.conditionalOn.value || 
+                parentAnswer.split(',').map(v => v.trim()).includes(q.conditionalOn.value);
+              parentQuestion = sectionQuestions.find(sq => sq.id === q.conditionalOn.questionId);
             }
-            return true;
+            
+            return { ...q, isConditional, conditionMet, parentQuestion };
+          }).filter(Boolean);
+
+          // Separate into short (3-col) and long (full-width) questions
+          const isShortQuestion = (q) => {
+            const ft = detectFieldType(q);
+            return ['yesno', 'select', 'number', 'enableSwitch', 'leaseTime'].includes(ft) && q.question.length < 50;
+          };
+
+          // Get non-conditional short questions for 3-column grid
+          const shortQuestions = allQuestionsWithMeta.filter(q => 
+            !q.isConditional && isShortQuestion(q)
+          );
+          
+          // Get long questions (full width)
+          const longQuestions = allQuestionsWithMeta.filter(q => 
+            !q.isConditional && !isShortQuestion(q) && q.conditionMet
+          );
+
+          // Split short questions into 3 columns
+          const col1 = [], col2 = [], col3 = [];
+          shortQuestions.forEach((q, i) => {
+            if (i % 3 === 0) col1.push(q);
+            else if (i % 3 === 1) col2.push(q);
+            else col3.push(q);
           });
 
-          // Separate into short (2-col) and long (full-width) questions
-          const shortQuestions = visibleQuestions.filter(q => {
-            const ft = detectFieldType(q);
-            return ['yesno', 'select', 'number', 'enableSwitch'].includes(ft) || q.question.length < 60;
-          });
-          const longQuestions = visibleQuestions.filter(q => {
-            const ft = detectFieldType(q);
-            return !['yesno', 'select', 'number', 'enableSwitch'].includes(ft) && q.question.length >= 60;
-          });
+          // Find conditional questions for each parent
+          const getConditionals = (parentId) => 
+            allQuestionsWithMeta.filter(q => q.isConditional && q.conditionalOn?.questionId === parentId && q.conditionMet);
+
+          // Render a single question cell
+          const renderQuestionCell = (q, colIndex) => {
+            const hasNote = notes[q.id]?.trim();
+            const isNoteExpanded = expandedNotes[q.id];
+            const conditionals = getConditionals(q.id);
+            const bgClass = colIndex === 1 ? 'bg-muted/30' : 'bg-background';
+            
+            return (
+              <div key={q.id} className={`${bgClass}`}>
+                {/* Main question row */}
+                <div className="px-3 py-2 border-b border-border/40" data-testid={`question-${q.id}`}>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs text-foreground flex-1 min-w-0 truncate" title={q.question}>
+                      {q.question}
+                    </span>
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      {renderField(q)}
+                      <button 
+                        className={`p-1 rounded transition-colors ${hasNote ? 'text-blue-500 bg-blue-50 hover:bg-blue-100' : 'text-gray-300 hover:text-gray-400 hover:bg-gray-50'}`}
+                        onClick={() => setExpandedNotes(p => ({ ...p, [q.id]: !p[q.id] }))}
+                        title={hasNote ? "View note" : "Add note"}
+                        data-testid={`toggle-note-${q.id}`}
+                      >
+                        <MessageSquare className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Inline note - expands directly under question */}
+                  {isNoteExpanded && (
+                    <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
+                      <input
+                        type="text"
+                        value={notes[q.id] || ''}
+                        onChange={e => setNote(q.id, e.target.value)}
+                        placeholder="Add a note..."
+                        className="w-full bg-transparent border-none outline-none text-yellow-800 placeholder-yellow-600"
+                        data-testid={`note-${q.id}`}
+                      />
+                    </div>
+                  )}
+                </div>
+                
+                {/* Conditional questions - indented below parent */}
+                {conditionals.map(cq => (
+                  <div key={cq.id} className="border-l-2 border-blue-400 bg-blue-50/50 ml-2" data-testid={`question-${cq.id}`}>
+                    <div className="px-3 py-2 border-b border-blue-200/50">
+                      <div className="text-[10px] text-blue-600 font-medium mb-1">↳ If {cq.conditionalOn.value}:</div>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-xs text-foreground flex-1 min-w-0 truncate" title={cq.question}>
+                          {cq.question}
+                        </span>
+                        <div className="flex items-center gap-1.5 flex-shrink-0">
+                          {renderField(cq)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            );
+          };
 
           return (
-            <div key={section} className={`border rounded-lg bg-card ${!isSectionEnabled ? 'opacity-50' : ''}`} data-testid={`section-${section.replace(/\s/g, '-')}`}>
-              {/* Section Header - Sticky */}
-              <div className="sticky top-0 z-10 bg-card border-b px-4 py-2 flex items-center justify-between rounded-t-lg">
+            <div key={section} className={`border rounded-lg bg-card overflow-hidden ${!isSectionEnabled ? 'opacity-50' : ''}`} data-testid={`section-${section.replace(/\s/g, '-')}`}>
+              {/* Section Header */}
+              <div className="bg-muted/50 border-b px-4 py-2 flex items-center justify-between">
                 <h3 className="text-sm font-semibold">{section}</h3>
                 <div className="flex items-center gap-2">
                   <Switch checked={isSectionEnabled} onCheckedChange={c => handleSectionToggle(section, c)} data-testid={`switch-section-${section.replace(/\s/g, '-')}`} />
@@ -336,57 +423,79 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                 </div>
               </div>
 
-              {/* Questions Grid */}
-              {isSectionEnabled && (
-                <div className="p-3 space-y-3">
-                  {/* 2-Column Grid for Short Questions */}
-                  {shortQuestions.length > 0 && (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-4 gap-y-2">
-                      {shortQuestions.map(q => (
-                        <div key={q.id} className="flex items-center gap-2 py-1.5 border-b border-border/30" data-testid={`question-${q.id}`}>
-                          <div className="flex-1 min-w-0">
-                            <Label className="text-xs font-medium truncate block" title={q.question}>{q.question}</Label>
-                          </div>
-                          <div className="flex-shrink-0">
-                            {renderField(q)}
-                          </div>
-                          <Button variant="ghost" size="icon" className={`h-6 w-6 flex-shrink-0 ${notes[q.id]?.trim() ? 'text-primary' : 'text-muted-foreground/50'}`}
-                            onClick={() => setExpandedNotes(p => ({ ...p, [q.id]: !p[q.id] }))} data-testid={`toggle-note-${q.id}`}>
-                            <MessageSquare className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+              {/* 3-Column Grid for Short Questions */}
+              {isSectionEnabled && shortQuestions.length > 0 && (
+                <div className="grid grid-cols-1 lg:grid-cols-3">
+                  {/* Column 1 */}
+                  <div className="border-r border-border/30">
+                    {col1.map(q => renderQuestionCell(q, 0))}
+                  </div>
+                  {/* Column 2 (shaded) */}
+                  <div className="border-r border-border/30">
+                    {col2.map(q => renderQuestionCell(q, 1))}
+                  </div>
+                  {/* Column 3 */}
+                  <div>
+                    {col3.map(q => renderQuestionCell(q, 2))}
+                  </div>
+                </div>
+              )}
 
-                  {/* Full-Width for Long Questions */}
-                  {longQuestions.length > 0 && (
-                    <div className="space-y-2 pt-2 border-t">
-                      {longQuestions.map(q => (
-                        <div key={q.id} className="space-y-1" data-testid={`question-${q.id}`}>
-                          <div className="flex items-center justify-between">
-                            <Label className="text-xs font-medium">{q.question}</Label>
-                            <Button variant="ghost" size="icon" className={`h-6 w-6 ${notes[q.id]?.trim() ? 'text-primary' : 'text-muted-foreground/50'}`}
-                              onClick={() => setExpandedNotes(p => ({ ...p, [q.id]: !p[q.id] }))} data-testid={`toggle-note-${q.id}`}>
-                              <MessageSquare className="h-3 w-3" />
-                            </Button>
+              {/* Full-Width for Long Questions */}
+              {isSectionEnabled && longQuestions.length > 0 && (
+                <div className="border-t border-border/50">
+                  {longQuestions.map(q => {
+                    const hasNote = notes[q.id]?.trim();
+                    const isNoteExpanded = expandedNotes[q.id];
+                    const conditionals = getConditionals(q.id);
+                    
+                    return (
+                      <div key={q.id}>
+                        <div className="px-4 py-3 border-b border-border/30" data-testid={`question-${q.id}`}>
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1">
+                              <Label className="text-xs font-medium">{q.question}</Label>
+                              <div className="mt-1.5">{renderField(q)}</div>
+                            </div>
+                            <button 
+                              className={`p-1 rounded transition-colors mt-0.5 ${hasNote ? 'text-blue-500 bg-blue-50 hover:bg-blue-100' : 'text-gray-300 hover:text-gray-400 hover:bg-gray-50'}`}
+                              onClick={() => setExpandedNotes(p => ({ ...p, [q.id]: !p[q.id] }))}
+                              data-testid={`toggle-note-${q.id}`}
+                            >
+                              <MessageSquare className="h-3.5 w-3.5" />
+                            </button>
                           </div>
-                          {renderField(q)}
-                          {expandedNotes[q.id] && (
-                            <Textarea value={notes[q.id] || ''} onChange={e => setNote(q.id, e.target.value)} placeholder="Add a note..." rows={1} className="text-xs" data-testid={`note-${q.id}`} />
+                          
+                          {/* Inline note */}
+                          {isNoteExpanded && (
+                            <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
+                              <input
+                                type="text"
+                                value={notes[q.id] || ''}
+                                onChange={e => setNote(q.id, e.target.value)}
+                                placeholder="Add a note..."
+                                className="w-full bg-transparent border-none outline-none text-yellow-800 placeholder-yellow-600"
+                                data-testid={`note-${q.id}`}
+                              />
+                            </div>
                           )}
                         </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Expanded Notes for Short Questions */}
-                  {shortQuestions.filter(q => expandedNotes[q.id]).map(q => (
-                    <div key={`note-${q.id}`} className="pl-2 border-l-2 border-primary/30">
-                      <p className="text-xs text-muted-foreground mb-1">{q.question}</p>
-                      <Textarea value={notes[q.id] || ''} onChange={e => setNote(q.id, e.target.value)} placeholder="Add a note..." rows={1} className="text-xs" data-testid={`note-${q.id}`} />
-                    </div>
-                  ))}
+                        
+                        {/* Conditional questions for long questions */}
+                        {conditionals.map(cq => (
+                          <div key={cq.id} className="border-l-2 border-blue-400 bg-blue-50/50 ml-4 mr-4 mb-2" data-testid={`question-${cq.id}`}>
+                            <div className="px-3 py-2">
+                              <div className="text-[10px] text-blue-600 font-medium mb-1">↳ If {cq.conditionalOn.value}:</div>
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="text-xs text-foreground">{cq.question}</span>
+                                <div className="flex-shrink-0">{renderField(cq)}</div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
