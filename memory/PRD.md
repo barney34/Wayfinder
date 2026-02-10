@@ -176,7 +176,15 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 - **Editable Summaries**: All context fields are editable textareas
 - **Bullet-Point Format**: AI generates short, descriptive bullet points (not paragraphs)
 - **Backend Enhancement**: /api/generate-context now accepts meetingNotes and produces bullet-point output
-- **Discovery 2-Column Layout**: Compact layout for short questions, full-width for long questions
+
+### Phase 18 — Discovery 3-Column Layout v2 (Complete - Feb 10, 2026)
+- **3-Column Grid**: Short questions distributed across 3 columns on desktop (lg:grid-cols-3)
+- **Toggle Switches for Yes/No**: Compact Switch component replaces Yes/No button pairs
+- **Answers Closer to Questions**: Question and answer on same line, minimal gap
+- **Column Shading**: Middle column has subtle gray background (bg-muted/30)
+- **Inline Notes**: Click note icon → yellow input expands directly under that question
+- **Note Indicator**: Gray icon = no note, Blue filled icon = has note
+- **Conditional Questions Indented**: Blue left border + bg-blue-50, shows "↳ If Yes:" label
 - **Section Toggles**: On/Off toggles with confirmation dialog for disabling sections
 
 ## Pending / Backlog
@@ -203,7 +211,8 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 - iteration_16.json: Layout & Navigation Improvements verification (100% pass rate)
 - iteration_17.json: Responsive UI & Condensed Numbers verification (100% pass rate)
 - iteration_18.json: Tab Redesign & UI Polish verification (100% pass rate)
-- iteration_19.json: SmartFill & Discovery UI Redesign verification (100% pass rate)
+- iteration_19.json: SmartFill UI Redesign verification (100% pass rate)
+- iteration_20.json: Discovery 3-Column Layout v2 verification (100% pass rate)
 
 ## Last Updated
-February 10, 2026 - SmartFill & Discovery UI redesign complete
+February 10, 2026 - Discovery 3-Column Layout v2 complete
