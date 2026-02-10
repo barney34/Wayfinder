@@ -267,14 +267,14 @@ export function DiscoveryProvider({ children, customerId }) {
   return (
     <DiscoveryContext.Provider value={{
       answers, notes, contextFields, meetingNotes, enabledSections,
-      udsMembers, defaultAnswers, leaseTimeUnits, dataCenters, sites, platformMode,
+      udsMembers, defaultAnswers, leaseTimeUnits, dataCenters, sites, platformMode, sizingSummary,
       isHydrated, isDirty, isSaving, lastSaved,
       setAnswer, setNote, setContextField, setMeetingNotes, updateAnswers,
       toggleSection, enableAllSections, disableAllSections, clearSection, clearAllData,
       addUDSMember, updateUDSMember, deleteUDSMember,
       setLeaseTimeUnit,
       addDataCenter, updateDataCenter, deleteDataCenter,
-      addSite, updateSite, deleteSite, setPlatformMode,
+      addSite, updateSite, deleteSite, setPlatformMode, setSizingSummary,
     }}>
       {children}
     </DiscoveryContext.Provider>
