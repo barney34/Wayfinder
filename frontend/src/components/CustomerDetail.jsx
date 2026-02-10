@@ -379,7 +379,7 @@ function QuickCaptureBarInline() {
             <div className="flex items-center gap-2">
               <Server className="h-4 w-4 lg:h-5 lg:w-5 text-blue-500 flex-shrink-0" />
               <div className="flex flex-col">
-                <span className="text-sm lg:text-lg font-bold">{dataCenters.length + sites.length} Sites</span>
+                <span className="text-sm lg:text-lg font-bold">{sizingSummary.siteCount || (dataCenters.length + sites.length)} Sites</span>
                 <span className="text-[10px] lg:text-xs text-muted-foreground">{dataCenters.length} DC, {sites.length} Loc</span>
               </div>
             </div>
@@ -388,25 +388,25 @@ function QuickCaptureBarInline() {
             <div className="flex items-center gap-2">
               <Cpu className="h-4 w-4 lg:h-5 lg:w-5 text-green-500 flex-shrink-0" />
               <div className="flex flex-col">
-                <span className="text-sm lg:text-lg font-bold">{formatKW(activeIPs * (dataCenters.length || 1))} IPs</span>
+                <span className="text-sm lg:text-lg font-bold">{formatKW(sizingSummary.totalIPs || activeIPs)} IPs</span>
                 <span className="text-[10px] lg:text-xs text-muted-foreground">{formatKW(totalDCKW + totalSiteKW)} KW</span>
               </div>
             </div>
             
-            {/* Tokens - placeholder */}
+            {/* Tokens */}
             <div className="flex items-center gap-2">
               <Package className="h-4 w-4 lg:h-5 lg:w-5 text-purple-500 flex-shrink-0" />
               <div className="flex flex-col">
-                <span className="text-sm lg:text-lg font-bold">—</span>
-                <span className="text-[10px] lg:text-xs text-muted-foreground">View Sizing</span>
+                <span className="text-sm lg:text-lg font-bold">{formatKW(sizingSummary.totalTokens) || '—'}</span>
+                <span className="text-[10px] lg:text-xs text-muted-foreground">Tokens</span>
               </div>
             </div>
             
-            {/* Token Pack - placeholder */}
+            {/* Token Pack */}
             <div className="flex items-center gap-2">
               <DollarSign className="h-4 w-4 lg:h-5 lg:w-5 text-amber-500 flex-shrink-0" />
               <div className="flex flex-col">
-                <span className="text-sm lg:text-lg font-bold">—</span>
+                <span className="text-sm lg:text-lg font-bold text-amber-600">{sizingSummary.partnerSku || '—'}</span>
                 <span className="text-[10px] lg:text-xs text-muted-foreground">Token Pack</span>
               </div>
             </div>
