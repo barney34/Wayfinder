@@ -304,34 +304,28 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
               <SelectContent>{(q.options || []).map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
             </Select>;
       case 'multiselect':
-        // In compact mode, use inline checkboxes for multi-select
-        if (compact && q.options && q.options.length <= 8 && !q.optionsWithPermission?.length && !q.optionsWithVendor?.length) {
-          return <InlineCheckboxMulti questionId={q.id} options={q.options} value={currentValue} onChange={v => handleAnswerChange(q.id, v)} />;
-        }
-        return <MultiSelectField questionId={q.id} options={q.options || []} optionsWithPermission={q.optionsWithPermission} optionsWithVendor={q.optionsWithVendor} value={currentValue} onChange={v => handleAnswerChange(q.id, v)} allowFreeform={q.allowFreeform} />;
+        // In compact mode, use dropdown with checkboxes that stays open
+        return <MultiSelectField questionId={q.id} options={q.options || []} optionsWithPermission={q.optionsWithPermission} optionsWithVendor={q.optionsWithVendor} value={currentValue} onChange={v => handleAnswerChange(q.id, v)} allowFreeform={q.allowFreeform} compact={compact} />;
       case 'number':
-        return <Input type="number" value={currentValue} onChange={e => handleAnswerChange(q.id, e.target.value)} className={`${compact ? 'w-20 h-7 text-xs' : 'max-w-xs'}`} placeholder="0" data-testid={`input-answer-${q.id}`} />;
+        return <Input type="number" value={currentValue} onChange={e => handleAnswerChange(q.id, e.target.value)} className={`${compact ? 'w-16 h-7 text-xs' : 'max-w-xs'}`} placeholder="0" data-testid={`input-answer-${q.id}`} />;
       case 'leaseTime':
         return (
-          <div className="flex items-center gap-2">
-            <Input type="number" step="any" value={getDisplayLeaseValue(q.id, currentValue)} onChange={e => handleLeaseTimeChange(q.id, e.target.value)} className={compact ? "w-16 h-7 text-xs" : "w-24"} data-testid={`input-answer-${q.id}`} />
+          <div className="flex items-center gap-1">
+            <Input type="number" step="any" value={getDisplayLeaseValue(q.id, currentValue)} onChange={e => handleLeaseTimeChange(q.id, e.target.value)} className={compact ? "w-14 h-7 text-xs" : "w-24"} data-testid={`input-answer-${q.id}`} />
             <Select value={getLeaseTimeUnit(q.id)} onValueChange={v => setLeaseTimeUnit(q.id, v)}>
-              <SelectTrigger className={compact ? "w-20 h-7 text-xs" : "w-28"}><SelectValue /></SelectTrigger>
+              <SelectTrigger className={compact ? "w-16 h-7 text-xs" : "w-28"}><SelectValue /></SelectTrigger>
               <SelectContent><SelectItem value="seconds">sec</SelectItem><SelectItem value="minutes">min</SelectItem><SelectItem value="hours">hr</SelectItem><SelectItem value="days">day</SelectItem></SelectContent>
             </Select>
           </div>
         );
       case 'enableSwitch':
         return (
-          <div className="flex items-center gap-2">
-            <Switch checked={currentValue === 'Yes'} onCheckedChange={c => handleAnswerChange(q.id, c ? 'Yes' : 'No')} data-testid={`switch-answer-${q.id}`} />
-            <span className={`${compact ? 'text-xs' : 'text-sm'} text-muted-foreground`}>{currentValue === 'Yes' ? 'Enabled' : 'Disabled'}</span>
-          </div>
+          <Checkbox checked={currentValue === 'Yes'} onCheckedChange={c => handleAnswerChange(q.id, c ? 'Yes' : 'No')} className="h-5 w-5" data-testid={`checkbox-${q.id}`} />
         );
       case 'ipCalculated':
       case 'dnsAggregateCalculated':
       case 'dnsPerServerCalculated':
-        return <div className="space-y-1"><Input type="text" value={currentValue} onChange={e => handleAnswerChange(q.id, e.target.value)} className={compact ? "w-32 h-8 text-sm" : "max-w-xs"} placeholder="Auto or manual" data-testid={`input-answer-${q.id}`} />{!compact && <p className="text-xs text-muted-foreground">Auto-calculated or override manually</p>}</div>;
+        return <div className="space-y-1"><Input type="text" value={currentValue} onChange={e => handleAnswerChange(q.id, e.target.value)} className={compact ? "w-24 h-7 text-xs" : "max-w-xs"} placeholder="Auto" data-testid={`input-answer-${q.id}`} />{!compact && <p className="text-xs text-muted-foreground">Auto-calculated or override manually</p>}</div>;
       case 'tdNiosSection':
         return <TDNiosSection value={currentValue} onChange={v => handleAnswerChange(q.id, v)} questionId={q.id} />;
       case 'assetConfigInput':
