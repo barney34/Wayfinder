@@ -252,6 +252,11 @@ export function DiscoveryProvider({ children, customerId }) {
     markDirty();
   }, [markDirty]);
 
+  const setPlatformMode = useCallback((mode) => {
+    setPlatformModeState(mode);
+    markDirty();
+  }, [markDirty]);
+
   const defaultAnswers = getDefaultAnswers();
 
   return (
