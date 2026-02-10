@@ -151,6 +151,15 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 - **Bubble-Match Alignment**: Content constrained with max-w-5xl mx-auto, inputs contained within visual boundaries
 - **Compact Quick Capture**: IP Calc section reduced to 100px width, entry name field capped at 120px
 
+### Phase 15 — Responsive UI & Condensed Numbers (Complete - Feb 10, 2026)
+- **Condensed Number Display**: formatNumber() converts 62500→62.5K, 1600000→1.6M, 500000→500K
+- **Responsive Scaling**: 153 lg: breakpoint classes (CustomerDetail: 74, TokenCalculatorSummary: 79)
+- **Full-Width Layout**: Removed max-w-5xl constraint, content fills sidebar to right edge
+- **Auto-Fit Table Columns**: table-auto class with right-sized column widths
+- **Raw Numbers in Edit**: Input fields show raw values (62500), display shows abbreviated (62.5K)
+- **Larger UI on Big Screens**: Text scales from text-xs → text-base, inputs from h-8 → h-10 on lg: breakpoint
+- **Summary Bar Condensed**: Shows 1.6M IPs, 34.3K Tokens, 690K KW instead of raw numbers
+
 ## Pending / Backlog
 
 ### P2
