@@ -135,6 +135,14 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 - **Manual Override**: When IP calc is "Manual", the override value applies to all DCs
 - **Column Header Rename**: "Site Name" renamed to "Location" in Sizing table
 
+### Phase 13 — Platform Sync & IP Propagation (Complete - Feb 10, 2026)
+- **Platform Mode Shared State**: platformMode moved to DiscoveryContext for sync between Quick Capture and Sizing
+- **IP Calculator → DC IPs**: All DC locations now use the IP Calculator value (KW × multiplier or manual override)
+- **GM Services Impact**: Services add ~100 IPs capacity requirement per service to GM sizing
+- **Compact Tags**: Tags reduced to text-[9px], px-1 py-px padding, flex-wrap layout (40% smaller)
+- **Platform Toggle Sync**: NIOS/UDDI/Hybrid toggle in Quick Capture syncs with Site Sizing Recommendations
+- **Role/Platform by Mode**: UDDI mode removes GM/GMC roles and shows NXVS/NXaaS platforms
+
 ## Pending / Backlog
 
 ### P2
