@@ -993,7 +993,37 @@ export function TokenCalculatorSummary() {
                       </Select>
                     </TableCell>
                     <TableCell className="p-2 lg:p-4 text-right tabular-nums font-medium text-sm lg:text-base">
-                      {formatNumber(site.tokens || 0)}
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger className="cursor-help">
+                            <div className="flex flex-col items-end">
+                              <span>{formatNumber(site.tokens || 0)}</span>
+                              {site.serverCount > 1 && (
+                                <span className="text-xs text-muted-foreground">
+                                  {site.serverCount} × {formatNumber(site.tokensPerServer || 0)}
+                                </span>
+                              )}
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            <div className="space-y-1 text-xs">
+                              <div><strong>Base tokens:</strong> {formatNumber(site.tokensPerServer || 0)}</div>
+                              {site.serverCount > 1 && (
+                                <div><strong>Servers:</strong> ×{site.serverCount}</div>
+                              )}
+                              {(site.serviceImpact || 0) > 0 && (
+                                <div><strong>Service overhead:</strong> +{site.serviceImpact}%</div>
+                              )}
+                              {site.isSpoke && (
+                                <div className="text-amber-600"><strong>Spoke penalty:</strong> 50% LPS (sized up)</div>
+                              )}
+                              {site.isHub && (
+                                <div className="text-blue-600"><strong>Hub load:</strong> +{site.hubLPS} LPS from spokes</div>
+                              )}
+                            </div>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </TableCell>
                     <TableCell className="p-2 lg:p-4">
                       {!site.sourceType && (
