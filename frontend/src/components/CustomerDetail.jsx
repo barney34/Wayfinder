@@ -205,10 +205,10 @@ function QuickCaptureBarInline() {
         <p className="text-xs lg:text-sm text-muted-foreground">DC = Data Center(s) • KW = Knowledge Workers</p>
       </div>
       
-      {/* Main Layout: IP Calc (Left) | Entry + Tags (Right) */}
+      {/* Main Layout: IP Calc (Left) | Entry + Tags (Center) | Summary (Right) */}
       <div className="flex gap-3 lg:gap-6">
-        {/* LEFT: IP Calculation - Responsive Vertical Math Flow */}
-        <div className="flex flex-col items-center p-3 lg:p-5 bg-background rounded-lg border w-[130px] lg:w-[180px] flex-shrink-0">
+        {/* LEFT: IP Calculation - Responsive */}
+        <div className="flex flex-col items-center p-3 lg:p-5 bg-background rounded-lg border w-[130px] lg:w-[200px] flex-shrink-0">
           <span className="text-xs lg:text-sm text-muted-foreground uppercase tracking-wide mb-2">IP Calc</span>
           
           {/* KW Input */}
@@ -277,9 +277,9 @@ function QuickCaptureBarInline() {
           </div>
         </div>
         
-        {/* RIGHT: Entry + Platform + Tags */}
-        <div className="flex-1 flex flex-col gap-2 lg:gap-4 min-w-0">
-          {/* Rapid Entry Bar - Responsive */}
+        {/* CENTER: Entry + Platform + Tags */}
+        <div className="flex-1 flex flex-col gap-2 lg:gap-3 min-w-0">
+          {/* Rapid Entry Bar */}
           <div className="flex items-center gap-2 lg:gap-3 p-2 lg:p-3 bg-background rounded-lg border">
             <div className="flex items-center gap-1 bg-muted rounded-full p-1">
               <button type="button" onClick={() => handleEntryTypeChange('dc')}
@@ -291,20 +291,23 @@ function QuickCaptureBarInline() {
             </div>
             <input ref={nameInputRef} type="text" value={entryName} onChange={e => setEntryName(e.target.value)} onKeyDown={handleKeyDown}
               placeholder={entryType === 'dc' ? 'DC name' : 'Site name'}
-              className="flex-1 min-w-[80px] max-w-[200px] h-8 lg:h-10 px-2 lg:px-3 text-sm lg:text-base bg-background border rounded focus:outline-none focus:ring-2 focus:ring-primary"
+              className="flex-1 min-w-[80px] h-8 lg:h-10 px-2 lg:px-3 text-sm lg:text-base bg-background border rounded focus:outline-none focus:ring-2 focus:ring-primary"
               data-testid="entry-name" />
             <input type="number" value={entryKW} onChange={e => setEntryKW(e.target.value)} onKeyDown={handleKeyDown}
               placeholder="KW"
-              className="w-20 lg:w-28 h-8 lg:h-10 px-2 lg:px-3 text-sm lg:text-base bg-background border rounded focus:outline-none focus:ring-2 focus:ring-primary [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="w-20 lg:w-24 h-8 lg:h-10 px-2 lg:px-3 text-sm lg:text-base bg-background border rounded focus:outline-none focus:ring-2 focus:ring-primary [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               data-testid="entry-kw" />
             <Button variant="default" size="sm" className="h-8 lg:h-10 px-3 lg:px-4 text-sm lg:text-base" onClick={handleAdd} disabled={!entryName.trim()} data-testid="entry-add">
               <Plus className="h-4 w-4 lg:h-5 lg:w-5 mr-1" />Add
             </Button>
-            <span className="text-xs text-muted-foreground hidden lg:inline">↵ Enter</span>
           </div>
           
-          {/* Platform Toggle - Centered */}
-          <div className="flex justify-center">
+          {/* Platform Toggle with Label */}
+          <div className="flex items-center justify-center gap-2 lg:gap-3">
+            <span className="text-xs lg:text-sm text-muted-foreground flex items-center gap-1">
+              <Star className="h-3 w-3 lg:h-4 lg:w-4" />
+              Select Solution
+            </span>
             <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
               {PLATFORM_MODES.map(mode => (
                 <button
@@ -314,7 +317,6 @@ function QuickCaptureBarInline() {
                   className={`px-3 lg:px-5 py-1.5 lg:py-2 text-xs lg:text-sm font-medium rounded-md transition-all ${platformMode === mode.value ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
                   data-testid={`platform-mode-${mode.value.toLowerCase()}`}
                 >
-                  {mode.value === 'NIOS' && <Star className="h-3 w-3 lg:h-4 lg:w-4 mr-1 inline" />}
                   {mode.label}
                 </button>
               ))}
@@ -344,7 +346,7 @@ function QuickCaptureBarInline() {
               {showDCs && dataCenters.length === 0 && <div className="pl-6 text-xs lg:text-sm text-muted-foreground italic">No data centers</div>}
             </div>
             
-            {/* Locations (was Sites) */}
+            {/* Locations */}
             <div className="flex flex-col gap-1 lg:gap-2">
               <button type="button" onClick={() => setShowSites(!showSites)}
                 className="flex items-center gap-1 lg:gap-2 text-xs lg:text-sm text-muted-foreground hover:text-foreground transition-colors">
@@ -363,6 +365,49 @@ function QuickCaptureBarInline() {
                 </div>
               )}
               {showSites && sites.length === 0 && <div className="pl-6 text-xs lg:text-sm text-muted-foreground italic">No locations</div>}
+            </div>
+          </div>
+        </div>
+        
+        {/* RIGHT: Summary Panel */}
+        <div className="flex flex-col p-3 lg:p-5 bg-background rounded-lg border w-[140px] lg:w-[200px] flex-shrink-0">
+          <span className="text-xs lg:text-sm text-muted-foreground uppercase tracking-wide mb-3 text-center">Summary</span>
+          
+          <div className="flex flex-col gap-2 lg:gap-3">
+            {/* Sites */}
+            <div className="flex items-center gap-2">
+              <Server className="h-4 w-4 lg:h-5 lg:w-5 text-blue-500 flex-shrink-0" />
+              <div className="flex flex-col">
+                <span className="text-sm lg:text-lg font-bold">{dataCenters.length + sites.length} Sites</span>
+                <span className="text-[10px] lg:text-xs text-muted-foreground">{dataCenters.length} DC, {sites.length} Loc</span>
+              </div>
+            </div>
+            
+            {/* IPs */}
+            <div className="flex items-center gap-2">
+              <Cpu className="h-4 w-4 lg:h-5 lg:w-5 text-green-500 flex-shrink-0" />
+              <div className="flex flex-col">
+                <span className="text-sm lg:text-lg font-bold">{formatKW(activeIPs * (dataCenters.length || 1))} IPs</span>
+                <span className="text-[10px] lg:text-xs text-muted-foreground">{formatKW(totalDCKW + totalSiteKW)} KW</span>
+              </div>
+            </div>
+            
+            {/* Tokens - placeholder */}
+            <div className="flex items-center gap-2">
+              <Package className="h-4 w-4 lg:h-5 lg:w-5 text-purple-500 flex-shrink-0" />
+              <div className="flex flex-col">
+                <span className="text-sm lg:text-lg font-bold">—</span>
+                <span className="text-[10px] lg:text-xs text-muted-foreground">View Sizing</span>
+              </div>
+            </div>
+            
+            {/* Token Pack - placeholder */}
+            <div className="flex items-center gap-2">
+              <DollarSign className="h-4 w-4 lg:h-5 lg:w-5 text-amber-500 flex-shrink-0" />
+              <div className="flex flex-col">
+                <span className="text-sm lg:text-lg font-bold">—</span>
+                <span className="text-[10px] lg:text-xs text-muted-foreground">Token Pack</span>
+              </div>
             </div>
           </div>
         </div>
