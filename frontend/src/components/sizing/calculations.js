@@ -12,6 +12,19 @@ export function getPartnerSku(packCount) {
   return 'IB-TOKENS-SECURITY-18000+';
 }
 
+// Calculate LPS for a site (used for Hub sizing)
+export function calculateSiteLPS(numIPs, dhcpPercent, role) {
+  const dhcpClients = Math.ceil(numIPs * (dhcpPercent / 100));
+  let lps = Math.max(1, Math.ceil(dhcpClients / niosGridConstants.lpsAggregateSeconds));
+  
+  // Multi-protocol penalty (50%)
+  if (role === 'DNS/DHCP') {
+    lps = Math.ceil(lps * niosGridConstants.multiRoleCapacityMultiplier);
+  }
+  
+  return lps;
+}
+
 export function calculateWorkloadRequirements(answers) {
   const knowledgeWorkers = parseInt(answers['ud-1']) || 0;
   const hasBYOD = answers['ud-2'] === 'Yes';
