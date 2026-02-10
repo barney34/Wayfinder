@@ -840,13 +840,21 @@ export function CustomerDetail({ customer, onBack }) {
             {/* Row 2: Quick Capture - Full width */}
             <QuickCaptureBarInline />
 
-            {/* Row 3: Tabs - More Padding */}
+            {/* Row 3: Tabs - Icons, Bottom Border Active State */}
             <div className="flex justify-center w-full">
-              <TabsList className="bg-transparent gap-2 lg:gap-3 p-0 flex-nowrap overflow-x-auto">
-                {['discovery', 'sizing', 'tokens', 'notes', 'import', 'versions'].map(tab => (
-                  <TabsTrigger key={tab} value={tab} data-testid={`tab-${tab}`}
-                    className="data-[state=active]:border-2 data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent border border-input rounded-lg px-4 lg:px-6 py-2 lg:py-3 text-sm lg:text-base font-medium">
-                    {tab === 'notes' ? 'SmartFill' : tab === 'versions' ? 'Versions' : tab.charAt(0).toUpperCase() + tab.slice(1)}
+              <TabsList className="bg-transparent gap-3 lg:gap-4 p-0 flex-nowrap overflow-x-auto">
+                {[
+                  { value: 'discovery', label: 'Discovery', icon: Search },
+                  { value: 'sizing', label: 'Sizing', icon: BarChart3 },
+                  { value: 'tokens', label: 'Tokens', icon: Ticket },
+                  { value: 'smartfill', label: 'SmartFill', icon: Sparkles },
+                  { value: 'importexport', label: 'Import/Export', icon: FolderSync },
+                  { value: 'history', label: 'History', icon: Clock },
+                ].map(tab => (
+                  <TabsTrigger key={tab.value} value={tab.value} data-testid={`tab-${tab.value}`}
+                    className="flex items-center gap-2 border-b-2 border-transparent data-[state=active]:border-b-primary data-[state=active]:text-primary rounded-none px-4 lg:px-6 py-3 lg:py-4 text-sm lg:text-base font-medium transition-colors hover:text-primary/80">
+                    <tab.icon className="h-4 w-4 lg:h-5 lg:w-5" />
+                    {tab.label}
                   </TabsTrigger>
                 ))}
               </TabsList>
@@ -857,11 +865,27 @@ export function CustomerDetail({ customer, onBack }) {
           <div className="flex-1 overflow-y-auto">
             <div className="px-4 lg:px-6 py-4 lg:py-6 space-y-4 lg:space-y-6">
               <TabsContent value="discovery" className="mt-0">
-                <AssessmentQuestions questions={discoveryTabQuestions} />
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-base lg:text-lg font-semibold flex items-center gap-2">
+                      <Search className="h-5 w-5" />
+                      Discovery Questions
+                    </h2>
+                    <ExportButton customerName={currentName} customerId={customer.id} />
+                  </div>
+                  <AssessmentQuestions questions={discoveryTabQuestions} compact={true} />
+                </div>
               </TabsContent>
 
               <TabsContent value="sizing" className="mt-0">
                 <div className="space-y-4 lg:space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-base lg:text-lg font-semibold flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5" />
+                      Site Sizing
+                    </h2>
+                    <ExportButton customerName={currentName} customerId={customer.id} />
+                  </div>
                   <TokenCalculatorSummary />
                   <UDSMembersTable />
                   <AssessmentQuestions questions={sizingTabQuestions} />
@@ -870,22 +894,42 @@ export function CustomerDetail({ customer, onBack }) {
 
               <TabsContent value="tokens" className="mt-0">
                 <div className="space-y-4">
-                  <h2 className="text-base lg:text-lg font-semibold">Calculators</h2>
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-base lg:text-lg font-semibold flex items-center gap-2">
+                      <Ticket className="h-5 w-5" />
+                      Token Calculators
+                    </h2>
+                    <ExportButton customerName={currentName} customerId={customer.id} />
+                  </div>
                   <AssessmentQuestions questions={[...securityTokenQuestions, ...uddiTokenQuestions]} />
                 </div>
               </TabsContent>
 
-              <TabsContent value="notes" className="space-y-4 mt-0">
-                <MeetingNotesAI />
-                <ContextFields />
-              </TabsContent>
-
-              <TabsContent value="import" className="mt-0">
-                <ImportSection customerId={customer.id} />
-              </TabsContent>
-
-              <TabsContent value="versions" className="mt-0">
+              <TabsContent value="smartfill" className="mt-0">
                 <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-base lg:text-lg font-semibold flex items-center gap-2">
+                      <Sparkles className="h-5 w-5" />
+                      SmartFill AI
+                    </h2>
+                  </div>
+                  <MeetingNotesAI />
+                  <ContextFields />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="importexport" className="mt-0">
+                <ImportExportSection customerId={customer.id} customerName={currentName} />
+              </TabsContent>
+
+              <TabsContent value="history" className="mt-0">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-base lg:text-lg font-semibold flex items-center gap-2">
+                      <Clock className="h-5 w-5" />
+                      Version History
+                    </h2>
+                  </div>
                   <VersionControl customerId={customer.id} />
                   <div className="pt-4 border-t border-border">
                     <h3 className="text-sm font-medium text-muted-foreground mb-2">Data Management</h3>
