@@ -183,7 +183,6 @@ function MultiSelectField({ questionId, options, optionsWithPermission = [], opt
         <div className="flex flex-wrap gap-1">
           {selectedValues.map(val => <Badge key={val} variant="secondary" className="gap-1 pr-1 text-xs">{val}<button onClick={() => removeValue(val)} className="ml-1 rounded-full hover:bg-muted p-0.5"><X className="h-3 w-3" /></button></Badge>)}
         </div>
-        </div>
       )}
     </div>
   );
