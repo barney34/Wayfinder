@@ -840,12 +840,12 @@ export function CustomerDetail({ customer, onBack }) {
             {/* Row 2: Quick Capture - Full width */}
             <QuickCaptureBarInline />
 
-            {/* Row 3: Tabs */}
+            {/* Row 3: Tabs - More Padding */}
             <div className="flex justify-center w-full">
-              <TabsList className="bg-transparent gap-1 lg:gap-2 p-0 flex-nowrap overflow-x-auto">
+              <TabsList className="bg-transparent gap-2 lg:gap-3 p-0 flex-nowrap overflow-x-auto">
                 {['discovery', 'sizing', 'tokens', 'notes', 'import', 'versions'].map(tab => (
                   <TabsTrigger key={tab} value={tab} data-testid={`tab-${tab}`}
-                    className="data-[state=active]:border-2 data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent border border-input rounded-md px-3 lg:px-5 py-1.5 lg:py-2 text-xs lg:text-sm">
+                    className="data-[state=active]:border-2 data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent border border-input rounded-lg px-4 lg:px-6 py-2 lg:py-3 text-sm lg:text-base font-medium">
                     {tab === 'notes' ? 'SmartFill' : tab === 'versions' ? 'Versions' : tab.charAt(0).toUpperCase() + tab.slice(1)}
                   </TabsTrigger>
                 ))}
