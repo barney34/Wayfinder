@@ -354,7 +354,8 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
             const hasNote = notes[q.id]?.trim();
             const isNoteExpanded = expandedNotes[q.id];
             const conditionals = getConditionals(q.id);
-            const bgClass = colIndex === 1 ? 'bg-muted/30' : 'bg-background';
+            // More visible column shading - middle column gets gray background
+            const bgClass = colIndex === 1 ? 'bg-gray-50 dark:bg-gray-900/30' : 'bg-background';
             
             return (
               <div key={q.id} className={`${bgClass}`}>
