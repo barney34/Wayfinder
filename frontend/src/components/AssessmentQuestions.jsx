@@ -336,8 +336,38 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
           </div>
         );
       case 'enableSwitch':
+        // Use same pill buttons style for enable/disable
+        if (compact) {
+          return (
+            <div className="flex items-center gap-0.5" data-testid={`enable-${q.id}`}>
+              <button
+                onClick={() => handleAnswerChange(q.id, 'Yes')}
+                className={`px-2 py-0.5 text-[11px] font-medium rounded-l-full border transition-colors ${
+                  currentValue === 'Yes' 
+                    ? 'bg-primary text-primary-foreground border-primary' 
+                    : 'bg-background text-muted-foreground border-border hover:bg-muted'
+                }`}
+              >
+                On
+              </button>
+              <button
+                onClick={() => handleAnswerChange(q.id, 'No')}
+                className={`px-2 py-0.5 text-[11px] font-medium rounded-r-full border-y border-r transition-colors ${
+                  currentValue === 'No' || !currentValue
+                    ? 'bg-primary text-primary-foreground border-primary' 
+                    : 'bg-background text-muted-foreground border-border hover:bg-muted'
+                }`}
+              >
+                Off
+              </button>
+            </div>
+          );
+        }
         return (
-          <Checkbox checked={currentValue === 'Yes'} onCheckedChange={c => handleAnswerChange(q.id, c ? 'Yes' : 'No')} className="h-5 w-5" data-testid={`checkbox-${q.id}`} />
+          <div className="flex items-center gap-2">
+            <Switch checked={currentValue === 'Yes'} onCheckedChange={c => handleAnswerChange(q.id, c ? 'Yes' : 'No')} data-testid={`switch-answer-${q.id}`} />
+            <span className="text-sm text-muted-foreground">{currentValue === 'Yes' ? 'Enabled' : 'Disabled'}</span>
+          </div>
         );
       case 'ipCalculated':
       case 'dnsAggregateCalculated':
