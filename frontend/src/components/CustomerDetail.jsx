@@ -865,7 +865,6 @@ export function CustomerDetail({ customer, onBack }) {
                     </h2>
                   </div>
                   <MeetingNotesAI />
-                  <ContextFields />
                 </div>
               </TabsContent>
 
