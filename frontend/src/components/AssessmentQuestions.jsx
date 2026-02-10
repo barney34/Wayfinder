@@ -275,15 +275,33 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
 
     switch (fieldType) {
       case 'yesno':
-        // In compact mode, use checkbox instead of toggle
+        // In compact mode, use small pill buttons [Yes] [No]
         if (compact) {
           return (
-            <Checkbox 
-              checked={currentValue === 'Yes'} 
-              onCheckedChange={c => handleAnswerChange(q.id, c ? 'Yes' : 'No')} 
-              className="h-5 w-5"
-              data-testid={`checkbox-${q.id}`} 
-            />
+            <div className="flex items-center gap-0.5" data-testid={`yesno-${q.id}`}>
+              <button
+                onClick={() => handleAnswerChange(q.id, 'Yes')}
+                className={`px-2 py-0.5 text-[11px] font-medium rounded-l-full border transition-colors ${
+                  currentValue === 'Yes' 
+                    ? 'bg-primary text-primary-foreground border-primary' 
+                    : 'bg-background text-muted-foreground border-border hover:bg-muted'
+                }`}
+                data-testid={`btn-yes-${q.id}`}
+              >
+                Yes
+              </button>
+              <button
+                onClick={() => handleAnswerChange(q.id, 'No')}
+                className={`px-2 py-0.5 text-[11px] font-medium rounded-r-full border-y border-r transition-colors ${
+                  currentValue === 'No' 
+                    ? 'bg-primary text-primary-foreground border-primary' 
+                    : 'bg-background text-muted-foreground border-border hover:bg-muted'
+                }`}
+                data-testid={`btn-no-${q.id}`}
+              >
+                No
+              </button>
+            </div>
           );
         }
         return (
