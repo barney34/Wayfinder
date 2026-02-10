@@ -393,26 +393,42 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                     </div>
                   </div>
                   
-                  {/* Inline note - expands directly under question */}
+                  {/* Inline expanded section - shows freeform field AND/OR note */}
                   {isNoteExpanded && (
-                    <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
-                      <input
-                        type="text"
-                        value={notes[q.id] || ''}
-                        onChange={e => setNote(q.id, e.target.value)}
-                        placeholder="Add a note..."
-                        className="w-full bg-transparent border-none outline-none text-yellow-800 placeholder-yellow-600"
-                        data-testid={`note-${q.id}`}
-                      />
+                    <div className="mt-2 space-y-2">
+                      {/* Freeform answer field - only for text questions */}
+                      {isFreeform && (
+                        <div className="px-2">
+                          <Input 
+                            type="text"
+                            value={answers[q.id] || ''}
+                            onChange={e => handleAnswerChange(q.id, e.target.value)}
+                            placeholder="Enter answer..."
+                            className="h-8 text-sm"
+                            data-testid={`input-answer-${q.id}`}
+                          />
+                        </div>
+                      )}
+                      {/* Note field */}
+                      <div className="p-2 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded text-xs">
+                        <input
+                          type="text"
+                          value={notes[q.id] || ''}
+                          onChange={e => setNote(q.id, e.target.value)}
+                          placeholder="Add a note..."
+                          className="w-full bg-transparent border-none outline-none text-yellow-800 dark:text-yellow-200 placeholder-yellow-600 dark:placeholder-yellow-500"
+                          data-testid={`note-${q.id}`}
+                        />
+                      </div>
                     </div>
                   )}
                 </div>
                 
-                {/* Conditional questions - indented below parent */}
+                {/* Conditional questions - indented below parent with LIGHTER styling */}
                 {conditionals.map(cq => (
-                  <div key={cq.id} className="border-l-2 border-blue-400 bg-blue-50/50 ml-2" data-testid={`question-${cq.id}`}>
-                    <div className="px-3 py-2 border-b border-blue-200/50">
-                      <div className="text-[10px] text-blue-600 font-medium mb-1">↳ If {cq.conditionalOn.value}:</div>
+                  <div key={cq.id} className="border-l-2 border-blue-300 dark:border-blue-700 bg-blue-50/30 dark:bg-blue-900/10 ml-2" data-testid={`question-${cq.id}`}>
+                    <div className="px-3 py-2 border-b border-border/30">
+                      <div className="text-[10px] text-blue-500 dark:text-blue-400 font-medium mb-1">↳ If {cq.conditionalOn.value}:</div>
                       <div className="flex items-center justify-between gap-2">
                         <span className="text-xs text-foreground flex-1 min-w-0 truncate" title={cq.question}>
                           {cq.question}
