@@ -929,31 +929,42 @@ export function TokenCalculatorSummary() {
                       </Popover>
                     </TableCell>
                     <TableCell className="p-2 lg:p-4">
-                      {/* DHCP Partner - for Hub/Spoke topology */}
-                      <Select 
-                        value={site.dhcpPartner || '__none__'} 
-                        onValueChange={v => updateSite(site.id, 'dhcpPartner', v === '__none__' ? null : v)}
-                      >
-                        <SelectTrigger className="h-8 lg:h-10 text-xs lg:text-sm" data-testid={`site-dhcp-partner-${site.id}`}>
-                          <SelectValue>
-                            {site.isHub ? (
-                              <span className="text-blue-600 font-medium">Hub</span>
-                            ) : site.dhcpPartner ? (
-                              <span className="text-amber-600">{sites.find(s => s.id === site.dhcpPartner)?.name || 'Spoke'}</span>
-                            ) : (
-                              <span className="text-muted-foreground">—</span>
-                            )}
-                          </SelectValue>
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="__none__">None</SelectItem>
-                          {sites.filter(s => s.id !== site.id && !s.isSpoke).map(s => (
-                            <SelectItem key={s.id} value={s.id}>
-                              {s.name} {s.isHub && '(Hub)'}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      {/* DHCP Partner - only for DHCP or DNS/DHCP roles */}
+                      {(site.role === 'DHCP' || site.role === 'DNS/DHCP') ? (
+                        <Select 
+                          value={site.dhcpPartner || '__none__'} 
+                          onValueChange={v => updateSite(site.id, 'dhcpPartner', v === '__none__' ? null : v)}
+                        >
+                          <SelectTrigger className="h-8 lg:h-10 text-xs lg:text-sm" data-testid={`site-dhcp-partner-${site.id}`}>
+                            <SelectValue>
+                              {site.isHub ? (
+                                <span className="text-blue-600 font-medium flex items-center gap-1">
+                                  <Server className="h-3 w-3" /> Hub
+                                </span>
+                              ) : site.dhcpPartner ? (
+                                <span className="text-amber-600">{sites.find(s => s.id === site.dhcpPartner)?.name || 'Spoke'}</span>
+                              ) : (
+                                <span className="text-muted-foreground">—</span>
+                              )}
+                            </SelectValue>
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="__none__">None (Standalone)</SelectItem>
+                            {/* Only show DHCP-capable sites as potential Hubs, exclude self and existing spokes */}
+                            {sites.filter(s => 
+                              s.id !== site.id && 
+                              !s.isSpoke && 
+                              (s.role === 'DHCP' || s.role === 'DNS/DHCP')
+                            ).map(s => (
+                              <SelectItem key={s.id} value={s.id}>
+                                {s.name} {s.isHub && '(Hub)'}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <span className="text-muted-foreground text-xs">N/A</span>
+                      )}
                     </TableCell>
                     <TableCell className="p-2 lg:p-4">
                       {/* Server Count */}
