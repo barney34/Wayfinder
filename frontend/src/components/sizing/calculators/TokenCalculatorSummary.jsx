@@ -895,30 +895,30 @@ export function TokenCalculatorSummary() {
               <TableBody>
                 {sites.map(site => (
                   <TableRow key={site.id} data-testid={`site-row-${site.id}`}>
-                    <TableCell>
+                    <TableCell className="p-2 lg:p-4">
                       {site.sourceType === 'dataCenter' ? (
-                        <Building2 className="h-4 w-4 text-blue-500" />
+                        <Building2 className="h-4 w-4 lg:h-5 lg:w-5 text-blue-500" />
                       ) : site.sourceType === 'site' ? (
-                        <MapPin className="h-4 w-4 text-green-500" />
+                        <MapPin className="h-4 w-4 lg:h-5 lg:w-5 text-green-500" />
                       ) : (
-                        <Server className="h-4 w-4 text-gray-400" />
+                        <Server className="h-4 w-4 lg:h-5 lg:w-5 text-gray-400" />
                       )}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="p-2 lg:p-4">
                       <Input
                         value={site.name}
                         onChange={e => updateSite(site.id, 'name', e.target.value)}
-                        className="h-7 text-sm"
+                        className="h-8 lg:h-10 text-sm lg:text-base"
                         data-testid={`site-name-${site.id}`}
                       />
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="p-2 lg:p-4">
                       <div className="flex items-center gap-1">
                         <Input
                           type="number"
                           value={site.numIPs}
                           onChange={e => updateSite(site.id, 'numIPs', parseInt(e.target.value) || 0)}
-                          className="h-7 text-sm w-[70px]"
+                          className="h-8 lg:h-10 text-sm lg:text-base w-20 lg:w-24 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           data-testid={`site-ips-${site.id}`}
                         />
                         {site.numIPsAuto > 0 && site.numIPs !== site.numIPsAuto && (
@@ -927,18 +927,18 @@ export function TokenCalculatorSummary() {
                               <TooltipTrigger>
                                 <Info className="h-3 w-3 text-amber-500" />
                               </TooltipTrigger>
-                              <TooltipContent>Auto: {site.numIPsAuto.toLocaleString()}</TooltipContent>
+                              <TooltipContent>Auto: {formatNumber(site.numIPsAuto)}</TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground tabular-nums">
-                      {(site.knowledgeWorkers || 0).toLocaleString()}
+                    <TableCell className="p-2 lg:p-4 text-sm lg:text-base text-muted-foreground tabular-nums">
+                      {formatNumber(site.knowledgeWorkers || 0)}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="p-2 lg:p-4">
                       <Select value={site.role} onValueChange={v => updateSite(site.id, 'role', v)}>
-                        <SelectTrigger className="h-7 text-xs" data-testid={`site-role-${site.id}`}>
+                        <SelectTrigger className="h-8 lg:h-10 text-xs lg:text-sm" data-testid={`site-role-${site.id}`}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -950,16 +950,16 @@ export function TokenCalculatorSummary() {
                         </SelectContent>
                       </Select>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="p-2 lg:p-4">
                       <Popover>
                         <PopoverTrigger asChild>
-                          <Button variant="outline" size="sm" className="h-7 text-xs w-full justify-between" data-testid={`site-services-${site.id}`}>
+                          <Button variant="outline" size="sm" className="h-8 lg:h-10 text-xs lg:text-sm w-full justify-between" data-testid={`site-services-${site.id}`}>
                             {(site.services?.length || 0) > 0 ? (
-                              <span className="truncate">{site.services.join(', ')}</span>
+                              <span className="truncate">{site.services.length}</span>
                             ) : (
-                              <span className="text-muted-foreground">None</span>
+                              <span className="text-muted-foreground">—</span>
                             )}
-                            <Settings2 className="h-3 w-3 ml-1 flex-shrink-0" />
+                            <Settings2 className="h-3 w-3 lg:h-4 lg:w-4 ml-1 flex-shrink-0" />
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-56 p-3" align="start">
@@ -994,9 +994,9 @@ export function TokenCalculatorSummary() {
                         </PopoverContent>
                       </Popover>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="p-2 lg:p-4">
                       <Select value={site.platform} onValueChange={v => updateSite(site.id, 'platform', v)}>
-                        <SelectTrigger className="h-7 text-xs" data-testid={`site-platform-${site.id}`}>
+                        <SelectTrigger className="h-8 lg:h-10 text-xs lg:text-sm" data-testid={`site-platform-${site.id}`}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
