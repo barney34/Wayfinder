@@ -424,49 +424,60 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
             const colBg = colIndex === 1 ? 'bg-gray-100/50 dark:bg-gray-800/30' : '';
             
             return (
-              <div key={q.id} className={`${bgClass}`}>
-                {/* Main question row */}
-                <div className="px-3 py-2 border-b border-border/40" data-testid={`question-${q.id}`}>
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs text-foreground flex-1 min-w-0 truncate" title={q.question}>
-                      {q.question}
-                    </span>
-                    <div className="flex items-center gap-1.5 flex-shrink-0">
-                      {/* For freeform questions, only show field when expanded OR has answer */}
-                      {isFreeform ? (
-                        (isNoteExpanded || hasAnswer) ? renderField(q) : null
-                      ) : (
-                        renderField(q)
-                      )}
+              <div key={q.id} className={`${colBg} ${rowBg}`}>
+                {/* Main question row - with visible separator */}
+                <div className="px-3 py-2.5 border-b border-border/60" data-testid={`question-${q.id}`}>
+                  {/* Questions WITH inputs: single line layout */}
+                  {hasInput ? (
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="text-xs text-foreground leading-relaxed flex-1 min-w-0" style={{wordBreak: 'break-word'}}>
+                        {q.question}
+                      </span>
+                      <div className="flex items-center gap-1.5 flex-shrink-0 pt-0.5">
+                        {renderField(q)}
+                        <button 
+                          className={`p-1 rounded transition-colors ${hasNote ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/30' : 'text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
+                          onClick={() => setExpandedNotes(p => ({ ...p, [q.id]: !p[q.id] }))}
+                          title={hasNote ? "View note" : "Add note"}
+                          data-testid={`toggle-note-${q.id}`}
+                        >
+                          <MessageSquare className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    /* Questions WITHOUT inputs (text-only): full question + notes button only */
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="text-xs text-foreground leading-relaxed flex-1" style={{wordBreak: 'break-word'}}>
+                        {q.question}
+                      </span>
                       <button 
-                        className={`p-1 rounded transition-colors ${hasNote || (isFreeform && hasAnswer) ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100' : 'text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
+                        className={`p-1 rounded transition-colors flex-shrink-0 ${hasNote || hasAnswer ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/30' : 'text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
                         onClick={() => setExpandedNotes(p => ({ ...p, [q.id]: !p[q.id] }))}
-                        title={isFreeform ? (hasAnswer ? "Edit answer" : "Add answer") : (hasNote ? "View note" : "Add note")}
+                        title={hasAnswer ? "Edit answer" : "Add answer"}
                         data-testid={`toggle-note-${q.id}`}
                       >
                         <MessageSquare className="h-3.5 w-3.5" />
                       </button>
                     </div>
-                  </div>
+                  )}
                   
-                  {/* Inline expanded section - shows freeform field AND/OR note */}
+                  {/* Inline expanded section - shows answer field AND/OR note */}
                   {isNoteExpanded && (
                     <div className="mt-2 space-y-2">
-                      {/* Freeform answer field - only for text questions */}
-                      {isFreeform && (
-                        <div className="px-2">
-                          <Input 
-                            type="text"
-                            value={answers[q.id] || ''}
-                            onChange={e => handleAnswerChange(q.id, e.target.value)}
-                            placeholder="Enter answer..."
-                            className="h-8 text-sm"
-                            data-testid={`input-answer-${q.id}`}
-                          />
-                        </div>
+                      {/* Answer field - only for text-only questions */}
+                      {!hasInput && (
+                        <Input 
+                          type="text"
+                          value={answers[q.id] || ''}
+                          onChange={e => handleAnswerChange(q.id, e.target.value)}
+                          placeholder="Enter answer..."
+                          className="h-7 text-xs"
+                          data-testid={`input-answer-${q.id}`}
+                        />
                       )}
                       {/* Note field */}
-                      <div className="p-2 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded text-xs">
+                      <div className="p-1.5 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded text-xs">
                         <input
                           type="text"
                           value={notes[q.id] || ''}
@@ -482,11 +493,11 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                 
                 {/* Conditional questions - indented below parent with LIGHTER styling */}
                 {conditionals.map(cq => (
-                  <div key={cq.id} className="border-l-2 border-blue-300 dark:border-blue-700 bg-blue-50/30 dark:bg-blue-900/10 ml-2" data-testid={`question-${cq.id}`}>
+                  <div key={cq.id} className="border-l-2 border-blue-200 dark:border-blue-800 bg-blue-50/20 dark:bg-blue-900/5 ml-2" data-testid={`question-${cq.id}`}>
                     <div className="px-3 py-2 border-b border-border/30">
-                      <div className="text-[10px] text-blue-500 dark:text-blue-400 font-medium mb-1">↳ If {cq.conditionalOn.value}:</div>
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-xs text-foreground flex-1 min-w-0 truncate" title={cq.question}>
+                      <div className="text-[10px] text-blue-400 dark:text-blue-500 font-medium mb-1">↳ If {cq.conditionalOn.value}:</div>
+                      <div className="flex items-start justify-between gap-2">
+                        <span className="text-xs text-foreground leading-relaxed flex-1" style={{wordBreak: 'break-word'}}>
                           {cq.question}
                         </span>
                         <div className="flex items-center gap-1.5 flex-shrink-0">
