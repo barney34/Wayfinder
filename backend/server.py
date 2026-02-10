@@ -194,6 +194,7 @@ class GenerateContextRequest(BaseModel):
     contextType: str
     answers: Dict[str, str]
     notes: Dict[str, str] = {}
+    meetingNotes: str = ""
 
 
 class GenerateContextResponse(BaseModel):
