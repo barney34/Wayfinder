@@ -103,13 +103,12 @@ function DynamicIslandTag({ id, name, kw, color, onUpdate, onDelete }) {
 
 // ===== Quick Capture Bar =====
 function QuickCaptureBarInline() {
-  const { dataCenters, sites, addDataCenter, deleteDataCenter, updateDataCenter, addSite, deleteSite, updateSite, setAnswer, answers, defaultAnswers } = useDiscovery();
+  const { dataCenters, sites, addDataCenter, deleteDataCenter, updateDataCenter, addSite, deleteSite, updateSite, setAnswer, answers, defaultAnswers, platformMode, setPlatformMode } = useDiscovery();
   const [entryType, setEntryType] = useState('dc');
   const [entryName, setEntryName] = useState('');
   const [entryKW, setEntryKW] = useState('');
   const [showDCs, setShowDCs] = useState(true);
   const [showSites, setShowSites] = useState(true);
-  const [platformMode, setPlatformMode] = useState('NIOS');
   const nameInputRef = useRef(null);
 
   const totalDCKW = dataCenters.reduce((sum, dc) => sum + (dc.knowledgeWorkers || 0), 0);
