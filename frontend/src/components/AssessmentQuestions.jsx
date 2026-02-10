@@ -383,27 +383,12 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
             return { ...q, isConditional, conditionMet, parentQuestion };
           }).filter(Boolean);
 
-          // Separate into short (3-col) and long (full-width) questions
-          const isShortQuestion = (q) => {
-            const ft = detectFieldType(q);
-            // Include text/freeform if question is short - field will be hidden until note clicked
-            if (q.question.length < 50) return true;
-            return ['yesno', 'select', 'number', 'enableSwitch', 'leaseTime'].includes(ft);
-          };
+          // ALL non-conditional questions go in 3-column grid
+          const gridQuestions = allQuestionsWithMeta.filter(q => !q.isConditional);
 
-          // Get non-conditional short questions for 3-column grid
-          const shortQuestions = allQuestionsWithMeta.filter(q => 
-            !q.isConditional && isShortQuestion(q)
-          );
-          
-          // Get long questions (full width) - only very long questions
-          const longQuestions = allQuestionsWithMeta.filter(q => 
-            !q.isConditional && !isShortQuestion(q) && q.conditionMet
-          );
-
-          // Split short questions into 3 columns
+          // Split questions into 3 columns
           const col1 = [], col2 = [], col3 = [];
-          shortQuestions.forEach((q, i) => {
+          gridQuestions.forEach((q, i) => {
             if (i % 3 === 0) col1.push(q);
             else if (i % 3 === 1) col2.push(q);
             else col3.push(q);
@@ -413,6 +398,12 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
           const getConditionals = (parentId) => 
             allQuestionsWithMeta.filter(q => q.isConditional && q.conditionalOn?.questionId === parentId && q.conditionMet);
 
+          // Check if question needs an input field (not text-only)
+          const needsInputField = (q) => {
+            const ft = detectFieldType(q);
+            return ['yesno', 'select', 'multiselect', 'number', 'enableSwitch', 'leaseTime'].includes(ft);
+          };
+
           // Check if question is freeform/text type
           const isFreeformQuestion = (q) => {
             const ft = detectFieldType(q);
@@ -420,14 +411,17 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
           };
 
           // Render a single question cell
-          const renderQuestionCell = (q, colIndex) => {
+          const renderQuestionCell = (q, colIndex, rowIndex) => {
             const hasNote = notes[q.id]?.trim();
             const isNoteExpanded = expandedNotes[q.id];
             const conditionals = getConditionals(q.id);
             const isFreeform = isFreeformQuestion(q);
+            const hasInput = needsInputField(q);
             const hasAnswer = answers[q.id]?.trim();
+            // Alternating row backgrounds for better separation
+            const rowBg = rowIndex % 2 === 0 ? '' : 'bg-muted/20';
             // Column shading - middle column gets subtle gray
-            const bgClass = colIndex === 1 ? 'bg-gray-50 dark:bg-gray-900/20' : 'bg-background';
+            const colBg = colIndex === 1 ? 'bg-gray-100/50 dark:bg-gray-800/30' : '';
             
             return (
               <div key={q.id} className={`${bgClass}`}>
