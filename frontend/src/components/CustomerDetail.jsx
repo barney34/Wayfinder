@@ -198,69 +198,69 @@ function QuickCaptureBarInline() {
   ];
 
   return (
-    <div className="flex flex-col gap-1.5 p-2 bg-muted/30 rounded-lg border" data-testid="quick-capture-bar">
+    <div className="flex flex-col gap-2 lg:gap-4 p-3 lg:p-5 bg-muted/30 rounded-lg border" data-testid="quick-capture-bar">
       {/* Header - Centered */}
       <div className="text-center">
-        <h3 className="text-xs font-semibold">Quick Capture</h3>
-        <p className="text-[8px] text-muted-foreground">DC = Data Center(s) • KW = Knowledge Workers</p>
+        <h3 className="text-sm lg:text-lg font-semibold">Quick Capture</h3>
+        <p className="text-xs lg:text-sm text-muted-foreground">DC = Data Center(s) • KW = Knowledge Workers</p>
       </div>
       
       {/* Main Layout: IP Calc (Left) | Entry + Tags (Right) */}
-      <div className="flex gap-2">
-        {/* LEFT: IP Calculation - Compact Vertical Math Flow */}
-        <div className="flex flex-col items-center p-1.5 bg-background rounded-md border w-[100px] flex-shrink-0">
-          <span className="text-[8px] text-muted-foreground uppercase tracking-wide mb-1">IP Calc</span>
+      <div className="flex gap-3 lg:gap-6">
+        {/* LEFT: IP Calculation - Responsive Vertical Math Flow */}
+        <div className="flex flex-col items-center p-3 lg:p-5 bg-background rounded-lg border w-[130px] lg:w-[180px] flex-shrink-0">
+          <span className="text-xs lg:text-sm text-muted-foreground uppercase tracking-wide mb-2">IP Calc</span>
           
           {/* KW Input */}
-          <div className="flex items-center gap-0.5">
+          <div className="flex items-center gap-1">
             <input
               type="number"
               value={kw}
               onChange={e => setAnswer('ud-1', e.target.value)}
-              className="w-14 h-6 text-center text-xs font-mono bg-muted/50 border rounded focus:outline-none focus:ring-1 focus:ring-primary/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="w-20 lg:w-28 h-8 lg:h-10 text-center text-sm lg:text-lg font-mono bg-muted/50 border rounded focus:outline-none focus:ring-2 focus:ring-primary/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               placeholder="0"
               data-testid="ip-calc-kw"
             />
-            <span className="text-[8px] text-muted-foreground">KW</span>
+            <span className="text-xs lg:text-sm text-muted-foreground">KW</span>
           </div>
           
           {/* Multiplier */}
-          <div className="flex items-center gap-0.5 mt-0.5">
-            <span className="text-muted-foreground text-[10px]">×</span>
+          <div className="flex items-center gap-1 mt-1">
+            <span className="text-muted-foreground text-sm lg:text-base">×</span>
             <input
               type="number"
               step="0.5"
               value={mult}
               onChange={e => setAnswer('ipam-multiplier', e.target.value)}
-              className="w-8 h-5 text-center text-[10px] font-mono bg-muted/50 border rounded focus:outline-none focus:ring-1 focus:ring-primary/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="w-12 lg:w-16 h-7 lg:h-9 text-center text-sm lg:text-base font-mono bg-muted/50 border rounded focus:outline-none focus:ring-1 focus:ring-primary/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               data-testid="ip-calc-mult"
             />
           </div>
           
           {/* Divider */}
-          <div className="w-12 h-px bg-border my-1" />
+          <div className="w-16 lg:w-24 h-px bg-border my-2 lg:my-3" />
           
-          {/* Result */}
-          <div className="flex items-center gap-0.5">
+          {/* Result - Larger */}
+          <div className="flex items-center gap-1">
             {manualOverride ? (
               <input
                 type="number"
                 value={answers['ipam-1'] || ''}
                 onChange={e => setAnswer('ipam-1', e.target.value)}
-                className="w-16 h-7 text-center text-sm font-bold font-mono bg-amber-100 dark:bg-amber-900/30 border border-amber-400 rounded focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-24 lg:w-32 h-10 lg:h-12 text-center text-lg lg:text-2xl font-bold font-mono bg-amber-100 dark:bg-amber-900/30 border-2 border-amber-400 rounded focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 data-testid="ip-calc-override"
               />
             ) : (
-              <div className="w-16 h-7 flex items-center justify-center bg-primary/10 rounded border border-primary/30">
-                <span className="text-sm font-bold tabular-nums text-primary">{activeIPs.toLocaleString()}</span>
+              <div className="w-24 lg:w-32 h-10 lg:h-12 flex items-center justify-center bg-primary/10 rounded border-2 border-primary/30">
+                <span className="text-lg lg:text-2xl font-bold tabular-nums text-primary">{formatKW(activeIPs)}</span>
               </div>
             )}
-            <span className="text-[8px] text-muted-foreground">IPs</span>
+            <span className="text-xs lg:text-sm text-muted-foreground">IPs</span>
           </div>
           
-          {/* Auto/Manual Toggle - Compact */}
-          <div className="flex items-center gap-0.5 mt-1 pt-1 border-t w-full justify-center">
-            <span className={`text-[8px] ${!manualOverride ? 'text-primary font-semibold' : 'text-muted-foreground'}`}>Auto</span>
+          {/* Auto/Manual Toggle */}
+          <div className="flex items-center gap-1 lg:gap-2 mt-2 lg:mt-3 pt-2 border-t w-full justify-center">
+            <span className={`text-xs lg:text-sm ${!manualOverride ? 'text-primary font-semibold' : 'text-muted-foreground'}`}>Auto</span>
             <button
               type="button"
               onClick={() => {
@@ -268,53 +268,53 @@ function QuickCaptureBarInline() {
                 setAnswer('ipam-1-override', newVal ? 'true' : 'false');
                 if (!newVal) setAnswer('ipam-1', String(calculatedIPs));
               }}
-              className={`relative w-6 h-3 rounded-full transition-colors ${manualOverride ? 'bg-amber-500' : 'bg-muted-foreground/30'}`}
+              className={`relative w-8 lg:w-10 h-4 lg:h-5 rounded-full transition-colors ${manualOverride ? 'bg-amber-500' : 'bg-muted-foreground/30'}`}
               data-testid="ip-calc-toggle"
             >
-              <div className={`absolute top-0.5 w-2 h-2 bg-white rounded-full shadow transition-transform ${manualOverride ? 'translate-x-3' : 'translate-x-0.5'}`} />
+              <div className={`absolute top-0.5 lg:top-1 w-3 lg:w-3.5 h-3 lg:h-3.5 bg-white rounded-full shadow transition-transform ${manualOverride ? 'translate-x-4 lg:translate-x-5' : 'translate-x-0.5'}`} />
             </button>
-            <span className={`text-[8px] ${manualOverride ? 'text-amber-600 font-semibold' : 'text-muted-foreground'}`}>Man</span>
+            <span className={`text-xs lg:text-sm ${manualOverride ? 'text-amber-600 font-semibold' : 'text-muted-foreground'}`}>Manual</span>
           </div>
         </div>
         
         {/* RIGHT: Entry + Platform + Tags */}
-        <div className="flex-1 flex flex-col gap-1.5 min-w-0">
-          {/* Rapid Entry Bar - Constrained */}
-          <div className="flex items-center gap-1 p-1 bg-background rounded-md border">
-            <div className="flex items-center gap-0.5 bg-muted rounded-full p-0.5">
+        <div className="flex-1 flex flex-col gap-2 lg:gap-4 min-w-0">
+          {/* Rapid Entry Bar - Responsive */}
+          <div className="flex items-center gap-2 lg:gap-3 p-2 lg:p-3 bg-background rounded-lg border">
+            <div className="flex items-center gap-1 bg-muted rounded-full p-1">
               <button type="button" onClick={() => handleEntryTypeChange('dc')}
-                className={`px-1.5 py-0.5 text-[9px] font-medium rounded-full transition-all ${entryType === 'dc' ? 'bg-blue-500 text-white' : 'text-muted-foreground hover:text-foreground'}`}
+                className={`px-2 lg:px-4 py-1 lg:py-1.5 text-xs lg:text-sm font-medium rounded-full transition-all ${entryType === 'dc' ? 'bg-blue-500 text-white' : 'text-muted-foreground hover:text-foreground'}`}
                 data-testid="entry-type-dc">DC</button>
               <button type="button" onClick={() => handleEntryTypeChange('site')}
-                className={`px-1.5 py-0.5 text-[9px] font-medium rounded-full transition-all ${entryType === 'site' ? 'bg-green-500 text-white' : 'text-muted-foreground hover:text-foreground'}`}
+                className={`px-2 lg:px-4 py-1 lg:py-1.5 text-xs lg:text-sm font-medium rounded-full transition-all ${entryType === 'site' ? 'bg-green-500 text-white' : 'text-muted-foreground hover:text-foreground'}`}
                 data-testid="entry-type-site">Site</button>
             </div>
             <input ref={nameInputRef} type="text" value={entryName} onChange={e => setEntryName(e.target.value)} onKeyDown={handleKeyDown}
               placeholder={entryType === 'dc' ? 'DC name' : 'Site name'}
-              className="flex-1 min-w-[50px] max-w-[120px] h-5 px-1 text-[10px] bg-background border rounded focus:outline-none focus:ring-1 focus:ring-primary"
+              className="flex-1 min-w-[80px] max-w-[200px] h-8 lg:h-10 px-2 lg:px-3 text-sm lg:text-base bg-background border rounded focus:outline-none focus:ring-2 focus:ring-primary"
               data-testid="entry-name" />
             <input type="number" value={entryKW} onChange={e => setEntryKW(e.target.value)} onKeyDown={handleKeyDown}
               placeholder="KW"
-              className="w-12 h-5 px-1 text-[10px] bg-background border rounded focus:outline-none focus:ring-1 focus:ring-primary [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="w-20 lg:w-28 h-8 lg:h-10 px-2 lg:px-3 text-sm lg:text-base bg-background border rounded focus:outline-none focus:ring-2 focus:ring-primary [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               data-testid="entry-kw" />
-            <Button variant="default" size="sm" className="h-5 px-1.5 text-[9px]" onClick={handleAdd} disabled={!entryName.trim()} data-testid="entry-add">
-              <Plus className="h-2.5 w-2.5 mr-0.5" />Add
+            <Button variant="default" size="sm" className="h-8 lg:h-10 px-3 lg:px-4 text-sm lg:text-base" onClick={handleAdd} disabled={!entryName.trim()} data-testid="entry-add">
+              <Plus className="h-4 w-4 lg:h-5 lg:w-5 mr-1" />Add
             </Button>
-            <span className="text-[7px] text-muted-foreground">↵</span>
+            <span className="text-xs text-muted-foreground hidden lg:inline">↵ Enter</span>
           </div>
           
           {/* Platform Toggle - Centered */}
           <div className="flex justify-center">
-            <div className="flex items-center gap-0.5 bg-muted rounded-md p-0.5">
+            <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
               {PLATFORM_MODES.map(mode => (
                 <button
                   key={mode.value}
                   type="button"
                   onClick={() => setPlatformMode(mode.value)}
-                  className={`px-2 py-0.5 text-[9px] font-medium rounded transition-all ${platformMode === mode.value ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                  className={`px-3 lg:px-5 py-1.5 lg:py-2 text-xs lg:text-sm font-medium rounded-md transition-all ${platformMode === mode.value ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
                   data-testid={`platform-mode-${mode.value.toLowerCase()}`}
                 >
-                  {mode.value === 'NIOS' && <Star className="h-2 w-2 mr-0.5 inline" />}
+                  {mode.value === 'NIOS' && <Star className="h-3 w-3 lg:h-4 lg:w-4 mr-1 inline" />}
                   {mode.label}
                 </button>
               ))}
@@ -322,47 +322,47 @@ function QuickCaptureBarInline() {
           </div>
           
           {/* Two Column Grid: DCs | Sites */}
-          <div className="grid grid-cols-2 gap-1.5">
+          <div className="grid grid-cols-2 gap-3 lg:gap-4">
             {/* Data Centers */}
-            <div className="flex flex-col gap-0.5">
+            <div className="flex flex-col gap-1 lg:gap-2">
               <button type="button" onClick={() => setShowDCs(!showDCs)}
-                className="flex items-center gap-0.5 text-[8px] text-muted-foreground hover:text-foreground transition-colors">
-                <ChevronRight className={`h-2 w-2 transition-transform ${showDCs ? 'rotate-90' : ''}`} />
-                <Building2 className="h-2 w-2 text-blue-500" />
-                <span className="font-medium">DCs</span>
-                <span className="px-0.5 bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded text-[7px] font-semibold">{dataCenters.length}</span>
-                <span className="text-[7px]">• {formatKW(totalDCKW)}</span>
+                className="flex items-center gap-1 lg:gap-2 text-xs lg:text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <ChevronRight className={`h-3 w-3 lg:h-4 lg:w-4 transition-transform ${showDCs ? 'rotate-90' : ''}`} />
+                <Building2 className="h-3 w-3 lg:h-4 lg:w-4 text-blue-500" />
+                <span className="font-medium">Data Centers</span>
+                <span className="px-1.5 bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded text-xs lg:text-sm font-semibold">{dataCenters.length}</span>
+                <span className="text-xs lg:text-sm">• {formatKW(totalDCKW)}</span>
               </button>
               {showDCs && dataCenters.length > 0 && (
-                <div className="flex flex-wrap gap-0.5 pl-2">
+                <div className="flex flex-wrap gap-1 lg:gap-2 pl-4 lg:pl-6">
                   {dataCenters.map(dc => (
                     <DynamicIslandTag key={dc.id} id={dc.id} name={dc.name} kw={dc.knowledgeWorkers} color="blue"
                       onUpdate={(updates) => updateDataCenter(dc.id, updates)} onDelete={() => deleteDataCenter(dc.id)} />
                   ))}
                 </div>
               )}
-              {showDCs && dataCenters.length === 0 && <div className="pl-2 text-[7px] text-muted-foreground italic">No DCs</div>}
+              {showDCs && dataCenters.length === 0 && <div className="pl-6 text-xs lg:text-sm text-muted-foreground italic">No data centers</div>}
             </div>
             
             {/* Locations (was Sites) */}
-            <div className="flex flex-col gap-0.5">
+            <div className="flex flex-col gap-1 lg:gap-2">
               <button type="button" onClick={() => setShowSites(!showSites)}
-                className="flex items-center gap-0.5 text-[8px] text-muted-foreground hover:text-foreground transition-colors">
-                <ChevronRight className={`h-2 w-2 transition-transform ${showSites ? 'rotate-90' : ''}`} />
-                <MapPin className="h-2 w-2 text-green-500" />
+                className="flex items-center gap-1 lg:gap-2 text-xs lg:text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <ChevronRight className={`h-3 w-3 lg:h-4 lg:w-4 transition-transform ${showSites ? 'rotate-90' : ''}`} />
+                <MapPin className="h-3 w-3 lg:h-4 lg:w-4 text-green-500" />
                 <span className="font-medium">Locations</span>
-                <span className="px-0.5 bg-green-500/20 text-green-600 dark:text-green-400 rounded text-[7px] font-semibold">{sites.length}</span>
-                <span className="text-[7px]">• {formatKW(totalSiteKW)}</span>
+                <span className="px-1.5 bg-green-500/20 text-green-600 dark:text-green-400 rounded text-xs lg:text-sm font-semibold">{sites.length}</span>
+                <span className="text-xs lg:text-sm">• {formatKW(totalSiteKW)}</span>
               </button>
               {showSites && sites.length > 0 && (
-                <div className="flex flex-wrap gap-0.5 pl-2">
+                <div className="flex flex-wrap gap-1 lg:gap-2 pl-4 lg:pl-6">
                   {sites.map(site => (
                     <DynamicIslandTag key={site.id} id={site.id} name={site.name} kw={site.knowledgeWorkers} color="green"
                       onUpdate={(updates) => updateSite(site.id, updates)} onDelete={() => deleteSite(site.id)} />
                   ))}
                 </div>
               )}
-              {showSites && sites.length === 0 && <div className="pl-2 text-[7px] text-muted-foreground italic">No locations</div>}
+              {showSites && sites.length === 0 && <div className="pl-6 text-xs lg:text-sm text-muted-foreground italic">No locations</div>}
             </div>
           </div>
         </div>
