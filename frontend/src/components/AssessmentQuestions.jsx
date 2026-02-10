@@ -433,11 +433,11 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                       <span className="text-xs text-foreground leading-relaxed flex-1 min-w-0" style={{wordBreak: 'break-word'}}>
                         {q.question}
                       </span>
-                      <div className="flex items-center gap-1.5 flex-shrink-0 pt-0.5">
+                      <div className="flex items-center gap-1.5 flex-shrink-0 pt-0.5" onClick={e => e.stopPropagation()}>
                         {renderField(q)}
                         <button 
                           className={`p-1 rounded transition-colors ${hasNote ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/30' : 'text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
-                          onClick={() => setExpandedNotes(p => ({ ...p, [q.id]: !p[q.id] }))}
+                          onClick={(e) => { e.stopPropagation(); setExpandedNotes(p => ({ ...p, [q.id]: !p[q.id] })); }}
                           title={hasNote ? "View note" : "Add note"}
                           data-testid={`toggle-note-${q.id}`}
                         >
@@ -446,47 +446,29 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                       </div>
                     </div>
                   ) : (
-                    /* Questions WITHOUT inputs (text-only): full question + notes button only */
+                    /* Questions WITHOUT inputs (text-only): ENTIRE ROW CLICKABLE */
                     <div className="flex items-start justify-between gap-2">
                       <span className="text-xs text-foreground leading-relaxed flex-1" style={{wordBreak: 'break-word'}}>
                         {q.question}
                       </span>
-                      <button 
-                        className={`p-1 rounded transition-colors flex-shrink-0 ${hasNote || hasAnswer ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/30' : 'text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
-                        onClick={() => setExpandedNotes(p => ({ ...p, [q.id]: !p[q.id] }))}
-                        title={hasAnswer ? "Edit answer" : "Add answer"}
-                        data-testid={`toggle-note-${q.id}`}
-                      >
-                        <MessageSquare className="h-3.5 w-3.5" />
-                      </button>
+                      <div className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-xs transition-colors flex-shrink-0 ${hasNote ? 'text-blue-600 bg-blue-100 dark:bg-blue-900/40 dark:text-blue-300' : 'text-gray-400 bg-gray-100 dark:bg-gray-800'}`}>
+                        <MessageSquare className="h-3 w-3" />
+                        <span className="hidden sm:inline">{hasNote ? 'Edit' : 'Add'}</span>
+                      </div>
                     </div>
                   )}
                   
-                  {/* Inline expanded section - shows answer field AND/OR note */}
+                  {/* Inline expanded section - JUST NOTE FIELD for consistency */}
                   {isNoteExpanded && (
-                    <div className="mt-2 space-y-2">
-                      {/* Answer field - only for text-only questions */}
-                      {!hasInput && (
-                        <Input 
-                          type="text"
-                          value={answers[q.id] || ''}
-                          onChange={e => handleAnswerChange(q.id, e.target.value)}
-                          placeholder="Enter answer..."
-                          className="h-7 text-xs"
-                          data-testid={`input-answer-${q.id}`}
-                        />
-                      )}
-                      {/* Note field */}
-                      <div className="p-1.5 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded text-xs">
-                        <input
-                          type="text"
-                          value={notes[q.id] || ''}
-                          onChange={e => setNote(q.id, e.target.value)}
-                          placeholder="Add a note..."
-                          className="w-full bg-transparent border-none outline-none text-yellow-800 dark:text-yellow-200 placeholder-yellow-600 dark:placeholder-yellow-500"
-                          data-testid={`note-${q.id}`}
-                        />
-                      </div>
+                    <div className="mt-2">
+                      <Textarea
+                        value={notes[q.id] || ''}
+                        onChange={e => setNote(q.id, e.target.value)}
+                        placeholder={hasInput ? "Add a note..." : "Enter your response..."}
+                        className="min-h-[60px] text-xs resize-y"
+                        data-testid={`note-${q.id}`}
+                        autoFocus
+                      />
                     </div>
                   )}
                 </div>
