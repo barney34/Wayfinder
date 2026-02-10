@@ -67,18 +67,120 @@ export function getDefaultEnabledFeatures(role) {
 
 // NIOS Grid Sizing Constants
 export const niosGridConstants = {
-  maxDbUtilizationPercent: 60,
-  bufferPercent: 10,
-  dhcpLeaseObjectsPerClient: 2,
-  dnsRecordsPerDhcpClient: 3,
-  dnsRecordsPerStaticClient: 2,
-  discoveryAssetPercent: 5,
-  leaseTimeframeMinutes: 15,
-  peakQpsDivisor: 3,
-  lpsAggregateSeconds: 900,
-  multiRolePenaltyPercent: 50,
-  multiRoleCapacityMultiplier: 1.3,
+  maxDbUtilizationPercent: 60,        // Target no more than 60% capacity at rollout
+  bufferPercent: 10,                  // 10% buffer for grid objects
+  dhcpLeaseObjectsPerClient: 2,       // DHCP lease objects = clients × 2
+  dnsRecordsPerDhcpClient: 3,         // DNS records per DHCP client (dynamic)
+  dnsRecordsPerStaticClient: 2,       // DNS records per static client
+  discoveryAssetPercent: 5,           // Discovery assets as % of active IPs
+  leaseTimeframeMinutes: 15,          // Lease timeframe for LPS calculation
+  peakQpsDivisor: 3,                  // Peak QPS = active IPs / 3
+  lpsAggregateSeconds: 900,           // 15 minutes in seconds
+  multiRolePenaltyPercent: 50,        // NIOS: 50% penalty for DNS+DHCP on same server
+  multiRoleCapacityMultiplier: 1.3,   // NIOS: Need 130% capacity for multi-role
+  uddiMultiRoleMultiplier: 1.3,       // UDDI: net_qps/lps must be > requirement × 130%
+  dhcpFailoverPenaltyPercent: 50,     // DHCP Failover decreases performance by 50%
+  dhcpFingerprintPenaltyPercent: 10,  // DHCP Fingerprinting: 10% reduction
 };
+
+// GM Service Restrictions - Models where running DNS/DHCP is NOT recommended
+export const gmServiceRestrictions = {
+  'TE-926': { canRunServices: true, maxMembers: 5, note: 'OK if no Reporting Server' },
+  'TE-1516': { canRunServices: true, maxMembers: 8, note: 'Not recommended if >8 members' },
+  'TE-1526': { canRunServices: false, maxMembers: 100, note: 'NOT RECOMMENDED - Designs requiring 1526+ GM should not run services on GM' },
+  'TE-2326': { canRunServices: false, maxMembers: 100, note: 'NOT RECOMMENDED' },
+  'TE-4126': { canRunServices: false, maxMembers: 500, note: 'NOT RECOMMENDED' },
+};
+
+// Check if GM can run DNS/DHCP services
+export function canGMRunServices(model, memberCount = 0) {
+  const restriction = gmServiceRestrictions[model];
+  if (!restriction) return { allowed: true, warning: null };
+  
+  if (!restriction.canRunServices) {
+    return { 
+      allowed: false, 
+      warning: `${model}: ${restriction.note}. GM should be dedicated to grid management only.`
+    };
+  }
+  
+  if (memberCount > restriction.maxMembers) {
+    return {
+      allowed: false,
+      warning: `${model}: ${restriction.note}. Current member count (${memberCount}) exceeds limit (${restriction.maxMembers}).`
+    };
+  }
+  
+  return { allowed: true, warning: null };
+}
+
+// Calculate Grid Master object requirements
+export function calculateGMObjects(sites, dhcpPercent = 80, discoveryEnabled = false) {
+  let totalDhcpClients = 0;
+  let totalStaticClients = 0;
+  let totalActiveIPs = 0;
+  
+  sites.forEach(site => {
+    const dhcpClients = Math.ceil(site.numIPs * (dhcpPercent / 100));
+    const staticClients = site.numIPs - dhcpClients;
+    totalDhcpClients += dhcpClients;
+    totalStaticClients += staticClients;
+    totalActiveIPs += site.numIPs;
+  });
+  
+  // DHCP Lease Objects = clients × 2
+  const dhcpLeaseObjects = totalDhcpClients * niosGridConstants.dhcpLeaseObjectsPerClient;
+  
+  // DNS Objects = DHCP clients × 3 (dynamic) + static × 2
+  const dnsObjects = (totalDhcpClients * niosGridConstants.dnsRecordsPerDhcpClient) + 
+                     (totalStaticClients * niosGridConstants.dnsRecordsPerStaticClient);
+  
+  // Discovery Objects = 1 per active IP (if enabled)
+  const discoveryObjects = discoveryEnabled ? totalActiveIPs : 0;
+  
+  // Total Grid Objects with 10% buffer
+  const totalObjects = Math.ceil((dhcpLeaseObjects + dnsObjects + discoveryObjects) * (1 + niosGridConstants.bufferPercent / 100));
+  
+  return {
+    dhcpLeaseObjects,
+    dnsObjects,
+    discoveryObjects,
+    totalObjects,
+    totalActiveIPs,
+    totalDhcpClients,
+    totalStaticClients,
+  };
+}
+
+// Find minimum GM model for object count
+export function findMinimumGMModel(totalObjects) {
+  const targetCapacity = niosGridConstants.maxDbUtilizationPercent / 100;
+  
+  for (const server of niosServerGuardrails) {
+    const effectiveCapacity = server.maxDbObj * targetCapacity;
+    if (effectiveCapacity >= totalObjects) {
+      const utilization = Math.round((totalObjects / server.maxDbObj) * 100);
+      return {
+        model: server.model,
+        maxDbObj: server.maxDbObj,
+        effectiveCapacity: Math.round(effectiveCapacity),
+        utilization,
+        isOverCapacity: utilization > 60,
+      };
+    }
+  }
+  
+  // If no model fits, return the largest with warning
+  const largest = niosServerGuardrails[niosServerGuardrails.length - 1];
+  return {
+    model: largest.model,
+    maxDbObj: largest.maxDbObj,
+    effectiveCapacity: Math.round(largest.maxDbObj * targetCapacity),
+    utilization: Math.round((totalObjects / largest.maxDbObj) * 100),
+    isOverCapacity: true,
+    warning: 'Grid object count exceeds maximum capacity. Consider splitting the grid.',
+  };
+}
 
 // Map NIOS servers to legacy X6 format
 export const x6ServerGuardrails = niosServerGuardrails.map(s => ({
