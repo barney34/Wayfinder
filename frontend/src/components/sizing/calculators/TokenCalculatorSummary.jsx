@@ -402,15 +402,23 @@ export function TokenCalculatorSummary() {
     const site = sites.find(s => s.id === siteId);
     if (!site) return;
     
+    // Build the update object
+    let updates = { [field]: value };
+    
+    // If role changes to non-DHCP, clear dhcpPartner
+    if (field === 'role' && value !== 'DHCP' && value !== 'DNS/DHCP') {
+      updates.dhcpPartner = null;
+    }
+    
     if (site.sourceType) {
       // Synced site - use overrides
       setSiteOverrides(prev => ({
         ...prev,
-        [siteId]: { ...prev[siteId], [field]: value }
+        [siteId]: { ...prev[siteId], ...updates }
       }));
     } else {
       // Manual site
-      setManualSites(prev => prev.map(s => s.id === siteId ? { ...s, [field]: value } : s));
+      setManualSites(prev => prev.map(s => s.id === siteId ? { ...s, ...updates } : s));
     }
   }, [sites]);
   
