@@ -47,7 +47,7 @@ function TargetSolutionToggles() {
   );
 }
 
-// ===== Dynamic Island Tag Component =====
+// ===== Dynamic Island Tag Component (Responsive) =====
 function DynamicIslandTag({ id, name, kw, color, onUpdate, onDelete }) {
   const [isEditingName, setIsEditingName] = useState(false);
   const [isEditingKW, setIsEditingKW] = useState(false);
@@ -76,26 +76,26 @@ function DynamicIslandTag({ id, name, kw, color, onUpdate, onDelete }) {
   };
 
   return (
-    <div className={`inline-flex items-center gap-0.5 px-1 py-px rounded-md border text-[9px] transition-all duration-150 ${colorClasses}`}>
+    <div className={`inline-flex items-center gap-1 px-2 py-1 lg:px-3 lg:py-1.5 rounded-md border text-xs lg:text-sm transition-all duration-150 ${colorClasses}`}>
       {isEditingName ? (
         <input type="text" value={editName} onChange={e => setEditName(e.target.value)} onBlur={handleNameSave}
           onKeyDown={e => { if (e.key === 'Enter') handleNameSave(); if (e.key === 'Escape') { setEditName(name); setIsEditingName(false); } }}
-          className="w-10 h-3 px-0.5 text-[9px] bg-background border rounded focus:outline-none" autoFocus />
+          className="w-16 lg:w-24 h-5 lg:h-6 px-1 text-xs lg:text-sm bg-background border rounded focus:outline-none" autoFocus />
       ) : (
-        <span onClick={() => setIsEditingName(true)} className="font-medium cursor-pointer hover:underline truncate max-w-[40px]" title={name}>
+        <span onClick={() => setIsEditingName(true)} className="font-medium cursor-pointer hover:underline truncate max-w-[60px] lg:max-w-[100px]" title={name}>
           {name || '?'}
         </span>
       )}
-      <span className="text-muted-foreground/30">·</span>
+      <span className="text-muted-foreground/40">·</span>
       {isEditingKW ? (
         <input type="number" value={editKW} onChange={e => setEditKW(e.target.value)} onBlur={handleKWSave}
           onKeyDown={e => { if (e.key === 'Enter') handleKWSave(); if (e.key === 'Escape') { setEditKW(kw?.toString() || ''); setIsEditingKW(false); } }}
-          className="w-8 h-3 px-0.5 text-[9px] bg-background border rounded text-right focus:outline-none" autoFocus />
+          className="w-16 lg:w-20 h-5 lg:h-6 px-1 text-xs lg:text-sm bg-background border rounded text-right focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" autoFocus />
       ) : (
         <span onClick={() => setIsEditingKW(true)} className="tabular-nums cursor-pointer hover:underline">{formatKW(kw || 0)}</span>
       )}
-      <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="ml-0.5 rounded hover:bg-destructive/20">
-        <X className="h-2 w-2 text-muted-foreground/50 hover:text-destructive" />
+      <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="ml-1 p-0.5 rounded hover:bg-destructive/20">
+        <X className="h-3 w-3 lg:h-4 lg:w-4 text-muted-foreground/50 hover:text-destructive" />
       </button>
     </div>
   );
