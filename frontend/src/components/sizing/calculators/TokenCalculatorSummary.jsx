@@ -374,6 +374,35 @@ export function TokenCalculatorSummary() {
     };
   }, [sites, answers, securityEnabled, uddiEnabled]);
   
+  // Calculate GM Object Requirements (for NIOS platform)
+  const gmSizing = useMemo(() => {
+    if (platformMode === 'UDDI') return null; // UDDI doesn't have GM
+    
+    const discoveryEnabled = answers['feature-discovery'] === 'Yes';
+    const gmObjects = calculateGMObjects(sites, dhcpPercent, discoveryEnabled);
+    const recommendedGM = findMinimumGMModel(gmObjects.totalObjects);
+    
+    // Check for service warnings on GM sites
+    const gmSites = sites.filter(s => s.role === 'GM' || s.role === 'GMC');
+    const serviceWarnings = gmSites
+      .filter(s => {
+        const restriction = gmServiceRestrictions[s.recommendedModel];
+        return restriction && !restriction.canRunServices;
+      })
+      .map(s => ({
+        site: s.name,
+        model: s.recommendedModel,
+        warning: gmServiceRestrictions[s.recommendedModel]?.note,
+      }));
+    
+    return {
+      ...gmObjects,
+      recommendedGM,
+      serviceWarnings,
+      memberCount: totals.memberCount,
+    };
+  }, [sites, dhcpPercent, platformMode, answers, totals.memberCount]);
+  
   // Build BOM
   const bom = useMemo(() => {
     const bomItems = {};
