@@ -752,48 +752,29 @@ export function TokenCalculatorSummary() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Site Sizing Header with Platform Mode and Summary */}
+      {/* Site Sizing Header - Simplified (Platform toggle removed, now in Quick Capture) */}
       <Card>
         <CardHeader className="pb-2 lg:pb-3">
           <div className="flex items-center justify-between flex-wrap gap-3">
-            <div className="flex items-center gap-3 lg:gap-4">
-              <CardTitle className="text-sm lg:text-base flex items-center gap-2">
-                <BarChart3 className="h-4 w-4 lg:h-5 lg:w-5" />
-                Site Sizing Recommendations
-              </CardTitle>
-              
-              {/* Platform Mode Toggle - Inline */}
-              <div className="flex items-center gap-2 ml-2 lg:ml-4">
-                <ToggleGroup type="single" value={platformMode} onValueChange={handlePlatformModeChange} className="bg-muted rounded-md p-0.5">
-                  {PLATFORM_MODES.map(mode => (
-                    <ToggleGroupItem 
-                      key={mode.value} 
-                      value={mode.value} 
-                      className="px-2 lg:px-4 py-1 lg:py-1.5 text-xs lg:text-sm data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-                      data-testid={`platform-mode-${mode.value.toLowerCase()}`}
-                    >
-                      {mode.value === recommendedMode && <Star className="h-3 w-3 lg:h-4 lg:w-4 mr-1 inline" />}
-                      {mode.label}
-                    </ToggleGroupItem>
-                  ))}
-                </ToggleGroup>
-                {platformMode !== recommendedMode && (
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <Badge variant="outline" className="text-amber-600 border-amber-500 gap-1 text-[10px] lg:text-xs px-1.5 py-0">
-                          <AlertTriangle className="h-2.5 w-2.5 lg:h-3 lg:w-3" />
-                          Not Recommended
-                        </Badge>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        Based on {dataCenters.length} DCs and {contextSites.length} sites, we recommend <strong>{recommendedMode}</strong>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                )}
-              </div>
-            </div>
+            <CardTitle className="text-sm lg:text-base flex items-center gap-2">
+              <BarChart3 className="h-4 w-4 lg:h-5 lg:w-5" />
+              Site Sizing Recommendations
+              {platformMode !== recommendedMode && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Badge variant="outline" className="text-amber-600 border-amber-500 gap-1 text-[10px] lg:text-xs px-1.5 py-0 ml-2">
+                        <AlertTriangle className="h-2.5 w-2.5 lg:h-3 lg:w-3" />
+                        {platformMode} (Not Recommended)
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Based on {dataCenters.length} DCs and {contextSites.length} sites, we recommend <strong>{recommendedMode}</strong>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+            </CardTitle>
             
             {/* Export Dropdown */}
             <DropdownMenu>
