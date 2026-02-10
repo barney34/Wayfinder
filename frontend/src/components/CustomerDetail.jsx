@@ -197,11 +197,6 @@ function QuickCaptureBarInline() {
     { value: 'Hybrid', label: 'Hybrid' },
   ];
 
-  // Store platform mode in answers for Sizing tab to use
-  useEffect(() => {
-    setAnswer('platform-mode', platformMode);
-  }, [platformMode, setAnswer]);
-
   return (
     <div className="flex flex-col gap-2 p-3 bg-muted/30 rounded-lg border" data-testid="quick-capture-bar">
       {/* Header - Centered */}
