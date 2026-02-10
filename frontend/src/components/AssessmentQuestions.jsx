@@ -539,7 +539,6 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                   </div>
                 </div>
               )}
-                        </div>
             </div>
           );
         })}
