@@ -378,6 +378,18 @@ export function TokenCalculatorSummary() {
   
   const partnerSku = useMemo(() => getPartnerSkuFromTokens(totals.totalTokens), [totals.totalTokens]);
   
+  // Update context with sizing summary for Quick Capture display
+  useEffect(() => {
+    setSizingSummary({
+      totalTokens: totals.totalTokens,
+      totalIPs: totals.totalIPs,
+      partnerSku: partnerSku.sku,
+      siteCount: sites.length,
+      infraTokens: totals.infraTokens,
+      securityTokens: totals.securityTokens,
+    });
+  }, [totals, partnerSku.sku, sites.length, setSizingSummary]);
+  
   // Update site field
   const updateSite = useCallback((siteId, field, value) => {
     const site = sites.find(s => s.id === siteId);
