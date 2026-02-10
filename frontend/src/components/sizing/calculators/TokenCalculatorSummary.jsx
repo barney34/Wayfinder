@@ -12,6 +12,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,7 +25,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { 
   Building2, MapPin, Server, Package, DollarSign, Cpu, HardDrive, Shield, BarChart3,
-  Plus, Trash2, Download, FileText, Info, AlertTriangle, Star, Settings2, FileSpreadsheet
+  Plus, Trash2, Download, FileText, Info, AlertTriangle, Star, Settings2, FileSpreadsheet,
+  Database
 } from "lucide-react";
 import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
@@ -36,11 +38,16 @@ import {
   getHardwareSkuOptions,
   isHardwareSkuLocked,
   calculateSiteLPS,
+  calculateSiteObjects,
 } from "../calculations";
 import { 
   niosServerGuardrails, 
   uddiServerTokens,
   tokenModels,
+  niosGridConstants,
+  gmServiceRestrictions,
+  calculateGMObjects,
+  findMinimumGMModel,
 } from "@/lib/tokenData";
 
 // Global platform modes
