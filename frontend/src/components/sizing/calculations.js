@@ -4,6 +4,7 @@ import {
   nxvsServers, nxaasServers,
   x6ServerGuardrails,
   niosServerGuardrails, niosGridConstants,
+  canGMRunServices,
 } from '@/lib/tokenData';
 
 export function getPartnerSku(packCount) {
@@ -13,16 +14,60 @@ export function getPartnerSku(packCount) {
 }
 
 // Calculate LPS for a site (used for Hub sizing)
+// Formula: dhcp_clients / 15 minutes (900 seconds)
 export function calculateSiteLPS(numIPs, dhcpPercent, role) {
   const dhcpClients = Math.ceil(numIPs * (dhcpPercent / 100));
   let lps = Math.max(1, Math.ceil(dhcpClients / niosGridConstants.lpsAggregateSeconds));
   
-  // Multi-protocol penalty (50%)
+  // Multi-protocol penalty: 130% capacity needed for DNS+DHCP
   if (role === 'DNS/DHCP') {
     lps = Math.ceil(lps * niosGridConstants.multiRoleCapacityMultiplier);
   }
   
   return lps;
+}
+
+// Calculate QPS for a site
+// Formula: active_IPs / 3 (peak QPS divisor)
+export function calculateSiteQPS(numIPs, isUDDI = false) {
+  // UDDI uses different divisor
+  const divisor = isUDDI ? 50 : niosGridConstants.peakQpsDivisor;
+  return Math.ceil(numIPs / divisor);
+}
+
+// Calculate object count for a site
+export function calculateSiteObjects(numIPs, dhcpPercent, role) {
+  const dhcpClients = Math.ceil(numIPs * (dhcpPercent / 100));
+  const staticClients = numIPs - dhcpClients;
+  
+  // DHCP Lease Objects = clients × 2
+  const dhcpObjects = dhcpClients * niosGridConstants.dhcpLeaseObjectsPerClient;
+  
+  // DNS Objects = DHCP clients × 3 + static × 2
+  const dnsObjects = (dhcpClients * niosGridConstants.dnsRecordsPerDhcpClient) + 
+                     (staticClients * niosGridConstants.dnsRecordsPerStaticClient);
+  
+  // Return based on role
+  if (role === 'DNS') return { total: dnsObjects, dns: dnsObjects, dhcp: 0 };
+  if (role === 'DHCP') return { total: dhcpObjects, dns: 0, dhcp: dhcpObjects };
+  // DNS/DHCP combined
+  return { total: dnsObjects + dhcpObjects, dns: dnsObjects, dhcp: dhcpObjects };
+}
+
+// Check if a GM model can run DNS/DHCP services
+export function checkGMServiceWarning(model, role, memberCount = 0) {
+  // Only check for GM/GMC roles
+  if (role !== 'GM' && role !== 'GMC') return null;
+  
+  // Only check if trying to run services (not pure GM role)
+  // In our UI, GM/GMC don't run DNS/DHCP by default, but we check the model restriction
+  const restriction = canGMRunServices(model, memberCount);
+  
+  if (!restriction.allowed) {
+    return restriction.warning;
+  }
+  
+  return null;
 }
 
 export function calculateWorkloadRequirements(answers) {
