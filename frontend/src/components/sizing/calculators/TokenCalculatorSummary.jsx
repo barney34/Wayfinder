@@ -156,7 +156,7 @@ function getRecommendedPlatformMode(dcCount, siteCount) {
  */
 export function TokenCalculatorSummary() {
   const { 
-    dataCenters = [], sites: contextSites = [], answers = {}, setAnswer, platformMode, setPlatformMode 
+    dataCenters = [], sites: contextSites = [], answers = {}, setAnswer, platformMode, setPlatformMode, setSizingSummary 
   } = useDiscovery();
   
   // Site overrides and manual sites state
