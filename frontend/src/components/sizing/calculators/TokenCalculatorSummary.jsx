@@ -29,6 +29,7 @@ import {
 import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
 import * as XLSX from "xlsx";
+import { formatNumber } from "@/lib/utils";
 import { 
   getSiteRecommendedModel,
   getDefaultHardwareSku,
