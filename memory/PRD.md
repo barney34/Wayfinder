@@ -178,22 +178,22 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 - **Backend Enhancement**: /api/generate-context now accepts meetingNotes and produces bullet-point output
 
 ### Phase 18 — Discovery 3-Column Layout v2 (Complete - Feb 10, 2026)
-- **3-Column Grid**: Short questions distributed across 3 columns on desktop (lg:grid-cols-3)
-- **Toggle Switches for Yes/No**: Compact Switch component replaces Yes/No button pairs
-- **Answers Closer to Questions**: Question and answer on same line, minimal gap
-- **Column Shading**: Middle column has subtle gray background (bg-muted/30)
-- **Inline Notes**: Click note icon → yellow input expands directly under that question
-- **Note Indicator**: Gray icon = no note, Blue filled icon = has note
-- **Conditional Questions Indented**: Blue left border + bg-blue-50, shows "↳ If Yes:" label
-- **Section Toggles**: On/Off toggles with confirmation dialog for disabling sections
+- **3-Column Grid**: ALL questions distributed across 3 columns on desktop (lg:grid-cols-3)
+- **Checkboxes for Yes/No**: Simple checkbox (☑) for fast one-click Yes/No selection
+- **Checkboxes for Sections**: Section headers use checkbox for On/Off toggle
+- **Full Question Text**: Long questions wrap within columns, no truncation
+- **Clickable Rows for Text Questions**: Entire row clickable to expand note field
+- **Single Note Field**: Just one textarea for consistency (no separate answer/note fields)
+- **Multi-Select with Checkboxes**: Dropdown stays open, uses checkboxes, has "Done" button
+- **Column Shading**: Middle column has subtle gray background
+- **Visible Separators**: Clear border-bottom between each question row
+- **Conditional Questions**: Light blue styling with "↳ If Yes:" label
 
 ## Pending / Backlog
 
 ### P2
 - AI Discovery Assistant (industry-specific follow-up questions)
 - Backend route refactoring (split server.py into routes/models)
-- Fix nested button warning in AccordionTrigger with Switch component
-- Fix unique key warning in UDSMembersTable TableBody
 - Refactor large components (CustomerDetail.jsx, TokenCalculatorSummary.jsx) into smaller sub-components
 
 ## Test Reports
@@ -213,6 +213,7 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 - iteration_18.json: Tab Redesign & UI Polish verification (100% pass rate)
 - iteration_19.json: SmartFill UI Redesign verification (100% pass rate)
 - iteration_20.json: Discovery 3-Column Layout v2 verification (100% pass rate)
+- iteration_21.json: Discovery Checkboxes & Clickable Rows verification (100% pass rate)
 
 ## Last Updated
-February 10, 2026 - Discovery 3-Column Layout v2 complete
+February 10, 2026 - Discovery checkboxes, clickable rows, single note field complete
