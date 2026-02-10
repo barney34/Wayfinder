@@ -103,56 +103,47 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 - **Smart Platform Recommendation**: Based on DC/Site count (>50 sites = UDDI, 2+ DCs & >10 sites = Hybrid, else NIOS)
 - **IP Calculation Logic**: GM/GMC roles use KW directly (grid objects), DNS/DHCP roles use KW × multiplier
 - **Summary Badges Update**: Shows GM/GMC/Members breakdown for NIOS/Hybrid, Members only for UDDI
-- **Bug Fix**: Fixed UDDI detection in getSiteRecommendedModel() (was checking 'NX' instead of 'NXVS')
-- **Bug Fix**: Fixed duplicate closing bracket syntax error in CustomerDetail.jsx
 
 ### Phase 9 — Services Multi-Select (Complete - Feb 6, 2026)
 - **Services Column**: New column in Site Sizing table between Role and Platform
 - **Co-located Services Popover**: Multi-select with 5 services (NTP, DFP, TFTP, FTP, HTTP)
 - **Performance Overhead**: Each service has impact percentage (NTP 0%, DFP +5%, TFTP +2%, FTP +2%, HTTP +3%)
-- **Token Calculation**: Tokens increase based on total service overhead (e.g., DFP adds 5% → 880→924)
-- **Visual Feedback**: Selected services shown in button, total overhead displayed in popover
+- **Token Calculation**: Tokens increase based on total service overhead
 - **Export Integration**: CSV and YAML exports include services data
 
 ### Phase 10 — Platform Alert Dialog (Complete - Feb 6, 2026)
 - **Confirmation Alert**: Shows when switching from recommended to non-recommended platform
 - **Warning Content**: Explains why recommended platform is better with bullet points
 - **Dynamic Content**: Shows DC/Site count, recommended platform explanation based on selection
-- **Keep/Switch Actions**: Cancel keeps original platform, Confirm switches to selected
-- **No Alert on Return**: Alert does NOT show when switching back to recommended platform
-- **Test IDs**: platform-alert-dialog, platform-alert-cancel, platform-alert-confirm
-- **Bug Fix**: Fixed HTML nesting issue using asChild prop on AlertDialogDescription
 
 ### Phase 11 — PDF/Excel Export & Model Math Fix (Complete - Feb 6, 2026)
 - **Export Dropdown Menu**: Unified export button with 4 options (CSV, Excel, PDF, YAML)
 - **Excel Export (xlsx)**: Multi-sheet export with Site Sizing, Bill of Materials, Summary sheets
 - **PDF Export (jspdf)**: Formatted report with summary boxes, site sizing table, BOM table, token summary
 - **Model Math Fix**: GM/GMC roles now use object capacity (not QPS/LPS)
-- **Multi-role Penalty**: DNS/DHCP combined role applies 1.3x multiRoleCapacityMultiplier
-- **Single-role Sizing**: DNS uses QPS + objects, DHCP uses LPS + objects
-- **Bug Fix**: Fixed jspdf-autotable v5 import pattern (autoTable(doc, {...}) instead of doc.autoTable())
 - **Dependencies Added**: jspdf, jspdf-autotable, xlsx
 
 ### Phase 12 — Quick Capture UI Overhaul (Complete - Feb 7, 2026)
 - **Rapid Entry Mode**: DC/Site toggle buttons with Name and KW fields for fast data entry
 - **Press Enter to Add**: Instant add with fields auto-clearing for next entry
-- **Two-Column Layout**: Data Centers on left, Sites on right with auto-wrapping grid
+- **Two-Column Layout**: Data Centers on left, Locations on right with auto-wrapping grid
 - **Dynamic Island Tags**: Compact pill-shaped tags with in-place editing (click to edit)
 - **Consolidated IP Calculation**: Inline formula (KW × mult = IPs) with Auto/Manual toggle
-- **Legend Footer**: "DC = Data Center(s) • KW = Knowledge Workers"
-- **Platform Mode Inline**: NIOS/UDDI/Hybrid toggle moved to Site Sizing Recommendations header
+- **Platform Mode Inline**: NIOS/UDDI/Hybrid toggle centered above grid
 - **Consolidated Summary Bar**: Single row showing Sites, IPs, Tokens, Partner SKU
-- **KW Formatting**: Auto K/M suffix for large numbers (15K, 1.5M)
+- **KW Auto-population**: KW field auto-fills from IP Calc when DC mode active
+- **Manual Override**: When IP calc is "Manual", the override value applies to all DCs
+- **Column Header Rename**: "Site Name" renamed to "Location" in Sizing table
 
 ## Pending / Backlog
 
 ### P2
-- Verify Model Math for Multi-protocol (combined DNS/DHCP penalty calculation)
-- Export to PDF/Excel
+- **SmartFill Assistant**: Advanced AI assistant feature for guided discovery
 - AI Discovery Assistant (industry-specific follow-up questions)
 - Backend route refactoring (split server.py into routes/models)
 - Fix nested button warning in AccordionTrigger with Switch component
 - Fix unique key warning in UDSMembersTable TableBody
+- Refactor large components (CustomerDetail.jsx, TokenCalculatorSummary.jsx) into smaller sub-components
 
 ## Test Reports
 - iteration_5.json: Post-migration (91 questions, 12 sections)
@@ -165,3 +156,6 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 - iteration_12.json: Services Multi-Select verification (100% pass rate)
 - iteration_13.json: Platform Alert Dialog verification (100% pass rate)
 - iteration_14.json: PDF/Excel Export & Model Math verification (100% pass rate)
+
+## Last Updated
+February 7, 2026 - P0 UI tasks verified complete
