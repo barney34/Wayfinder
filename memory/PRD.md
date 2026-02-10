@@ -189,6 +189,18 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 - **Visible Separators**: Clear border-bottom between each question row
 - **Conditional Questions**: Light blue styling with "↳ If Yes:" label
 
+### Phase 19 — Hub & Spoke DHCP Sizing (Complete - Feb 10, 2026)
+- **DHCP Partner Dropdown**: Sites with DHCP/DNS+DHCP roles can select a Hub site for DHCP failover
+- **Role-Based Visibility**: GM, GMC, and DNS-only roles show "N/A" (no DHCP partner applicable)
+- **Hub Identification**: A site becomes a Hub when other sites point to it as their DHCP Partner
+- **Spoke Penalty**: Spoke sites have 50% LPS penalty (2x capacity needed for DHCP forwarding)
+- **Hub Sizing**: Hub sites sized for base LPS + aggregated LPS from all Spokes
+- **Server Count**: New "Srv#" column allows specifying multiple servers per site (tokens × count)
+- **Visual Indicators**: Hub sites show blue dot/background, Spoke sites show amber dot/background
+- **Tooltip Details**: Hover on icon shows Hub/Spoke status with connected site information
+- **Role Change Auto-Clear**: Changing role from DHCP to non-DHCP auto-clears dhcpPartner
+- **Live Token Updates**: Totals recalculate when Hub/Spoke relationships or server counts change
+
 ## Pending / Backlog
 
 ### P2
