@@ -201,6 +201,26 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 - **Role Change Auto-Clear**: Changing role from DHCP to non-DHCP auto-clears dhcpPartner
 - **Live Token Updates**: Totals recalculate when Hub/Spoke relationships or server counts change
 
+### Phase 20 — Grid Master Sizing & Guardrails (Complete - Feb 10, 2026)
+- **GM Object Counting**: Automatic calculation of Grid Master object requirements:
+  - DHCP Lease Objects = clients × 2
+  - DNS Objects = DHCP clients × 3 + Static clients × 2
+  - Discovery Objects = 1 per active IP (when enabled)
+  - Total Grid Objects with 10% buffer
+- **GM Service Restrictions**: Warning system for models that should NOT run DNS/DHCP services:
+  - TE-926: ✓ OK if no Reporting Server
+  - TE-1516: ⚠️ Not recommended if >8 members
+  - TE-1526, TE-2326, TE-4126: ❌ NOT RECOMMENDED
+- **Minimum GM Model**: Automatic recommendation based on 60% capacity target at rollout
+- **Utilization Display**: Current utilization percentage with color indicator (green ≤60%, red >60%)
+- **Service Restrictions Table**: Color-coded visual reference for GM service restrictions
+- **Constants Updated**: niosGridConstants now includes all documented multipliers:
+  - maxDbUtilizationPercent: 60%
+  - bufferPercent: 10%
+  - multiRolePenaltyPercent: 50% (NIOS)
+  - uddiMultiRoleMultiplier: 1.3 (130% for UDDI)
+  - dhcpFailoverPenaltyPercent: 50%
+
 ## Pending / Backlog
 
 ### P1
