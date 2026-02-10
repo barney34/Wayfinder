@@ -217,10 +217,20 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
 
     switch (fieldType) {
       case 'yesno':
+        // In compact mode, use toggle switch instead of buttons
+        if (compact) {
+          return (
+            <Switch 
+              checked={currentValue === 'Yes'} 
+              onCheckedChange={c => handleAnswerChange(q.id, c ? 'Yes' : 'No')} 
+              data-testid={`toggle-${q.id}`} 
+            />
+          );
+        }
         return (
           <div className="flex items-center gap-2">
-            <Button variant={currentValue === 'Yes' ? 'default' : 'outline'} size="sm" className={compact ? "h-7 px-3 text-xs" : ""} onClick={() => handleAnswerChange(q.id, 'Yes')} data-testid={`btn-yes-${q.id}`}>Yes</Button>
-            <Button variant={currentValue === 'No' ? 'default' : 'outline'} size="sm" className={compact ? "h-7 px-3 text-xs" : ""} onClick={() => handleAnswerChange(q.id, 'No')} data-testid={`btn-no-${q.id}`}>No</Button>
+            <Button variant={currentValue === 'Yes' ? 'default' : 'outline'} size="sm" onClick={() => handleAnswerChange(q.id, 'Yes')} data-testid={`btn-yes-${q.id}`}>Yes</Button>
+            <Button variant={currentValue === 'No' ? 'default' : 'outline'} size="sm" onClick={() => handleAnswerChange(q.id, 'No')} data-testid={`btn-no-${q.id}`}>No</Button>
           </div>
         );
       case 'select':
