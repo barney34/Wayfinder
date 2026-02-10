@@ -1004,12 +1004,12 @@ export function TokenCalculatorSummary() {
                         </SelectContent>
                       </Select>
                     </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="font-mono text-xs">{site.recommendedModel}</Badge>
+                    <TableCell className="p-2 lg:p-4">
+                      <Badge variant="outline" className="font-mono text-xs lg:text-sm">{site.recommendedModel}</Badge>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="p-2 lg:p-4">
                       <Select value={site.hardwareSku} onValueChange={v => updateSite(site.id, 'hardwareSku', v)}>
-                        <SelectTrigger className="h-7 text-xs" data-testid={`site-sku-${site.id}`}>
+                        <SelectTrigger className="h-8 lg:h-10 text-xs lg:text-sm" data-testid={`site-sku-${site.id}`}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -1019,13 +1019,13 @@ export function TokenCalculatorSummary() {
                         </SelectContent>
                       </Select>
                     </TableCell>
-                    <TableCell className="text-right tabular-nums font-medium">
-                      {(site.tokens || 0).toLocaleString()}
+                    <TableCell className="p-2 lg:p-4 text-right tabular-nums font-medium text-sm lg:text-base">
+                      {formatNumber(site.tokens || 0)}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="p-2 lg:p-4">
                       {!site.sourceType && (
-                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => deleteSite(site.id)}>
-                          <Trash2 className="h-3 w-3 text-destructive" />
+                        <Button variant="ghost" size="icon" className="h-7 w-7 lg:h-8 lg:w-8" onClick={() => deleteSite(site.id)}>
+                          <Trash2 className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-destructive" />
                         </Button>
                       )}
                     </TableCell>
@@ -1033,24 +1033,24 @@ export function TokenCalculatorSummary() {
                 ))}
                 {/* Total Row */}
                 <TableRow className="bg-muted/30 font-medium">
-                  <TableCell colSpan={2}>Total</TableCell>
-                  <TableCell className="tabular-nums">{totals.totalIPs.toLocaleString()}</TableCell>
-                  <TableCell className="tabular-nums">{totals.totalKW.toLocaleString()}</TableCell>
-                  <TableCell colSpan={5}></TableCell>
-                  <TableCell className="text-right tabular-nums">{totals.infraTokens.toLocaleString()}</TableCell>
-                  <TableCell></TableCell>
+                  <TableCell className="p-2 lg:p-4" colSpan={2}>Total</TableCell>
+                  <TableCell className="p-2 lg:p-4 tabular-nums text-sm lg:text-base">{formatNumber(totals.totalIPs)}</TableCell>
+                  <TableCell className="p-2 lg:p-4 tabular-nums text-sm lg:text-base">{formatNumber(totals.totalKW)}</TableCell>
+                  <TableCell className="p-2 lg:p-4" colSpan={5}></TableCell>
+                  <TableCell className="p-2 lg:p-4 text-right tabular-nums text-sm lg:text-base">{formatNumber(totals.infraTokens)}</TableCell>
+                  <TableCell className="p-2 lg:p-4"></TableCell>
                 </TableRow>
               </TableBody>
             </Table>
           </div>
           
           {/* Add Site Button */}
-          <div className="flex items-center justify-between mt-4">
-            <Button variant="outline" size="sm" onClick={addManualSite} data-testid="add-site-button">
+          <div className="flex items-center justify-between mt-4 lg:mt-6">
+            <Button variant="outline" size="sm" className="text-xs lg:text-sm" onClick={addManualSite} data-testid="add-site-button">
               <Plus className="h-4 w-4 mr-1" /> Add Site
             </Button>
-            <p className="text-xs text-muted-foreground">
-              <Info className="h-3 w-3 inline mr-1" />
+            <p className="text-xs lg:text-sm text-muted-foreground">
+              <Info className="h-3 w-3 lg:h-4 lg:w-4 inline mr-1" />
               Sites auto-sync from Quick Capture. All fields are editable.
             </p>
           </div>
@@ -1061,20 +1061,20 @@ export function TokenCalculatorSummary() {
       {bom.length > 0 && (
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <HardDrive className="h-4 w-4" />
+            <CardTitle className="text-sm lg:text-base flex items-center gap-2">
+              <HardDrive className="h-4 w-4 lg:h-5 lg:w-5" />
               Bill of Materials (BOM)
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="border rounded-lg overflow-hidden">
-              <Table>
+              <Table className="table-auto">
                 <TableHeader>
                   <TableRow className="bg-muted/50">
-                    <TableHead>Hardware SKU</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead className="w-[60px] text-center">Qty</TableHead>
-                    <TableHead>Sites</TableHead>
+                    <TableHead className="text-xs lg:text-sm">Hardware SKU</TableHead>
+                    <TableHead className="text-xs lg:text-sm">Description</TableHead>
+                    <TableHead className="w-16 lg:w-20 text-center text-xs lg:text-sm">Qty</TableHead>
+                    <TableHead className="text-xs lg:text-sm">Sites</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
