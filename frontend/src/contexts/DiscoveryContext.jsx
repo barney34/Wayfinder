@@ -39,6 +39,7 @@ export function DiscoveryProvider({ children, customerId }) {
   const [dataCenters, setDataCenters] = useState([]);
   const [sites, setSites] = useState([]);
   const [platformMode, setPlatformModeState] = useState('NIOS');
+  const [sizingSummary, setSizingSummaryState] = useState({ totalTokens: 0, partnerSku: '—', totalIPs: 0 });
   const [isHydrated, setIsHydrated] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
