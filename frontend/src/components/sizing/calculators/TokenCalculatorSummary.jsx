@@ -804,42 +804,18 @@ export function TokenCalculatorSummary() {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-        </CardHeader>
-        
-        {/* Consolidated Summary Bar - Responsive */}
-        <CardContent className="pt-0 pb-3 lg:pb-4">
-          <div className="flex items-center gap-4 lg:gap-8 p-3 lg:p-4 bg-muted/50 rounded-lg border flex-wrap">
-            <div className="flex items-center gap-2">
-              <Server className="h-4 w-4 lg:h-5 lg:w-5 text-blue-500" />
-              <span className="text-sm lg:text-lg font-bold">{sites.length}</span>
-              <span className="text-xs lg:text-sm text-muted-foreground">Sites</span>
-              {(totals.gmCount > 0 || totals.gmcCount > 0) && (
-                <span className="text-[10px] lg:text-xs text-muted-foreground">
-                  ({totals.gmCount} GM, {totals.gmcCount} GMC, {totals.memberCount} Mem)
-                </span>
-              )}
-            </div>
-            <div className="h-4 w-px bg-border hidden sm:block" />
-            <div className="flex items-center gap-2">
-              <Cpu className="h-4 w-4 lg:h-5 lg:w-5 text-green-500" />
-              <span className="text-sm lg:text-lg font-bold">{formatNumber(totals.totalIPs)}</span>
-              <span className="text-xs lg:text-sm text-muted-foreground">IPs</span>
-              <span className="text-[10px] lg:text-xs text-muted-foreground">({formatNumber(totals.totalKW)} KW)</span>
-            </div>
-            <div className="h-4 w-px bg-border hidden sm:block" />
-            <div className="flex items-center gap-2">
-              <Package className="h-4 w-4 lg:h-5 lg:w-5 text-purple-500" />
-              <span className="text-sm lg:text-lg font-bold">{formatNumber(totals.totalTokens)}</span>
-              <span className="text-xs lg:text-sm text-muted-foreground">Tokens</span>
-            </div>
-            <div className="h-4 w-px bg-border hidden sm:block" />
-            <div className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4 lg:h-5 lg:w-5 text-amber-500" />
-              <span className="text-sm lg:text-lg font-bold">{partnerSku.sku}</span>
-              <span className="text-xs lg:text-sm text-muted-foreground hidden md:inline">{partnerSku.description}</span>
-            </div>
+          
+          {/* Inline Summary Stats */}
+          <div className="flex items-center gap-3 lg:gap-6 mt-2 text-xs lg:text-sm text-muted-foreground">
+            <span><strong className="text-foreground">{sites.length}</strong> Sites</span>
+            <span className="text-border">|</span>
+            <span><strong className="text-foreground">{formatNumber(totals.totalIPs)}</strong> IPs</span>
+            <span className="text-border">|</span>
+            <span><strong className="text-foreground">{formatNumber(totals.totalTokens)}</strong> Tokens</span>
+            <span className="text-border">|</span>
+            <span className="text-amber-600 font-semibold">{partnerSku.sku}</span>
           </div>
-        </CardContent>
+        </CardHeader>
       </Card>
       
       {/* Site Sizing Table - Responsive with auto-fit columns */}
