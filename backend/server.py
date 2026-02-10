@@ -476,8 +476,8 @@ Return ONLY a JSON object with format: {{ "matches": [{{"questionId": "...", "an
 @app.post("/api/generate-context")
 async def generate_context(request: GenerateContextRequest):
     """Generate context summary using AI"""
-    if not request.contextType or not request.answers:
-        raise HTTPException(status_code=400, detail="Context type and answers are required")
+    if not request.contextType or (not request.answers and not request.meetingNotes):
+        raise HTTPException(status_code=400, detail="Context type and answers or meeting notes are required")
     
     if not EMERGENT_LLM_KEY:
         raise HTTPException(status_code=500, detail="AI integration not configured")
@@ -487,9 +487,9 @@ async def generate_context(request: GenerateContextRequest):
         answers_text_parts = []
         for question_id, answer in request.answers.items():
             question = next((q for q in DISCOVERY_QUESTIONS if q["id"] == question_id), None)
-            if question:
+            if question and answer:
                 answers_text_parts.append(f"Q: {question['question']}\nA: {answer}")
-        answers_text = "\n\n".join(answers_text_parts)
+        answers_text = "\n\n".join(answers_text_parts) if answers_text_parts else "No discovery answers available yet."
         
         # Build notes text
         notes_text_parts = []
@@ -499,14 +499,50 @@ async def generate_context(request: GenerateContextRequest):
                 notes_text_parts.append(f"Context for \"{question['question']}\":\n{note}")
         notes_text = "\n\n".join(notes_text_parts) if notes_text_parts else ""
         
-        # Build prompt based on context type
+        # Meeting notes section
+        meeting_notes_section = f"Meeting Notes / Call Transcript:\n{request.meetingNotes}" if request.meetingNotes else ""
+        
+        # Build prompt based on context type - with bullet point style instructions
         prompt_instructions = {
-            "environment": "Summarize the customer's current technical environment, including infrastructure, systems, and technology stack.",
-            "outcomes": "Summarize the desired business outcomes and goals the customer wants to achieve.",
-            "endState": "Describe the target end state and desired future architecture.",
-            "endstate": "Describe the target end state and desired future architecture.",
-            "migration": "Outline the recommended migration path and implementation approach.",
-        }.get(request.contextType, f"Generate a summary for {request.contextType}.")
+            "environment": """Summarize the customer's current technical environment in bullet point format. Include:
+• Current IPAM, DNS, DHCP setup and products being used
+• Vendor/technology specifics (Microsoft, BIND, Cloudflare, AWS Route 53, etc.)
+• Locations (datacenters, sites, branches)
+• Current integrations (Splunk, SIEM, etc.)
+• Network bandwidth considerations
+
+Format as concise bullet points. Example format:
+**IPAM**
+• IPAM is currently inconsistently managed across various spreadsheets, DNS and DHCP server configurations, and Active Directory
+
+**DNS**
+• DNS is primarily hosted on AD servers with GSS-TSIG enabled
+• Cloudflare provides external authoritative DNS""",
+            "outcomes": """Summarize the customer's desired project outcomes in bullet point format. Include:
+• Project background and why this project exists
+• Goals of the project (not just "migrate to DDI")
+• Pain points being resolved
+• Project timeline and phases
+• Project sponsors/owners/customers
+
+Format as concise bullet points. Example format:
+1. Lower operational burden by allowing administrators to be more productive with less maintenance
+2. Reduce the footprint of dedicated Microsoft servers leveraged for DDI services
+3. Centralize administration for DDI services rather than having multiple systems""",
+            "endState": """Summarize the customer's target end state in bullet point format. Include:
+• Target architecture and platform (UDDI, NIOS-X, etc.)
+• DNS migration strategy (off-load from AD servers, etc.)
+• DHCP services deployment plan
+• Security features (Threat Defense, etc.)
+• Integration requirements (Splunk, Ansible, Terraform, etc.)
+
+Format as numbered bullet points. Example format:
+1. Implement UDDI as the centralized SaaS management platform for DDI
+2. Connect UDDI with AWS Route 53 DNS for overlay visibility and management
+3. Off-load DNS from Active Directory servers onto NIOS-X DNS""",
+            "endstate": """Summarize the customer's target end state in bullet point format. Include the target architecture, migration path, and DDI design features.""",
+            "migration": "Outline the recommended migration path and implementation approach in bullet point format.",
+        }.get(request.contextType, f"Generate a summary for {request.contextType} in bullet point format.")
         
         notes_section = f"Additional Context Notes:\n{notes_text}" if notes_text else ""
         
@@ -517,13 +553,15 @@ Discovery Questions and Answers:
 
 {notes_section}
 
-Provide a concise, professional summary (2-4 paragraphs)."""
+{meeting_notes_section}
+
+Generate a concise, professional summary using bullet points. Keep each bullet point short and descriptive (1-2 lines max). Do not include headers like "Here is a summary" - just output the bullet points directly."""
 
         # Use Gemini 3 Flash via emergentintegrations (low temperature for consistent outputs)
         chat = LlmChat(
             api_key=EMERGENT_LLM_KEY,
             session_id=f"generate-context-{uuid.uuid4()}",
-            system_message="You are an expert technical consultant creating professional documentation."
+            system_message="You are an expert technical consultant creating professional DDI infrastructure documentation. Output concise, actionable bullet points. Be specific with product names, technologies, and quantities when available."
         ).with_model("gemini", "gemini-3-flash-preview")
         
         user_message = UserMessage(text=prompt)
