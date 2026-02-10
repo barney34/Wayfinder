@@ -798,8 +798,8 @@ export function TokenCalculatorSummary() {
             {/* Export Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" data-testid="export-dropdown">
-                  <Download className="h-3 w-3 mr-1" /> Export
+                <Button variant="outline" size="sm" className="text-xs lg:text-sm" data-testid="export-dropdown">
+                  <Download className="h-3 w-3 lg:h-4 lg:w-4 mr-1" /> Export
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -825,55 +825,55 @@ export function TokenCalculatorSummary() {
           </div>
         </CardHeader>
         
-        {/* Consolidated Summary Bar */}
-        <CardContent className="pt-0 pb-3">
-          <div className="flex items-center gap-6 p-3 bg-muted/50 rounded-lg border">
+        {/* Consolidated Summary Bar - Responsive */}
+        <CardContent className="pt-0 pb-3 lg:pb-4">
+          <div className="flex items-center gap-4 lg:gap-8 p-3 lg:p-4 bg-muted/50 rounded-lg border flex-wrap">
             <div className="flex items-center gap-2">
-              <Server className="h-4 w-4 text-blue-500" />
-              <span className="text-sm font-bold">{sites.length}</span>
-              <span className="text-xs text-muted-foreground">Sites</span>
+              <Server className="h-4 w-4 lg:h-5 lg:w-5 text-blue-500" />
+              <span className="text-sm lg:text-lg font-bold">{sites.length}</span>
+              <span className="text-xs lg:text-sm text-muted-foreground">Sites</span>
               {(totals.gmCount > 0 || totals.gmcCount > 0) && (
-                <span className="text-[10px] text-muted-foreground">
+                <span className="text-[10px] lg:text-xs text-muted-foreground">
                   ({totals.gmCount} GM, {totals.gmcCount} GMC, {totals.memberCount} Mem)
                 </span>
               )}
             </div>
-            <div className="h-4 w-px bg-border" />
+            <div className="h-4 w-px bg-border hidden sm:block" />
             <div className="flex items-center gap-2">
-              <Cpu className="h-4 w-4 text-green-500" />
-              <span className="text-sm font-bold">{totals.totalIPs.toLocaleString()}</span>
-              <span className="text-xs text-muted-foreground">IPs</span>
-              <span className="text-[10px] text-muted-foreground">({totals.totalKW.toLocaleString()} KW)</span>
+              <Cpu className="h-4 w-4 lg:h-5 lg:w-5 text-green-500" />
+              <span className="text-sm lg:text-lg font-bold">{formatNumber(totals.totalIPs)}</span>
+              <span className="text-xs lg:text-sm text-muted-foreground">IPs</span>
+              <span className="text-[10px] lg:text-xs text-muted-foreground">({formatNumber(totals.totalKW)} KW)</span>
             </div>
-            <div className="h-4 w-px bg-border" />
+            <div className="h-4 w-px bg-border hidden sm:block" />
             <div className="flex items-center gap-2">
-              <Package className="h-4 w-4 text-purple-500" />
-              <span className="text-sm font-bold">{totals.totalTokens.toLocaleString()}</span>
-              <span className="text-xs text-muted-foreground">Tokens</span>
+              <Package className="h-4 w-4 lg:h-5 lg:w-5 text-purple-500" />
+              <span className="text-sm lg:text-lg font-bold">{formatNumber(totals.totalTokens)}</span>
+              <span className="text-xs lg:text-sm text-muted-foreground">Tokens</span>
             </div>
-            <div className="h-4 w-px bg-border" />
+            <div className="h-4 w-px bg-border hidden sm:block" />
             <div className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-amber-500" />
-              <span className="text-sm font-bold">{partnerSku.sku}</span>
-              <span className="text-xs text-muted-foreground">{partnerSku.description}</span>
+              <DollarSign className="h-4 w-4 lg:h-5 lg:w-5 text-amber-500" />
+              <span className="text-sm lg:text-lg font-bold">{partnerSku.sku}</span>
+              <span className="text-xs lg:text-sm text-muted-foreground hidden md:inline">{partnerSku.description}</span>
             </div>
           </div>
         </CardContent>
       </Card>
       
-      {/* Site Sizing Table */}
+      {/* Site Sizing Table - Responsive with auto-fit columns */}
       <Card>
-        <CardContent className="pt-4">
-          <div className="border rounded-lg overflow-hidden overflow-x-auto">
-            <Table>
+        <CardContent className="pt-4 lg:pt-6">
+          <div className="border rounded-lg overflow-hidden">
+            <Table className="table-auto w-full">
               <TableHeader>
                 <TableRow className="bg-muted/50">
-                  <TableHead className="w-[30px]"></TableHead>
-                  <TableHead className="min-w-[120px]">Location</TableHead>
-                  <TableHead className="w-[80px]"># IPs</TableHead>
-                  <TableHead className="w-[60px]">KW</TableHead>
-                  <TableHead className="w-[90px]">Role</TableHead>
-                  <TableHead className="w-[80px]">
+                  <TableHead className="w-8 lg:w-10 text-xs lg:text-sm"></TableHead>
+                  <TableHead className="text-xs lg:text-sm">Location</TableHead>
+                  <TableHead className="w-20 lg:w-24 text-xs lg:text-sm"># IPs</TableHead>
+                  <TableHead className="w-16 lg:w-20 text-xs lg:text-sm">KW</TableHead>
+                  <TableHead className="w-24 lg:w-28 text-xs lg:text-sm">Role</TableHead>
+                  <TableHead className="w-20 lg:w-24 text-xs lg:text-sm">
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger className="flex items-center gap-1">
@@ -885,11 +885,11 @@ export function TokenCalculatorSummary() {
                       </Tooltip>
                     </TooltipProvider>
                   </TableHead>
-                  <TableHead className="w-[100px]">Platform</TableHead>
-                  <TableHead className="w-[80px]">Model</TableHead>
-                  <TableHead className="w-[120px]">Hardware SKU</TableHead>
-                  <TableHead className="w-[70px] text-right">Tokens</TableHead>
-                  <TableHead className="w-[40px]"></TableHead>
+                  <TableHead className="text-xs lg:text-sm">Platform</TableHead>
+                  <TableHead className="w-16 lg:w-20 text-xs lg:text-sm">Model</TableHead>
+                  <TableHead className="text-xs lg:text-sm">Hardware SKU</TableHead>
+                  <TableHead className="w-16 lg:w-20 text-right text-xs lg:text-sm">Tokens</TableHead>
+                  <TableHead className="w-10 lg:w-12 text-xs lg:text-sm"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
