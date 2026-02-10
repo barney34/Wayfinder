@@ -55,8 +55,8 @@ function DynamicIslandTag({ id, name, kw, color, onUpdate, onDelete }) {
   const [editKW, setEditKW] = useState(kw?.toString() || '');
   
   const colorClasses = color === 'blue' 
-    ? 'bg-blue-500/15 border-blue-500/40 hover:bg-blue-500/25' 
-    : 'bg-green-500/15 border-green-500/40 hover:bg-green-500/25';
+    ? 'bg-blue-500/10 border-blue-500/30 hover:bg-blue-500/20' 
+    : 'bg-green-500/10 border-green-500/30 hover:bg-green-500/20';
   
   const handleNameSave = () => {
     if (editName.trim()) onUpdate({ name: editName.trim() });
@@ -76,26 +76,26 @@ function DynamicIslandTag({ id, name, kw, color, onUpdate, onDelete }) {
   };
 
   return (
-    <div className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full border text-[10px] transition-all duration-200 ${colorClasses}`}>
+    <div className={`inline-flex items-center gap-0.5 px-1 py-px rounded-md border text-[9px] transition-all duration-150 ${colorClasses}`}>
       {isEditingName ? (
         <input type="text" value={editName} onChange={e => setEditName(e.target.value)} onBlur={handleNameSave}
           onKeyDown={e => { if (e.key === 'Enter') handleNameSave(); if (e.key === 'Escape') { setEditName(name); setIsEditingName(false); } }}
-          className="w-12 h-3.5 px-0.5 text-[10px] bg-background border rounded focus:outline-none" autoFocus />
+          className="w-10 h-3 px-0.5 text-[9px] bg-background border rounded focus:outline-none" autoFocus />
       ) : (
-        <span onClick={() => setIsEditingName(true)} className="font-medium cursor-pointer hover:underline truncate max-w-[50px]" title={name}>
+        <span onClick={() => setIsEditingName(true)} className="font-medium cursor-pointer hover:underline truncate max-w-[40px]" title={name}>
           {name || '?'}
         </span>
       )}
-      <span className="text-muted-foreground/40">•</span>
+      <span className="text-muted-foreground/30">·</span>
       {isEditingKW ? (
         <input type="number" value={editKW} onChange={e => setEditKW(e.target.value)} onBlur={handleKWSave}
           onKeyDown={e => { if (e.key === 'Enter') handleKWSave(); if (e.key === 'Escape') { setEditKW(kw?.toString() || ''); setIsEditingKW(false); } }}
-          className="w-10 h-3.5 px-0.5 text-[10px] bg-background border rounded text-right focus:outline-none" autoFocus />
+          className="w-8 h-3 px-0.5 text-[9px] bg-background border rounded text-right focus:outline-none" autoFocus />
       ) : (
         <span onClick={() => setIsEditingKW(true)} className="tabular-nums cursor-pointer hover:underline">{formatKW(kw || 0)}</span>
       )}
-      <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="p-0.5 rounded-full hover:bg-destructive/20">
-        <X className="h-2 w-2 text-muted-foreground hover:text-destructive" />
+      <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="ml-0.5 rounded hover:bg-destructive/20">
+        <X className="h-2 w-2 text-muted-foreground/50 hover:text-destructive" />
       </button>
     </div>
   );
