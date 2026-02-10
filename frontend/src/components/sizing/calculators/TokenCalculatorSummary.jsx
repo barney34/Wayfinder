@@ -929,6 +929,45 @@ export function TokenCalculatorSummary() {
                       </Popover>
                     </TableCell>
                     <TableCell className="p-2 lg:p-4">
+                      {/* DHCP Partner - for Hub/Spoke topology */}
+                      <Select 
+                        value={site.dhcpPartner || '__none__'} 
+                        onValueChange={v => updateSite(site.id, 'dhcpPartner', v === '__none__' ? null : v)}
+                      >
+                        <SelectTrigger className="h-8 lg:h-10 text-xs lg:text-sm" data-testid={`site-dhcp-partner-${site.id}`}>
+                          <SelectValue>
+                            {site.isHub ? (
+                              <span className="text-blue-600 font-medium">Hub</span>
+                            ) : site.dhcpPartner ? (
+                              <span className="text-amber-600">{sites.find(s => s.id === site.dhcpPartner)?.name || 'Spoke'}</span>
+                            ) : (
+                              <span className="text-muted-foreground">—</span>
+                            )}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="__none__">None</SelectItem>
+                          {sites.filter(s => s.id !== site.id && !s.isSpoke).map(s => (
+                            <SelectItem key={s.id} value={s.id}>
+                              {s.name} {s.isHub && '(Hub)'}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell className="p-2 lg:p-4">
+                      {/* Server Count */}
+                      <Input
+                        type="number"
+                        min="1"
+                        max="10"
+                        value={site.serverCount || 1}
+                        onChange={e => updateSite(site.id, 'serverCount', Math.max(1, parseInt(e.target.value) || 1))}
+                        className="h-8 lg:h-10 text-sm w-14 lg:w-16 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        data-testid={`site-server-count-${site.id}`}
+                      />
+                    </TableCell>
+                    <TableCell className="p-2 lg:p-4">
                       <Select value={site.platform} onValueChange={v => updateSite(site.id, 'platform', v)}>
                         <SelectTrigger className="h-8 lg:h-10 text-xs lg:text-sm" data-testid={`site-platform-${site.id}`}>
                           <SelectValue />
