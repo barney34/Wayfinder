@@ -140,7 +140,7 @@ function detectFieldType(question) {
 }
 
 // ===== Main AssessmentQuestions =====
-export function AssessmentQuestions({ questions, onAnswerChange }) {
+export function AssessmentQuestions({ questions, onAnswerChange, compact = false }) {
   const { answers, notes, defaultAnswers, setAnswer, setNote, enabledSections, toggleSection, enableAllSections, disableAllSections, clearSection, leaseTimeUnits, setLeaseTimeUnit } = useDiscovery();
   const [expandedNotes, setExpandedNotes] = useState({});
   const [sectionToDisable, setSectionToDisable] = useState(null);
@@ -208,35 +208,37 @@ export function AssessmentQuestions({ questions, onAnswerChange }) {
   const sections = Object.keys(grouped);
   const allEnabled = sections.every(s => enabledSections[s] !== false);
 
-  // Render a single question's field
+  // Render a single question's field (compact mode adjusts sizing)
   const renderField = (q) => {
     const fieldType = detectFieldType(q);
     const currentValue = answers[q.id] ?? q.defaultValue ?? '';
+    const inputClass = compact ? "h-8 text-sm" : "";
+    const selectClass = compact ? "h-8 text-sm" : "";
 
     switch (fieldType) {
       case 'yesno':
         return (
-          <div className="flex items-center gap-3">
-            <Button variant={currentValue === 'Yes' ? 'default' : 'outline'} size="sm" onClick={() => handleAnswerChange(q.id, 'Yes')} data-testid={`btn-yes-${q.id}`}>Yes</Button>
-            <Button variant={currentValue === 'No' ? 'default' : 'outline'} size="sm" onClick={() => handleAnswerChange(q.id, 'No')} data-testid={`btn-no-${q.id}`}>No</Button>
+          <div className="flex items-center gap-2">
+            <Button variant={currentValue === 'Yes' ? 'default' : 'outline'} size="sm" className={compact ? "h-7 px-3 text-xs" : ""} onClick={() => handleAnswerChange(q.id, 'Yes')} data-testid={`btn-yes-${q.id}`}>Yes</Button>
+            <Button variant={currentValue === 'No' ? 'default' : 'outline'} size="sm" className={compact ? "h-7 px-3 text-xs" : ""} onClick={() => handleAnswerChange(q.id, 'No')} data-testid={`btn-no-${q.id}`}>No</Button>
           </div>
         );
       case 'select':
         return q.allowFreeform ? <SelectWithFreeform questionId={q.id} options={q.options || []} value={currentValue} onChange={v => handleAnswerChange(q.id, v)} />
           : <Select value={currentValue} onValueChange={v => handleAnswerChange(q.id, v)}>
-              <SelectTrigger data-testid={`select-answer-${q.id}`}><SelectValue placeholder="Select..." /></SelectTrigger>
+              <SelectTrigger className={selectClass} data-testid={`select-answer-${q.id}`}><SelectValue placeholder="Select..." /></SelectTrigger>
               <SelectContent>{(q.options || []).map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
             </Select>;
       case 'multiselect':
         return <MultiSelectField questionId={q.id} options={q.options || []} optionsWithPermission={q.optionsWithPermission} optionsWithVendor={q.optionsWithVendor} value={currentValue} onChange={v => handleAnswerChange(q.id, v)} allowFreeform={q.allowFreeform} />;
       case 'number':
-        return <Input type="number" value={currentValue} onChange={e => handleAnswerChange(q.id, e.target.value)} className="max-w-xs" placeholder="Enter a number" data-testid={`input-answer-${q.id}`} />;
+        return <Input type="number" value={currentValue} onChange={e => handleAnswerChange(q.id, e.target.value)} className={`${compact ? 'w-24 h-8 text-sm' : 'max-w-xs'}`} placeholder="0" data-testid={`input-answer-${q.id}`} />;
       case 'leaseTime':
         return (
           <div className="flex items-center gap-2">
-            <Input type="number" step="any" value={getDisplayLeaseValue(q.id, currentValue)} onChange={e => handleLeaseTimeChange(q.id, e.target.value)} className="w-24" data-testid={`input-answer-${q.id}`} />
+            <Input type="number" step="any" value={getDisplayLeaseValue(q.id, currentValue)} onChange={e => handleLeaseTimeChange(q.id, e.target.value)} className={compact ? "w-20 h-8 text-sm" : "w-24"} data-testid={`input-answer-${q.id}`} />
             <Select value={getLeaseTimeUnit(q.id)} onValueChange={v => setLeaseTimeUnit(q.id, v)}>
-              <SelectTrigger className="w-28"><SelectValue /></SelectTrigger>
+              <SelectTrigger className={compact ? "w-24 h-8 text-sm" : "w-28"}><SelectValue /></SelectTrigger>
               <SelectContent><SelectItem value="seconds">seconds</SelectItem><SelectItem value="minutes">minutes</SelectItem><SelectItem value="hours">hours</SelectItem><SelectItem value="days">days</SelectItem></SelectContent>
             </Select>
           </div>
@@ -245,13 +247,13 @@ export function AssessmentQuestions({ questions, onAnswerChange }) {
         return (
           <div className="flex items-center gap-2">
             <Switch checked={currentValue === 'Yes'} onCheckedChange={c => handleAnswerChange(q.id, c ? 'Yes' : 'No')} data-testid={`switch-answer-${q.id}`} />
-            <span className="text-sm text-muted-foreground">{currentValue === 'Yes' ? 'Enabled' : 'Disabled'}</span>
+            <span className={`${compact ? 'text-xs' : 'text-sm'} text-muted-foreground`}>{currentValue === 'Yes' ? 'Enabled' : 'Disabled'}</span>
           </div>
         );
       case 'ipCalculated':
       case 'dnsAggregateCalculated':
       case 'dnsPerServerCalculated':
-        return <div className="space-y-1"><Input type="text" value={currentValue} onChange={e => handleAnswerChange(q.id, e.target.value)} className="max-w-xs" placeholder="Auto-calculated or enter manually" data-testid={`input-answer-${q.id}`} /><p className="text-xs text-muted-foreground">Auto-calculated based on other inputs, or override manually</p></div>;
+        return <div className="space-y-1"><Input type="text" value={currentValue} onChange={e => handleAnswerChange(q.id, e.target.value)} className={compact ? "w-32 h-8 text-sm" : "max-w-xs"} placeholder="Auto or manual" data-testid={`input-answer-${q.id}`} />{!compact && <p className="text-xs text-muted-foreground">Auto-calculated or override manually</p>}</div>;
       case 'tdNiosSection':
         return <TDNiosSection value={currentValue} onChange={v => handleAnswerChange(q.id, v)} questionId={q.id} />;
       case 'assetConfigInput':
@@ -274,11 +276,131 @@ export function AssessmentQuestions({ questions, onAnswerChange }) {
         return <TokenTotalDisplay answers={answers} />;
       default:
         return q.question?.length > 80
-          ? <Textarea value={currentValue} onChange={e => handleAnswerChange(q.id, e.target.value)} placeholder="Enter your answer..." rows={3} data-testid={`textarea-answer-${q.id}`} />
-          : <Input value={currentValue} onChange={e => handleAnswerChange(q.id, e.target.value)} placeholder="Enter your answer..." data-testid={`input-answer-${q.id}`} />;
+          ? <Textarea value={currentValue} onChange={e => handleAnswerChange(q.id, e.target.value)} placeholder="Enter your answer..." rows={compact ? 2 : 3} className={compact ? "text-sm" : ""} data-testid={`textarea-answer-${q.id}`} />
+          : <Input value={currentValue} onChange={e => handleAnswerChange(q.id, e.target.value)} placeholder="Enter..." className={inputClass} data-testid={`input-answer-${q.id}`} />;
     }
   };
 
+  // Compact 2-column layout for Discovery
+  if (compact) {
+    return (
+      <div className="space-y-3">
+        {/* Master Enable All */}
+        <div className="flex items-center gap-2">
+          <Switch id="enable-all-sections" checked={allEnabled} onCheckedChange={handleToggleAllSections} data-testid="switch-enable-all-sections" />
+          <Label htmlFor="enable-all-sections" className="text-xs font-medium cursor-pointer">Enable All Sections</Label>
+        </div>
+
+        {Object.entries(grouped).map(([section, sectionQuestions]) => {
+          const isSectionEnabled = enabledSections[section] !== false;
+          
+          // Filter visible questions
+          const visibleQuestions = sectionQuestions.filter(q => {
+            if (q.hidden) return false;
+            if (q.conditionalOn) {
+              const parentAnswer = answers[q.conditionalOn.questionId] || '';
+              const conditionMet = parentAnswer === q.conditionalOn.value || parentAnswer.split(',').map(v => v.trim()).includes(q.conditionalOn.value);
+              if (!conditionMet) return false;
+            }
+            return true;
+          });
+
+          // Separate into short (2-col) and long (full-width) questions
+          const shortQuestions = visibleQuestions.filter(q => {
+            const ft = detectFieldType(q);
+            return ['yesno', 'select', 'number', 'enableSwitch'].includes(ft) || q.question.length < 60;
+          });
+          const longQuestions = visibleQuestions.filter(q => {
+            const ft = detectFieldType(q);
+            return !['yesno', 'select', 'number', 'enableSwitch'].includes(ft) && q.question.length >= 60;
+          });
+
+          return (
+            <div key={section} className={`border rounded-lg bg-card ${!isSectionEnabled ? 'opacity-50' : ''}`} data-testid={`section-${section.replace(/\s/g, '-')}`}>
+              {/* Section Header - Sticky */}
+              <div className="sticky top-0 z-10 bg-card border-b px-4 py-2 flex items-center justify-between rounded-t-lg">
+                <h3 className="text-sm font-semibold">{section}</h3>
+                <div className="flex items-center gap-2">
+                  <Switch checked={isSectionEnabled} onCheckedChange={c => handleSectionToggle(section, c)} data-testid={`switch-section-${section.replace(/\s/g, '-')}`} />
+                  <span className="text-xs text-muted-foreground">{isSectionEnabled ? 'On' : 'Off'}</span>
+                </div>
+              </div>
+
+              {/* Questions Grid */}
+              {isSectionEnabled && (
+                <div className="p-3 space-y-3">
+                  {/* 2-Column Grid for Short Questions */}
+                  {shortQuestions.length > 0 && (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-4 gap-y-2">
+                      {shortQuestions.map(q => (
+                        <div key={q.id} className="flex items-center gap-2 py-1.5 border-b border-border/30" data-testid={`question-${q.id}`}>
+                          <div className="flex-1 min-w-0">
+                            <Label className="text-xs font-medium truncate block" title={q.question}>{q.question}</Label>
+                          </div>
+                          <div className="flex-shrink-0">
+                            {renderField(q)}
+                          </div>
+                          <Button variant="ghost" size="icon" className={`h-6 w-6 flex-shrink-0 ${notes[q.id]?.trim() ? 'text-primary' : 'text-muted-foreground/50'}`}
+                            onClick={() => setExpandedNotes(p => ({ ...p, [q.id]: !p[q.id] }))} data-testid={`toggle-note-${q.id}`}>
+                            <MessageSquare className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Full-Width for Long Questions */}
+                  {longQuestions.length > 0 && (
+                    <div className="space-y-2 pt-2 border-t">
+                      {longQuestions.map(q => (
+                        <div key={q.id} className="space-y-1" data-testid={`question-${q.id}`}>
+                          <div className="flex items-center justify-between">
+                            <Label className="text-xs font-medium">{q.question}</Label>
+                            <Button variant="ghost" size="icon" className={`h-6 w-6 ${notes[q.id]?.trim() ? 'text-primary' : 'text-muted-foreground/50'}`}
+                              onClick={() => setExpandedNotes(p => ({ ...p, [q.id]: !p[q.id] }))} data-testid={`toggle-note-${q.id}`}>
+                              <MessageSquare className="h-3 w-3" />
+                            </Button>
+                          </div>
+                          {renderField(q)}
+                          {expandedNotes[q.id] && (
+                            <Textarea value={notes[q.id] || ''} onChange={e => setNote(q.id, e.target.value)} placeholder="Add a note..." rows={1} className="text-xs" data-testid={`note-${q.id}`} />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Expanded Notes for Short Questions */}
+                  {shortQuestions.filter(q => expandedNotes[q.id]).map(q => (
+                    <div key={`note-${q.id}`} className="pl-2 border-l-2 border-primary/30">
+                      <p className="text-xs text-muted-foreground mb-1">{q.question}</p>
+                      <Textarea value={notes[q.id] || ''} onChange={e => setNote(q.id, e.target.value)} placeholder="Add a note..." rows={1} className="text-xs" data-testid={`note-${q.id}`} />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+
+        {/* Disable section confirmation dialog */}
+        <AlertDialog open={!!sectionToDisable} onOpenChange={() => setSectionToDisable(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Disable Section?</AlertDialogTitle>
+              <AlertDialogDescription>This will clear all answers and notes for "{sectionToDisable}". This cannot be undone.</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmDisableSection}>Disable & Clear</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+    );
+  }
+
+  // Regular (non-compact) layout
   return (
     <div className="space-y-4">
       {/* Master Enable All */}
