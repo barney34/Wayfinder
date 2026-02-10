@@ -270,13 +270,14 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
 
     switch (fieldType) {
       case 'yesno':
-        // In compact mode, use toggle switch instead of buttons
+        // In compact mode, use checkbox instead of toggle
         if (compact) {
           return (
-            <Switch 
+            <Checkbox 
               checked={currentValue === 'Yes'} 
               onCheckedChange={c => handleAnswerChange(q.id, c ? 'Yes' : 'No')} 
-              data-testid={`toggle-${q.id}`} 
+              className="h-5 w-5"
+              data-testid={`checkbox-${q.id}`} 
             />
           );
         }
@@ -287,22 +288,30 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
           </div>
         );
       case 'select':
+        // In compact mode, use inline checkboxes for faster selection
+        if (compact && q.options && q.options.length <= 8 && !q.allowFreeform) {
+          return <InlineCheckboxSelect questionId={q.id} options={q.options} value={currentValue} onChange={v => handleAnswerChange(q.id, v)} />;
+        }
         return q.allowFreeform ? <SelectWithFreeform questionId={q.id} options={q.options || []} value={currentValue} onChange={v => handleAnswerChange(q.id, v)} />
           : <Select value={currentValue} onValueChange={v => handleAnswerChange(q.id, v)}>
               <SelectTrigger className={selectClass} data-testid={`select-answer-${q.id}`}><SelectValue placeholder="Select..." /></SelectTrigger>
               <SelectContent>{(q.options || []).map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
             </Select>;
       case 'multiselect':
+        // In compact mode, use inline checkboxes for multi-select
+        if (compact && q.options && q.options.length <= 8 && !q.optionsWithPermission?.length && !q.optionsWithVendor?.length) {
+          return <InlineCheckboxMulti questionId={q.id} options={q.options} value={currentValue} onChange={v => handleAnswerChange(q.id, v)} />;
+        }
         return <MultiSelectField questionId={q.id} options={q.options || []} optionsWithPermission={q.optionsWithPermission} optionsWithVendor={q.optionsWithVendor} value={currentValue} onChange={v => handleAnswerChange(q.id, v)} allowFreeform={q.allowFreeform} />;
       case 'number':
-        return <Input type="number" value={currentValue} onChange={e => handleAnswerChange(q.id, e.target.value)} className={`${compact ? 'w-24 h-8 text-sm' : 'max-w-xs'}`} placeholder="0" data-testid={`input-answer-${q.id}`} />;
+        return <Input type="number" value={currentValue} onChange={e => handleAnswerChange(q.id, e.target.value)} className={`${compact ? 'w-20 h-7 text-xs' : 'max-w-xs'}`} placeholder="0" data-testid={`input-answer-${q.id}`} />;
       case 'leaseTime':
         return (
           <div className="flex items-center gap-2">
-            <Input type="number" step="any" value={getDisplayLeaseValue(q.id, currentValue)} onChange={e => handleLeaseTimeChange(q.id, e.target.value)} className={compact ? "w-20 h-8 text-sm" : "w-24"} data-testid={`input-answer-${q.id}`} />
+            <Input type="number" step="any" value={getDisplayLeaseValue(q.id, currentValue)} onChange={e => handleLeaseTimeChange(q.id, e.target.value)} className={compact ? "w-16 h-7 text-xs" : "w-24"} data-testid={`input-answer-${q.id}`} />
             <Select value={getLeaseTimeUnit(q.id)} onValueChange={v => setLeaseTimeUnit(q.id, v)}>
-              <SelectTrigger className={compact ? "w-24 h-8 text-sm" : "w-28"}><SelectValue /></SelectTrigger>
-              <SelectContent><SelectItem value="seconds">seconds</SelectItem><SelectItem value="minutes">minutes</SelectItem><SelectItem value="hours">hours</SelectItem><SelectItem value="days">days</SelectItem></SelectContent>
+              <SelectTrigger className={compact ? "w-20 h-7 text-xs" : "w-28"}><SelectValue /></SelectTrigger>
+              <SelectContent><SelectItem value="seconds">sec</SelectItem><SelectItem value="minutes">min</SelectItem><SelectItem value="hours">hr</SelectItem><SelectItem value="days">day</SelectItem></SelectContent>
             </Select>
           </div>
         );
