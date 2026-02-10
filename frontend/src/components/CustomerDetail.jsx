@@ -324,45 +324,45 @@ function QuickCaptureBarInline() {
           {/* Two Column Grid: DCs | Sites (renamed to Locations) */}
           <div className="grid grid-cols-2 gap-2">
             {/* Data Centers */}
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-0.5">
               <button type="button" onClick={() => setShowDCs(!showDCs)}
-                className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors">
-                <ChevronRight className={`h-2.5 w-2.5 transition-transform ${showDCs ? 'rotate-90' : ''}`} />
-                <Building2 className="h-2.5 w-2.5 text-blue-500" />
-                <span className="font-medium">Data Centers</span>
-                <span className="px-1 bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded-full text-[8px] font-semibold">{dataCenters.length}</span>
-                <span className="text-[9px]">• {formatKW(totalDCKW)}</span>
+                className="flex items-center gap-1 text-[9px] text-muted-foreground hover:text-foreground transition-colors">
+                <ChevronRight className={`h-2 w-2 transition-transform ${showDCs ? 'rotate-90' : ''}`} />
+                <Building2 className="h-2 w-2 text-blue-500" />
+                <span className="font-medium">DCs</span>
+                <span className="px-0.5 bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded text-[8px] font-semibold">{dataCenters.length}</span>
+                <span className="text-[8px]">• {formatKW(totalDCKW)}</span>
               </button>
               {showDCs && dataCenters.length > 0 && (
-                <div className="grid grid-cols-2 gap-0.5 pl-3">
+                <div className="flex flex-wrap gap-0.5 pl-2">
                   {dataCenters.map(dc => (
                     <DynamicIslandTag key={dc.id} id={dc.id} name={dc.name} kw={dc.knowledgeWorkers} color="blue"
                       onUpdate={(updates) => updateDataCenter(dc.id, updates)} onDelete={() => deleteDataCenter(dc.id)} />
                   ))}
                 </div>
               )}
-              {showDCs && dataCenters.length === 0 && <div className="pl-3 text-[9px] text-muted-foreground italic">No data centers</div>}
+              {showDCs && dataCenters.length === 0 && <div className="pl-2 text-[8px] text-muted-foreground italic">No DCs</div>}
             </div>
             
             {/* Locations (was Sites) */}
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-0.5">
               <button type="button" onClick={() => setShowSites(!showSites)}
-                className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors">
-                <ChevronRight className={`h-2.5 w-2.5 transition-transform ${showSites ? 'rotate-90' : ''}`} />
-                <MapPin className="h-2.5 w-2.5 text-green-500" />
+                className="flex items-center gap-1 text-[9px] text-muted-foreground hover:text-foreground transition-colors">
+                <ChevronRight className={`h-2 w-2 transition-transform ${showSites ? 'rotate-90' : ''}`} />
+                <MapPin className="h-2 w-2 text-green-500" />
                 <span className="font-medium">Locations</span>
-                <span className="px-1 bg-green-500/20 text-green-600 dark:text-green-400 rounded-full text-[8px] font-semibold">{sites.length}</span>
-                <span className="text-[9px]">• {formatKW(totalSiteKW)}</span>
+                <span className="px-0.5 bg-green-500/20 text-green-600 dark:text-green-400 rounded text-[8px] font-semibold">{sites.length}</span>
+                <span className="text-[8px]">• {formatKW(totalSiteKW)}</span>
               </button>
               {showSites && sites.length > 0 && (
-                <div className="grid grid-cols-2 gap-0.5 pl-3">
+                <div className="flex flex-wrap gap-0.5 pl-2">
                   {sites.map(site => (
                     <DynamicIslandTag key={site.id} id={site.id} name={site.name} kw={site.knowledgeWorkers} color="green"
                       onUpdate={(updates) => updateSite(site.id, updates)} onDelete={() => deleteSite(site.id)} />
                   ))}
                 </div>
               )}
-              {showSites && sites.length === 0 && <div className="pl-3 text-[9px] text-muted-foreground italic">No locations</div>}
+              {showSites && sites.length === 0 && <div className="pl-2 text-[8px] text-muted-foreground italic">No locations</div>}
             </div>
           </div>
         </div>
