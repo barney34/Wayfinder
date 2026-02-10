@@ -104,7 +104,7 @@ function DynamicIslandTag({ id, name, kw, color, onUpdate, onDelete }) {
 
 // ===== Quick Capture Bar =====
 function QuickCaptureBarInline() {
-  const { dataCenters, sites, addDataCenter, deleteDataCenter, updateDataCenter, addSite, deleteSite, updateSite, setAnswer, answers, defaultAnswers, platformMode, setPlatformMode } = useDiscovery();
+  const { dataCenters, sites, addDataCenter, deleteDataCenter, updateDataCenter, addSite, deleteSite, updateSite, setAnswer, answers, defaultAnswers, platformMode, setPlatformMode, sizingSummary } = useDiscovery();
   const [entryType, setEntryType] = useState('dc');
   const [entryName, setEntryName] = useState('');
   const [entryKW, setEntryKW] = useState('');
