@@ -38,6 +38,7 @@ export function DiscoveryProvider({ children, customerId }) {
   const [leaseTimeUnits, setLeaseTimeUnitsState] = useState({});
   const [dataCenters, setDataCenters] = useState([]);
   const [sites, setSites] = useState([]);
+  const [platformMode, setPlatformModeState] = useState('NIOS');
   const [isHydrated, setIsHydrated] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
