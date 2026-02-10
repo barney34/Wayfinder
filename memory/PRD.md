@@ -143,6 +143,14 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 - **Platform Toggle Sync**: NIOS/UDDI/Hybrid toggle in Quick Capture syncs with Site Sizing Recommendations
 - **Role/Platform by Mode**: UDDI mode removes GM/GMC roles and shows NXVS/NXaaS platforms
 
+### Phase 14 — Layout & Navigation Improvements (Complete - Feb 10, 2026)
+- **Sticky Header**: Header section (Customer info, Quick Capture, tabs) stays fixed with flex-shrink-0
+- **Scroll Container**: Tab content area uses flex-1 overflow-y-auto for vertical scrolling
+- **Optimized Sidebar**: Narrower sidebar (w-48 default, w-14 collapsed) with collapse/expand toggle
+- **Collapsible Sidebar**: Icons-only mode when collapsed, smooth transition animation
+- **Bubble-Match Alignment**: Content constrained with max-w-5xl mx-auto, inputs contained within visual boundaries
+- **Compact Quick Capture**: IP Calc section reduced to 100px width, entry name field capped at 120px
+
 ## Pending / Backlog
 
 ### P2
