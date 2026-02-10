@@ -417,57 +417,7 @@ function QuickCaptureBarInline() {
   );
 }
 
-// ===== Context Fields (SmartFill) =====
-function ContextFields() {
-  const { contextFields, setContextField, answers, notes } = useDiscovery();
-  const API_URL = process.env.REACT_APP_BACKEND_URL;
-  const [generating, setGenerating] = useState({});
-
-  const fields = [
-    { key: 'environment', label: 'Customer Environment', description: 'IPAM, DNS, DHCP, Locations, Integrations' },
-    { key: 'outcomes', label: 'Project Outcomes', description: 'Goals, pain points, timeline' },
-    { key: 'endState', label: 'Target End State', description: 'Architecture, migration path' },
-  ];
-
-  const handleGenerate = async (contextType) => {
-    setGenerating(prev => ({ ...prev, [contextType]: true }));
-    try {
-      const res = await fetch(`${API_URL}/api/generate-context`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contextType, answers, notes }),
-      });
-      if (!res.ok) throw new Error('Generation failed');
-      const data = await res.json();
-      setContextField(contextType, data.summary);
-    } catch (err) {
-      console.error('Context generation failed:', err);
-    } finally {
-      setGenerating(prev => ({ ...prev, [contextType]: false }));
-    }
-  };
-
-  return (
-    <div className="space-y-4" data-testid="context-fields">
-      <h3 className="text-lg font-semibold">Context Summaries</h3>
-      <p className="text-sm text-muted-foreground">AI-generated summaries based on your discovery answers. Click Generate to create or update.</p>
-      {fields.map(f => (
-        <div key={f.key} className="space-y-2 p-4 bg-muted/30 rounded-lg border">
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="text-sm font-medium">{f.label}</h4>
-              <p className="text-xs text-muted-foreground">{f.description}</p>
-            </div>
-            <Button size="sm" variant="outline" onClick={() => handleGenerate(f.key)} disabled={generating[f.key]} data-testid={`generate-${f.key}`}>
-              {generating[f.key] ? 'Generating...' : 'Generate'}
-            </Button>
-          </div>
-          <textarea className="w-full min-h-[100px] p-2 text-sm bg-background border rounded-md resize-y" value={contextFields[f.key] || ''} onChange={e => setContextField(f.key, e.target.value)} placeholder={`${f.label} summary will appear here...`} data-testid={`context-${f.key}`} />
-        </div>
-      ))}
-    </div>
-  );
-}
+// ===== Context Fields removed - now integrated into MeetingNotesAI =====
 
 // ===== Export Button =====
 function ExportButton({ customerName, customerId }) {
