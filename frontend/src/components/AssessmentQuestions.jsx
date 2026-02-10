@@ -422,11 +422,17 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
             const rowBg = rowIndex % 2 === 0 ? '' : 'bg-muted/20';
             // Column shading - middle column gets subtle gray
             const colBg = colIndex === 1 ? 'bg-gray-100/50 dark:bg-gray-800/30' : '';
+            // For text-only questions, make entire row clickable
+            const isClickableRow = !hasInput;
             
             return (
               <div key={q.id} className={`${colBg} ${rowBg}`}>
                 {/* Main question row - with visible separator */}
-                <div className="px-3 py-2.5 border-b border-border/60" data-testid={`question-${q.id}`}>
+                <div 
+                  className={`px-3 py-2.5 border-b border-border/60 ${isClickableRow ? 'cursor-pointer hover:bg-muted/40 transition-colors' : ''} ${isNoteExpanded && isClickableRow ? 'bg-muted/30' : ''}`}
+                  onClick={isClickableRow ? () => setExpandedNotes(p => ({ ...p, [q.id]: !p[q.id] })) : undefined}
+                  data-testid={`question-${q.id}`}
+                >
                   {/* Questions WITH inputs: single line layout */}
                   {hasInput ? (
                     <div className="flex items-start justify-between gap-2">
