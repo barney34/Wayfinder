@@ -880,8 +880,20 @@ export function TokenCalculatorSummary() {
                     </TooltipProvider>
                   </TableHead>
                   <TableHead className="text-xs lg:text-sm">Platform</TableHead>
-                  <TableHead className="w-16 lg:w-20 text-xs lg:text-sm">Model</TableHead>
-                  <TableHead className="text-xs lg:text-sm">Hardware SKU</TableHead>
+                  <TableHead className="w-16 lg:w-20 text-xs lg:text-sm">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger className="flex items-center gap-1">
+                          Model <Info className="h-3 w-3" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs text-xs">
+                          <p>Recommended server model based on workload.</p>
+                          <p className="mt-1 text-muted-foreground">Hover on model for sizing details.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </TableHead>
+                  {showHardware && <TableHead className="text-xs lg:text-sm">Hardware SKU</TableHead>}
                   <TableHead className="w-16 lg:w-20 text-right text-xs lg:text-sm">Tokens</TableHead>
                   <TableHead className="w-10 lg:w-12 text-xs lg:text-sm"></TableHead>
                 </TableRow>
