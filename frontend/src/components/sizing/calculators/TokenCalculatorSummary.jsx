@@ -1083,20 +1083,69 @@ export function TokenCalculatorSummary() {
                       </Select>
                     </TableCell>
                     <TableCell className="p-2 lg:p-4">
-                      <Badge variant="outline" className="font-mono text-xs lg:text-sm">{site.recommendedModel}</Badge>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger className="cursor-help">
+                            <Badge variant="outline" className="font-mono text-xs lg:text-sm" data-testid={`site-model-${site.id}`}>
+                              {site.recommendedModel}
+                            </Badge>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-sm">
+                            {(() => {
+                              const workload = getSiteWorkloadDetails(
+                                site.numIPs, site.role, platformMode, dhcpPercent, 
+                                site.platform, { isSpoke: site.isSpoke, hubLPS: site.hubLPS || 0 }
+                              );
+                              return (
+                                <div className="space-y-2 text-xs">
+                                  <div className="font-medium border-b pb-1">Sizing Details for {site.name}</div>
+                                  <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                                    <div className={workload.driver === 'qps' ? 'font-bold text-blue-500' : ''}>
+                                      QPS: {formatNumber(workload.adjustedQPS)}
+                                      {workload.driver === 'qps' && <span className="ml-1">★</span>}
+                                    </div>
+                                    <div className={workload.driver === 'lps' ? 'font-bold text-blue-500' : ''}>
+                                      LPS: {formatNumber(workload.adjustedLPS)}
+                                      {workload.driver === 'lps' && <span className="ml-1">★</span>}
+                                    </div>
+                                    <div className={workload.driver === 'objects' ? 'font-bold text-blue-500' : ''}>
+                                      Objects: {formatNumber(workload.objects)}
+                                      {workload.driver === 'objects' && <span className="ml-1">★</span>}
+                                    </div>
+                                    <div className="text-muted-foreground">
+                                      DHCP: {formatNumber(workload.dhcpClients)}
+                                    </div>
+                                  </div>
+                                  {workload.penalties.length > 0 && (
+                                    <div className="border-t pt-1 text-amber-600">
+                                      <div className="font-medium">Penalties Applied:</div>
+                                      {workload.penalties.map((p, i) => <div key={i}>• {p}</div>)}
+                                    </div>
+                                  )}
+                                  <div className="border-t pt-1 text-muted-foreground">
+                                    <span className="text-blue-500">★</span> = driver metric (why this model)
+                                  </div>
+                                </div>
+                              );
+                            })()}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </TableCell>
-                    <TableCell className="p-2 lg:p-4">
-                      <Select value={site.hardwareSku} onValueChange={v => updateSite(site.id, 'hardwareSku', v)}>
-                        <SelectTrigger className="h-8 lg:h-10 text-xs lg:text-sm" data-testid={`site-sku-${site.id}`}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {(site.hardwareOptions || [site.hardwareSku]).map(o => (
-                            <SelectItem key={o} value={o}>{o}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
+                    {showHardware && (
+                      <TableCell className="p-2 lg:p-4">
+                        <Select value={site.hardwareSku} onValueChange={v => updateSite(site.id, 'hardwareSku', v)}>
+                          <SelectTrigger className="h-8 lg:h-10 text-xs lg:text-sm" data-testid={`site-sku-${site.id}`}>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {(site.hardwareOptions || [site.hardwareSku]).map(o => (
+                              <SelectItem key={o} value={o}>{o}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                    )}
                     <TableCell className="p-2 lg:p-4 text-right tabular-nums font-medium text-sm lg:text-base">
                       <TooltipProvider>
                         <Tooltip>
