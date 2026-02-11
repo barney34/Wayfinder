@@ -266,3 +266,104 @@ export function getDefaultHardwareSku(softwareModel) {
 export function isHardwareSkuLocked(softwareModel) {
   return hardwareSkuMapping[softwareModel]?.locked || false;
 }
+
+// Get detailed workload breakdown with the driver metric
+export function getSiteWorkloadDetails(numIPs, role, platform, dhcpPercent, sitePlatform, options = {}) {
+  const { isSpoke = false, hubLPS = 0 } = options;
+  
+  const isUDDI = sitePlatform
+    ? (sitePlatform === 'NXVS' || sitePlatform === 'NXaaS')
+    : (platform?.includes('UDDI') || platform?.includes('Hybrid'));
+  
+  const dhcpClients = Math.ceil(numIPs * (dhcpPercent / 100));
+  const staticClients = numIPs - dhcpClients;
+  
+  // Base calculations
+  let qps = Math.ceil(numIPs / (isUDDI ? 50 : niosGridConstants.peakQpsDivisor));
+  let lps = Math.max(1, Math.ceil(dhcpClients / niosGridConstants.lpsAggregateSeconds));
+  
+  const dnsObjects = (dhcpClients * niosGridConstants.dnsRecordsPerDhcpClient) + 
+                     (staticClients * niosGridConstants.dnsRecordsPerStaticClient);
+  const dhcpObjects = dhcpClients * niosGridConstants.dhcpLeaseObjectsPerClient;
+  
+  // Track penalties
+  const penalties = [];
+  
+  // Hub LPS addition
+  if (hubLPS > 0) {
+    penalties.push(`Hub: +${hubLPS} LPS from spokes`);
+    lps += hubLPS;
+  }
+  
+  // Spoke penalty
+  if (isSpoke) {
+    penalties.push('Spoke: 2x LPS (50% penalty)');
+    lps = Math.ceil(lps * 2);
+  }
+  
+  // Multi-role penalty
+  let adjustedQPS = qps;
+  let adjustedLPS = lps;
+  if (role === 'DNS/DHCP') {
+    penalties.push('Multi-protocol: 130% capacity');
+    adjustedQPS = Math.ceil(qps * niosGridConstants.multiRoleCapacityMultiplier);
+    adjustedLPS = Math.ceil(lps * niosGridConstants.multiRoleCapacityMultiplier);
+  }
+  
+  // Calculate objects based on role
+  let objects = 0;
+  if (role === 'GM' || role === 'GMC') {
+    objects = dnsObjects + dhcpObjects;
+  } else if (role === 'DNS/DHCP') {
+    objects = dnsObjects + dhcpObjects;
+  } else if (role === 'DNS') {
+    objects = dnsObjects;
+  } else if (role === 'DHCP') {
+    objects = dhcpObjects;
+  }
+  
+  // Determine which metric drove the model selection
+  let driver = 'objects'; // default
+  const servers = isUDDI ? nxvsServers : niosServerGuardrails;
+  const utilization = niosGridConstants.maxDbUtilizationPercent / 100;
+  
+  for (const server of servers) {
+    const maxQPS = isUDDI ? server.qps : server.maxQPS;
+    const maxLPS = isUDDI ? server.lps : server.maxLPS;
+    const maxObj = isUDDI ? server.objects : server.maxDbObj;
+    
+    const effQPS = maxQPS * utilization;
+    const effLPS = maxLPS * utilization;
+    const effObj = maxObj * utilization;
+    
+    // Check which metric would fail first (is the limiting factor)
+    const qpsUtil = (adjustedQPS / effQPS) * 100;
+    const lpsUtil = (adjustedLPS / effLPS) * 100;
+    const objUtil = (objects / effObj) * 100;
+    
+    // Find which has highest utilization (the driver)
+    if (qpsUtil > lpsUtil && qpsUtil > objUtil) {
+      driver = 'qps';
+    } else if (lpsUtil > qpsUtil && lpsUtil > objUtil) {
+      driver = 'lps';
+    } else {
+      driver = 'objects';
+    }
+    break; // Just need the pattern, not the exact server
+  }
+  
+  return {
+    qps,
+    lps,
+    adjustedQPS,
+    adjustedLPS,
+    objects,
+    dnsObjects,
+    dhcpObjects,
+    dhcpClients,
+    staticClients,
+    penalties,
+    driver,
+    isUDDI,
+  };
+}
