@@ -176,6 +176,9 @@ export function TokenCalculatorSummary() {
   const [showPlatformAlert, setShowPlatformAlert] = useState(false);
   const [pendingPlatformChange, setPendingPlatformChange] = useState(null);
   
+  // UI toggle for Hardware SKU column
+  const [showHardware, setShowHardware] = useState(false);
+  
   // Recommended platform based on DC/Site counts
   const recommendedMode = useMemo(() => 
     getRecommendedPlatformMode(dataCenters.length, contextSites.length), 
