@@ -822,6 +822,18 @@ export function TokenCalculatorSummary() {
       {/* Site Sizing Table - Responsive with auto-fit columns */}
       <Card>
         <CardContent className="pt-4 lg:pt-6">
+          {/* Table Controls */}
+          <div className="flex items-center justify-end mb-3 gap-4">
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <Checkbox 
+                checked={showHardware} 
+                onCheckedChange={setShowHardware}
+                data-testid="show-hardware-toggle"
+              />
+              <span className="text-muted-foreground">Show Hardware SKU</span>
+            </label>
+          </div>
+          
           <div className="border rounded-lg overflow-hidden">
             <Table className="table-auto w-full">
               <TableHeader>
