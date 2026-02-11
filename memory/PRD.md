@@ -221,6 +221,16 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
   - uddiMultiRoleMultiplier: 1.3 (130% for UDDI)
   - dhcpFailoverPenaltyPercent: 50%
 
+### Phase 21 — UI Enhancements: Hardware Toggle & Model Tooltip (Complete - Feb 11, 2026)
+- **Show Hardware SKU Toggle**: Checkbox to show/hide Hardware SKU column (hidden by default for cleaner UI)
+- **Model Tooltip**: Hover on model badge to see detailed sizing breakdown:
+  - QPS, LPS, Objects values
+  - DHCP client count
+  - Star (★) indicator showing which metric drove the model selection
+  - Penalties applied (Hub LPS, Spoke 2x, Multi-protocol 130%)
+  - Explanation: "★ = driver metric (why this model)"
+- **getSiteWorkloadDetails Function**: New calculation function that returns all workload metrics and determines the driver
+
 ## Pending / Backlog
 
 ### P1
