@@ -1193,7 +1193,7 @@ export function TokenCalculatorSummary() {
                   <TableCell className="p-2 lg:p-4" colSpan={2}>Total</TableCell>
                   <TableCell className="p-2 lg:p-4 tabular-nums text-sm lg:text-base">{formatNumber(totals.totalIPs)}</TableCell>
                   <TableCell className="p-2 lg:p-4 tabular-nums text-sm lg:text-base">{formatNumber(totals.totalKW)}</TableCell>
-                  <TableCell className="p-2 lg:p-4" colSpan={5}></TableCell>
+                  <TableCell className="p-2 lg:p-4" colSpan={showHardware ? 6 : 5}></TableCell>
                   <TableCell className="p-2 lg:p-4 text-right tabular-nums text-sm lg:text-base">{formatNumber(totals.infraTokens)}</TableCell>
                   <TableCell className="p-2 lg:p-4"></TableCell>
                 </TableRow>
