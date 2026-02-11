@@ -39,6 +39,7 @@ import {
   isHardwareSkuLocked,
   calculateSiteLPS,
   calculateSiteObjects,
+  getSiteWorkloadDetails,
 } from "../calculations";
 import { 
   niosServerGuardrails, 
