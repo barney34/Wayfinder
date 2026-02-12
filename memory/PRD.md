@@ -277,10 +277,39 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 - **Removed "Enable All Sections"**: Each section has its own toggle
 - **Dashboard Simplified**: Removed old sidebar from App.js
 
+### Phase 24 — Home Assistant Style Sidebar Navigation (Complete - Feb 12, 2026)
+**Implemented:**
+- **Home Assistant-style Sidebar Navigation**:
+  - Replaced horizontal tabs with vertical sidebar navigation
+  - Navigation items: Discovery, Sizing, Tokens, SmartFill, History
+  - Active state with left border indicator (matching Home Assistant)
+  - Icons with labels (collapsed mode shows icons only)
+- **Customer List in Sidebar**:
+  - Collapsible "CUSTOMERS" section
+  - Shows all customers with initial avatars
+  - Click to instantly switch customers
+  - "New Customer" option
+- **Improved IP Calculator**:
+  - Clear formula display: `KW × Mult = IPs`
+  - Editable KW and Multiplier inputs
+  - Calculated result in primary color badge
+  - Auto Calculate / Manual Override toggle
+- **Target Solutions in Sidebar**:
+  - Collapsible section
+  - Compact pill-style toggles for UDDI, Security, Asset
+- **UDDI Feature Penalties** (from AI Trainer PDF):
+  - Multi-protocol (DNS+DHCP): 30% overhead (130% capacity required)
+  - DHCP High Availability: 50% performance impact
+  - DHCP Fingerprinting: 10% reduction
+  - Hub & Spoke: Hub handles aggregate LPS, Spoke 50% penalty
+- **Branding**:
+  - "IB" logo in blue gradient
+  - "Sizing Planner" app name
+
 ## Pending / Backlog
 
 ### P1
-- Add UDDI Sizing Penalties: Implement specific performance penalties for UDDI platform (Hub & Spoke, multi-protocol) when user provides numbers
+- None - UDDI penalties now implemented from PDF documentation
 
 ### P2
 - **Display Sizing Math**: Show content from sizing-math.md as help/info panel within Sizing tab
