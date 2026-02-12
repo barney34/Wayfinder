@@ -257,7 +257,7 @@ function QuickCaptureBarInline() {
         </div>
         <div className="flex items-center gap-1">
           <MapPin className="h-3.5 w-3.5 text-green-500" />
-          <span className="text-xs font-medium">{contextSites.length} Sites</span>
+          <span className="text-xs font-medium">{sites.length} Sites</span>
         </div>
       </div>
 
