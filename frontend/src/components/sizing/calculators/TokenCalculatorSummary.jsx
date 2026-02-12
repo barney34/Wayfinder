@@ -1367,6 +1367,22 @@ export function TokenCalculatorSummary() {
                         </Tooltip>
                       </TooltipProvider>
                     </TableCell>
+                    {/* Add to Report checkbox */}
+                    <TableCell className="p-2 lg:p-4 text-center">
+                      <Checkbox
+                        checked={site.addToReport}
+                        onCheckedChange={v => updateSite(site.id, 'addToReport', v)}
+                        data-testid={`site-report-${site.id}`}
+                      />
+                    </TableCell>
+                    {/* Add to BOM checkbox */}
+                    <TableCell className="p-2 lg:p-4 text-center">
+                      <Checkbox
+                        checked={site.addToBom}
+                        onCheckedChange={v => updateSite(site.id, 'addToBom', v)}
+                        data-testid={`site-bom-${site.id}`}
+                      />
+                    </TableCell>
                     <TableCell className="p-2 lg:p-4">
                       {!site.sourceType && (
                         <Button variant="ghost" size="icon" className="h-7 w-7 lg:h-8 lg:w-8" onClick={() => deleteSite(site.id)}>
