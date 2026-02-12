@@ -60,35 +60,27 @@ import {
   nxvsServers,
 } from "@/lib/tokenData";
 
-// Global platform modes
-const PLATFORM_MODES = [
-  { value: 'NIOS', label: 'NIOS', description: 'Traditional on-prem (Physical/Virtual)' },
-  { value: 'UDDI', label: 'UDDI', description: 'Cloud-native NIOS-X' },
-  { value: 'Hybrid', label: 'Hybrid', description: 'Mix of NIOS + UDDI' },
-];
+// Import extracted constants and utilities
+import {
+  PLATFORM_MODES,
+  PLATFORM_OPTIONS_BY_MODE,
+  ROLE_OPTIONS_BY_MODE,
+  ADDITIONAL_SERVICES,
+} from "./platformConfig";
+import {
+  getServiceImpact,
+  getTokensForModel,
+  getPartnerSkuFromTokens,
+  getSkuDescription,
+  getRecommendedPlatformMode,
+} from "./tokenUtils";
 
-// Platform options per mode
-const PLATFORM_OPTIONS_BY_MODE = {
-  NIOS: [
-    { value: 'NIOS', label: 'NIOS Physical' },
-    { value: 'NIOS-V', label: 'NIOS Virtual' },
-    { value: 'NIOS-HA', label: 'NIOS HA Pair' },
-  ],
-  UDDI: [
-    { value: 'NXVS', label: 'NIOS-X Virtual Server' },
-    { value: 'NXaaS', label: 'NIOS-X as a Service' },
-  ],
-  Hybrid: [
-    { value: 'NIOS', label: 'NIOS Physical' },
-    { value: 'NIOS-V', label: 'NIOS Virtual' },
-    { value: 'NIOS-HA', label: 'NIOS HA Pair' },
-    { value: 'NXVS', label: 'NIOS-X VS' },
-    { value: 'NXaaS', label: 'NXaaS' },
-  ],
-};
+// Re-export constants for backward compatibility
+export { PLATFORM_MODES, PLATFORM_OPTIONS_BY_MODE, ROLE_OPTIONS_BY_MODE, ADDITIONAL_SERVICES };
+export { getServiceImpact, getTokensForModel, getPartnerSkuFromTokens, getSkuDescription, getRecommendedPlatformMode };
 
-// Role options by platform mode (UDDI doesn't have GM/GMC)
-const ROLE_OPTIONS_BY_MODE = {
+// Role options by platform mode (UDDI doesn't have GM/GMC) - kept for inline reference
+const _ROLE_OPTIONS_BY_MODE = {
   NIOS: [
     { value: 'GM', label: 'GM', description: 'Grid Master' },
     { value: 'GMC', label: 'GMC', description: 'Grid Master Candidate' },
