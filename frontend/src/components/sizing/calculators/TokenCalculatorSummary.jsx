@@ -223,6 +223,8 @@ export function TokenCalculatorSummary() {
         dhcpPercent: dhcp,
         dhcpPartner,
         serverCount,
+        addToReport: override.addToReport !== undefined ? override.addToReport : true,
+        addToBom: override.addToBom !== undefined ? override.addToBom : true,
       };
     };
     
