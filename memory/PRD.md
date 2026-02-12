@@ -284,15 +284,17 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
   - Navigation items: Discovery, Sizing, Tokens, SmartFill, History
   - Active state with left border indicator (matching Home Assistant)
   - Icons with labels (collapsed mode shows icons only)
+  - **All sections collapsible** (Customers, Navigation, IP Calculator, Target Solutions)
 - **Customer List in Sidebar**:
-  - Collapsible "CUSTOMERS" section
+  - Collapsible "CUSTOMERS" section with count badge
   - Shows all customers with initial avatars
   - Click to instantly switch customers
   - "New Customer" option
+  - Scrollable when many customers
 - **Improved IP Calculator**:
   - Clear formula display: `KW × Mult = IPs`
   - Editable KW and Multiplier inputs
-  - Calculated result in primary color badge
+  - Calculated result shown in section header when collapsed
   - Auto Calculate / Manual Override toggle
 - **Target Solutions in Sidebar**:
   - Collapsible section
@@ -303,8 +305,9 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
   - DHCP Fingerprinting: 10% reduction
   - Hub & Spoke: Hub handles aggregate LPS, Spoke 50% penalty
 - **Branding**:
-  - "IB" logo in blue gradient
+  - "IB" logo in blue gradient in header
   - "Sizing Planner" app name
+  - Clicking header logo/name returns to Dashboard
 
 ## Pending / Backlog
 
