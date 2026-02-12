@@ -608,7 +608,6 @@ export function CustomerDetail({ customer, onBack }) {
         currentName={currentName}
         currentOpportunity={currentOpportunity}
         onBack={onBack}
-        saving={saving}
         discoveryTabQuestions={discoveryTabQuestions}
         sizingTabQuestions={sizingTabQuestions}
         securityTokenQuestions={securityTokenQuestions}
