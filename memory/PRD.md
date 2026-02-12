@@ -276,6 +276,7 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 - iteration_22.json: Hub & Spoke DHCP Sizing verification (100% pass rate)
 - iteration_23.json: Grid Master Sizing & Guardrails verification (100% pass rate)
 - iteration_24.json: Hardware Toggle & Model Tooltip verification (100% pass rate)
+- iteration_25.json: "Why this Model?" Dialog verification (100% pass rate)
 
 ## Last Updated
-February 11, 2026 - Hardware SKU toggle and Model tooltip with sizing details added
+February 12, 2026 - "Why this model?" dialog feature complete with detailed sizing breakdown
