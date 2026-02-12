@@ -11,7 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { apiRequest } from "@/lib/queryClient";
-import { useDiscovery } from "@/contexts/DiscoveryContext";
+import { useDiscoveryOptional } from "@/contexts/DiscoveryContext";
 
 // Compact IP Calculator for sidebar
 function SidebarIPCalc({ collapsed }) {
