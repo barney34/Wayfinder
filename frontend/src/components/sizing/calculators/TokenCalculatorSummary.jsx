@@ -1309,10 +1309,12 @@ export function TokenCalculatorSummary() {
                       <div className="flex items-center gap-1">
                         <TooltipProvider>
                           <Tooltip>
-                            <TooltipTrigger className="cursor-help">
-                              <Badge variant="outline" className="font-mono text-xs lg:text-sm" data-testid={`site-model-${site.id}`}>
-                                {site.recommendedModel}
-                              </Badge>
+                            <TooltipTrigger asChild>
+                              <span className="cursor-help">
+                                <Badge variant="outline" className="font-mono text-xs lg:text-sm" data-testid={`site-model-${site.id}`}>
+                                  {site.recommendedModel}
+                                </Badge>
+                              </span>
                             </TooltipTrigger>
                             <TooltipContent className="max-w-sm">
                               {(() => {
