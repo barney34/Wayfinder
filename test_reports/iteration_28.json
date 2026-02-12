@@ -1,0 +1,100 @@
+{
+  "summary": "Iteration 28: Frontend-only testing of P2 fixes - Sizing Math Help panel, nested button fix in TokenCalculatorSummary, sidebar collapsible sections. All 4 requested features verified working correctly.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "console_errors": [
+      {
+        "component": "AssessmentQuestions.jsx",
+        "issue": "Switch component nested inside AccordionTrigger causes 'button cannot be descendant of button' console error",
+        "location": "Lines 696-700",
+        "priority": "LOW",
+        "note": "Not part of P2 scope - separate issue"
+      },
+      {
+        "component": "UDSMembersTable",
+        "issue": "Each child in a list should have a unique 'key' prop warning",
+        "priority": "LOW"
+      }
+    ]
+  },
+  "passed_tests": [
+    "Sizing Math Help panel - visible on Sizing tab with collapsible card",
+    "Sizing Math Help - Step 1: Active IPs formula (IPs = KW × Multiplier)",
+    "Sizing Math Help - Step 2: Workload formulas (QPS, LPS calculations)",
+    "Sizing Math Help - Step 3: Select Model reference with TE-926, TE-1516, TE-1526 badges",
+    "Sizing Math Help - Key Formulas table (DNS Objects, DHCP Objects, Peak QPS, Aggregate LPS)",
+    "Sizing Math Help - Performance Penalties section (+30% multi-protocol, -50% DHCP Failover, etc.)",
+    "Sizing Math Help - NIOS TE-Series Models table at 60% capacity",
+    "TokenCalculatorSummary nested button fix - TooltipTrigger uses asChild with span wrapper (line 1312)",
+    "Sidebar CUSTOMERS section - collapsible and visible",
+    "Sidebar IP CALCULATOR section - collapsible with formula display",
+    "Sidebar TARGET SOLUTIONS section - collapsible with DC/Sites count",
+    "Sidebar navigation - Discovery tab switches content correctly",
+    "Sidebar navigation - Sizing tab switches content correctly",
+    "Sidebar navigation - Tokens tab switches content correctly",
+    "Sidebar navigation - SmartFill tab switches content correctly",
+    "Sidebar navigation - History tab switches content correctly"
+  ],
+  "test_report_links": [
+    "/app/test_reports/iteration_28.json"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "SizingMathHelp.jsx: New component correctly implemented with collapsible Card, 3-step quick reference cards, Key Formulas table, Performance Penalties section, and NIOS TE-Series Models table",
+    "TokenCalculatorSummary.jsx (line 1312): Nested button fix correctly applied - TooltipTrigger uses asChild with span wrapper around Badge",
+    "CustomerDetail.jsx (line 718): SizingMathHelp correctly added to Sizing tab content",
+    "Note: AssessmentQuestions.jsx (lines 696-700) still has Switch inside AccordionTrigger causing console errors - separate issue not in P2 scope"
+  ],
+  "updated_files": [],
+  "success_rate": {
+    "backend": "N/A (frontend-only testing)",
+    "frontend": "100% (all 4 P2 features verified working)"
+  },
+  "test_credentials": "No authentication required",
+  "seed_data_creation": "Used existing 'Test Customer for Discovery' customer",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "P2 fixes verified: (1) SizingMathHelp component displays on Sizing tab with formulas and model reference, (2) TokenCalculatorSummary nested button fix applied at line 1312 using asChild with span wrapper, (3) All sidebar collapsible sections working (CUSTOMERS, IP CALCULATOR, TARGET SOLUTIONS), (4) Sidebar navigation switches content correctly for all tabs. Note: AssessmentQuestions.jsx still has nested button issue (Switch inside AccordionTrigger) - separate from P2 scope.",
+  "feature_verification": {
+    "sizing_math_help": {
+      "status": "working",
+      "location": "Sizing tab (CustomerDetail.jsx line 718)",
+      "component": "SizingMathHelp.jsx",
+      "sections": [
+        "Step 1: Active IPs (IPs = KW × Multiplier)",
+        "Step 2: Workload (QPS = IPs ÷ 3, LPS = DHCP ÷ 900)",
+        "Step 3: Select Model (60% capacity reference)",
+        "Key Formulas table",
+        "Performance Penalties (+30%, -50%, -10%)",
+        "NIOS TE-Series Models table (TE-926 to TE-4126)"
+      ],
+      "collapsible": true
+    },
+    "nested_button_fix": {
+      "status": "fixed",
+      "file": "TokenCalculatorSummary.jsx",
+      "line": 1312,
+      "fix": "TooltipTrigger asChild with span wrapper around Badge",
+      "console_errors": "None from TokenCalculatorSummary"
+    },
+    "sidebar_collapsible_sections": {
+      "status": "working",
+      "sections": [
+        "CUSTOMERS - shows customer list with initials",
+        "IP CALCULATOR - shows KW × Mult = IPs formula",
+        "TARGET SOLUTIONS - shows DC/Sites count"
+      ]
+    },
+    "sidebar_navigation": {
+      "status": "working",
+      "tabs": ["Discovery", "Sizing", "Tokens", "SmartFill", "History"],
+      "data_testids": ["nav-discovery", "nav-sizing", "nav-tokens", "nav-smartfill", "nav-history"]
+    }
+  }
+}
