@@ -405,6 +405,35 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 - iteration_26.json: UI/UX Improvements verification (100% pass rate)
 - iteration_27.json: Home Assistant Sidebar Navigation verification (100% pass rate)
 - iteration_28.json: P2 Fixes - Sizing Math Help & Console Errors (100% pass rate)
+- iteration_29.json: P0/P1 - Top Bar DC/Site Names & Code Refactoring (100% pass rate)
+
+## Code Architecture (Updated)
+```
+/app/
+├── backend/
+│   ├── server.py            # Main app with route imports
+│   ├── routes/
+│   │   ├── customers.py     # Customer CRUD operations
+│   │   ├── discovery.py     # Discovery data operations
+│   │   └── ai.py            # AI/SmartFill routes
+│   ├── models/
+│   │   └── schemas.py       # Pydantic models
+│   ├── data/
+│   │   └── questions.py     # Discovery question definitions
+│   └── tests/
+│       └── test_discovery_api.py
+├── frontend/src/
+│   ├── components/
+│   │   ├── TopBar.jsx             # DC/Site entry, Target Solutions, IP Calculator
+│   │   ├── AppSidebar.jsx         # Navigation sidebar
+│   │   ├── CustomerDetail.jsx     # Main orchestrator
+│   │   └── sizing/
+│   │       └── calculators/
+│   │           ├── TokenCalculatorSummary.jsx
+│   │           ├── platformConfig.js    # Extracted constants
+│   │           └── tokenUtils.js        # Extracted utilities
+│   └── ...
+```
 
 ## Last Updated
-February 12, 2026 - Phase 25 P2 fixes complete: Sizing Math Help panel, console error fixes
+February 12, 2026 - Phase 27: Top Bar UI (DC/Site names display) + P1 Code Refactoring (Backend routes split, Frontend utilities extracted)
