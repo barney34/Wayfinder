@@ -23,10 +23,18 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Progress } from "@/components/ui/progress";
 import { 
   Building2, MapPin, Server, Package, DollarSign, Cpu, HardDrive, Shield, BarChart3,
   Plus, Trash2, Download, FileText, Info, AlertTriangle, Star, Settings2, FileSpreadsheet,
-  Database
+  Database, HelpCircle, Zap, Activity, Archive
 } from "lucide-react";
 import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
@@ -49,6 +57,7 @@ import {
   gmServiceRestrictions,
   calculateGMObjects,
   findMinimumGMModel,
+  nxvsServers,
 } from "@/lib/tokenData";
 
 // Global platform modes
