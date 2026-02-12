@@ -140,7 +140,6 @@ export function AppSidebar({
   const [customersOpen, setCustomersOpen] = useState(true);
   const [navigationOpen, setNavigationOpen] = useState(true);
   const [calculatorOpen, setCalculatorOpen] = useState(true);
-  const [targetSolutionsOpen, setTargetSolutionsOpen] = useState(false);
   
   // Use optional hook - returns null if not in provider
   const discoveryContext = useDiscoveryOptional();
@@ -156,13 +155,6 @@ export function AppSidebar({
   const calculatedIPs = Math.ceil(kw * mult);
   const manualOverride = answers['ipam-1-override'] === 'true';
   const activeIPs = manualOverride ? (parseInt(answers['ipam-1']) || calculatedIPs) : calculatedIPs;
-
-  // Target Solutions state
-  const targetSolutions = [
-    { key: 'feature-uddi', label: 'UDDI', active: answers['feature-uddi'] === 'Yes' },
-    { key: 'feature-security', label: 'Security', active: answers['feature-security'] === 'Yes' },
-    { key: 'feature-asset insights', label: 'Asset', active: answers['feature-asset insights'] === 'Yes' },
-  ];
 
   // Fetch all customers
   const { data: customers = [] } = useQuery({
