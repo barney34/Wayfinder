@@ -189,6 +189,16 @@ export function TokenCalculatorSummary() {
   // UI toggle for Hardware SKU column
   const [showHardware, setShowHardware] = useState(false);
   
+  // "Why this model?" dialog state
+  const [showModelDialog, setShowModelDialog] = useState(false);
+  const [selectedSiteForDialog, setSelectedSiteForDialog] = useState(null);
+  
+  // Open "Why this model?" dialog for a site
+  const openModelDialog = useCallback((site) => {
+    setSelectedSiteForDialog(site);
+    setShowModelDialog(true);
+  }, []);
+  
   // Recommended platform based on DC/Site counts
   const recommendedMode = useMemo(() => 
     getRecommendedPlatformMode(dataCenters.length, contextSites.length), 
