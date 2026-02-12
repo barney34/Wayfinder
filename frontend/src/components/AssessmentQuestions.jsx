@@ -653,12 +653,6 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
   // Regular (non-compact) layout
   return (
     <div className="space-y-4">
-      {/* Master Enable All */}
-      <div className="flex items-center gap-2 px-2">
-        <Switch id="enable-all-sections" checked={allEnabled} onCheckedChange={handleToggleAllSections} data-testid="switch-enable-all-sections" />
-        <Label htmlFor="enable-all-sections" className="text-xs font-medium cursor-pointer">Enable All Sections</Label>
-      </div>
-
       <Accordion type="multiple" className="space-y-4">
         {Object.entries(grouped).map(([section, sectionQuestions]) => {
           const isSectionEnabled = enabledSections[section] !== false;
