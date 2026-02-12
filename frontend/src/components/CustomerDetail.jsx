@@ -677,13 +677,14 @@ function CustomerDetailContent({
               {/* Discovery Tab */}
               <TabsContent value="discovery" className="mt-0 space-y-4">
                 <QuickSiteEntry />
-                <PlatformSelection />
+                <TargetSolutions />
                 <AssessmentQuestions questions={discoveryTabQuestions} compact={true} />
               </TabsContent>
 
               {/* Sizing Tab */}
               <TabsContent value="sizing" className="mt-0 space-y-4">
                 <QuickSiteEntry />
+                <DeploymentModel />
                 <TokenCalculatorSummary />
                 <UDSMembersTable />
                 <AssessmentQuestions questions={sizingTabQuestions} />
