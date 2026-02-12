@@ -18,6 +18,9 @@ import { AssessmentQuestions } from "./AssessmentQuestions";
 import { MeetingNotesAI } from "./MeetingNotesAI";
 import { TokenCalculatorSummary, UDSMembersTable } from "./sizing";
 import { FloatingSaveButton } from "./FloatingSaveButton";
+import { AppSidebar } from "./AppSidebar";
+import { QuickSiteEntry } from "./QuickSiteEntry";
+import { PlatformSelection } from "./PlatformSelection";
 import yaml from "js-yaml";
 
 // ===== Target Solution Toggles =====
