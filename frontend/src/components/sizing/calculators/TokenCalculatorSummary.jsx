@@ -1101,7 +1101,6 @@ export function TokenCalculatorSummary() {
             <Table className="table-auto w-full">
               <TableHeader>
                 <TableRow className="bg-muted/50">
-                  <TableHead className="w-8 lg:w-10 text-xs lg:text-sm"></TableHead>
                   <TableHead className="text-xs lg:text-sm">Location</TableHead>
                   <TableHead className="w-20 lg:w-24 text-xs lg:text-sm"># IPs</TableHead>
                   <TableHead className="w-16 lg:w-20 text-xs lg:text-sm">KW</TableHead>
