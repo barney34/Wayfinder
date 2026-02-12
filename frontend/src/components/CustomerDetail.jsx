@@ -676,7 +676,6 @@ function CustomerDetailContent({
             {activeTab === 'discovery' && (
               <div className="space-y-4" data-testid="tab-content-discovery">
                 <QuickSiteEntry />
-                <TargetSolutions />
                 <AssessmentQuestions questions={discoveryTabQuestions} compact={true} />
               </div>
             )}
