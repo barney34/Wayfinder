@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { 
-  Building2, MapPin, Calculator, Target, Plus, AlertCircle, Check
+  Building2, MapPin, Calculator, Target, Plus, AlertCircle, Check, X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useDiscovery } from "@/contexts/DiscoveryContext";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Format numbers
 const formatKW = (n) => {
