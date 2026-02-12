@@ -19,7 +19,7 @@ import { MeetingNotesAI } from "./MeetingNotesAI";
 import { TokenCalculatorSummary, UDSMembersTable } from "./sizing";
 import { FloatingSaveButton } from "./FloatingSaveButton";
 import { AppSidebar } from "./AppSidebar";
-import { QuickSiteEntry } from "./QuickSiteEntry";
+import { TopBar } from "./TopBar";
 import { DeploymentModel } from "./PlatformSelection";
 import { SizingMathHelp } from "./SizingMathHelp";
 import yaml from "js-yaml";
