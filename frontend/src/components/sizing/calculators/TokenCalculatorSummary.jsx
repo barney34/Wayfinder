@@ -1456,6 +1456,7 @@ export function TokenCalculatorSummary() {
                           size="icon"
                           className="h-6 w-6 shrink-0"
                           onClick={() => openModelDialog(site)}
+                          disabled={site.isDisabledInUddi}
                           data-testid={`why-model-${site.id}`}
                         >
                           <HelpCircle className="h-3.5 w-3.5 text-muted-foreground hover:text-blue-500" />
@@ -1464,7 +1465,11 @@ export function TokenCalculatorSummary() {
                     </TableCell>
                     {showHardware && (
                       <TableCell className="p-2 lg:p-4">
-                        <Select value={site.hardwareSku} onValueChange={v => updateSite(site.id, 'hardwareSku', v)}>
+                        <Select 
+                          value={site.hardwareSku} 
+                          onValueChange={v => updateSite(site.id, 'hardwareSku', v)}
+                          disabled={site.isDisabledInUddi}
+                        >
                           <SelectTrigger className="h-8 lg:h-10 text-xs lg:text-sm" data-testid={`site-sku-${site.id}`}>
                             <SelectValue />
                           </SelectTrigger>
@@ -1477,6 +1482,9 @@ export function TokenCalculatorSummary() {
                       </TableCell>
                     )}
                     <TableCell className="p-2 lg:p-4 text-right tabular-nums font-medium text-sm lg:text-base">
+                      {site.isDisabledInUddi ? (
+                        <span className="text-muted-foreground">—</span>
+                      ) : (
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger className="cursor-help">
