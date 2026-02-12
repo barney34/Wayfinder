@@ -262,3 +262,102 @@ export const uddiEstimatorDefaults = {
   workdaysPerMonth: 22,
   secondsPerWorkdayHrs: 9,
 };
+
+// ========== Software SKU Mapping for Drawing Export ==========
+
+// SW Base SKU by model (subscription)
+export const swBaseSkuMap = {
+  // NIOS TE-series
+  'TE-926': 'TE-926-SWSUB',
+  'TE-1516': 'TE-1516-SWSUB',
+  'TE-1526': 'TE-1526-SWSUB',
+  'TE-2326': 'TE-2326-SWSUB',
+  'TE-4126': 'TE-4126-SWSUB',
+  // NIOS-X Virtual Servers
+  'NXVS-3XS': 'NXVS-3XS-SWSUB',
+  'NXVS-2XS': 'NXVS-2XS-SWSUB',
+  'NXVS-XS': 'NXVS-XS-SWSUB',
+  'NXVS-S': 'NXVS-S-SWSUB',
+  'NXVS-M': 'NXVS-M-SWSUB',
+  'NXVS-L': 'NXVS-L-SWSUB',
+  'NXVS-XL': 'NXVS-XL-SWSUB',
+  // NIOS-X CDC
+  'NXVS-CDC': 'NXVS-CDC-SWSUB',
+  // NXaaS
+  'NXaaS-S': 'NXaaS-S-SWSUB',
+  'NXaaS-M': 'NXaaS-M-SWSUB',
+  'NXaaS-L': 'NXaaS-L-SWSUB',
+  'NXaaS-XL': 'NXaaS-XL-SWSUB',
+};
+
+// SW Package codes by role combination
+export const swPackageMap = {
+  'DNS': 'DD',           // DNS only
+  'DHCP': 'DH',          // DHCP only
+  'DNS/DHCP': 'DDIDH',   // DNS + DHCP
+  'GM': 'DDI',           // Grid Master (full DDI)
+  'GMC': 'DDI',          // Grid Master Candidate
+  'DNS/DHCP/Discovery': 'DDIGD',  // DNS + DHCP + Discovery
+  'Discovery': 'GD',     // Discovery only
+};
+
+// Hardware SKU mapping
+export const hwSkuMap = {
+  // NIOS TE-series Physical
+  'TE-926': { hwSku: 'TE-926-HW-AC', description: 'NIOS TE-926 Appliance' },
+  'TE-1516': { hwSku: 'TE-1516-HW-AC', description: 'NIOS TE-1516 Appliance' },
+  'TE-1526': { hwSku: 'TE-1526-HW-AC', description: 'NIOS TE-1526 Appliance' },
+  'TE-2326': { hwSku: 'TE-2326-HW-AC', description: 'NIOS TE-2326 Appliance' },
+  'TE-4126': { hwSku: 'TE-4126-HW-AC', description: 'NIOS TE-4126 Appliance' },
+  // Virtual - no HW SKU
+  'NXVS-3XS': { hwSku: 'VM', description: 'Virtual Machine' },
+  'NXVS-2XS': { hwSku: 'VM', description: 'Virtual Machine' },
+  'NXVS-XS': { hwSku: 'VM', description: 'Virtual Machine' },
+  'NXVS-S': { hwSku: 'VM', description: 'Virtual Machine' },
+  'NXVS-M': { hwSku: 'VM', description: 'Virtual Machine' },
+  'NXVS-L': { hwSku: 'VM', description: 'Virtual Machine' },
+  'NXVS-XL': { hwSku: 'VM', description: 'Virtual Machine' },
+  'NXVS-CDC': { hwSku: 'VM', description: 'Virtual Machine (CDC)' },
+  // NXaaS - Cloud
+  'NXaaS-S': { hwSku: 'Cloud', description: 'Cloud Service' },
+  'NXaaS-M': { hwSku: 'Cloud', description: 'Cloud Service' },
+  'NXaaS-L': { hwSku: 'Cloud', description: 'Cloud Service' },
+  'NXaaS-XL': { hwSku: 'Cloud', description: 'Cloud Service' },
+};
+
+// Unit Group codes based on role
+export const unitGroupMap = {
+  'GM': 'A',
+  'GMC': 'B', 
+  'DNS/DHCP': 'C',
+  'DNS': 'D',
+  'DHCP': 'E',
+  'dataCenter': 'F',
+  'site': 'G',
+};
+
+// Helper to get SW Base SKU
+export function getSwBaseSku(model) {
+  return swBaseSkuMap[model] || `${model}-SWSUB`;
+}
+
+// Helper to get SW Package
+export function getSwPackage(role, hasDiscovery = false) {
+  if (hasDiscovery && (role === 'DNS/DHCP' || role === 'DNS')) {
+    return swPackageMap['DNS/DHCP/Discovery'] || 'DDIGD';
+  }
+  return swPackageMap[role] || 'DDI';
+}
+
+// Helper to get HW SKU info
+export function getHwSkuInfo(model) {
+  return hwSkuMap[model] || { hwSku: 'VM', description: 'Virtual Machine' };
+}
+
+// Helper to get Unit Group letter
+export function getUnitGroup(role, sourceType) {
+  if (role === 'GM') return 'A';
+  if (role === 'GMC') return 'B';
+  if (sourceType === 'dataCenter') return 'F';
+  return unitGroupMap[role] || 'G';
+}
