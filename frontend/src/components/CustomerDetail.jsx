@@ -715,6 +715,7 @@ function CustomerDetailContent({
               <div className="space-y-4" data-testid="tab-content-sizing">
                 <QuickSiteEntry />
                 <DeploymentModel />
+                <SizingMathHelp />
                 <TokenCalculatorSummary />
                 <UDSMembersTable />
                 <AssessmentQuestions questions={sizingTabQuestions} />
