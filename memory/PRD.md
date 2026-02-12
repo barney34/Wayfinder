@@ -349,15 +349,19 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 
 ### Phase 27 — Top Bar UI & Code Refactoring (Feb 12, 2026)
 **Implemented:**
-- **DC/Site Names Display Under Top Bar**:
-  - New Row 3 in TopBar.jsx displays actual DC and Site names
-  - Shows "DCs:" and "Sites:" labels with tags for each entry
-  - Tags display name + KW value (e.g., "Main DC · 10K")
-  - Each tag has a delete button (×) for removing entries
-  - Only displays when there are DCs or Sites
-- **IP Calculator KW Input Wider**:
-  - Knowledge Workers input increased from w-24 to w-32 (128px)
-  - Easier to enter larger numbers (30000+)
+- **TopBar Redesigned with 4 Equal Columns**:
+  - Column 1: Data Centers - count header, entry form, stacked tags
+  - Column 2: Sites - count header, entry form, stacked tags
+  - Column 3: Target Solutions - 2x2 grid (NIOS, UDDI, Security, Asset)
+  - Column 4: IP Calculator - KW × Mult = Active IPs
+  - Uses `grid-cols-4 gap-4` for equal spacing
+- **DC/Site Tags Stack Vertically**:
+  - Tags display below entry forms
+  - Max 3 rows visible with scroll (`max-h-[72px] overflow-y-auto`)
+  - Each tag shows name + KW value + delete button
+- **Bigger KW Input**:
+  - Entry form KW inputs increased to `h-7 w-20`
+  - IP Calculator KW input increased to `h-9 w-full` (36px height)
 - **Backend Refactoring (P1)**:
   - Split monolithic server.py into modular structure:
     - `/routes/customers.py` - Customer CRUD operations
@@ -367,18 +371,21 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
     - `/data/questions.py` - Discovery question definitions
   - Main server.py now imports and registers routers
   - All 20 pytest tests passing
-- **Frontend Refactoring (P1)**:
-  - Extracted constants from TokenCalculatorSummary.jsx:
-    - `platformConfig.js` - PLATFORM_MODES, PLATFORM_OPTIONS_BY_MODE, ROLE_OPTIONS_BY_MODE, ADDITIONAL_SERVICES
-    - `tokenUtils.js` - getServiceImpact, getTokensForModel, getPartnerSkuFromTokens, getSkuDescription, getRecommendedPlatformMode
-  - Re-exports maintain backward compatibility
-  - TokenCalculatorSummary reduced from 1640 to 1551 lines
+- **Frontend Refactoring (P1 & P2)**:
+  - TokenCalculatorSummary.jsx extracted:
+    - `platformConfig.js` - Platform constants
+    - `tokenUtils.js` - Utility functions
+    - Main file reduced from 1640 to 1551 lines
+  - CustomerDetail.jsx extracted:
+    - `VersionControl.jsx` - Version/revision management component
+    - `ImportExportSection.jsx` - Import/export UI component
+    - `revisionHelpers.js` - localStorage revision utilities
+    - Main file reduced from 972 to 572 lines (400+ lines removed)
 
 ## Pending / Backlog
 
 ### P2
 - AI Discovery Assistant (industry-specific follow-up questions)
-- Further component splitting (CustomerDetail.jsx still at 972 lines)
 
 ## Test Reports
 - iteration_5.json: Post-migration (91 questions, 12 sections)
