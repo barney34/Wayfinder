@@ -1418,42 +1418,6 @@ export function TokenCalculatorSummary() {
         </CardContent>
       </Card>
       
-      {/* BOM */}
-      {bom.length > 0 && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm lg:text-base flex items-center gap-2">
-              <HardDrive className="h-4 w-4 lg:h-5 lg:w-5" />
-              Bill of Materials (BOM)
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="border rounded-lg overflow-hidden">
-              <Table className="table-auto">
-                <TableHeader>
-                  <TableRow className="bg-muted/50">
-                    <TableHead className="text-xs lg:text-sm">Hardware SKU</TableHead>
-                    <TableHead className="text-xs lg:text-sm">Description</TableHead>
-                    <TableHead className="w-16 lg:w-20 text-center text-xs lg:text-sm">Qty</TableHead>
-                    <TableHead className="text-xs lg:text-sm">Sites</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {bom.map(item => (
-                    <TableRow key={item.sku}>
-                      <TableCell className="font-mono font-medium">{item.sku}</TableCell>
-                      <TableCell className="text-muted-foreground">{item.description}</TableCell>
-                      <TableCell className="text-center"><Badge variant="secondary">{item.quantity}</Badge></TableCell>
-                      <TableCell className="text-sm">{item.sites.slice(0, 3).join(', ')}{item.sites.length > 3 && ` +${item.sites.length - 3}`}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-      
       {/* GM Object Sizing (NIOS only) */}
       {gmSizing && platformMode !== 'UDDI' && (
         <Card>
