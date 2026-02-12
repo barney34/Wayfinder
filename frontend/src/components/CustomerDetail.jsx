@@ -740,103 +740,89 @@ export function CustomerDetail({ customer, onBack }) {
     <DiscoveryProvider customerId={customer.id}>
       <div className="flex flex-col h-[calc(100vh-60px)]">
         <Tabs defaultValue="discovery" className="flex flex-col h-full">
-          {/* Sticky header - Fixed at top */}
-          <div className="flex-shrink-0 bg-background pb-3 lg:pb-4 space-y-3 lg:space-y-4 border-b border-border/50 px-4 lg:px-6">
-            {/* Row 1: Back + Customer/Opportunity | Platform | Save/Export */}
-            <div className="flex items-start justify-between pt-3 lg:pt-4 gap-4">
-              <div className="flex items-start gap-2 lg:gap-3">
-                <Button variant="ghost" size="icon" onClick={onBack} className="mt-0.5 h-8 w-8 lg:h-10 lg:w-10" data-testid="button-back"><ArrowLeft className="h-4 w-4 lg:h-5 lg:w-5" /></Button>
-                <div className="flex flex-col gap-1">
+          {/* Compact Sticky Header */}
+          <div className="flex-shrink-0 bg-background border-b border-border/50 px-4 lg:px-6 py-2 lg:py-3">
+            {/* Single Row: Back + Customer | Platform | Actions | Tabs */}
+            <div className="flex items-center justify-between gap-3">
+              {/* Left: Back + Customer/Opportunity */}
+              <div className="flex items-center gap-2 min-w-0">
+                <Button variant="ghost" size="icon" onClick={onBack} className="h-8 w-8 shrink-0" data-testid="button-back">
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <div className="flex items-center gap-3 min-w-0">
                   {isEditingName ? (
-                    <div className="flex items-center gap-2">
-                      <Input value={editName} onChange={e => setEditName(e.target.value)} className="text-sm lg:text-base font-medium h-8 lg:h-10 w-48 lg:w-64" autoFocus
+                    <div className="flex items-center gap-1">
+                      <Input value={editName} onChange={e => setEditName(e.target.value)} className="text-sm font-medium h-7 w-40" autoFocus
                         onKeyDown={e => { if (e.key === 'Enter') handleSaveName(); if (e.key === 'Escape') { setEditName(currentName); setIsEditingName(false); } }} data-testid="input-edit-name" />
-                      <Button variant="ghost" size="icon" className="h-7 w-7 lg:h-8 lg:w-8" onClick={handleSaveName}><Check className="h-4 w-4 text-green-600" /></Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 lg:h-8 lg:w-8" onClick={() => { setEditName(currentName); setIsEditingName(false); }}><X className="h-4 w-4 text-destructive" /></Button>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleSaveName}><Check className="h-3 w-3 text-green-600" /></Button>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => { setEditName(currentName); setIsEditingName(false); }}><X className="h-3 w-3 text-destructive" /></Button>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-2 group">
-                      <span className="text-xs lg:text-sm text-muted-foreground">Customer:</span>
-                      <span className="text-sm lg:text-lg font-medium text-foreground">{currentName}</span>
-                      <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6" onClick={() => setIsEditingName(true)} data-testid="button-edit-name"><Pencil className="h-3 w-3" /></Button>
+                    <div className="flex items-center gap-1 group cursor-pointer" onClick={() => setIsEditingName(true)}>
+                      <span className="font-semibold text-sm truncate max-w-[150px]" title={currentName}>{currentName}</span>
+                      <Pencil className="h-3 w-3 opacity-0 group-hover:opacity-50 transition-opacity" />
                     </div>
                   )}
+                  <span className="text-muted-foreground text-xs">•</span>
                   {isEditingOpportunity ? (
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs lg:text-sm text-muted-foreground">Opportunity:</span>
-                      <Input value={editOpportunity} onChange={e => setEditOpportunity(e.target.value)} className="text-sm lg:text-base font-medium h-8 lg:h-10 w-48 lg:w-64" autoFocus
+                    <div className="flex items-center gap-1">
+                      <Input value={editOpportunity} onChange={e => setEditOpportunity(e.target.value)} className="text-sm h-7 w-32" autoFocus
                         onKeyDown={e => { if (e.key === 'Enter') handleSaveOpportunity(); if (e.key === 'Escape') { setEditOpportunity(currentOpportunity); setIsEditingOpportunity(false); } }} data-testid="input-edit-opportunity" />
-                      <Button variant="ghost" size="icon" className="h-7 w-7 lg:h-8 lg:w-8" onClick={handleSaveOpportunity}><Check className="h-4 w-4 text-green-600" /></Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 lg:h-8 lg:w-8" onClick={() => { setEditOpportunity(currentOpportunity); setIsEditingOpportunity(false); }}><X className="h-4 w-4 text-destructive" /></Button>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleSaveOpportunity}><Check className="h-3 w-3 text-green-600" /></Button>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => { setEditOpportunity(currentOpportunity); setIsEditingOpportunity(false); }}><X className="h-3 w-3 text-destructive" /></Button>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-2 group">
-                      <span className="text-xs lg:text-sm text-muted-foreground">Opportunity:</span>
-                      <span className="text-sm lg:text-lg font-medium text-foreground">{currentOpportunity || '-'}</span>
-                      <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6" onClick={() => setIsEditingOpportunity(true)} data-testid="button-edit-opportunity"><Pencil className="h-3 w-3" /></Button>
+                    <div className="flex items-center gap-1 group cursor-pointer" onClick={() => setIsEditingOpportunity(true)}>
+                      <span className="text-xs text-muted-foreground truncate max-w-[100px]" title={currentOpportunity || 'Add opportunity'}>
+                        {currentOpportunity || 'Opportunity'}
+                      </span>
+                      <Pencil className="h-2.5 w-2.5 opacity-0 group-hover:opacity-50 transition-opacity" />
                     </div>
                   )}
                 </div>
               </div>
-              <div className="flex flex-col gap-1 items-center">
-                <span className="text-xs lg:text-sm text-muted-foreground font-medium">Platform</span>
-                <TargetSolutionToggles />
-              </div>
-              <div className="flex items-center gap-2">
-                <HeaderSaveButton customerName={currentName} customerId={customer.id} />
-                <ExportButton customerName={currentName} customerId={customer.id} />
-              </div>
-            </div>
 
-            {/* Row 2: Quick Capture - Full width */}
-            <QuickCaptureBarInline />
-
-            {/* Row 3: Tabs - Icons, Bottom Border Active State */}
-            <div className="flex justify-center w-full">
-              <TabsList className="bg-transparent gap-3 lg:gap-4 p-0 flex-nowrap overflow-x-auto">
+              {/* Center: Tabs - Compact, no scrolling */}
+              <TabsList className="bg-transparent gap-1 p-0 shrink-0">
                 {[
                   { value: 'discovery', label: 'Discovery', icon: Search },
                   { value: 'sizing', label: 'Sizing', icon: BarChart3 },
                   { value: 'tokens', label: 'Tokens', icon: Ticket },
                   { value: 'smartfill', label: 'SmartFill', icon: Sparkles },
-                  { value: 'importexport', label: 'Import/Export', icon: FolderSync },
                   { value: 'history', label: 'History', icon: Clock },
                 ].map(tab => (
                   <TabsTrigger key={tab.value} value={tab.value} data-testid={`tab-${tab.value}`}
-                    className="flex items-center gap-2 border-b-2 border-transparent data-[state=active]:border-b-primary data-[state=active]:text-primary rounded-none px-4 lg:px-6 py-3 lg:py-4 text-sm lg:text-base font-medium transition-colors hover:text-primary/80">
-                    <tab.icon className="h-4 w-4 lg:h-5 lg:w-5" />
-                    {tab.label}
+                    className="flex items-center gap-1.5 border-b-2 border-transparent data-[state=active]:border-b-primary data-[state=active]:text-primary data-[state=active]:bg-primary/5 rounded-none px-3 py-2 text-xs font-medium transition-colors hover:text-primary/80">
+                    <tab.icon className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">{tab.label}</span>
                   </TabsTrigger>
                 ))}
               </TabsList>
+
+              {/* Right: Platform + Actions */}
+              <div className="flex items-center gap-2 shrink-0">
+                <TargetSolutionToggles />
+                <div className="h-4 w-px bg-border" />
+                <HeaderSaveButton customerName={currentName} customerId={customer.id} />
+                <ExportButton customerName={currentName} customerId={customer.id} />
+              </div>
             </div>
           </div>
 
-          {/* Scrollable content area - Full width with padding */}
+          {/* Quick Capture Bar - More compact */}
+          <div className="flex-shrink-0 bg-muted/20 border-b px-4 lg:px-6 py-2">
+            <QuickCaptureBarInline />
+          </div>
+
+          {/* Scrollable content area */}
           <div className="flex-1 overflow-y-auto">
-            <div className="px-4 lg:px-6 py-4 lg:py-6 space-y-4 lg:space-y-6">
+            <div className="px-4 lg:px-6 py-4 space-y-4">
               <TabsContent value="discovery" className="mt-0">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-base lg:text-lg font-semibold flex items-center gap-2">
-                      <Search className="h-5 w-5" />
-                      Discovery Questions
-                    </h2>
-                    <ExportButton customerName={currentName} customerId={customer.id} />
-                  </div>
-                  <AssessmentQuestions questions={discoveryTabQuestions} compact={true} />
-                </div>
+                <AssessmentQuestions questions={discoveryTabQuestions} compact={true} />
               </TabsContent>
 
               <TabsContent value="sizing" className="mt-0">
-                <div className="space-y-4 lg:space-y-6">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-base lg:text-lg font-semibold flex items-center gap-2">
-                      <BarChart3 className="h-5 w-5" />
-                      Site Sizing
-                    </h2>
-                    <ExportButton customerName={currentName} customerId={customer.id} />
-                  </div>
+                <div className="space-y-4">
                   <TokenCalculatorSummary />
                   <UDSMembersTable />
                   <AssessmentQuestions questions={sizingTabQuestions} />
@@ -844,28 +830,11 @@ export function CustomerDetail({ customer, onBack }) {
               </TabsContent>
 
               <TabsContent value="tokens" className="mt-0">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-base lg:text-lg font-semibold flex items-center gap-2">
-                      <Ticket className="h-5 w-5" />
-                      Token Calculators
-                    </h2>
-                    <ExportButton customerName={currentName} customerId={customer.id} />
-                  </div>
-                  <AssessmentQuestions questions={[...securityTokenQuestions, ...uddiTokenQuestions]} />
-                </div>
+                <AssessmentQuestions questions={[...securityTokenQuestions, ...uddiTokenQuestions]} />
               </TabsContent>
 
               <TabsContent value="smartfill" className="mt-0">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-base lg:text-lg font-semibold flex items-center gap-2">
-                      <Sparkles className="h-5 w-5" />
-                      SmartFill AI
-                    </h2>
-                  </div>
-                  <MeetingNotesAI />
-                </div>
+                <MeetingNotesAI />
               </TabsContent>
 
               <TabsContent value="importexport" className="mt-0">
