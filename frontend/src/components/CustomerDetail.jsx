@@ -603,52 +603,29 @@ export function CustomerDetail({ customer, onBack }) {
 
   return (
     <DiscoveryProvider customerId={customer.id}>
-      <div className="flex flex-col h-[calc(100vh-60px)]">
-        <Tabs defaultValue="discovery" className="flex flex-col h-full">
-          {/* Compact Sticky Header */}
-          <div className="flex-shrink-0 bg-background border-b border-border/50 px-4 lg:px-6 py-2 lg:py-3">
-            {/* Single Row: Back + Customer | Platform | Actions | Tabs */}
-            <div className="flex items-center justify-between gap-3">
-              {/* Left: Back + Customer/Opportunity */}
-              <div className="flex items-center gap-2 min-w-0">
-                <Button variant="ghost" size="icon" onClick={onBack} className="h-8 w-8 shrink-0" data-testid="button-back">
-                  <ArrowLeft className="h-4 w-4" />
-                </Button>
-                <div className="flex items-center gap-3 min-w-0">
-                  {isEditingName ? (
-                    <div className="flex items-center gap-1">
-                      <Input value={editName} onChange={e => setEditName(e.target.value)} className="text-sm font-medium h-7 w-40" autoFocus
-                        onKeyDown={e => { if (e.key === 'Enter') handleSaveName(); if (e.key === 'Escape') { setEditName(currentName); setIsEditingName(false); } }} data-testid="input-edit-name" />
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleSaveName}><Check className="h-3 w-3 text-green-600" /></Button>
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => { setEditName(currentName); setIsEditingName(false); }}><X className="h-3 w-3 text-destructive" /></Button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-1 group cursor-pointer" onClick={() => setIsEditingName(true)}>
-                      <span className="font-semibold text-sm truncate max-w-[150px]" title={currentName}>{currentName}</span>
-                      <Pencil className="h-3 w-3 opacity-0 group-hover:opacity-50 transition-opacity" />
-                    </div>
-                  )}
-                  <span className="text-muted-foreground text-xs">•</span>
-                  {isEditingOpportunity ? (
-                    <div className="flex items-center gap-1">
-                      <Input value={editOpportunity} onChange={e => setEditOpportunity(e.target.value)} className="text-sm h-7 w-32" autoFocus
-                        onKeyDown={e => { if (e.key === 'Enter') handleSaveOpportunity(); if (e.key === 'Escape') { setEditOpportunity(currentOpportunity); setIsEditingOpportunity(false); } }} data-testid="input-edit-opportunity" />
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleSaveOpportunity}><Check className="h-3 w-3 text-green-600" /></Button>
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => { setEditOpportunity(currentOpportunity); setIsEditingOpportunity(false); }}><X className="h-3 w-3 text-destructive" /></Button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-1 group cursor-pointer" onClick={() => setIsEditingOpportunity(true)}>
-                      <span className="text-xs text-muted-foreground truncate max-w-[100px]" title={currentOpportunity || 'Add opportunity'}>
-                        {currentOpportunity || 'Opportunity'}
-                      </span>
-                      <Pencil className="h-2.5 w-2.5 opacity-0 group-hover:opacity-50 transition-opacity" />
-                    </div>
-                  )}
-                </div>
-              </div>
+      <div className="flex h-[calc(100vh-60px)]">
+        {/* Sidebar */}
+        <AppSidebar
+          currentCustomer={customer}
+          currentOpportunity={currentOpportunity}
+          onCustomerSelect={(c) => {
+            // Save current work before switching
+            if (c.id !== customer.id) {
+              window.location.href = `/?customer=${c.id}`;
+            }
+          }}
+          onBack={onBack}
+          onSave={() => {}}
+          onExport={() => {}}
+          saving={saving}
+        />
 
-              {/* Center: Tabs - Compact, no scrolling */}
-              <TabsList className="bg-transparent gap-1 p-0 shrink-0">
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col min-w-0">
+          <Tabs defaultValue="discovery" className="flex flex-col h-full">
+            {/* Tabs as Separator - Sticky */}
+            <div className="flex-shrink-0 bg-background border-b px-4">
+              <TabsList className="bg-transparent h-10 gap-0 p-0">
                 {[
                   { value: 'discovery', label: 'Discovery', icon: Search },
                   { value: 'sizing', label: 'Sizing', icon: BarChart3 },
@@ -656,64 +633,67 @@ export function CustomerDetail({ customer, onBack }) {
                   { value: 'smartfill', label: 'SmartFill', icon: Sparkles },
                   { value: 'history', label: 'History', icon: Clock },
                 ].map(tab => (
-                  <TabsTrigger key={tab.value} value={tab.value} data-testid={`tab-${tab.value}`}
-                    className="flex items-center gap-1.5 border-b-2 border-transparent data-[state=active]:border-b-primary data-[state=active]:text-primary data-[state=active]:bg-primary/5 rounded-none px-3 py-2 text-xs font-medium transition-colors hover:text-primary/80">
-                    <tab.icon className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline">{tab.label}</span>
+                  <TabsTrigger 
+                    key={tab.value} 
+                    value={tab.value} 
+                    data-testid={`tab-${tab.value}`}
+                    className="flex items-center gap-1.5 border-b-2 border-transparent data-[state=active]:border-b-primary data-[state=active]:text-primary data-[state=active]:bg-transparent rounded-none px-4 py-2 text-sm font-medium transition-colors hover:text-primary/80"
+                  >
+                    <tab.icon className="h-4 w-4" />
+                    {tab.label}
                   </TabsTrigger>
                 ))}
               </TabsList>
-
-              {/* Right: Platform + Actions */}
-              <div className="flex items-center gap-2 shrink-0">
-                <TargetSolutionToggles />
-                <div className="h-4 w-px bg-border" />
-                <HeaderSaveButton customerName={currentName} customerId={customer.id} />
-                <ExportButton customerName={currentName} customerId={customer.id} />
-              </div>
             </div>
-          </div>
 
-          {/* Quick Capture Bar - More compact */}
-          <div className="flex-shrink-0 bg-muted/20 border-b px-4 lg:px-6 py-2">
-            <QuickCaptureBarInline />
-          </div>
+            {/* Scrollable Content */}
+            <div className="flex-1 overflow-y-auto">
+              <div className="p-4 space-y-4">
+                {/* Discovery Tab */}
+                <TabsContent value="discovery" className="mt-0 space-y-4">
+                  {/* Quick Site Entry - At Top */}
+                  <QuickSiteEntry />
+                  
+                  {/* Platform Selection */}
+                  <PlatformSelection />
+                  
+                  {/* Discovery Questions */}
+                  <AssessmentQuestions questions={discoveryTabQuestions} compact={true} />
+                </TabsContent>
 
-          {/* Scrollable content area */}
-          <div className="flex-1 overflow-y-auto">
-            <div className="px-4 lg:px-6 py-4 space-y-4">
-              <TabsContent value="discovery" className="mt-0">
-                <AssessmentQuestions questions={discoveryTabQuestions} compact={true} />
-              </TabsContent>
-
-              <TabsContent value="sizing" className="mt-0">
-                <div className="space-y-4">
+                {/* Sizing Tab */}
+                <TabsContent value="sizing" className="mt-0 space-y-4">
+                  {/* Quick Site Entry - At Top */}
+                  <QuickSiteEntry />
+                  
+                  {/* Sizing Calculator */}
                   <TokenCalculatorSummary />
                   <UDSMembersTable />
                   <AssessmentQuestions questions={sizingTabQuestions} />
-                </div>
-              </TabsContent>
+                </TabsContent>
 
-              <TabsContent value="tokens" className="mt-0">
-                <AssessmentQuestions questions={[...securityTokenQuestions, ...uddiTokenQuestions]} />
-              </TabsContent>
+                {/* Tokens Tab */}
+                <TabsContent value="tokens" className="mt-0">
+                  <AssessmentQuestions questions={[...securityTokenQuestions, ...uddiTokenQuestions]} />
+                </TabsContent>
 
-              <TabsContent value="smartfill" className="mt-0">
-                <MeetingNotesAI />
-              </TabsContent>
+                {/* SmartFill Tab */}
+                <TabsContent value="smartfill" className="mt-0">
+                  <MeetingNotesAI />
+                </TabsContent>
 
-              <TabsContent value="history" className="mt-0">
-                <div className="space-y-4">
+                {/* History Tab */}
+                <TabsContent value="history" className="mt-0 space-y-4">
                   <VersionControl customerId={customer.id} />
                   <ImportExportSection customerId={customer.id} customerName={currentName} />
                   <div className="pt-4 border-t border-border">
                     <ClearDataButton />
                   </div>
-                </div>
-              </TabsContent>
+                </TabsContent>
+              </div>
             </div>
-          </div>
-        </Tabs>
+          </Tabs>
+        </div>
       </div>
       
       {/* Floating Save Button */}
