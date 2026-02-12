@@ -370,35 +370,6 @@ export function AppSidebar({
                 </div>
               )}
 
-              {/* Target Solutions - Compact & Collapsible */}
-              {!collapsed && (
-                <div className="py-1">
-                  <button
-                    type="button"
-                    onClick={() => setTargetSolutionsOpen(!targetSolutionsOpen)}
-                    className="flex items-center justify-between w-full px-2 py-1.5 rounded-md hover:bg-muted transition-colors"
-                  >
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Target Solutions</span>
-                    <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform duration-200 ${targetSolutionsOpen ? '' : '-rotate-90'}`} />
-                  </button>
-                  {targetSolutionsOpen && (
-                    <div className="px-2 py-1">
-                      <div className="flex flex-wrap gap-1">
-                        {targetSolutions.map(sol => (
-                          <button
-                            key={sol.key}
-                            onClick={() => setAnswer(sol.key, sol.active ? 'No' : 'Yes')}
-                            className={`px-2 py-0.5 text-[10px] rounded-full font-medium transition-colors ${sol.active ? 'bg-green-500 text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
-                          >
-                            {sol.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
               {/* Stats Summary */}
               <div className={`rounded-lg bg-muted/30 ${collapsed ? 'p-2' : 'p-2.5'} space-y-1.5`}>
                 <div className={`flex ${collapsed ? 'flex-col' : ''} items-center gap-2`}>
