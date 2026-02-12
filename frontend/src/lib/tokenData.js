@@ -68,7 +68,7 @@ export function getDefaultEnabledFeatures(role) {
 // NIOS Grid Sizing Constants
 export const niosGridConstants = {
   maxDbUtilizationPercent: 60,        // Target no more than 60% capacity at rollout
-  bufferPercent: 10,                  // 10% buffer for grid objects
+  bufferPercent: 10,                  // 10% buffer for grid objects (110%)
   dhcpLeaseObjectsPerClient: 2,       // DHCP lease objects = clients × 2
   dnsRecordsPerDhcpClient: 3,         // DNS records per DHCP client (dynamic)
   dnsRecordsPerStaticClient: 2,       // DNS records per static client
@@ -77,11 +77,21 @@ export const niosGridConstants = {
   peakQpsDivisor: 3,                  // Peak QPS = active IPs / 3
   lpsAggregateSeconds: 900,           // 15 minutes in seconds
   multiRolePenaltyPercent: 50,        // NIOS: 50% penalty for DNS+DHCP on same server
-  multiRoleCapacityMultiplier: 1.3,   // NIOS: Need 130% capacity for multi-role
+  multiRoleCapacityMultiplier: 1.3,   // NIOS/UDDI: Need 130% capacity for multi-role
   uddiMultiRoleMultiplier: 1.3,       // UDDI: net_qps/lps must be > requirement × 130%
   dhcpFailoverPenaltyPercent: 50,     // DHCP Failover decreases performance by 50%
   dhcpFingerprintPenaltyPercent: 10,  // DHCP Fingerprinting: 10% reduction
+  hubSpokeHubPenalty: 0,              // Hub takes aggregate LPS from spokes (no penalty, just summed)
+  hubSpokeSpokePenalty: 50,           // Spoke DHCP forwarding: 50% performance reduction (2x sizing)
 };
+
+// UDDI/NIOS-X Feature Performance Impacts (from Best Practices)
+export const uddiFeatureImpacts = [
+  { product: 'UDDI', role: 'DNS', featureCode: 'DFP', featureName: 'DNS Forwarding Proxy', impactPercent: 0, defaultEnabled: true },
+  { product: 'UDDI', role: 'DHCP', featureCode: 'DHCP-HA', featureName: 'DHCP High Availability', impactPercent: 50, defaultEnabled: false },
+  { product: 'UDDI', role: 'DHCP', featureCode: 'DHCP-FP', featureName: 'DHCP Fingerprinting', impactPercent: 10, defaultEnabled: false },
+  { product: 'UDDI', role: 'ALL', featureCode: 'MULTI-ROLE', featureName: 'Multi-Protocol (DNS+DHCP)', impactPercent: 30, defaultEnabled: false },
+];
 
 // GM Service Restrictions - Models where running DNS/DHCP is NOT recommended
 export const gmServiceRestrictions = {
