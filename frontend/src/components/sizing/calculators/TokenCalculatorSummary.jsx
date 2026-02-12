@@ -79,29 +79,6 @@ import {
 export { PLATFORM_MODES, PLATFORM_OPTIONS_BY_MODE, ROLE_OPTIONS_BY_MODE, ADDITIONAL_SERVICES };
 export { getServiceImpact, getTokensForModel, getPartnerSkuFromTokens, getSkuDescription, getRecommendedPlatformMode };
 
-// Role options by platform mode (UDDI doesn't have GM/GMC) - kept for inline reference
-const _ROLE_OPTIONS_BY_MODE = {
-  NIOS: [
-    { value: 'GM', label: 'GM', description: 'Grid Master' },
-    { value: 'GMC', label: 'GMC', description: 'Grid Master Candidate' },
-    { value: 'DNS', label: 'DNS', description: 'DNS Only' },
-    { value: 'DHCP', label: 'DHCP', description: 'DHCP Only' },
-    { value: 'DNS/DHCP', label: 'DNS/DHCP', description: 'DNS + DHCP' },
-  ],
-  UDDI: [
-    { value: 'DNS', label: 'DNS', description: 'DNS Only' },
-    { value: 'DHCP', label: 'DHCP', description: 'DHCP Only' },
-    { value: 'DNS/DHCP', label: 'DNS/DHCP', description: 'DNS + DHCP' },
-  ],
-  Hybrid: [
-    { value: 'GM', label: 'GM', description: 'Grid Master (NIOS only)' },
-    { value: 'GMC', label: 'GMC', description: 'Grid Master Candidate (NIOS only)' },
-    { value: 'DNS', label: 'DNS', description: 'DNS Only' },
-    { value: 'DHCP', label: 'DHCP', description: 'DHCP Only' },
-    { value: 'DNS/DHCP', label: 'DNS/DHCP', description: 'DNS + DHCP' },
-  ],
-};
-
 /**
  * TokenCalculatorSummary Component
  * EDITABLE site sizing, token calculations, BOM, and export
