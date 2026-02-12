@@ -601,34 +601,69 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
             );
           };
 
+          // Section color coding for visual distinction
+          const sectionColors = {
+            'IPAM': 'border-l-blue-500',
+            'Internal DNS': 'border-l-green-500',
+            'External DNS': 'border-l-teal-500',
+            'DHCP': 'border-l-orange-500',
+            'Security': 'border-l-red-500',
+            'Network Insight': 'border-l-purple-500',
+            'Integrations': 'border-l-indigo-500',
+            'Automation': 'border-l-pink-500',
+          };
+          const sectionAccent = sectionColors[section] || 'border-l-primary';
+
           return (
-            <div key={section} className={`border rounded-lg bg-card overflow-hidden ${!isSectionEnabled ? 'opacity-50' : ''}`} data-testid={`section-${section.replace(/\s/g, '-')}`}>
-              {/* Section Header */}
-              <div className="bg-muted/50 border-b px-4 py-2 flex items-center justify-between">
-                <h3 className="text-sm font-semibold">{section}</h3>
-                <div className="flex items-center gap-2">
-                  <Checkbox checked={isSectionEnabled} onCheckedChange={c => handleSectionToggle(section, c)} className="h-4 w-4" data-testid={`switch-section-${section.replace(/\s/g, '-')}`} />
-                  <span className="text-xs text-muted-foreground">{isSectionEnabled ? 'On' : 'Off'}</span>
+            <div 
+              key={section} 
+              className={`border rounded-lg bg-card overflow-hidden transition-all duration-300 border-l-4 ${sectionAccent} ${!isSectionEnabled ? 'opacity-60' : ''}`} 
+              data-testid={`section-${section.replace(/\s/g, '-')}`}
+            >
+              {/* Section Header - Enhanced */}
+              <div 
+                className={`px-4 py-3 flex items-center justify-between cursor-pointer transition-colors ${isSectionEnabled ? 'bg-muted/30 hover:bg-muted/50' : 'bg-muted/60'}`}
+                onClick={() => handleSectionToggle(section, !isSectionEnabled)}
+              >
+                <div className="flex items-center gap-3">
+                  <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${isSectionEnabled ? 'rotate-90' : ''}`} />
+                  <h3 className="text-sm font-semibold tracking-tight">{section}</h3>
+                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-normal">
+                    {gridQuestions.length} questions
+                  </Badge>
+                </div>
+                <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+                  <span className={`text-xs font-medium transition-colors ${isSectionEnabled ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'}`}>
+                    {isSectionEnabled ? 'On' : 'Off'}
+                  </span>
+                  <Checkbox 
+                    checked={isSectionEnabled} 
+                    onCheckedChange={c => handleSectionToggle(section, c)} 
+                    className="h-4 w-4" 
+                    data-testid={`switch-section-${section.replace(/\s/g, '-')}`} 
+                  />
                 </div>
               </div>
 
-              {/* 3-Column Grid for ALL Questions */}
-              {isSectionEnabled && gridQuestions.length > 0 && (
-                <div className="grid grid-cols-1 lg:grid-cols-3">
-                  {/* Column 1 */}
-                  <div className="lg:border-r border-border/40">
-                    {col1.map((q, i) => renderQuestionCell(q, 0, i))}
+              {/* 3-Column Grid for ALL Questions - with collapse animation */}
+              <div className={`transition-all duration-300 overflow-hidden ${isSectionEnabled ? 'max-h-[5000px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                {gridQuestions.length > 0 && (
+                  <div className="grid grid-cols-1 lg:grid-cols-3 border-t">
+                    {/* Column 1 */}
+                    <div className="lg:border-r border-border/40">
+                      {col1.map((q, i) => renderQuestionCell(q, 0, i))}
+                    </div>
+                    {/* Column 2 (shaded) */}
+                    <div className="lg:border-r border-border/40">
+                      {col2.map((q, i) => renderQuestionCell(q, 1, i))}
+                    </div>
+                    {/* Column 3 */}
+                    <div>
+                      {col3.map((q, i) => renderQuestionCell(q, 2, i))}
+                    </div>
                   </div>
-                  {/* Column 2 (shaded) */}
-                  <div className="lg:border-r border-border/40">
-                    {col2.map((q, i) => renderQuestionCell(q, 1, i))}
-                  </div>
-                  {/* Column 3 */}
-                  <div>
-                    {col3.map((q, i) => renderQuestionCell(q, 2, i))}
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           );
         })}
