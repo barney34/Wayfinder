@@ -1333,10 +1333,11 @@ export function TokenCalculatorSummary() {
                     </TableCell>
                     <TableCell className="p-2 lg:p-4">
                       {/* DHCP Partner - only for DHCP or DNS/DHCP roles */}
-                      {(site.role === 'DHCP' || site.role === 'DNS/DHCP') ? (
+                      {(site.role === 'DHCP' || site.role === 'DNS/DHCP') && !site.isDisabledInUddi ? (
                         <Select 
                           value={site.dhcpPartner || '__none__'} 
                           onValueChange={v => updateSite(site.id, 'dhcpPartner', v === '__none__' ? null : v)}
+                          disabled={site.isDisabledInUddi}
                         >
                           <SelectTrigger className="h-8 lg:h-10 text-xs lg:text-sm" data-testid={`site-dhcp-partner-${site.id}`}>
                             <SelectValue>
@@ -1378,11 +1379,16 @@ export function TokenCalculatorSummary() {
                         value={site.serverCount || 1}
                         onChange={e => updateSite(site.id, 'serverCount', Math.max(1, parseInt(e.target.value) || 1))}
                         className="h-8 lg:h-10 text-sm w-14 lg:w-16 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        disabled={site.isDisabledInUddi}
                         data-testid={`site-server-count-${site.id}`}
                       />
                     </TableCell>
                     <TableCell className="p-2 lg:p-4">
-                      <Select value={site.platform} onValueChange={v => updateSite(site.id, 'platform', v)}>
+                      <Select 
+                        value={site.platform} 
+                        onValueChange={v => updateSite(site.id, 'platform', v)}
+                        disabled={site.isDisabledInUddi}
+                      >
                         <SelectTrigger className="h-8 lg:h-10 text-xs lg:text-sm" data-testid={`site-platform-${site.id}`}>
                           <SelectValue />
                         </SelectTrigger>
@@ -1397,13 +1403,15 @@ export function TokenCalculatorSummary() {
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <span className="cursor-help">
-                                <Badge variant="outline" className="font-mono text-xs lg:text-sm" data-testid={`site-model-${site.id}`}>
-                                  {site.recommendedModel}
+                                <Badge variant={site.isDisabledInUddi ? "secondary" : "outline"} className="font-mono text-xs lg:text-sm" data-testid={`site-model-${site.id}`}>
+                                  {site.isDisabledInUddi ? '—' : site.recommendedModel}
                                 </Badge>
                               </span>
                             </TooltipTrigger>
                             <TooltipContent className="max-w-sm">
-                              {(() => {
+                              {site.isDisabledInUddi ? (
+                                <div className="text-xs">GM/GMC not available in UDDI mode</div>
+                              ) : (() => {
                                 const workload = getSiteWorkloadDetails(
                                   site.numIPs, site.role, platformMode, dhcpPercent, 
                                   site.platform, { isSpoke: site.isSpoke, hubLPS: site.hubLPS || 0 }
