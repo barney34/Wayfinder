@@ -347,12 +347,38 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
   - Tokens count with pack badge (purple)
 - **Wider Sidebar**: Increased to w-64 (256px)
 
+### Phase 27 — Top Bar UI & Code Refactoring (Feb 12, 2026)
+**Implemented:**
+- **DC/Site Names Display Under Top Bar**:
+  - New Row 3 in TopBar.jsx displays actual DC and Site names
+  - Shows "DCs:" and "Sites:" labels with tags for each entry
+  - Tags display name + KW value (e.g., "Main DC · 10K")
+  - Each tag has a delete button (×) for removing entries
+  - Only displays when there are DCs or Sites
+- **IP Calculator KW Input Wider**:
+  - Knowledge Workers input increased from w-24 to w-32 (128px)
+  - Easier to enter larger numbers (30000+)
+- **Backend Refactoring (P1)**:
+  - Split monolithic server.py into modular structure:
+    - `/routes/customers.py` - Customer CRUD operations
+    - `/routes/discovery.py` - Discovery data operations
+    - `/routes/ai.py` - AI/SmartFill routes
+    - `/models/schemas.py` - Pydantic models and helpers
+    - `/data/questions.py` - Discovery question definitions
+  - Main server.py now imports and registers routers
+  - All 20 pytest tests passing
+- **Frontend Refactoring (P1)**:
+  - Extracted constants from TokenCalculatorSummary.jsx:
+    - `platformConfig.js` - PLATFORM_MODES, PLATFORM_OPTIONS_BY_MODE, ROLE_OPTIONS_BY_MODE, ADDITIONAL_SERVICES
+    - `tokenUtils.js` - getServiceImpact, getTokensForModel, getPartnerSkuFromTokens, getSkuDescription, getRecommendedPlatformMode
+  - Re-exports maintain backward compatibility
+  - TokenCalculatorSummary reduced from 1640 to 1551 lines
+
 ## Pending / Backlog
 
 ### P2
 - AI Discovery Assistant (industry-specific follow-up questions)
-- Backend route refactoring (split server.py into routes/models)
-- Refactor large components (CustomerDetail.jsx, TokenCalculatorSummary.jsx) into smaller sub-components
+- Further component splitting (CustomerDetail.jsx still at 972 lines)
 
 ## Test Reports
 - iteration_5.json: Post-migration (91 questions, 12 sections)
