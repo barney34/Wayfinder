@@ -148,6 +148,7 @@ export const discoveryQuestions = [
     "id": "ipam-6",
     "section": "IPAM",
     "question": "What is your strategy to identify and eliminate unused IP addresses and orphaned assets?",
+    "type": "note",
     "technicalOnly": false
   },
   {
