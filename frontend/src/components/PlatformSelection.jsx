@@ -1,32 +1,26 @@
-import { useState } from "react";
 import { AlertCircle, Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { useDiscovery } from "@/contexts/DiscoveryContext";
 
 const SOLUTIONS = [
-  { key: 'nios', label: 'NIOS', description: 'Core DDI Platform', required: true },
+  { key: 'nios', label: 'NIOS', description: 'Core DDI', required: true },
   { key: 'feature-uddi', label: 'UDDI', description: 'Universal DDI' },
   { key: 'feature-security', label: 'Security', description: 'Threat Defense' },
   { key: 'feature-asset insights', label: 'Asset Insights', description: 'Network Discovery' },
 ];
 
-export function PlatformSelection() {
+// Target Solutions - for Discovery tab
+export function TargetSolutions() {
   const { answers, setAnswer } = useDiscovery();
-  
-  // NIOS is always selected (it's the base platform)
-  const platform = answers['ud-platform'] || 'NIOS (Physical/Virtual)';
-  const isNIOS = platform.includes('NIOS') && !platform.includes('UDDI') && !platform.includes('Hybrid');
-  const isUDDI = platform.includes('UDDI');
-  const isHybrid = platform.includes('Hybrid');
 
   const getSolutionState = (key) => {
-    if (key === 'nios') return true; // Always on
+    if (key === 'nios') return true;
     return answers[key] === 'Yes';
   };
 
   const toggleSolution = (key) => {
-    if (key === 'nios') return; // Can't toggle NIOS off
+    if (key === 'nios') return;
     const current = answers[key] === 'Yes';
     setAnswer(key, current ? 'No' : 'Yes');
   };
@@ -34,13 +28,12 @@ export function PlatformSelection() {
   const getWhyNotKey = (key) => `${key}-why-not`;
 
   return (
-    <div className="bg-muted/20 rounded-lg p-4 border space-y-4">
+    <div className="bg-muted/20 rounded-lg p-3 border space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold">Target Solutions</h3>
-        <span className="text-xs text-muted-foreground">Select solutions being proposed</span>
+        <span className="text-xs text-muted-foreground">What are you proposing?</span>
       </div>
 
-      {/* Solution Toggles */}
       <div className="flex flex-wrap gap-2">
         {SOLUTIONS.map(solution => {
           const isOn = getSolutionState(solution.key);
@@ -53,34 +46,30 @@ export function PlatformSelection() {
                 type="button"
                 onClick={() => toggleSolution(solution.key)}
                 disabled={solution.required}
-                className={`px-4 py-2 rounded-lg border-2 transition-all ${
+                className={`px-3 py-1.5 rounded-lg border-2 transition-all ${
                   isOn 
                     ? 'bg-primary text-primary-foreground border-primary' 
                     : 'bg-background border-muted-foreground/30 hover:border-muted-foreground/50'
                 } ${solution.required ? 'cursor-default' : 'cursor-pointer'}`}
               >
-                <div className="flex items-center gap-2">
-                  {isOn && <Check className="h-4 w-4" />}
-                  <span className="font-medium text-sm">{solution.label}</span>
-                </div>
-                <div className={`text-xs ${isOn ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>
-                  {solution.description}
+                <div className="flex items-center gap-1.5">
+                  {isOn && <Check className="h-3.5 w-3.5" />}
+                  <span className="font-medium text-xs">{solution.label}</span>
                 </div>
               </button>
 
-              {/* Why Not field - appears below if solution is OFF */}
               {needsWhyNot && (
-                <div className="mt-2 space-y-1">
+                <div className="mt-1.5 space-y-1 max-w-[200px]">
                   <div className="flex items-center gap-1 text-xs text-amber-600">
                     <AlertCircle className="h-3 w-3" />
-                    <span>Why not {solution.label}?</span>
+                    <span>Why not?</span>
                     {!whyNotValue && <Badge variant="outline" className="text-[10px] px-1 py-0 text-amber-600 border-amber-400">Required</Badge>}
                   </div>
                   <Textarea
                     value={whyNotValue}
                     onChange={e => setAnswer(getWhyNotKey(solution.key), e.target.value)}
-                    placeholder={`Reason for not including ${solution.label}...`}
-                    className="text-xs min-h-[60px] resize-none"
+                    placeholder={`Why not ${solution.label}?`}
+                    className="text-xs min-h-[50px] resize-none"
                     data-testid={`why-not-${solution.key}`}
                   />
                 </div>
@@ -89,31 +78,47 @@ export function PlatformSelection() {
           );
         })}
       </div>
+    </div>
+  );
+}
 
-      {/* Platform Mode Selection */}
-      <div className="pt-2 border-t">
-        <div className="text-xs text-muted-foreground mb-2">Deployment Model</div>
-        <div className="flex gap-2">
-          {[
-            { value: 'NIOS (Physical/Virtual)', label: 'NIOS Only' },
-            { value: 'UDDI', label: 'UDDI Only' },
-            { value: 'Hybrid (NIOS + UDDI)', label: 'Hybrid' },
-          ].map(mode => (
-            <button
-              key={mode.value}
-              type="button"
-              onClick={() => setAnswer('ud-platform', mode.value)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-                platform === mode.value 
-                  ? 'bg-primary text-primary-foreground' 
-                  : 'bg-muted text-muted-foreground hover:text-foreground'
-              }`}
-              data-testid={`platform-${mode.label.toLowerCase().replace(' ', '-')}`}
-            >
-              {mode.label}
-            </button>
-          ))}
-        </div>
+// Deployment Model - for Sizing tab
+export function DeploymentModel() {
+  const { answers, setAnswer } = useDiscovery();
+  const platform = answers['ud-platform'] || 'NIOS (Physical/Virtual)';
+
+  const MODES = [
+    { value: 'NIOS (Physical/Virtual)', label: 'NIOS Only', description: 'Physical/Virtual appliances' },
+    { value: 'UDDI', label: 'UDDI Only', description: 'Cloud-native DDI' },
+    { value: 'Hybrid (NIOS + UDDI)', label: 'Hybrid', description: 'NIOS + UDDI combined' },
+  ];
+
+  return (
+    <div className="bg-muted/20 rounded-lg p-3 border">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-sm font-semibold">Deployment Model</h3>
+        <span className="text-xs text-muted-foreground">How will it be deployed?</span>
+      </div>
+
+      <div className="flex gap-2">
+        {MODES.map(mode => (
+          <button
+            key={mode.value}
+            type="button"
+            onClick={() => setAnswer('ud-platform', mode.value)}
+            className={`flex-1 px-3 py-2 rounded-lg border-2 transition-all text-left ${
+              platform === mode.value 
+                ? 'bg-primary text-primary-foreground border-primary' 
+                : 'bg-background border-muted-foreground/30 hover:border-muted-foreground/50'
+            }`}
+            data-testid={`platform-${mode.label.toLowerCase().replace(' ', '-')}`}
+          >
+            <div className="font-medium text-sm">{mode.label}</div>
+            <div className={`text-xs ${platform === mode.value ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>
+              {mode.description}
+            </div>
+          </button>
+        ))}
       </div>
     </div>
   );
