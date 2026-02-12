@@ -695,7 +695,6 @@ function CustomerDetailContent({
               <Badge variant="outline" className="text-xs">{currentOpportunity}</Badge>
             )}
           </div>
-          <TargetSolutionToggles />
         </div>
 
         {/* Scrollable Content - No more nested Tabs, just direct content */}
