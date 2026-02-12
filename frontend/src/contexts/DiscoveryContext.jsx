@@ -288,3 +288,8 @@ export function useDiscovery() {
   }
   return context;
 }
+
+// Optional hook that returns null if not inside provider
+export function useDiscoveryOptional() {
+  return useContext(DiscoveryContext);
+}
