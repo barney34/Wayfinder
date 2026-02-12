@@ -52,6 +52,7 @@ export function QuickSiteEntry() {
   }, [name, handleAdd]);
 
   const formatKW = (n) => {
+    if (n === undefined || n === null) return '0';
     if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
     if (n >= 1000) return (n / 1000).toFixed(n >= 10000 ? 0 : 1) + 'K';
     return n.toString();
