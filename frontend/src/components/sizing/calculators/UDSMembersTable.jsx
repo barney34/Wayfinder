@@ -227,9 +227,8 @@ export function UDSMembersTable() {
             </TableHeader>
             <TableBody>
               {membersWithCalcs.map(member => (
-                <>
+                <React.Fragment key={member.id}>
                   <TableRow 
-                    key={member.id} 
                     className="hover:bg-muted/30"
                     data-testid={`member-row-${member.id}`}
                   >
