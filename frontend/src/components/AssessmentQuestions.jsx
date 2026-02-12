@@ -379,8 +379,55 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
         );
       case 'ipCalculated':
       case 'dnsAggregateCalculated':
-      case 'dnsPerServerCalculated':
-        return <div className="space-y-1"><Input type="text" value={currentValue} onChange={e => handleAnswerChange(q.id, e.target.value)} className={compact ? "w-24 h-7 text-xs" : "max-w-xs"} placeholder="Auto" data-testid={`input-answer-${q.id}`} />{!compact && <p className="text-xs text-muted-foreground">Auto-calculated or override manually</p>}</div>;
+      case 'dnsPerServerCalculated': {
+        // Auto-calculate DNS QPS from active IPs
+        const activeIPs = parseInt(answers['ipam-1']) || 0;
+        let autoValue = '';
+        let formula = '';
+        
+        if (q.fieldType === 'dnsAggregateCalculated' && activeIPs > 0) {
+          // Aggregate QPS = active_IPs / 3
+          autoValue = Math.ceil(activeIPs / AUTO_CALC_DEFAULTS.peakQpsDivisor).toLocaleString();
+          formula = `IPs ÷ 3`;
+        } else if (q.fieldType === 'dnsPerServerCalculated' && activeIPs > 0) {
+          // Per-server would depend on number of DNS servers (default to aggregate if unknown)
+          autoValue = Math.ceil(activeIPs / AUTO_CALC_DEFAULTS.peakQpsDivisor).toLocaleString();
+          formula = `IPs ÷ 3`;
+        } else if (q.fieldType === 'ipCalculated') {
+          autoValue = activeIPs.toLocaleString();
+        }
+        
+        const displayValue = currentValue || autoValue;
+        const isAutoFilled = !currentValue && autoValue;
+        
+        return (
+          <div className="flex items-center gap-2">
+            <Input 
+              type="text" 
+              value={currentValue || ''} 
+              onChange={e => handleAnswerChange(q.id, e.target.value)} 
+              className={compact ? "w-24 h-7 text-xs" : "max-w-xs"} 
+              placeholder={autoValue || "Auto"} 
+              data-testid={`input-answer-${q.id}`} 
+            />
+            {isAutoFilled && activeIPs > 0 && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Badge variant="outline" className="text-[10px] py-0 px-1.5 bg-blue-50 text-blue-600 border-blue-200">
+                      <Zap className="h-2.5 w-2.5 mr-0.5" />Auto
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-xs">Auto-calculated: {autoValue}</p>
+                    {formula && <p className="text-xs text-muted-foreground">{formula}</p>}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
+        );
+      }
       case 'tdNiosSection':
         return <TDNiosSection value={currentValue} onChange={v => handleAnswerChange(q.id, v)} questionId={q.id} />;
       case 'assetConfigInput':
