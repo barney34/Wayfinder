@@ -198,7 +198,10 @@ function MultiSelectField({ questionId, options, optionsWithPermission = [], opt
 
 // ===== Field Type Detection =====
 function detectFieldType(question) {
+  // First check explicit type/fieldType
+  if (question.type) return question.type;
   if (question.fieldType) return question.fieldType;
+  
   const text = question.question.toLowerCase();
   if (text.startsWith('will ') || text.startsWith('is ') || text.startsWith('are ') || text.startsWith('do ') || text.includes('enabled?') || text.includes('in place?') || text.includes('implemented?')) return 'yesno';
   if (text.includes('number of') || text.includes('how many') || text.includes('percent') || text.includes('rate') || text.includes('estimated') || text.includes('total ')) return 'number';
