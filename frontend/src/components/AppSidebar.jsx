@@ -149,7 +149,7 @@ export function AppSidebar({
 
   // Fetch all customers
   const { data: customers = [] } = useQuery({
-    queryKey: ['customers'],
+    queryKey: ['/api/customers'],
     queryFn: () => apiRequest('/api/customers'),
   });
 
