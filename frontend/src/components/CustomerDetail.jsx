@@ -837,21 +837,11 @@ export function CustomerDetail({ customer, onBack }) {
                 <MeetingNotesAI />
               </TabsContent>
 
-              <TabsContent value="importexport" className="mt-0">
-                <ImportExportSection customerId={customer.id} customerName={currentName} />
-              </TabsContent>
-
               <TabsContent value="history" className="mt-0">
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-base lg:text-lg font-semibold flex items-center gap-2">
-                      <Clock className="h-5 w-5" />
-                      Version History
-                    </h2>
-                  </div>
                   <VersionControl customerId={customer.id} />
+                  <ImportExportSection customerId={customer.id} customerName={currentName} />
                   <div className="pt-4 border-t border-border">
-                    <h3 className="text-sm font-medium text-muted-foreground mb-2">Data Management</h3>
                     <ClearDataButton />
                   </div>
                 </div>
