@@ -28,7 +28,7 @@ const TARGET_SOLUTIONS = [
 ];
 
 export function TopBar({ customerName, opportunity }) {
-  const { answers, setAnswer, dataCenters, sites, addDataCenter, addSite } = useDiscovery();
+  const { answers, setAnswer, dataCenters, sites, addDataCenter, addSite, deleteDataCenter, deleteSite, updateDataCenter, updateSite } = useDiscovery();
   
   // DC/Site entry state
   const [dcName, setDcName] = useState('');
@@ -229,7 +229,7 @@ export function TopBar({ customerName, opportunity }) {
         {/* Vertical Divider */}
         <div className="w-px h-16 bg-border" />
 
-        {/* IP Calculator */}
+        {/* IP Calculator - Wider KW input */}
         <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-3 shadow-lg">
           <div className="flex items-center gap-2 mb-2">
             <Calculator className="h-3.5 w-3.5 text-blue-400" />
@@ -238,15 +238,16 @@ export function TopBar({ customerName, opportunity }) {
           
           {/* Calculator Layout */}
           <div className="flex items-end gap-2">
-            {/* Knowledge Workers Input */}
+            {/* Knowledge Workers Input - WIDER */}
             <div>
               <Label className="text-[9px] text-slate-400 uppercase tracking-wider mb-1 block">Knowledge Workers</Label>
               <Input
                 type="number"
                 value={kw || ''}
                 onChange={e => setAnswer('ud-1', e.target.value)}
-                className="h-8 w-24 text-sm text-center font-mono bg-slate-700/80 border-slate-600 text-white"
+                className="h-8 w-32 text-sm text-center font-mono bg-slate-700/80 border-slate-600 text-white"
                 placeholder="0"
+                data-testid="ip-calc-kw-input"
               />
             </div>
             
@@ -274,6 +275,80 @@ export function TopBar({ customerName, opportunity }) {
           </div>
         </div>
       </div>
+
+      {/* Row 3: DC/Site Names Display */}
+      {(dataCenters.length > 0 || sites.length > 0) && (
+        <div className="px-5 py-2 border-t border-border/30 flex items-center gap-6">
+          {/* DC Names */}
+          {dataCenters.length > 0 && (
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">
+                <Building2 className="h-3 w-3 text-blue-500" />
+                <span>DCs:</span>
+              </div>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {dataCenters.map((dc, idx) => (
+                  <div 
+                    key={dc.id || idx} 
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-500/10 border border-blue-500/30 text-xs"
+                    data-testid={`dc-tag-${idx}`}
+                  >
+                    <span className="font-medium text-blue-700 dark:text-blue-300 max-w-[80px] truncate" title={dc.name}>
+                      {dc.name}
+                    </span>
+                    <span className="text-muted-foreground">·</span>
+                    <span className="tabular-nums text-blue-600 dark:text-blue-400">{formatKW(dc.knowledgeWorkers || 0)}</span>
+                    <button 
+                      onClick={() => deleteDataCenter(dc.id)}
+                      className="ml-0.5 p-0.5 rounded hover:bg-destructive/20"
+                      data-testid={`delete-dc-${idx}`}
+                    >
+                      <X className="h-3 w-3 text-muted-foreground/50 hover:text-destructive" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Separator */}
+          {dataCenters.length > 0 && sites.length > 0 && (
+            <div className="w-px h-4 bg-border" />
+          )}
+
+          {/* Site Names */}
+          {sites.length > 0 && (
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">
+                <MapPin className="h-3 w-3 text-green-500" />
+                <span>Sites:</span>
+              </div>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {sites.map((site, idx) => (
+                  <div 
+                    key={site.id || idx} 
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-500/10 border border-green-500/30 text-xs"
+                    data-testid={`site-tag-${idx}`}
+                  >
+                    <span className="font-medium text-green-700 dark:text-green-300 max-w-[80px] truncate" title={site.name}>
+                      {site.name}
+                    </span>
+                    <span className="text-muted-foreground">·</span>
+                    <span className="tabular-nums text-green-600 dark:text-green-400">{formatKW(site.knowledgeWorkers || 0)}</span>
+                    <button 
+                      onClick={() => deleteSite(site.id)}
+                      className="ml-0.5 p-0.5 rounded hover:bg-destructive/20"
+                      data-testid={`delete-site-${idx}`}
+                    >
+                      <X className="h-3 w-3 text-muted-foreground/50 hover:text-destructive" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
