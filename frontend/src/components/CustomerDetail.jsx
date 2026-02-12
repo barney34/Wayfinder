@@ -642,7 +642,7 @@ function CustomerDetailContent({
         onBack={onBack}
         onSave={() => {}}
         onExport={() => {}}
-        saving={saving}
+        saving={false}
       />
 
       {/* Main Content */}
