@@ -33,9 +33,9 @@ export function QuickSiteEntry() {
     const kwNum = parseInt(kw) || 0;
     
     if (entryType === 'dc') {
-      addDataCenter({ name: name.trim(), knowledgeWorkers: kwNum });
+      addDataCenter(name.trim(), kwNum);
     } else {
-      addSite({ name: name.trim(), knowledgeWorkers: kwNum });
+      addSite(name.trim(), '', kwNum);
     }
     
     setName('');
