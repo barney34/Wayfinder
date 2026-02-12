@@ -979,14 +979,27 @@ export function TokenCalculatorSummary() {
               />
             </div>
             
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
-              <Checkbox 
-                checked={showHardware} 
-                onCheckedChange={setShowHardware}
-                data-testid="show-hardware-toggle"
-              />
-              <span className="text-muted-foreground">Show Hardware SKU</span>
-            </label>
+            <div className="flex items-center gap-4">
+              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <Checkbox 
+                  checked={showHardware} 
+                  onCheckedChange={setShowHardware}
+                  data-testid="show-hardware-toggle"
+                />
+                <span className="text-muted-foreground">Show Hardware SKU</span>
+              </label>
+              
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => exportDrawing(sites, drawingNumber)}
+                className="text-xs"
+                data-testid="export-drawing-button"
+              >
+                <FileSpreadsheet className="h-4 w-4 mr-1" />
+                Export Drawing
+              </Button>
+            </div>
           </div>
           
           <div className="border rounded-lg overflow-hidden">
