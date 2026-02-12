@@ -1204,14 +1204,39 @@ export function TokenCalculatorSummary() {
               </TableHeader>
               <TableBody>
                 {sites.map(site => (
-                  <TableRow key={site.id} data-testid={`site-row-${site.id}`} className={site.isHub ? 'bg-blue-50/50 dark:bg-blue-900/10' : site.isSpoke ? 'bg-amber-50/50 dark:bg-amber-900/10' : ''}>
+                  <TableRow 
+                    key={site.id} 
+                    data-testid={`site-row-${site.id}`} 
+                    className={`
+                      ${site.isDisabledInUddi ? 'opacity-40 bg-gray-100 dark:bg-gray-800/50' : ''}
+                      ${!site.isDisabledInUddi && site.isHub ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''} 
+                      ${!site.isDisabledInUddi && site.isSpoke ? 'bg-amber-50/50 dark:bg-amber-900/10' : ''}
+                    `}
+                  >
                     <TableCell className="p-2 lg:p-4">
-                      <Input
-                        value={site.name}
-                        onChange={e => updateSite(site.id, 'name', e.target.value)}
-                        className="h-8 lg:h-10 text-sm lg:text-base"
-                        data-testid={`site-name-${site.id}`}
-                      />
+                      <div className="flex items-center gap-2">
+                        <Input
+                          value={site.name}
+                          onChange={e => updateSite(site.id, 'name', e.target.value)}
+                          className="h-8 lg:h-10 text-sm lg:text-base"
+                          disabled={site.isDisabledInUddi}
+                          data-testid={`site-name-${site.id}`}
+                        />
+                        {site.isDisabledInUddi && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <Badge variant="outline" className="text-[10px] px-1 bg-gray-200 dark:bg-gray-700">
+                                  N/A
+                                </Badge>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                GM/GMC not available in UDDI mode. Switch to NIOS or Hybrid to edit.
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell className="p-2 lg:p-4">
                       <div className="flex items-center gap-1">
