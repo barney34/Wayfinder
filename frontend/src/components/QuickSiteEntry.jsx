@@ -9,11 +9,12 @@ import { useDiscovery } from "@/contexts/DiscoveryContext";
 function SiteTag({ name, kw, color, onRemove }) {
   const bgColor = color === 'blue' ? 'bg-blue-100 dark:bg-blue-900/30 border-blue-300' : 'bg-green-100 dark:bg-green-900/30 border-green-300';
   const textColor = color === 'blue' ? 'text-blue-700 dark:text-blue-300' : 'text-green-700 dark:text-green-300';
+  const displayKW = kw || '0';
   
   return (
     <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border ${bgColor} text-xs`}>
-      <span className={`font-medium ${textColor}`}>{name}</span>
-      <span className="text-muted-foreground">({kw})</span>
+      <span className={`font-medium ${textColor}`}>{name || 'Unnamed'}</span>
+      <span className="text-muted-foreground">({displayKW})</span>
       <button onClick={onRemove} className="ml-0.5 hover:text-destructive transition-colors">
         <X className="h-3 w-3" />
       </button>
