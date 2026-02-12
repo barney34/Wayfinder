@@ -382,6 +382,27 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 ### P2
 - AI Discovery Assistant (industry-specific follow-up questions)
 
+### Phase 28 — Simplified Sizing Tab & Drawing Export (Feb 12, 2026)
+**Implemented:**
+- **Simplified Sizing Tab**:
+  - Removed BOM section from main page
+  - Removed Partner SKU recommendation from Token Summary
+  - Added Drawing # input field for export identification
+  - Added "Rpt" (Add to Report) checkbox column per site row
+  - Added "BOM" (Add to BOM) checkbox column per site row
+  - Added "Export Drawing" button
+- **Drawing Export Feature**:
+  - Exports Excel file matching the target spreadsheet format
+  - Columns: Drawing #, Unit Group, Unit #/Range, Solution, Model Info, SW Instances, Description, SW Base SKU, SW Package, SW Add-ons, HW License SKU, HW Add-ons, HW Count, Add to Report, Add to BOM
+  - Auto-generates Unit Groups (A=GM, B=GMC, C=DNS/DHCP, etc.)
+  - Maps models to SW/HW SKUs using new tokenData.js mappings
+- **New SKU Mapping Data** (in tokenData.js):
+  - `swBaseSkuMap`: Maps models to SW subscription SKUs
+  - `swPackageMap`: Maps roles to SW package codes (DD, DH, DDIDH, DDIGD)
+  - `hwSkuMap`: Maps models to HW SKUs or VM/Cloud
+  - `unitGroupMap`: Maps roles to Unit Group letters
+  - Helper functions: `getSwBaseSku()`, `getSwPackage()`, `getHwSkuInfo()`, `getUnitGroup()`
+
 ## Test Reports
 - iteration_5.json: Post-migration (91 questions, 12 sections)
 - iteration_6.json: Full UI rewrite (Quick Capture, 6 tabs, Platform badges, auto-save)
