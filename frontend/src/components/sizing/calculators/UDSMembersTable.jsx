@@ -473,7 +473,7 @@ export function UDSMembersTable() {
                       </TableCell>
                     </TableRow>
                   )}
-                </>
+                </React.Fragment>
               ))}
             </TableBody>
           </Table>
