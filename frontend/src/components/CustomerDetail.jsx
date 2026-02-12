@@ -199,55 +199,84 @@ function QuickCaptureBarInline() {
   ];
 
   return (
-    <div className="flex flex-col gap-2 lg:gap-4 p-3 lg:p-5 bg-muted/30 rounded-lg border" data-testid="quick-capture-bar">
-      {/* Header - Centered */}
-      <div className="text-center">
-        <h3 className="text-sm lg:text-lg font-semibold">Quick Capture</h3>
-        <p className="text-xs lg:text-sm text-muted-foreground">DC = Data Center(s) • KW = Knowledge Workers</p>
+    <div className="flex items-center gap-4 py-1" data-testid="quick-capture-bar">
+      {/* IP Calculator - Inline compact */}
+      <div className="flex items-center gap-2 px-3 py-1.5 bg-background rounded-lg border">
+        <span className="text-xs text-muted-foreground font-medium">IP Calc:</span>
+        <input
+          type="number"
+          value={kw}
+          onChange={e => setAnswer('ud-1', e.target.value)}
+          className="w-16 h-7 text-center text-sm font-mono bg-muted/50 border rounded focus:outline-none focus:ring-1 focus:ring-primary/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          placeholder="KW"
+          data-testid="ip-calc-kw"
+        />
+        <span className="text-muted-foreground text-sm">×</span>
+        <input
+          type="number"
+          step="0.5"
+          value={mult}
+          onChange={e => setAnswer('ipam-multiplier', e.target.value)}
+          className="w-12 h-7 text-center text-sm font-mono bg-muted/50 border rounded focus:outline-none focus:ring-1 focus:ring-primary/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          data-testid="ip-calc-mult"
+        />
+        <span className="text-muted-foreground">=</span>
+        {manualOverride ? (
+          <input
+            type="number"
+            value={answers['ipam-1'] || ''}
+            onChange={e => setAnswer('ipam-1', e.target.value)}
+            className="w-20 h-7 text-center text-sm font-bold font-mono bg-amber-100 dark:bg-amber-900/30 border border-amber-400 rounded focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            data-testid="ip-calc-override"
+          />
+        ) : (
+          <span className="w-20 h-7 flex items-center justify-center bg-primary/10 rounded border border-primary/30 text-sm font-bold tabular-nums text-primary">
+            {formatKW(activeIPs)}
+          </span>
+        )}
+        <span className="text-xs text-muted-foreground">IPs</span>
+        <button
+          type="button"
+          onClick={() => {
+            const newVal = !manualOverride;
+            setAnswer('ipam-1-override', newVal ? 'true' : 'false');
+            if (!newVal) setAnswer('ipam-1', String(calculatedIPs));
+          }}
+          className={`px-2 py-1 text-xs rounded transition-colors ${manualOverride ? 'bg-amber-500 text-white' : 'bg-muted hover:bg-muted/80 text-muted-foreground'}`}
+          data-testid="ip-calc-toggle"
+        >
+          {manualOverride ? 'Manual' : 'Auto'}
+        </button>
       </div>
-      
-      {/* Main Layout: IP Calc (Left) | Entry + Tags (Center) | Summary (Right) */}
-      <div className="flex gap-3 lg:gap-6">
-        {/* LEFT: IP Calculation - Responsive */}
-        <div className="flex flex-col items-center p-3 lg:p-5 bg-background rounded-lg border w-[130px] lg:w-[200px] flex-shrink-0">
-          <span className="text-xs lg:text-sm text-muted-foreground uppercase tracking-wide mb-2">IP Calc</span>
-          
-          {/* KW Input */}
+
+      {/* DC/Site Tags - Compact */}
+      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
+          <Building2 className="h-3.5 w-3.5 text-blue-500" />
+          <span className="text-xs font-medium">{dataCenters.length} DC</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <MapPin className="h-3.5 w-3.5 text-green-500" />
+          <span className="text-xs font-medium">{contextSites.length} Sites</span>
+        </div>
+      </div>
+
+      {/* Sizing Summary - Compact */}
+      {sizingSummary && (
+        <div className="flex items-center gap-3 ml-auto text-xs">
           <div className="flex items-center gap-1">
-            <input
-              type="number"
-              value={kw}
-              onChange={e => setAnswer('ud-1', e.target.value)}
-              className="w-20 lg:w-28 h-8 lg:h-10 text-center text-sm lg:text-lg font-mono bg-muted/50 border rounded focus:outline-none focus:ring-2 focus:ring-primary/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              placeholder="0"
-              data-testid="ip-calc-kw"
-            />
-            <span className="text-xs lg:text-sm text-muted-foreground">KW</span>
+            <Server className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="font-medium">{formatKW(sizingSummary.totalIPs)} IPs</span>
           </div>
-          
-          {/* Multiplier */}
-          <div className="flex items-center gap-1 mt-1">
-            <span className="text-muted-foreground text-sm lg:text-base">×</span>
-            <input
-              type="number"
-              step="0.5"
-              value={mult}
-              onChange={e => setAnswer('ipam-multiplier', e.target.value)}
-              className="w-12 lg:w-16 h-7 lg:h-9 text-center text-sm lg:text-base font-mono bg-muted/50 border rounded focus:outline-none focus:ring-1 focus:ring-primary/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              data-testid="ip-calc-mult"
-            />
-          </div>
-          
-          {/* Divider */}
-          <div className="w-16 lg:w-24 h-px bg-border my-2 lg:my-3" />
-          
-          {/* Result - Larger */}
           <div className="flex items-center gap-1">
-            {manualOverride ? (
-              <input
-                type="number"
-                value={answers['ipam-1'] || ''}
-                onChange={e => setAnswer('ipam-1', e.target.value)}
+            <Cpu className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="font-medium">{formatKW(sizingSummary.totalTokens)} Tokens</span>
+          </div>
+          <Badge variant="outline" className="text-xs py-0 px-2">{sizingSummary.tokenPack}</Badge>
+        </div>
+      )}
+    </div>
+  );
                 className="w-24 lg:w-32 h-10 lg:h-12 text-center text-lg lg:text-2xl font-bold font-mono bg-amber-100 dark:bg-amber-900/30 border-2 border-amber-400 rounded focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 data-testid="ip-calc-override"
               />
