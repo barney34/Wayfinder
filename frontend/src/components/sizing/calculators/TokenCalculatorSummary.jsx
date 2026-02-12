@@ -1306,54 +1306,65 @@ export function TokenCalculatorSummary() {
                       </Select>
                     </TableCell>
                     <TableCell className="p-2 lg:p-4">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger className="cursor-help">
-                            <Badge variant="outline" className="font-mono text-xs lg:text-sm" data-testid={`site-model-${site.id}`}>
-                              {site.recommendedModel}
-                            </Badge>
-                          </TooltipTrigger>
-                          <TooltipContent className="max-w-sm">
-                            {(() => {
-                              const workload = getSiteWorkloadDetails(
-                                site.numIPs, site.role, platformMode, dhcpPercent, 
-                                site.platform, { isSpoke: site.isSpoke, hubLPS: site.hubLPS || 0 }
-                              );
-                              return (
-                                <div className="space-y-2 text-xs">
-                                  <div className="font-medium border-b pb-1">Sizing Details for {site.name}</div>
-                                  <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-                                    <div className={workload.driver === 'qps' ? 'font-bold text-blue-500' : ''}>
-                                      QPS: {formatNumber(workload.adjustedQPS)}
-                                      {workload.driver === 'qps' && <span className="ml-1">★</span>}
+                      <div className="flex items-center gap-1">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger className="cursor-help">
+                              <Badge variant="outline" className="font-mono text-xs lg:text-sm" data-testid={`site-model-${site.id}`}>
+                                {site.recommendedModel}
+                              </Badge>
+                            </TooltipTrigger>
+                            <TooltipContent className="max-w-sm">
+                              {(() => {
+                                const workload = getSiteWorkloadDetails(
+                                  site.numIPs, site.role, platformMode, dhcpPercent, 
+                                  site.platform, { isSpoke: site.isSpoke, hubLPS: site.hubLPS || 0 }
+                                );
+                                return (
+                                  <div className="space-y-2 text-xs">
+                                    <div className="font-medium border-b pb-1">Sizing Details for {site.name}</div>
+                                    <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                                      <div className={workload.driver === 'qps' ? 'font-bold text-blue-500' : ''}>
+                                        QPS: {formatNumber(workload.adjustedQPS)}
+                                        {workload.driver === 'qps' && <span className="ml-1">★</span>}
+                                      </div>
+                                      <div className={workload.driver === 'lps' ? 'font-bold text-blue-500' : ''}>
+                                        LPS: {formatNumber(workload.adjustedLPS)}
+                                        {workload.driver === 'lps' && <span className="ml-1">★</span>}
+                                      </div>
+                                      <div className={workload.driver === 'objects' ? 'font-bold text-blue-500' : ''}>
+                                        Objects: {formatNumber(workload.objects)}
+                                        {workload.driver === 'objects' && <span className="ml-1">★</span>}
+                                      </div>
+                                      <div className="text-muted-foreground">
+                                        DHCP: {formatNumber(workload.dhcpClients)}
+                                      </div>
                                     </div>
-                                    <div className={workload.driver === 'lps' ? 'font-bold text-blue-500' : ''}>
-                                      LPS: {formatNumber(workload.adjustedLPS)}
-                                      {workload.driver === 'lps' && <span className="ml-1">★</span>}
-                                    </div>
-                                    <div className={workload.driver === 'objects' ? 'font-bold text-blue-500' : ''}>
-                                      Objects: {formatNumber(workload.objects)}
-                                      {workload.driver === 'objects' && <span className="ml-1">★</span>}
-                                    </div>
-                                    <div className="text-muted-foreground">
-                                      DHCP: {formatNumber(workload.dhcpClients)}
+                                    {workload.penalties.length > 0 && (
+                                      <div className="border-t pt-1 text-amber-600">
+                                        <div className="font-medium">Penalties Applied:</div>
+                                        {workload.penalties.map((p, i) => <div key={i}>• {p}</div>)}
+                                      </div>
+                                    )}
+                                    <div className="border-t pt-1 text-muted-foreground">
+                                      <span className="text-blue-500">★</span> = driver metric
                                     </div>
                                   </div>
-                                  {workload.penalties.length > 0 && (
-                                    <div className="border-t pt-1 text-amber-600">
-                                      <div className="font-medium">Penalties Applied:</div>
-                                      {workload.penalties.map((p, i) => <div key={i}>• {p}</div>)}
-                                    </div>
-                                  )}
-                                  <div className="border-t pt-1 text-muted-foreground">
-                                    <span className="text-blue-500">★</span> = driver metric (why this model)
-                                  </div>
-                                </div>
-                              );
-                            })()}
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                                );
+                              })()}
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 shrink-0"
+                          onClick={() => openModelDialog(site)}
+                          data-testid={`why-model-${site.id}`}
+                        >
+                          <HelpCircle className="h-3.5 w-3.5 text-muted-foreground hover:text-blue-500" />
+                        </Button>
+                      </div>
                     </TableCell>
                     {showHardware && (
                       <TableCell className="p-2 lg:p-4">
