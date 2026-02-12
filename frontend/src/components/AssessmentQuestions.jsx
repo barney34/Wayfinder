@@ -451,6 +451,9 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
         return <SiteConfiguration value={currentValue} onChange={v => handleAnswerChange(q.id, v)} questionId={q.id} />;
       case 'tokenTotal':
         return <TokenTotalDisplay answers={answers} />;
+      case 'note':
+        // Note/text-only questions - use textarea
+        return <Textarea value={currentValue} onChange={e => handleAnswerChange(q.id, e.target.value)} placeholder="Add notes..." rows={compact ? 2 : 3} className={compact ? "text-sm min-h-[60px]" : ""} data-testid={`textarea-answer-${q.id}`} />;
       default:
         return q.question?.length > 80
           ? <Textarea value={currentValue} onChange={e => handleAnswerChange(q.id, e.target.value)} placeholder="Enter your answer..." rows={compact ? 2 : 3} className={compact ? "text-sm" : ""} data-testid={`textarea-answer-${q.id}`} />
