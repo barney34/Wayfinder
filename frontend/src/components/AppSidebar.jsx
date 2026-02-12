@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { 
   ChevronLeft, ChevronRight, ChevronDown, Users, Building2, MapPin, 
   Save, Download, Calculator, Home, Cpu, Package, Search, BarChart3,
-  Ticket, Sparkles, Clock, Plus, Settings, Check
+  Ticket, Sparkles, Clock, Plus, Check
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -121,6 +121,8 @@ export function AppSidebar({
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const [customersOpen, setCustomersOpen] = useState(true);
+  const [navigationOpen, setNavigationOpen] = useState(true);
+  const [calculatorOpen, setCalculatorOpen] = useState(true);
   const [targetSolutionsOpen, setTargetSolutionsOpen] = useState(false);
   
   // Use optional hook - returns null if not in provider
@@ -185,7 +187,7 @@ export function AppSidebar({
             collapsed={collapsed}
           />
 
-          {/* Customers Section */}
+          {/* Customers Section - Collapsible */}
           {collapsed ? (
             <div className="space-y-1 py-2">
               {customers.slice(0, 5).map(c => (
@@ -204,10 +206,11 @@ export function AppSidebar({
                 <div className="flex items-center gap-2">
                   <Users className="h-4 w-4 text-muted-foreground" />
                   <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Customers</span>
+                  <Badge variant="outline" className="text-[9px] px-1 py-0">{customers.length}</Badge>
                 </div>
                 <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${customersOpen ? '' : '-rotate-90'}`} />
               </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-0.5 mt-1">
+              <CollapsibleContent className="space-y-0.5 mt-1 max-h-[200px] overflow-y-auto">
                 {customers.map(c => (
                   <CustomerItem
                     key={c.id}
@@ -228,28 +231,45 @@ export function AppSidebar({
             </Collapsible>
           )}
 
-          {/* Navigation Section - Only show when customer selected */}
+          {/* Navigation Section - Collapsible, Only show when customer selected */}
           {currentCustomer && (
             <>
               <Separator className="my-2" />
               
-              {!collapsed && (
-                <div className="px-2 py-1">
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Navigation</span>
+              {collapsed ? (
+                <div className="space-y-0.5">
+                  {NAV_ITEMS.map(item => (
+                    <NavItem
+                      key={item.id}
+                      item={item}
+                      isActive={activeTab === item.id}
+                      onClick={() => onTabChange?.(item.id)}
+                      collapsed={collapsed}
+                    />
+                  ))}
                 </div>
+              ) : (
+                <Collapsible open={navigationOpen} onOpenChange={setNavigationOpen} className="py-1">
+                  <CollapsibleTrigger className="flex items-center justify-between w-full px-2 py-1.5 rounded-md hover:bg-muted transition-colors">
+                    <div className="flex items-center gap-2">
+                      <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Navigation</span>
+                    </div>
+                    <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${navigationOpen ? '' : '-rotate-90'}`} />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="space-y-0.5 mt-1">
+                    {NAV_ITEMS.map(item => (
+                      <NavItem
+                        key={item.id}
+                        item={item}
+                        isActive={activeTab === item.id}
+                        onClick={() => onTabChange?.(item.id)}
+                        collapsed={collapsed}
+                      />
+                    ))}
+                  </CollapsibleContent>
+                </Collapsible>
               )}
-              
-              <div className="space-y-0.5">
-                {NAV_ITEMS.map(item => (
-                  <NavItem
-                    key={item.id}
-                    item={item}
-                    isActive={activeTab === item.id}
-                    onClick={() => onTabChange?.(item.id)}
-                    collapsed={collapsed}
-                  />
-                ))}
-              </div>
             </>
           )}
 
@@ -258,68 +278,75 @@ export function AppSidebar({
             <>
               <Separator className="my-2" />
               
-              {/* IP Calculator */}
-              <div className={`rounded-lg bg-muted/30 ${collapsed ? 'p-2' : 'p-2.5'}`}>
-                {collapsed ? (
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="flex flex-col items-center gap-1">
-                          <Calculator className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-[10px] font-bold text-primary">{formatKW(activeIPs)}</span>
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent side="right">
-                        <p>{formatKW(kw)} KW × {mult} = {formatKW(activeIPs)} IPs</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                ) : (
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Calculator className="h-3.5 w-3.5 text-muted-foreground" />
-                      <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">IP Calculator</span>
-                    </div>
-                    
-                    {/* Formula display: KW × Mult = IPs */}
-                    <div className="flex items-center gap-1.5 text-sm">
-                      <Input
-                        type="number"
-                        value={kw || ''}
-                        onChange={e => setAnswer('ud-1', e.target.value)}
-                        className="w-16 h-7 text-xs text-center px-1 font-mono"
-                        placeholder="KW"
-                      />
-                      <span className="text-muted-foreground font-medium">×</span>
-                      <Input
-                        type="number"
-                        step="0.1"
-                        value={mult}
-                        onChange={e => setAnswer('ipam-multiplier', e.target.value)}
-                        className="w-12 h-7 text-xs text-center px-1 font-mono"
-                      />
-                      <span className="text-muted-foreground font-medium">=</span>
-                      <div className="flex-1 h-7 flex items-center justify-center bg-primary/10 rounded border border-primary/30 min-w-[50px]">
-                        <span className="text-xs font-bold text-primary">{formatKW(activeIPs)}</span>
+              {/* IP Calculator - Collapsible */}
+              {collapsed ? (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="rounded-lg bg-muted/30 p-2 flex flex-col items-center gap-1">
+                        <Calculator className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-[10px] font-bold text-primary">{formatKW(activeIPs)}</span>
                       </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">
+                      <p>{formatKW(kw)} KW × {mult} = {formatKW(activeIPs)} IPs</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              ) : (
+                <Collapsible open={calculatorOpen} onOpenChange={setCalculatorOpen} className="py-1">
+                  <CollapsibleTrigger className="flex items-center justify-between w-full px-2 py-1.5 rounded-md hover:bg-muted transition-colors">
+                    <div className="flex items-center gap-2">
+                      <Calculator className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">IP Calculator</span>
                     </div>
-                    
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const newVal = !manualOverride;
-                        setAnswer('ipam-1-override', newVal ? 'true' : 'false');
-                        if (!newVal) setAnswer('ipam-1', String(calculatedIPs));
-                      }}
-                      className={`w-full text-[10px] py-1 rounded transition-colors font-medium ${manualOverride ? 'bg-amber-500 text-white' : 'bg-muted/50 text-muted-foreground hover:bg-muted'}`}
-                    >
-                      {manualOverride ? 'Manual Override' : 'Auto Calculate'}
-                    </button>
-                  </div>
-                )}
-              </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-primary">{formatKW(activeIPs)}</span>
+                      <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${calculatorOpen ? '' : '-rotate-90'}`} />
+                    </div>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="mt-1">
+                    <div className="rounded-lg bg-muted/30 p-2.5 space-y-2">
+                      {/* Formula display: KW × Mult = IPs */}
+                      <div className="flex items-center gap-1.5 text-sm">
+                        <Input
+                          type="number"
+                          value={kw || ''}
+                          onChange={e => setAnswer('ud-1', e.target.value)}
+                          className="w-16 h-7 text-xs text-center px-1 font-mono"
+                          placeholder="KW"
+                        />
+                        <span className="text-muted-foreground font-medium">×</span>
+                        <Input
+                          type="number"
+                          step="0.1"
+                          value={mult}
+                          onChange={e => setAnswer('ipam-multiplier', e.target.value)}
+                          className="w-12 h-7 text-xs text-center px-1 font-mono"
+                        />
+                        <span className="text-muted-foreground font-medium">=</span>
+                        <div className="flex-1 h-7 flex items-center justify-center bg-primary/10 rounded border border-primary/30 min-w-[50px]">
+                          <span className="text-xs font-bold text-primary">{formatKW(activeIPs)}</span>
+                        </div>
+                      </div>
+                      
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newVal = !manualOverride;
+                          setAnswer('ipam-1-override', newVal ? 'true' : 'false');
+                          if (!newVal) setAnswer('ipam-1', String(calculatedIPs));
+                        }}
+                        className={`w-full text-[10px] py-1 rounded transition-colors font-medium ${manualOverride ? 'bg-amber-500 text-white' : 'bg-muted/50 text-muted-foreground hover:bg-muted'}`}
+                      >
+                        {manualOverride ? 'Manual Override' : 'Auto Calculate'}
+                      </button>
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+              )}
 
-              {/* Target Solutions - Compact */}
+              {/* Target Solutions - Compact & Collapsible */}
               {!collapsed && (
                 <Collapsible open={targetSolutionsOpen} onOpenChange={setTargetSolutionsOpen}>
                   <CollapsibleTrigger className="flex items-center justify-between w-full px-2 py-1.5 rounded-md hover:bg-muted transition-colors">
