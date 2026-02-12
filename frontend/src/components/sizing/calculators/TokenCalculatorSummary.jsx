@@ -1245,9 +1245,10 @@ export function TokenCalculatorSummary() {
                           value={site.numIPs}
                           onChange={e => updateSite(site.id, 'numIPs', parseInt(e.target.value) || 0)}
                           className="h-8 lg:h-10 text-sm lg:text-base w-20 lg:w-24 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          disabled={site.isDisabledInUddi}
                           data-testid={`site-ips-${site.id}`}
                         />
-                        {site.numIPsAuto > 0 && site.numIPs !== site.numIPsAuto && (
+                        {site.numIPsAuto > 0 && site.numIPs !== site.numIPsAuto && !site.isDisabledInUddi && (
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger>
@@ -1263,7 +1264,11 @@ export function TokenCalculatorSummary() {
                       {formatNumber(site.knowledgeWorkers || 0)}
                     </TableCell>
                     <TableCell className="p-2 lg:p-4">
-                      <Select value={site.role} onValueChange={v => updateSite(site.id, 'role', v)}>
+                      <Select 
+                        value={site.role} 
+                        onValueChange={v => updateSite(site.id, 'role', v)}
+                        disabled={site.isDisabledInUddi}
+                      >
                         <SelectTrigger className="h-8 lg:h-10 text-xs lg:text-sm" data-testid={`site-role-${site.id}`}>
                           <SelectValue />
                         </SelectTrigger>
@@ -1279,7 +1284,13 @@ export function TokenCalculatorSummary() {
                     <TableCell className="p-2 lg:p-4">
                       <Popover>
                         <PopoverTrigger asChild>
-                          <Button variant="outline" size="sm" className="h-8 lg:h-10 text-xs lg:text-sm w-full justify-between" data-testid={`site-services-${site.id}`}>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="h-8 lg:h-10 text-xs lg:text-sm w-full justify-between" 
+                            disabled={site.isDisabledInUddi}
+                            data-testid={`site-services-${site.id}`}
+                          >
                             {(site.services?.length || 0) > 0 ? (
                               <span className="truncate">{site.services.length}</span>
                             ) : (
