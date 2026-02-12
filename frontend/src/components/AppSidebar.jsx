@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { 
   ChevronLeft, ChevronRight, ChevronDown, Users, Building2, MapPin, 
   Save, Download, Calculator, Home, Cpu, Package, Search, BarChart3,
-  Ticket, Sparkles, Clock, Plus, Check, Target
+  Ticket, Sparkles, Clock, Plus, Check, Target, AlertCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Textarea } from "@/components/ui/textarea";
 import { apiRequest } from "@/lib/queryClient";
 import { useDiscoveryOptional } from "@/contexts/DiscoveryContext";
 
@@ -31,12 +33,12 @@ const NAV_ITEMS = [
   { id: 'history', label: 'History', icon: Clock },
 ];
 
-// Target Solutions for sidebar
+// Target Solutions - NIOS doesn't need why not, others do
 const TARGET_SOLUTIONS = [
-  { key: 'feature-nios', label: 'NIOS' },
-  { key: 'feature-uddi', label: 'UDDI' },
-  { key: 'feature-security', label: 'Security' },
-  { key: 'feature-asset insights', label: 'Asset' },
+  { key: 'feature-nios', label: 'NIOS', noWhyNot: true },
+  { key: 'feature-uddi', label: 'UDDI', noWhyNot: false },
+  { key: 'feature-security', label: 'Security', noWhyNot: false },
+  { key: 'feature-asset insights', label: 'Asset', noWhyNot: false },
 ];
 
 // Collapsible Section Header
@@ -132,7 +134,7 @@ function NavItem({ item, isActive, onClick, collapsed, children }) {
       </button>
       {/* Subsection - shows when this nav item is active */}
       {isActive && children && (
-        <div className="ml-6 mt-1 mb-2 pl-2 border-l border-border/50">
+        <div className="ml-4 mt-2 mb-2 pl-3 border-l-2 border-primary/30">
           {children}
         </div>
       )}
@@ -175,95 +177,173 @@ export function AppSidebar({
     queryFn: () => apiRequest('/api/customers'),
   });
 
-  // Target Solutions subsection for Discovery
+  // IP Calculator component (true calculator style)
+  const IPCalculatorCard = () => (
+    <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg p-3 text-white shadow-lg">
+      <div className="flex items-center gap-2 mb-2">
+        <Calculator className="h-4 w-4 text-blue-400" />
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">IP Calculator</span>
+      </div>
+      
+      {/* Calculator display */}
+      <div className="bg-slate-700/50 rounded-md p-2 mb-2 font-mono">
+        <div className="text-right text-2xl font-bold text-green-400">
+          {formatKW(activeIPs)}
+        </div>
+        <div className="text-right text-[10px] text-slate-400">
+          Active IPs
+        </div>
+      </div>
+      
+      {/* Calculator inputs */}
+      <div className="grid grid-cols-3 gap-1 text-center">
+        <div>
+          <Input
+            type="number"
+            value={kw || ''}
+            onChange={e => setAnswer('ud-1', e.target.value)}
+            className="h-8 text-xs text-center font-mono bg-slate-700 border-slate-600 text-white"
+            placeholder="KW"
+          />
+          <div className="text-[9px] text-slate-500 mt-0.5">KW</div>
+        </div>
+        <div className="flex items-center justify-center text-slate-400 font-bold">×</div>
+        <div>
+          <Input
+            type="number"
+            step="0.1"
+            value={mult}
+            onChange={e => setAnswer('ipam-multiplier', e.target.value)}
+            className="h-8 text-xs text-center font-mono bg-slate-700 border-slate-600 text-white"
+          />
+          <div className="text-[9px] text-slate-500 mt-0.5">Mult</div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Target Solutions subsection (2x2 grid with why not)
   const TargetSolutionsSubsection = () => (
-    <div className="space-y-1.5">
+    <div className="space-y-2">
       <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-medium">
         <Target className="h-3 w-3" />
         <span>Target Solutions</span>
       </div>
-      <div className="flex flex-wrap gap-1">
+      <div className="grid grid-cols-2 gap-1.5">
         {TARGET_SOLUTIONS.map(sol => {
           const isOn = answers[sol.key] === 'Yes';
+          const whyNotKey = `${sol.key}-why-not`;
+          const whyNotValue = answers[whyNotKey] || '';
+          const needsWhyNot = !isOn && !sol.noWhyNot;
+          
           return (
-            <button
-              key={sol.key}
-              onClick={() => setAnswer(sol.key, isOn ? 'No' : 'Yes')}
-              className={`px-2 py-0.5 text-[10px] rounded-full font-medium transition-colors ${isOn ? 'bg-green-500 text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
-            >
-              {sol.label}
-            </button>
+            <Popover key={sol.key}>
+              <PopoverTrigger asChild>
+                <button
+                  onClick={(e) => {
+                    if (!needsWhyNot) {
+                      e.preventDefault();
+                      setAnswer(sol.key, isOn ? 'No' : 'Yes');
+                    }
+                  }}
+                  className={`relative px-2 py-1.5 text-[10px] rounded-md font-medium transition-colors text-center ${
+                    isOn 
+                      ? 'bg-green-500 text-white' 
+                      : needsWhyNot 
+                        ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700' 
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  }`}
+                >
+                  {sol.label}
+                  {needsWhyNot && !whyNotValue && (
+                    <AlertCircle className="h-2.5 w-2.5 absolute -top-1 -right-1 text-amber-500" />
+                  )}
+                </button>
+              </PopoverTrigger>
+              {needsWhyNot && (
+                <PopoverContent className="w-48 p-2" side="right">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium">Why not {sol.label}?</span>
+                      {!whyNotValue && <Badge variant="outline" className="text-[9px] px-1 py-0 text-amber-600">Required</Badge>}
+                    </div>
+                    <Textarea
+                      value={whyNotValue}
+                      onChange={e => setAnswer(whyNotKey, e.target.value)}
+                      placeholder={`Reason for not selecting ${sol.label}...`}
+                      className="text-xs min-h-[60px] resize-none"
+                    />
+                    <Button 
+                      size="sm" 
+                      className="w-full h-7 text-xs"
+                      onClick={() => setAnswer(sol.key, 'Yes')}
+                    >
+                      Enable {sol.label}
+                    </Button>
+                  </div>
+                </PopoverContent>
+              )}
+            </Popover>
           );
         })}
       </div>
     </div>
   );
 
-  // Sizing subsection for Sizing tab
-  const SizingSubsection = () => (
+  // Sizing Stats subsection
+  const SizingStatsSubsection = () => (
     <div className="space-y-2">
-      {/* IP Calculator mini */}
-      <div className="space-y-1">
-        <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-medium">
-          <Calculator className="h-3 w-3" />
-          <span>IP Calculator</span>
-        </div>
-        <div className="flex items-center gap-1 text-xs">
-          <Input
-            type="number"
-            value={kw || ''}
-            onChange={e => setAnswer('ud-1', e.target.value)}
-            className="w-14 h-6 text-[10px] text-center px-1 font-mono"
-            placeholder="KW"
-          />
-          <span className="text-muted-foreground text-[10px]">×</span>
-          <Input
-            type="number"
-            step="0.1"
-            value={mult}
-            onChange={e => setAnswer('ipam-multiplier', e.target.value)}
-            className="w-10 h-6 text-[10px] text-center px-1 font-mono"
-          />
-          <span className="text-muted-foreground text-[10px]">=</span>
-          <span className="text-xs font-bold text-primary">{formatKW(activeIPs)}</span>
-        </div>
-      </div>
-      
       {/* DC/Sites */}
       <div className="flex items-center gap-3 text-xs">
-        <div className="flex items-center gap-1">
-          <Building2 className="h-3 w-3 text-blue-500" />
-          <span className="font-medium">{dataCenters.length}</span>
+        <div className="flex items-center gap-1.5 bg-blue-500/10 px-2 py-1 rounded">
+          <Building2 className="h-3.5 w-3.5 text-blue-500" />
+          <span className="font-bold">{dataCenters.length}</span>
           <span className="text-muted-foreground text-[10px]">DC</span>
         </div>
-        <div className="flex items-center gap-1">
-          <MapPin className="h-3 w-3 text-green-500" />
-          <span className="font-medium">{sites.length}</span>
+        <div className="flex items-center gap-1.5 bg-green-500/10 px-2 py-1 rounded">
+          <MapPin className="h-3.5 w-3.5 text-green-500" />
+          <span className="font-bold">{sites.length}</span>
           <span className="text-muted-foreground text-[10px]">Sites</span>
         </div>
       </div>
       
       {/* Tokens */}
       {sizingSummary && (
-        <div className="flex items-center gap-3 text-xs">
-          <div className="flex items-center gap-1">
-            <Ticket className="h-3 w-3 text-purple-500" />
-            <span className="font-medium">{formatKW(sizingSummary.totalTokens)}</span>
-            <span className="text-muted-foreground text-[10px]">Tokens</span>
-          </div>
-          <Badge variant="outline" className="text-[9px] px-1 py-0">{sizingSummary.tokenPack || '—'}</Badge>
+        <div className="flex items-center gap-2 text-xs bg-purple-500/10 px-2 py-1.5 rounded">
+          <Ticket className="h-3.5 w-3.5 text-purple-500" />
+          <span className="font-bold">{formatKW(sizingSummary.totalTokens)}</span>
+          <span className="text-muted-foreground text-[10px]">Tokens</span>
+          <Badge variant="outline" className="text-[9px] px-1.5 py-0 ml-auto">{sizingSummary.tokenPack || '—'}</Badge>
         </div>
       )}
     </div>
   );
 
+  // Discovery subsection - Target Solutions + IP Calculator
+  const DiscoverySubsection = () => (
+    <div className="space-y-3">
+      <TargetSolutionsSubsection />
+      <Separator className="my-2" />
+      <IPCalculatorCard />
+    </div>
+  );
+
+  // Sizing subsection - IP Calculator + Stats
+  const SizingSubsection = () => (
+    <div className="space-y-3">
+      <IPCalculatorCard />
+      <Separator className="my-2" />
+      <SizingStatsSubsection />
+    </div>
+  );
+
   return (
-    <div className={`flex flex-col h-full bg-card border-r transition-all duration-300 ${collapsed ? 'w-16' : 'w-56'}`}>
+    <div className={`flex flex-col h-full bg-card border-r shadow-lg transition-all duration-300 ${collapsed ? 'w-16' : 'w-64'}`}>
       {/* Header with Logo & Collapse */}
       <div className="flex items-center justify-between p-3 border-b">
         {!collapsed && (
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-md bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-md">
               <span className="text-white font-bold text-sm">IB</span>
             </div>
             <span className="font-semibold text-sm">Sizing Planner</span>
@@ -281,7 +361,7 @@ export function AppSidebar({
 
       {/* Scrollable content */}
       <ScrollArea className="flex-1">
-        <div className={`${collapsed ? 'px-1.5' : 'px-2'} py-2 space-y-1`}>
+        <div className={`${collapsed ? 'px-1.5' : 'px-3'} py-3 space-y-1`}>
           
           {/* Dashboard Link */}
           <NavItem 
@@ -314,7 +394,7 @@ export function AppSidebar({
                 onToggle={() => setCustomersOpen(!customersOpen)} 
               />
               {customersOpen && (
-                <div className="space-y-0.5 mt-1 max-h-[200px] overflow-y-auto">
+                <div className="space-y-0.5 mt-1 max-h-[180px] overflow-y-auto">
                   {customers.map(c => (
                     <CustomerItem
                       key={c.id}
@@ -339,7 +419,7 @@ export function AppSidebar({
           {/* Navigation Section - Only show when customer selected */}
           {currentCustomer && (
             <>
-              <Separator className="my-2" />
+              <Separator className="my-3" />
               
               <div className="space-y-0.5">
                 {NAV_ITEMS.map(item => (
@@ -351,7 +431,7 @@ export function AppSidebar({
                     collapsed={collapsed}
                   >
                     {/* Contextual subsections */}
-                    {item.id === 'discovery' && discoveryContext && <TargetSolutionsSubsection />}
+                    {item.id === 'discovery' && discoveryContext && <DiscoverySubsection />}
                     {item.id === 'sizing' && discoveryContext && <SizingSubsection />}
                   </NavItem>
                 ))}
@@ -363,14 +443,14 @@ export function AppSidebar({
 
       {/* Footer with Save/Export */}
       {currentCustomer && (
-        <div className={`p-2 border-t ${collapsed ? 'space-y-1' : 'flex gap-1.5'}`}>
+        <div className={`p-3 border-t ${collapsed ? 'space-y-1' : 'flex gap-2'}`}>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="default"
                   size="sm"
-                  className={collapsed ? "w-full h-9 px-0" : "flex-1 h-8"}
+                  className={collapsed ? "w-full h-9 px-0" : "flex-1 h-9"}
                   onClick={onSave}
                   disabled={saving}
                 >
@@ -388,7 +468,7 @@ export function AppSidebar({
                 <Button
                   variant="outline"
                   size="sm"
-                  className={collapsed ? "w-full h-9 px-0" : "flex-1 h-8"}
+                  className={collapsed ? "w-full h-9 px-0" : "flex-1 h-9"}
                   onClick={onExport}
                 >
                   <Download className="h-4 w-4" />
