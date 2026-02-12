@@ -231,6 +231,19 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
   - Explanation: "★ = driver metric (why this model)"
 - **getSiteWorkloadDetails Function**: New calculation function that returns all workload metrics and determines the driver
 
+### Phase 22 — "Why this Model?" Dialog (Complete - Feb 12, 2026)
+- **Why Button**: "?" icon next to each model badge that opens a detailed dialog
+- **Site Summary**: Shows site name, role, IP addresses, DHCP clients (with percentage)
+- **Driver Explanation**: Blue info box highlighting which metric (QPS/LPS/Objects) drove the model selection with explanation
+- **Workload Requirements**: Progress bars showing QPS, LPS, Objects utilization percentages
+  - Color coding: Green (<60%), Amber (60-80%), Red (>80%)
+  - Shows actual vs. effective capacity (at 60% target)
+  - Star (★) indicator on driver metric
+- **Penalties Applied**: Shows any penalties (Hub, Spoke, Multi-protocol) when applicable
+- **Object Breakdown**: DNS Objects (DHCP×3 + Static×2) and DHCP Lease Objects (Clients × 2)
+- **Server Specifications**: Shows selected model's Max QPS, Max LPS, Max Objects
+- **Token Cost**: Shows total tokens with per-server breakdown for multi-server sites
+
 ## Pending / Backlog
 
 ### P1
