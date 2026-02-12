@@ -81,7 +81,7 @@ export { getServiceImpact, getTokensForModel, getPartnerSkuFromTokens, getSkuDes
 
 /**
  * TokenCalculatorSummary Component
- * EDITABLE site sizing, token calculations, BOM, and export
+ * EDITABLE site sizing, token calculations, and export
  */
 export function TokenCalculatorSummary() {
   const { 
@@ -92,6 +92,9 @@ export function TokenCalculatorSummary() {
   const [siteOverrides, setSiteOverrides] = useState({});
   const [manualSites, setManualSites] = useState([]);
   const lastSavedRef = useRef(null);
+  
+  // Drawing # for export
+  const [drawingNumber, setDrawingNumber] = useState('');
   
   // Alert dialog state for platform change confirmation
   const [showPlatformAlert, setShowPlatformAlert] = useState(false);
