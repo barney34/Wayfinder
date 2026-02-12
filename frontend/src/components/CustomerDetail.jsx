@@ -639,7 +639,7 @@ function CustomerDetailContent({
   };
 
   return (
-    <div className="flex h-[calc(100vh-60px)]">
+    <div className="flex h-[calc(100vh-60px)] bg-muted/30">
       {/* Sidebar with Navigation */}
       <AppSidebar
         currentCustomer={customer}
@@ -656,6 +656,9 @@ function CustomerDetailContent({
         activeTab={activeTab}
         onTabChange={setActiveTab}
       />
+
+      {/* Gap between sidebar and content */}
+      <div className="w-3 bg-muted/50" />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0 bg-background">
