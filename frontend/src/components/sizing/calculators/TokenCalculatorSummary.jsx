@@ -1046,6 +1046,30 @@ export function TokenCalculatorSummary() {
                   </TableHead>
                   {showHardware && <TableHead className="text-xs lg:text-sm">Hardware SKU</TableHead>}
                   <TableHead className="w-16 lg:w-20 text-right text-xs lg:text-sm">Tokens</TableHead>
+                  <TableHead className="w-12 text-center text-xs lg:text-sm">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger className="flex items-center justify-center gap-1">
+                          Rpt <Info className="h-3 w-3" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          Include in exported report/drawing
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </TableHead>
+                  <TableHead className="w-12 text-center text-xs lg:text-sm">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger className="flex items-center justify-center gap-1">
+                          BOM <Info className="h-3 w-3" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          Include in Bill of Materials
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </TableHead>
                   <TableHead className="w-10 lg:w-12 text-xs lg:text-sm"></TableHead>
                 </TableRow>
               </TableHeader>
