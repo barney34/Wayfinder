@@ -236,31 +236,36 @@ export function TopBar({ customerName, opportunity }) {
           </div>
           
           {/* Site Entry Form */}
-          <div className="flex items-center gap-1 bg-white dark:bg-slate-800 rounded-lg border p-1.5 mb-2">
-            <Input
-              value={siteName}
-              onChange={e => setSiteName(e.target.value)}
-              placeholder="Site Name"
-              className="h-7 flex-1 text-sm border-0 bg-transparent focus-visible:ring-0"
-              onKeyDown={e => e.key === 'Enter' && handleAddSite()}
-            />
-            <Input
-              type="number"
-              value={siteKW}
-              onChange={e => setSiteKW(e.target.value)}
-              placeholder="KW"
-              title="Knowledge Workers"
-              className="h-7 w-20 text-sm border-0 bg-transparent focus-visible:ring-0 text-right font-medium"
-              onKeyDown={e => e.key === 'Enter' && handleAddSite()}
-            />
-            <Button 
-              size="sm" 
-              className="h-7 w-7 p-0 bg-green-500 hover:bg-green-600"
-              onClick={handleAddSite}
-              disabled={!siteName.trim()}
-            >
-              <Plus className="h-3.5 w-3.5" />
-            </Button>
+          <div className="space-y-1 mb-2">
+            <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+              <span className="flex-1">Name</span>
+              <span className="w-24 text-right">Knowledge Workers</span>
+            </div>
+            <div className="flex items-center gap-1 bg-white dark:bg-slate-800 rounded-lg border p-1.5">
+              <Input
+                value={siteName}
+                onChange={e => setSiteName(e.target.value)}
+                placeholder="Site Name"
+                className="h-8 flex-1 text-sm border-0 bg-transparent focus-visible:ring-0"
+                onKeyDown={e => e.key === 'Enter' && handleAddSite()}
+              />
+              <Input
+                type="number"
+                value={siteKW}
+                onChange={e => setSiteKW(e.target.value)}
+                placeholder="0"
+                className="h-8 w-24 text-sm border-0 bg-transparent focus-visible:ring-0 text-right font-mono font-medium"
+                onKeyDown={e => e.key === 'Enter' && handleAddSite()}
+              />
+              <Button 
+                size="sm" 
+                className="h-8 w-8 p-0 bg-green-500 hover:bg-green-600"
+                onClick={handleAddSite}
+                disabled={!siteName.trim()}
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
           
           {/* Site Tags - 2 columns, expandable (no scroll) */}
