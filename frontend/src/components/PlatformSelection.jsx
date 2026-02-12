@@ -36,19 +36,18 @@ export function TargetSolutions() {
         {SOLUTIONS.map(solution => {
           const isOn = getSolutionState(solution.key);
           const whyNotValue = answers[getWhyNotKey(solution.key)] || '';
-          const needsWhyNot = !isOn && !solution.required;
+          const needsWhyNot = !isOn && !solution.noWhyNot;
 
           return (
             <div key={solution.key} className="flex flex-col">
               <button
                 type="button"
                 onClick={() => toggleSolution(solution.key)}
-                disabled={solution.required}
-                className={`px-3 py-1.5 rounded-lg border-2 transition-all ${
+                className={`px-3 py-1.5 rounded-lg border-2 transition-all cursor-pointer ${
                   isOn 
                     ? 'bg-primary text-primary-foreground border-primary' 
                     : 'bg-background border-muted-foreground/30 hover:border-muted-foreground/50'
-                } ${solution.required ? 'cursor-default' : 'cursor-pointer'}`}
+                }`}
               >
                 <div className="flex items-center gap-1.5">
                   {isOn && <Check className="h-3.5 w-3.5" />}
