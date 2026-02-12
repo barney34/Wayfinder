@@ -1,0 +1,185 @@
+"""
+AI Routes - SmartFill and Context Generation
+"""
+
+import os
+import json
+import uuid
+from fastapi import APIRouter, HTTPException
+
+from models.schemas import AnalyzeNotesRequest, GenerateContextRequest
+from data.questions import DISCOVERY_QUESTIONS
+from emergentintegrations.llm.chat import LlmChat, UserMessage
+
+router = APIRouter(prefix="/api", tags=["ai"])
+
+EMERGENT_LLM_KEY = os.environ.get("EMERGENT_LLM_KEY", "")
+
+
+@router.get("/questions")
+async def get_questions():
+    """Get all discovery questions"""
+    return DISCOVERY_QUESTIONS
+
+
+@router.post("/analyze-notes")
+async def analyze_notes(request: AnalyzeNotesRequest):
+    """Analyze meeting notes and match to discovery questions using AI"""
+    if not request.notes or not request.notes.strip():
+        raise HTTPException(status_code=400, detail="Meeting notes are required")
+    
+    if not EMERGENT_LLM_KEY:
+        raise HTTPException(status_code=500, detail="AI integration not configured")
+    
+    try:
+        # Build questions list for prompt
+        questions_text = "\n".join([
+            f"ID: {q['id']}, Question: {q['question']}"
+            for q in DISCOVERY_QUESTIONS
+        ])
+        
+        prompt = f"""Analyze the following meeting notes and extract answers to discovery questions.
+
+Meeting Notes:
+{request.notes}
+
+Discovery Questions:
+{questions_text}
+
+For each question that can be answered from the meeting notes, return a match with:
+- questionId: the question ID
+- answer: the extracted answer (concise, matching the question format)
+- confidence: "high" or "medium"
+
+Return ONLY a JSON object with format: {{ "matches": [{{"questionId": "...", "answer": "...", "confidence": "..."}}] }}"""
+
+        # Use Gemini 3 Flash via emergentintegrations (low temperature for consistent outputs)
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"analyze-notes-{uuid.uuid4()}",
+            system_message="You are an expert at extracting structured information from meeting notes."
+        ).with_model("gemini", "gemini-3-flash-preview")
+        
+        user_message = UserMessage(text=prompt)
+        response = await chat.send_message(user_message)
+        
+        # Parse the JSON response
+        response_text = response.strip()
+        if response_text.startswith("```json"):
+            response_text = response_text[7:]
+        if response_text.startswith("```"):
+            response_text = response_text[3:]
+        if response_text.endswith("```"):
+            response_text = response_text[:-3]
+        response_text = response_text.strip()
+        
+        data = json.loads(response_text)
+        return data
+        
+    except json.JSONDecodeError as e:
+        print(f"JSON parse error: {e}")
+        return {"matches": []}
+    except Exception as e:
+        print(f"Error analyzing notes: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to analyze meeting notes: {str(e)}")
+
+
+@router.post("/generate-context")
+async def generate_context(request: GenerateContextRequest):
+    """Generate context summary using AI"""
+    if not request.contextType or (not request.answers and not request.meetingNotes):
+        raise HTTPException(status_code=400, detail="Context type and answers or meeting notes are required")
+    
+    if not EMERGENT_LLM_KEY:
+        raise HTTPException(status_code=500, detail="AI integration not configured")
+    
+    try:
+        # Build question-answer pairs for prompt
+        answers_text_parts = []
+        for question_id, answer in request.answers.items():
+            question = next((q for q in DISCOVERY_QUESTIONS if q["id"] == question_id), None)
+            if question and answer:
+                answers_text_parts.append(f"Q: {question['question']}\nA: {answer}")
+        answers_text = "\n\n".join(answers_text_parts) if answers_text_parts else "No discovery answers available yet."
+        
+        # Build notes text
+        notes_text_parts = []
+        for question_id, note in request.notes.items():
+            question = next((q for q in DISCOVERY_QUESTIONS if q["id"] == question_id), None)
+            if question and note:
+                notes_text_parts.append(f"Context for \"{question['question']}\":\n{note}")
+        notes_text = "\n\n".join(notes_text_parts) if notes_text_parts else ""
+        
+        # Meeting notes section
+        meeting_notes_section = f"Meeting Notes / Call Transcript:\n{request.meetingNotes}" if request.meetingNotes else ""
+        
+        # Build prompt based on context type - with bullet point style instructions
+        prompt_instructions = {
+            "environment": """Summarize the customer's current technical environment in bullet point format. Include:
+• Current IPAM, DNS, DHCP setup and products being used
+• Vendor/technology specifics (Microsoft, BIND, Cloudflare, AWS Route 53, etc.)
+• Locations (datacenters, sites, branches)
+• Current integrations (Splunk, SIEM, etc.)
+• Network bandwidth considerations
+
+Format as concise bullet points. Example format:
+**IPAM**
+• IPAM is currently inconsistently managed across various spreadsheets, DNS and DHCP server configurations, and Active Directory
+
+**DNS**
+• DNS is primarily hosted on AD servers with GSS-TSIG enabled
+• Cloudflare provides external authoritative DNS""",
+            "outcomes": """Summarize the customer's desired project outcomes in bullet point format. Include:
+• Project background and why this project exists
+• Goals of the project (not just "migrate to DDI")
+• Pain points being resolved
+• Project timeline and phases
+• Project sponsors/owners/customers
+
+Format as concise bullet points. Example format:
+1. Lower operational burden by allowing administrators to be more productive with less maintenance
+2. Reduce the footprint of dedicated Microsoft servers leveraged for DDI services
+3. Centralize administration for DDI services rather than having multiple systems""",
+            "endState": """Summarize the customer's target end state in bullet point format. Include:
+• Target architecture and platform (UDDI, NIOS-X, etc.)
+• DNS migration strategy (off-load from AD servers, etc.)
+• DHCP services deployment plan
+• Security features (Threat Defense, etc.)
+• Integration requirements (Splunk, Ansible, Terraform, etc.)
+
+Format as numbered bullet points. Example format:
+1. Implement UDDI as the centralized SaaS management platform for DDI
+2. Connect UDDI with AWS Route 53 DNS for overlay visibility and management
+3. Off-load DNS from Active Directory servers onto NIOS-X DNS""",
+            "endstate": """Summarize the customer's target end state in bullet point format. Include the target architecture, migration path, and DDI design features.""",
+            "migration": "Outline the recommended migration path and implementation approach in bullet point format.",
+        }.get(request.contextType, f"Generate a summary for {request.contextType} in bullet point format.")
+        
+        notes_section = f"Additional Context Notes:\n{notes_text}" if notes_text else ""
+        
+        prompt = f"""{prompt_instructions}
+
+Discovery Questions and Answers:
+{answers_text}
+
+{notes_section}
+
+{meeting_notes_section}
+
+Generate a concise, professional summary using bullet points. Keep each bullet point short and descriptive (1-2 lines max). Do not include headers like "Here is a summary" - just output the bullet points directly."""
+
+        # Use Gemini 3 Flash via emergentintegrations (low temperature for consistent outputs)
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"generate-context-{uuid.uuid4()}",
+            system_message="You are an expert technical consultant creating professional DDI infrastructure documentation. Output concise, actionable bullet points. Be specific with product names, technologies, and quantities when available."
+        ).with_model("gemini", "gemini-3-flash-preview")
+        
+        user_message = UserMessage(text=prompt)
+        response = await chat.send_message(user_message)
+        
+        return {"summary": response.strip()}
+        
+    except Exception as e:
+        print(f"Error generating context: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to generate context summary: {str(e)}")
