@@ -1,0 +1,63 @@
+/**
+ * Platform Configuration Constants for Token Calculator
+ * Extracted from TokenCalculatorSummary.jsx for better organization
+ */
+
+// Global platform modes
+export const PLATFORM_MODES = [
+  { value: 'NIOS', label: 'NIOS', description: 'Traditional on-prem (Physical/Virtual)' },
+  { value: 'UDDI', label: 'UDDI', description: 'Cloud-native NIOS-X' },
+  { value: 'Hybrid', label: 'Hybrid', description: 'Mix of NIOS + UDDI' },
+];
+
+// Platform options per mode
+export const PLATFORM_OPTIONS_BY_MODE = {
+  NIOS: [
+    { value: 'NIOS', label: 'NIOS Physical' },
+    { value: 'NIOS-V', label: 'NIOS Virtual' },
+    { value: 'NIOS-HA', label: 'NIOS HA Pair' },
+  ],
+  UDDI: [
+    { value: 'NXVS', label: 'NIOS-X Virtual Server' },
+    { value: 'NXaaS', label: 'NIOS-X as a Service' },
+  ],
+  Hybrid: [
+    { value: 'NIOS', label: 'NIOS Physical' },
+    { value: 'NIOS-V', label: 'NIOS Virtual' },
+    { value: 'NIOS-HA', label: 'NIOS HA Pair' },
+    { value: 'NXVS', label: 'NIOS-X VS' },
+    { value: 'NXaaS', label: 'NXaaS' },
+  ],
+};
+
+// Role options by platform mode (UDDI doesn't have GM/GMC)
+export const ROLE_OPTIONS_BY_MODE = {
+  NIOS: [
+    { value: 'GM', label: 'GM', description: 'Grid Master' },
+    { value: 'GMC', label: 'GMC', description: 'Grid Master Candidate' },
+    { value: 'DNS', label: 'DNS', description: 'DNS Only' },
+    { value: 'DHCP', label: 'DHCP', description: 'DHCP Only' },
+    { value: 'DNS/DHCP', label: 'DNS/DHCP', description: 'DNS + DHCP' },
+  ],
+  UDDI: [
+    { value: 'DNS', label: 'DNS', description: 'DNS Only' },
+    { value: 'DHCP', label: 'DHCP', description: 'DHCP Only' },
+    { value: 'DNS/DHCP', label: 'DNS/DHCP', description: 'DNS + DHCP' },
+  ],
+  Hybrid: [
+    { value: 'GM', label: 'GM', description: 'Grid Master (NIOS only)' },
+    { value: 'GMC', label: 'GMC', description: 'Grid Master Candidate (NIOS only)' },
+    { value: 'DNS', label: 'DNS', description: 'DNS Only' },
+    { value: 'DHCP', label: 'DHCP', description: 'DHCP Only' },
+    { value: 'DNS/DHCP', label: 'DNS/DHCP', description: 'DNS + DHCP' },
+  ],
+};
+
+// Additional services (multi-select) - can be co-located on same host
+export const ADDITIONAL_SERVICES = [
+  { value: 'NTP', label: 'NTP', description: 'Network Time Protocol', impact: 0 },
+  { value: 'DFP', label: 'DFP', description: 'DNS Firewall Policy', impact: 5 },
+  { value: 'TFTP', label: 'TFTP', description: 'Trivial File Transfer', impact: 2 },
+  { value: 'FTP', label: 'FTP', description: 'File Transfer Protocol', impact: 2 },
+  { value: 'HTTP', label: 'HTTP', description: 'HTTP File Distribution', impact: 3 },
+];
