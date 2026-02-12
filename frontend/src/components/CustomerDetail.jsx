@@ -20,7 +20,7 @@ import { TokenCalculatorSummary, UDSMembersTable } from "./sizing";
 import { FloatingSaveButton } from "./FloatingSaveButton";
 import { AppSidebar } from "./AppSidebar";
 import { QuickSiteEntry } from "./QuickSiteEntry";
-import { PlatformSelection } from "./PlatformSelection";
+import { TargetSolutions, DeploymentModel } from "./PlatformSelection";
 import yaml from "js-yaml";
 
 // ===== Target Solution Toggles =====
