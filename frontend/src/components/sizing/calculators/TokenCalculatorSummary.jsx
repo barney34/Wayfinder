@@ -1516,6 +1516,7 @@ export function TokenCalculatorSummary() {
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
+                      )}
                     </TableCell>
                     {/* Add to Report checkbox */}
                     <TableCell className="p-2 lg:p-4 text-center">
