@@ -603,102 +603,119 @@ export function CustomerDetail({ customer, onBack }) {
 
   return (
     <DiscoveryProvider customerId={customer.id}>
-      <div className="flex h-[calc(100vh-60px)]">
-        {/* Sidebar */}
-        <AppSidebar
-          currentCustomer={customer}
-          currentOpportunity={currentOpportunity}
-          onCustomerSelect={(c) => {
-            // Save current work before switching
-            if (c.id !== customer.id) {
-              window.location.href = `/?customer=${c.id}`;
-            }
-          }}
-          onBack={onBack}
-          onSave={() => {}}
-          onExport={() => {}}
-          saving={saving}
-        />
+      <CustomerDetailContent 
+        customer={customer}
+        currentName={currentName}
+        currentOpportunity={currentOpportunity}
+        onBack={onBack}
+        saving={saving}
+        discoveryTabQuestions={discoveryTabQuestions}
+        sizingTabQuestions={sizingTabQuestions}
+        securityTokenQuestions={securityTokenQuestions}
+        uddiTokenQuestions={uddiTokenQuestions}
+      />
+    </DiscoveryProvider>
+  );
+}
 
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col min-w-0">
-          <Tabs defaultValue="discovery" className="flex flex-col h-full">
-            {/* Tabs as Separator - Sticky */}
-            <div className="flex-shrink-0 bg-background border-b px-4">
-              <TabsList className="bg-transparent h-10 gap-0 p-0">
-                {[
-                  { value: 'discovery', label: 'Discovery', icon: Search },
-                  { value: 'sizing', label: 'Sizing', icon: BarChart3 },
-                  { value: 'tokens', label: 'Tokens', icon: Ticket },
-                  { value: 'smartfill', label: 'SmartFill', icon: Sparkles },
-                  { value: 'history', label: 'History', icon: Clock },
-                ].map(tab => (
-                  <TabsTrigger 
-                    key={tab.value} 
-                    value={tab.value} 
-                    data-testid={`tab-${tab.value}`}
-                    className="flex items-center gap-1.5 border-b-2 border-transparent data-[state=active]:border-b-primary data-[state=active]:text-primary data-[state=active]:bg-transparent rounded-none px-4 py-2 text-sm font-medium transition-colors hover:text-primary/80"
-                  >
-                    <tab.icon className="h-4 w-4" />
-                    {tab.label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
+// Inner component that uses DiscoveryContext
+function CustomerDetailContent({ 
+  customer, 
+  currentName, 
+  currentOpportunity, 
+  onBack, 
+  saving,
+  discoveryTabQuestions,
+  sizingTabQuestions,
+  securityTokenQuestions,
+  uddiTokenQuestions
+}) {
+  return (
+    <div className="flex h-[calc(100vh-60px)]">
+      {/* Sidebar */}
+      <AppSidebar
+        currentCustomer={customer}
+        currentOpportunity={currentOpportunity}
+        onCustomerSelect={(c) => {
+          if (c.id !== customer.id) {
+            window.location.href = `/?customer=${c.id}`;
+          }
+        }}
+        onBack={onBack}
+        onSave={() => {}}
+        onExport={() => {}}
+        saving={saving}
+      />
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col min-w-0">
+        <Tabs defaultValue="discovery" className="flex flex-col h-full">
+          {/* Tabs as Separator - Sticky */}
+          <div className="flex-shrink-0 bg-background border-b px-4">
+            <TabsList className="bg-transparent h-10 gap-0 p-0">
+              {[
+                { value: 'discovery', label: 'Discovery', icon: Search },
+                { value: 'sizing', label: 'Sizing', icon: BarChart3 },
+                { value: 'tokens', label: 'Tokens', icon: Ticket },
+                { value: 'smartfill', label: 'SmartFill', icon: Sparkles },
+                { value: 'history', label: 'History', icon: Clock },
+              ].map(tab => (
+                <TabsTrigger 
+                  key={tab.value} 
+                  value={tab.value} 
+                  data-testid={`tab-${tab.value}`}
+                  className="flex items-center gap-1.5 border-b-2 border-transparent data-[state=active]:border-b-primary data-[state=active]:text-primary data-[state=active]:bg-transparent rounded-none px-4 py-2 text-sm font-medium transition-colors hover:text-primary/80"
+                >
+                  <tab.icon className="h-4 w-4" />
+                  {tab.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
+
+          {/* Scrollable Content */}
+          <div className="flex-1 overflow-y-auto">
+            <div className="p-4 space-y-4">
+              {/* Discovery Tab */}
+              <TabsContent value="discovery" className="mt-0 space-y-4">
+                <QuickSiteEntry />
+                <PlatformSelection />
+                <AssessmentQuestions questions={discoveryTabQuestions} compact={true} />
+              </TabsContent>
+
+              {/* Sizing Tab */}
+              <TabsContent value="sizing" className="mt-0 space-y-4">
+                <QuickSiteEntry />
+                <TokenCalculatorSummary />
+                <UDSMembersTable />
+                <AssessmentQuestions questions={sizingTabQuestions} />
+              </TabsContent>
+
+              {/* Tokens Tab */}
+              <TabsContent value="tokens" className="mt-0">
+                <AssessmentQuestions questions={[...securityTokenQuestions, ...uddiTokenQuestions]} />
+              </TabsContent>
+
+              {/* SmartFill Tab */}
+              <TabsContent value="smartfill" className="mt-0">
+                <MeetingNotesAI />
+              </TabsContent>
+
+              {/* History Tab */}
+              <TabsContent value="history" className="mt-0 space-y-4">
+                <VersionControl customerId={customer.id} />
+                <ImportExportSection customerId={customer.id} customerName={currentName} />
+                <div className="pt-4 border-t border-border">
+                  <ClearDataButton />
+                </div>
+              </TabsContent>
             </div>
-
-            {/* Scrollable Content */}
-            <div className="flex-1 overflow-y-auto">
-              <div className="p-4 space-y-4">
-                {/* Discovery Tab */}
-                <TabsContent value="discovery" className="mt-0 space-y-4">
-                  {/* Quick Site Entry - At Top */}
-                  <QuickSiteEntry />
-                  
-                  {/* Platform Selection */}
-                  <PlatformSelection />
-                  
-                  {/* Discovery Questions */}
-                  <AssessmentQuestions questions={discoveryTabQuestions} compact={true} />
-                </TabsContent>
-
-                {/* Sizing Tab */}
-                <TabsContent value="sizing" className="mt-0 space-y-4">
-                  {/* Quick Site Entry - At Top */}
-                  <QuickSiteEntry />
-                  
-                  {/* Sizing Calculator */}
-                  <TokenCalculatorSummary />
-                  <UDSMembersTable />
-                  <AssessmentQuestions questions={sizingTabQuestions} />
-                </TabsContent>
-
-                {/* Tokens Tab */}
-                <TabsContent value="tokens" className="mt-0">
-                  <AssessmentQuestions questions={[...securityTokenQuestions, ...uddiTokenQuestions]} />
-                </TabsContent>
-
-                {/* SmartFill Tab */}
-                <TabsContent value="smartfill" className="mt-0">
-                  <MeetingNotesAI />
-                </TabsContent>
-
-                {/* History Tab */}
-                <TabsContent value="history" className="mt-0 space-y-4">
-                  <VersionControl customerId={customer.id} />
-                  <ImportExportSection customerId={customer.id} customerName={currentName} />
-                  <div className="pt-4 border-t border-border">
-                    <ClearDataButton />
-                  </div>
-                </TabsContent>
-              </div>
-            </div>
-          </Tabs>
-        </div>
+          </div>
+        </Tabs>
       </div>
       
-      {/* Floating Save Button */}
       <FloatingSaveButton />
-    </DiscoveryProvider>
+    </div>
   );
 }
 
