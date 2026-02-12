@@ -15,7 +15,14 @@ import { useDiscoveryOptional } from "@/contexts/DiscoveryContext";
 
 // Compact IP Calculator for sidebar
 function SidebarIPCalc({ collapsed }) {
-  const { answers, setAnswer } = useDiscovery();
+  const discoveryContext = useDiscoveryOptional();
+  
+  // Return nothing if not inside DiscoveryProvider
+  if (!discoveryContext) {
+    return null;
+  }
+  
+  const { answers, setAnswer } = discoveryContext;
   const kw = parseInt(answers['ud-1']) || 0;
   const mult = parseFloat(answers['ipam-multiplier']) || 2.5;
   const calculatedIPs = Math.ceil(kw * mult);
