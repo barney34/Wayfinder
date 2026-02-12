@@ -4,7 +4,6 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AppSidebar } from "@/components/AppSidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import Dashboard from "@/pages/Dashboard";
 import Customers from "@/pages/Customers";
@@ -20,28 +19,25 @@ function NotFound() {
 
 function AppContent() {
   return (
-    <div className="flex min-h-screen w-full">
-      <AppSidebar />
-      <div className="flex flex-col flex-1 md:ml-48">
-        <header className="flex items-center justify-between gap-4 border-b px-4 py-2 sticky top-0 bg-background z-30">
-          <div className="flex items-center gap-2">
-            <span className="text-xl font-bold text-green-600">infoblox</span>
-            <span className="text-muted-foreground">|</span>
-            <h2 className="text-base font-semibold text-foreground">
-              Design Questionnaire
-            </h2>
-          </div>
-          <ThemeToggle />
-        </header>
-        <main className="flex-1 overflow-auto px-4 py-3">
-          <Switch>
-            <Route path="/" component={Dashboard} />
-            <Route path="/customers" component={Customers} />
-            <Route path="/customers/:id" component={Customers} />
-            <Route component={NotFound} />
-          </Switch>
-        </main>
-      </div>
+    <div className="flex flex-col min-h-screen w-full">
+      <header className="flex items-center justify-between gap-4 border-b px-4 py-2 sticky top-0 bg-background z-30">
+        <div className="flex items-center gap-2">
+          <span className="text-xl font-bold text-green-600">infoblox</span>
+          <span className="text-muted-foreground">|</span>
+          <h2 className="text-base font-semibold text-foreground">
+            Design Questionnaire
+          </h2>
+        </div>
+        <ThemeToggle />
+      </header>
+      <main className="flex-1 overflow-auto">
+        <Switch>
+          <Route path="/" component={Dashboard} />
+          <Route path="/customers" component={Customers} />
+          <Route path="/customers/:id" component={Customers} />
+          <Route component={NotFound} />
+        </Switch>
+      </main>
     </div>
   );
 }
