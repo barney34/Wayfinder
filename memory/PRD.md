@@ -325,6 +325,28 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
   - AssessmentQuestions.jsx (lines 693-712): Fixed Switch inside AccordionTrigger by restructuring layout
   - UDSMembersTable.jsx: Fixed missing key prop by using React.Fragment with key
 
+### Phase 26 — Contextual Sidebar Redesign (Feb 12, 2026)
+**Implemented:**
+- **Sidebar Gap/Separation**:
+  - Added visible gap between sidebar and content
+  - Sidebar has shadow for depth (shadow-lg)
+  - Background muted/30 for contrast
+- **IP Calculator Redesign**:
+  - True calculator-style dark card (slate-800 to slate-900 gradient)
+  - Large green display showing Active IPs (75K)
+  - Grid layout for KW × Mult inputs
+  - Shows under BOTH Discovery and Sizing tabs
+- **Target Solutions 2x2 Grid**:
+  - NIOS, UDDI, Security, Asset in 2×2 layout
+  - NIOS toggleable but no "why not" required
+  - UDDI, Security, Asset require "why not" justification via popover when deselected
+  - Amber highlighting for items needing justification
+- **Sizing Stats Subsection**:
+  - DC count badge (blue)
+  - Sites count badge (green)
+  - Tokens count with pack badge (purple)
+- **Wider Sidebar**: Increased to w-64 (256px)
+
 ## Pending / Backlog
 
 ### P2
