@@ -1,0 +1,131 @@
+{
+  "summary": "Iteration 25: Frontend-only testing of 'Why this model?' feature. All 10 requested features verified working correctly.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "passed_tests": [
+    "Why button (?) appears next to each model badge - Found 7 buttons with data-testid='why-model-{site.id}'",
+    "Clicking Why button opens a detailed dialog modal - Dialog opens with title 'Why {model} for {site}?'",
+    "Dialog shows site summary (name, role, IPs, DHCP clients) - Verified for GM site (Atl-DC1) and DNS/DHCP site (Atlanta)",
+    "Dialog shows driver explanation with star indicator and description - Blue info box with 'Model selected based on: {driver}' and explanation",
+    "Dialog shows workload requirements (QPS, LPS, Objects) with progress bars - All three metrics shown with utilization percentages",
+    "Progress bars show utilization percentages - Green/amber/red colors based on utilization level (31%, 14%, 52% for GM; 201%, 161%, 38% for DNS/DHCP)",
+    "Dialog shows object breakdown (DNS Objects, DHCP Lease Objects) - Shows breakdown with formulas (DHCP×3 + Static×2, Clients × 2)",
+    "Dialog shows server specifications (Max QPS, Max LPS, Max Objects) - Shows TE-1526 specs (112.5K QPS, 675 LPS, 880K Objects) and TE-4126 specs (450K QPS, 1.5K LPS, 24M Objects)",
+    "Dialog shows token cost per server - Shows 3.0K for TE-1526, 17.0K for TE-4126",
+    "Dialog can be closed - Successfully closed with Escape key"
+  ],
+  "test_report_links": [
+    "/app/test_reports/iteration_25.json"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "TokenCalculatorSummary.jsx: Dialog component (lines 840-1043) correctly implements all required sections",
+    "TokenCalculatorSummary.jsx: Why button (lines 1358-1366) uses HelpCircle icon with proper data-testid",
+    "calculations.js: getSiteWorkloadDetails function (lines 270-369) correctly calculates workload metrics and determines driver",
+    "Progress bars correctly show color coding based on utilization (green < 60%, amber 60-80%, red > 80%)",
+    "Penalties section correctly shows Multi-protocol: 130% capacity for DNS/DHCP sites"
+  ],
+  "updated_files": [],
+  "success_rate": {
+    "backend": "N/A (frontend-only testing)",
+    "frontend": "100% (all 10 requested features verified)"
+  },
+  "test_credentials": "No authentication required",
+  "seed_data_creation": "Used existing 'Test' customer with 7 sites (3 Data Centers: Atl-DC1 GM, DAI-DC2 GMC, LA-DC3 GMC; 4 Locations: Atlanta, LA, Texas, Test with DNS/DHCP roles)",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "New 'Why this model?' feature fully implemented and tested. The dialog shows detailed sizing breakdown including: site summary, driver metric explanation with star indicator, workload requirements with progress bars, penalties applied section, object breakdown, server specifications, and token cost. The dialog can be opened by clicking the '?' button next to any model badge in the Site Sizing table.",
+  "feature_verification": {
+    "why_model_button": {
+      "status": "working",
+      "button_exists": "Yes - data-testid='why-model-{site.id}'",
+      "button_count": "7 buttons found (one per site)",
+      "button_icon": "HelpCircle (?) icon",
+      "code_location": "TokenCalculatorSummary.jsx lines 1358-1366"
+    },
+    "dialog_modal": {
+      "status": "working",
+      "opens_on_click": "Yes",
+      "title_format": "Why {model} for {site}?",
+      "description": "Detailed sizing breakdown and model selection rationale",
+      "closable": "Yes - via Escape key or X button",
+      "code_location": "TokenCalculatorSummary.jsx lines 840-1043"
+    },
+    "site_summary_section": {
+      "status": "working",
+      "shows_site_name": "Yes",
+      "shows_role": "Yes (GM, GMC, DNS/DHCP)",
+      "shows_ip_addresses": "Yes (formatted with K/M suffix)",
+      "shows_dhcp_clients": "Yes (with percentage)"
+    },
+    "driver_explanation": {
+      "status": "working",
+      "star_indicator": "Yes - filled blue star icon",
+      "blue_info_box": "Yes - bg-blue-50 with border",
+      "driver_types": ["Query Performance (QPS)", "Lease Performance (LPS)", "Database Capacity (Objects)"],
+      "explanation_text": "Yes - explains why this metric is the limiting factor"
+    },
+    "workload_requirements": {
+      "status": "working",
+      "shows_qps": "Yes - with progress bar and utilization %",
+      "shows_lps": "Yes - with progress bar and utilization %",
+      "shows_objects": "Yes - with progress bar and utilization % and star for driver",
+      "progress_bar_colors": "Green < 60%, Amber 60-80%, Red > 80%",
+      "capacity_note": "Yes - 'Capacity shown at 60% target utilization (recommended headroom for growth)'"
+    },
+    "penalties_section": {
+      "status": "working",
+      "shows_when_applicable": "Yes - only shown when penalties exist",
+      "multi_protocol_penalty": "Verified - 'Multi-protocol: 130% capacity' for DNS/DHCP sites",
+      "hub_penalty": "Not tested - no Hub sites in test data",
+      "spoke_penalty": "Not tested - no Spoke sites in test data"
+    },
+    "object_breakdown": {
+      "status": "working",
+      "shows_dns_objects": "Yes - with formula 'DHCP×3 + Static×2'",
+      "shows_dhcp_lease_objects": "Yes - with formula 'Clients × 2'"
+    },
+    "server_specifications": {
+      "status": "working",
+      "shows_model_name": "Yes - e.g., 'TE-1526 Specifications'",
+      "shows_max_qps": "Yes",
+      "shows_max_lps": "Yes",
+      "shows_max_objects": "Yes"
+    },
+    "token_cost": {
+      "status": "working",
+      "shows_token_count": "Yes - formatted with K suffix",
+      "shows_per_server_note": "Yes - 'Per server' or '{count} servers × {tokens} tokens'"
+    }
+  },
+  "test_sites_verified": [
+    {
+      "site": "Atl-DC1",
+      "role": "GM",
+      "model": "TE-1526",
+      "driver": "Database Capacity (Objects)",
+      "qps_util": "31%",
+      "lps_util": "14%",
+      "objects_util": "52%",
+      "tokens": "3.0K"
+    },
+    {
+      "site": "Atlanta",
+      "role": "DNS/DHCP",
+      "model": "TE-4126",
+      "driver": "Database Capacity (Objects)",
+      "qps_util": "201%",
+      "lps_util": "161%",
+      "objects_util": "38%",
+      "penalties": ["Multi-protocol: 130% capacity"],
+      "tokens": "17.0K"
+    }
+  ]
+}
