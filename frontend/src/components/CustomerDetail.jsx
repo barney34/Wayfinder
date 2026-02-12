@@ -20,7 +20,7 @@ import { TokenCalculatorSummary, UDSMembersTable } from "./sizing";
 import { FloatingSaveButton } from "./FloatingSaveButton";
 import { AppSidebar } from "./AppSidebar";
 import { QuickSiteEntry } from "./QuickSiteEntry";
-import { TargetSolutions, DeploymentModel } from "./PlatformSelection";
+import { DeploymentModel } from "./PlatformSelection";
 import { SizingMathHelp } from "./SizingMathHelp";
 import yaml from "js-yaml";
 
