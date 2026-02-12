@@ -11,7 +11,6 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { apiRequest } from "@/lib/queryClient";
 import { useDiscoveryOptional } from "@/contexts/DiscoveryContext";
 
@@ -31,6 +30,24 @@ const NAV_ITEMS = [
   { id: 'smartfill', label: 'SmartFill', icon: Sparkles },
   { id: 'history', label: 'History', icon: Clock },
 ];
+
+// Collapsible Section Header
+function SectionHeader({ icon: Icon, label, badge, isOpen, onToggle }) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      className="flex items-center justify-between w-full px-2 py-1.5 rounded-md hover:bg-muted transition-colors"
+    >
+      <div className="flex items-center gap-2">
+        <Icon className="h-4 w-4 text-muted-foreground" />
+        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</span>
+        {badge !== undefined && <Badge variant="outline" className="text-[9px] px-1 py-0">{badge}</Badge>}
+      </div>
+      <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform duration-200 ${isOpen ? '' : '-rotate-90'}`} />
+    </button>
+  );
+}
 
 // Customer list item
 function CustomerItem({ customer, isActive, onClick, collapsed }) {
@@ -201,34 +218,35 @@ export function AppSidebar({
               ))}
             </div>
           ) : (
-            <Collapsible open={customersOpen} onOpenChange={setCustomersOpen} className="py-1">
-              <CollapsibleTrigger className="flex items-center justify-between w-full px-2 py-1.5 rounded-md hover:bg-muted transition-colors">
-                <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Customers</span>
-                  <Badge variant="outline" className="text-[9px] px-1 py-0">{customers.length}</Badge>
+            <div className="py-1">
+              <SectionHeader 
+                icon={Users} 
+                label="Customers" 
+                badge={customers.length}
+                isOpen={customersOpen} 
+                onToggle={() => setCustomersOpen(!customersOpen)} 
+              />
+              {customersOpen && (
+                <div className="space-y-0.5 mt-1 max-h-[200px] overflow-y-auto">
+                  {customers.map(c => (
+                    <CustomerItem
+                      key={c.id}
+                      customer={c}
+                      isActive={c.id === currentCustomer?.id}
+                      onClick={() => onCustomerSelect(c)}
+                      collapsed={false}
+                    />
+                  ))}
+                  <button 
+                    onClick={onBack}
+                    className="w-full px-2 py-1.5 rounded-md text-left transition-colors flex items-center gap-2 text-muted-foreground hover:text-foreground hover:bg-muted"
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span className="text-sm">New Customer</span>
+                  </button>
                 </div>
-                <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${customersOpen ? '' : '-rotate-90'}`} />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-0.5 mt-1 max-h-[200px] overflow-y-auto">
-                {customers.map(c => (
-                  <CustomerItem
-                    key={c.id}
-                    customer={c}
-                    isActive={c.id === currentCustomer?.id}
-                    onClick={() => onCustomerSelect(c)}
-                    collapsed={false}
-                  />
-                ))}
-                <button 
-                  onClick={onBack}
-                  className="w-full px-2 py-1.5 rounded-md text-left transition-colors flex items-center gap-2 text-muted-foreground hover:text-foreground hover:bg-muted"
-                >
-                  <Plus className="h-4 w-4" />
-                  <span className="text-sm">New Customer</span>
-                </button>
-              </CollapsibleContent>
-            </Collapsible>
+              )}
+            </div>
           )}
 
           {/* Navigation Section - Collapsible, Only show when customer selected */}
@@ -249,26 +267,27 @@ export function AppSidebar({
                   ))}
                 </div>
               ) : (
-                <Collapsible open={navigationOpen} onOpenChange={setNavigationOpen} className="py-1">
-                  <CollapsibleTrigger className="flex items-center justify-between w-full px-2 py-1.5 rounded-md hover:bg-muted transition-colors">
-                    <div className="flex items-center gap-2">
-                      <BarChart3 className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Navigation</span>
+                <div className="py-1">
+                  <SectionHeader 
+                    icon={BarChart3} 
+                    label="Navigation" 
+                    isOpen={navigationOpen} 
+                    onToggle={() => setNavigationOpen(!navigationOpen)} 
+                  />
+                  {navigationOpen && (
+                    <div className="space-y-0.5 mt-1">
+                      {NAV_ITEMS.map(item => (
+                        <NavItem
+                          key={item.id}
+                          item={item}
+                          isActive={activeTab === item.id}
+                          onClick={() => onTabChange?.(item.id)}
+                          collapsed={collapsed}
+                        />
+                      ))}
                     </div>
-                    <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${navigationOpen ? '' : '-rotate-90'}`} />
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="space-y-0.5 mt-1">
-                    {NAV_ITEMS.map(item => (
-                      <NavItem
-                        key={item.id}
-                        item={item}
-                        isActive={activeTab === item.id}
-                        onClick={() => onTabChange?.(item.id)}
-                        collapsed={collapsed}
-                      />
-                    ))}
-                  </CollapsibleContent>
-                </Collapsible>
+                  )}
+                </div>
               )}
             </>
           )}
@@ -294,19 +313,23 @@ export function AppSidebar({
                   </Tooltip>
                 </TooltipProvider>
               ) : (
-                <Collapsible open={calculatorOpen} onOpenChange={setCalculatorOpen} className="py-1">
-                  <CollapsibleTrigger className="flex items-center justify-between w-full px-2 py-1.5 rounded-md hover:bg-muted transition-colors">
+                <div className="py-1">
+                  <button
+                    type="button"
+                    onClick={() => setCalculatorOpen(!calculatorOpen)}
+                    className="flex items-center justify-between w-full px-2 py-1.5 rounded-md hover:bg-muted transition-colors"
+                  >
                     <div className="flex items-center gap-2">
                       <Calculator className="h-4 w-4 text-muted-foreground" />
                       <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">IP Calculator</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-primary">{formatKW(activeIPs)}</span>
-                      <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${calculatorOpen ? '' : '-rotate-90'}`} />
+                      {!calculatorOpen && <span className="text-xs font-bold text-primary">{formatKW(activeIPs)}</span>}
+                      <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform duration-200 ${calculatorOpen ? '' : '-rotate-90'}`} />
                     </div>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="mt-1">
-                    <div className="rounded-lg bg-muted/30 p-2.5 space-y-2">
+                  </button>
+                  {calculatorOpen && (
+                    <div className="mt-1 rounded-lg bg-muted/30 p-2.5 space-y-2">
                       {/* Formula display: KW × Mult = IPs */}
                       <div className="flex items-center gap-1.5 text-sm">
                         <Input
@@ -332,7 +355,8 @@ export function AppSidebar({
                       
                       <button
                         type="button"
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           const newVal = !manualOverride;
                           setAnswer('ipam-1-override', newVal ? 'true' : 'false');
                           if (!newVal) setAnswer('ipam-1', String(calculatedIPs));
@@ -342,31 +366,37 @@ export function AppSidebar({
                         {manualOverride ? 'Manual Override' : 'Auto Calculate'}
                       </button>
                     </div>
-                  </CollapsibleContent>
-                </Collapsible>
+                  )}
+                </div>
               )}
 
               {/* Target Solutions - Compact & Collapsible */}
               {!collapsed && (
-                <Collapsible open={targetSolutionsOpen} onOpenChange={setTargetSolutionsOpen}>
-                  <CollapsibleTrigger className="flex items-center justify-between w-full px-2 py-1.5 rounded-md hover:bg-muted transition-colors">
+                <div className="py-1">
+                  <button
+                    type="button"
+                    onClick={() => setTargetSolutionsOpen(!targetSolutionsOpen)}
+                    className="flex items-center justify-between w-full px-2 py-1.5 rounded-md hover:bg-muted transition-colors"
+                  >
                     <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Target Solutions</span>
-                    <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${targetSolutionsOpen ? '' : '-rotate-90'}`} />
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="px-2 py-1">
-                    <div className="flex flex-wrap gap-1">
-                      {targetSolutions.map(sol => (
-                        <button
-                          key={sol.key}
-                          onClick={() => setAnswer(sol.key, sol.active ? 'No' : 'Yes')}
-                          className={`px-2 py-0.5 text-[10px] rounded-full font-medium transition-colors ${sol.active ? 'bg-green-500 text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
-                        >
-                          {sol.label}
-                        </button>
-                      ))}
+                    <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform duration-200 ${targetSolutionsOpen ? '' : '-rotate-90'}`} />
+                  </button>
+                  {targetSolutionsOpen && (
+                    <div className="px-2 py-1">
+                      <div className="flex flex-wrap gap-1">
+                        {targetSolutions.map(sol => (
+                          <button
+                            key={sol.key}
+                            onClick={() => setAnswer(sol.key, sol.active ? 'No' : 'Yes')}
+                            className={`px-2 py-0.5 text-[10px] rounded-full font-medium transition-colors ${sol.active ? 'bg-green-500 text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
+                          >
+                            {sol.label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </CollapsibleContent>
-                </Collapsible>
+                  )}
+                </div>
               )}
 
               {/* Stats Summary */}
