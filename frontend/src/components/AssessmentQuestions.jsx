@@ -538,7 +538,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                   {/* Questions WITH inputs: single line layout */}
                   {hasInput ? (
                     <div className="flex items-start justify-between gap-2">
-                      <span className="text-xs text-foreground leading-relaxed flex-1 min-w-0" style={{wordBreak: 'break-word'}}>
+                      <span className="text-[13px] text-foreground leading-relaxed flex-1 min-w-0" style={{wordBreak: 'break-word'}}>
                         {q.question}
                       </span>
                       <div className="flex items-center gap-1.5 flex-shrink-0 pt-0.5" onClick={e => e.stopPropagation()}>
@@ -556,7 +556,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                   ) : (
                     /* Questions WITHOUT inputs (text-only): ENTIRE ROW CLICKABLE */
                     <div className="flex items-start justify-between gap-2">
-                      <span className="text-xs text-foreground leading-relaxed flex-1" style={{wordBreak: 'break-word'}}>
+                      <span className="text-[13px] text-foreground leading-relaxed flex-1" style={{wordBreak: 'break-word'}}>
                         {q.question}
                       </span>
                       <div className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-xs transition-colors flex-shrink-0 ${hasNote ? 'text-blue-600 bg-blue-100 dark:bg-blue-900/40 dark:text-blue-300' : 'text-gray-400 bg-gray-100 dark:bg-gray-800'}`}>
@@ -573,7 +573,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                         value={notes[q.id] || ''}
                         onChange={e => setNote(q.id, e.target.value)}
                         placeholder={hasInput ? "Add a note..." : "Enter your response..."}
-                        className="min-h-[60px] text-xs resize-y"
+                        className="min-h-[60px] text-sm resize-y"
                         data-testid={`note-${q.id}`}
                         autoFocus
                       />
@@ -587,7 +587,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                     <div className="px-3 py-2 border-b border-border/30">
                       <div className="text-[10px] text-blue-400 dark:text-blue-500 font-medium mb-1">↳ If {cq.conditionalOn.value}:</div>
                       <div className="flex items-start justify-between gap-2">
-                        <span className="text-xs text-foreground leading-relaxed flex-1" style={{wordBreak: 'break-word'}}>
+                        <span className="text-[13px] text-foreground leading-relaxed flex-1" style={{wordBreak: 'break-word'}}>
                           {cq.question}
                         </span>
                         <div className="flex items-center gap-1.5 flex-shrink-0">
