@@ -1553,15 +1553,6 @@ export function TokenCalculatorSummary() {
               <span className="font-semibold flex items-center gap-2"><Package className="h-4 w-4 text-primary" />Total Required</span>
               <span className="font-mono font-bold text-lg text-primary">{totals.totalTokens.toLocaleString()}</span>
             </div>
-            <div className="bg-primary/5 rounded-lg p-4 mt-2">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Recommended Partner SKU</p>
-                  <p className="text-sm text-muted-foreground">{partnerSku.description}</p>
-                </div>
-                <Badge className="text-lg px-4 py-1">{partnerSku.sku}</Badge>
-              </div>
-            </div>
           </div>
         </CardContent>
       </Card>
