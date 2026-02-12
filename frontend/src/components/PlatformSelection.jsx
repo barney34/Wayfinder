@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useDiscovery } from "@/contexts/DiscoveryContext";
 
 const SOLUTIONS = [
-  { key: 'nios', label: 'NIOS', description: 'Core DDI', required: true },
+  { key: 'feature-nios', label: 'NIOS', description: 'Core DDI', noWhyNot: true },
   { key: 'feature-uddi', label: 'UDDI', description: 'Universal DDI' },
   { key: 'feature-security', label: 'Security', description: 'Threat Defense' },
   { key: 'feature-asset insights', label: 'Asset Insights', description: 'Network Discovery' },
@@ -15,12 +15,10 @@ export function TargetSolutions() {
   const { answers, setAnswer } = useDiscovery();
 
   const getSolutionState = (key) => {
-    if (key === 'nios') return true;
     return answers[key] === 'Yes';
   };
 
   const toggleSolution = (key) => {
-    if (key === 'nios') return;
     const current = answers[key] === 'Yes';
     setAnswer(key, current ? 'No' : 'Yes');
   };
