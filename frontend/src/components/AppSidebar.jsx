@@ -1,18 +1,15 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { 
-  ChevronLeft, ChevronRight, ChevronDown, Users, Building2, MapPin, 
-  Save, Download, Calculator, Home, Cpu, Package, Search, BarChart3,
-  Ticket, Sparkles, Clock, Plus, Check, Target, AlertCircle
+  ChevronLeft, ChevronRight, ChevronDown, Users, 
+  Save, Download, Home, Search, BarChart3,
+  Ticket, Sparkles, Clock, Plus, Check
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Textarea } from "@/components/ui/textarea";
 import { apiRequest } from "@/lib/queryClient";
 import { useDiscoveryOptional } from "@/contexts/DiscoveryContext";
 
@@ -31,14 +28,6 @@ const NAV_ITEMS = [
   { id: 'tokens', label: 'Tokens', icon: Ticket },
   { id: 'smartfill', label: 'SmartFill', icon: Sparkles },
   { id: 'history', label: 'History', icon: Clock },
-];
-
-// Target Solutions - NIOS doesn't need why not, others do
-const TARGET_SOLUTIONS = [
-  { key: 'feature-nios', label: 'NIOS', noWhyNot: true },
-  { key: 'feature-uddi', label: 'UDDI', noWhyNot: false },
-  { key: 'feature-security', label: 'Security', noWhyNot: false },
-  { key: 'feature-asset insights', label: 'Asset', noWhyNot: false },
 ];
 
 // Collapsible Section Header
@@ -148,20 +137,9 @@ export function AppSidebar({
   const [collapsed, setCollapsed] = useState(false);
   const [customersOpen, setCustomersOpen] = useState(true);
   
-  // Use optional hook - returns null if not in provider
+  // Use optional hook
   const discoveryContext = useDiscoveryOptional();
-  const dataCenters = discoveryContext?.dataCenters || [];
-  const sites = discoveryContext?.sites || [];
   const sizingSummary = discoveryContext?.sizingSummary;
-  const answers = discoveryContext?.answers || {};
-  const setAnswer = discoveryContext?.setAnswer || (() => {});
-
-  // IP Calculator values
-  const kw = parseInt(answers['ud-1']) || 0;
-  const mult = parseFloat(answers['ipam-multiplier']) || 2.5;
-  const calculatedIPs = Math.ceil(kw * mult);
-  const manualOverride = answers['ipam-1-override'] === 'true';
-  const activeIPs = manualOverride ? (parseInt(answers['ipam-1']) || calculatedIPs) : calculatedIPs;
 
   // Fetch all customers
   const { data: customers = [] } = useQuery({
@@ -170,7 +148,7 @@ export function AppSidebar({
   });
 
   return (
-    <div className={`flex flex-col h-full bg-card border-r shadow-lg transition-all duration-300 ${collapsed ? 'w-16' : 'w-64'}`}>
+    <div className={`flex flex-col h-full bg-card border-r shadow-lg transition-all duration-300 ${collapsed ? 'w-16' : 'w-56'}`}>
       {/* Header with Logo & Collapse */}
       <div className="flex items-center justify-between p-3 border-b">
         {!collapsed && (
@@ -226,7 +204,7 @@ export function AppSidebar({
                 onToggle={() => setCustomersOpen(!customersOpen)} 
               />
               {customersOpen && (
-                <div className="space-y-0.5 mt-1 max-h-[180px] overflow-y-auto">
+                <div className="space-y-0.5 mt-1 max-h-[200px] overflow-y-auto">
                   {customers.map(c => (
                     <CustomerItem
                       key={c.id}
@@ -248,161 +226,41 @@ export function AppSidebar({
             </div>
           )}
 
-          {/* Show DC/Sites, Target Solutions, IP Calculator when customer is selected */}
-          {currentCustomer && discoveryContext && !collapsed && (
+          {/* Navigation Section - Only show when customer selected */}
+          {currentCustomer && (
             <>
               <Separator className="my-3" />
               
-              {/* DC and Sites - Separate at top */}
-              <div className="flex gap-2 mb-3">
-                <div className="flex-1 bg-blue-500/10 rounded-lg p-2 text-center">
-                  <Building2 className="h-4 w-4 text-blue-500 mx-auto mb-1" />
-                  <div className="text-lg font-bold">{dataCenters.length}</div>
-                  <div className="text-[10px] text-muted-foreground">Data Centers</div>
-                </div>
-                <div className="flex-1 bg-green-500/10 rounded-lg p-2 text-center">
-                  <MapPin className="h-4 w-4 text-green-500 mx-auto mb-1" />
-                  <div className="text-lg font-bold">{sites.length}</div>
-                  <div className="text-[10px] text-muted-foreground">Sites</div>
-                </div>
+              <div className="space-y-0.5">
+                {NAV_ITEMS.map(item => (
+                  <NavItem
+                    key={item.id}
+                    item={item}
+                    isActive={activeTab === item.id}
+                    onClick={() => onTabChange?.(item.id)}
+                    collapsed={collapsed}
+                  />
+                ))}
               </div>
 
-              {/* Target Solutions - 2x2 Grid */}
-              <div className="mb-3">
-                <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-2 px-1">
-                  <Target className="h-3 w-3" />
-                  <span>Target Solutions</span>
-                </div>
-                <div className="grid grid-cols-2 gap-1.5">
-                  {TARGET_SOLUTIONS.map(sol => {
-                    const isOn = answers[sol.key] === 'Yes';
-                    const whyNotKey = `${sol.key}-why-not`;
-                    const whyNotValue = answers[whyNotKey] || '';
-                    const needsWhyNot = !isOn && !sol.noWhyNot;
-                    
-                    return (
-                      <Popover key={sol.key}>
-                        <PopoverTrigger asChild>
-                          <button
-                            onClick={(e) => {
-                              if (!needsWhyNot) {
-                                e.preventDefault();
-                                setAnswer(sol.key, isOn ? 'No' : 'Yes');
-                              }
-                            }}
-                            className={`relative px-2 py-1.5 text-[11px] rounded-md font-medium transition-colors text-center ${
-                              isOn 
-                                ? 'bg-green-500 text-white' 
-                                : needsWhyNot 
-                                  ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700' 
-                                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                            }`}
-                          >
-                            {sol.label}
-                            {needsWhyNot && !whyNotValue && (
-                              <AlertCircle className="h-2.5 w-2.5 absolute -top-1 -right-1 text-amber-500" />
-                            )}
-                          </button>
-                        </PopoverTrigger>
-                        {needsWhyNot && (
-                          <PopoverContent className="w-48 p-2" side="right">
-                            <div className="space-y-2">
-                              <div className="flex items-center justify-between">
-                                <span className="text-xs font-medium">Why not {sol.label}?</span>
-                                {!whyNotValue && <Badge variant="outline" className="text-[9px] px-1 py-0 text-amber-600">Required</Badge>}
-                              </div>
-                              <Textarea
-                                value={whyNotValue}
-                                onChange={e => setAnswer(whyNotKey, e.target.value)}
-                                placeholder={`Reason...`}
-                                className="text-xs min-h-[60px] resize-none"
-                              />
-                              <Button 
-                                size="sm" 
-                                className="w-full h-7 text-xs"
-                                onClick={() => setAnswer(sol.key, 'Yes')}
-                              >
-                                Enable {sol.label}
-                              </Button>
-                            </div>
-                          </PopoverContent>
-                        )}
-                      </Popover>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* IP Calculator - Calculator Style */}
-              <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg p-3 text-white shadow-lg mb-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <Calculator className="h-4 w-4 text-blue-400" />
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">IP Calculator</span>
-                </div>
-                
-                {/* Calculator display */}
-                <div className="bg-slate-700/50 rounded-md p-2 mb-2 font-mono">
-                  <div className="text-right text-2xl font-bold text-green-400">
-                    {formatKW(activeIPs)}
+              {/* Tokens Summary - compact */}
+              {!collapsed && sizingSummary && (
+                <>
+                  <Separator className="my-3" />
+                  <div className="bg-muted/50 rounded-lg p-3 space-y-2">
+                    <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Summary</div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Tokens</span>
+                      <span className="font-bold">{formatKW(sizingSummary.totalTokens)}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Pack</span>
+                      <Badge variant="outline" className="text-xs">{sizingSummary.tokenPack || '—'}</Badge>
+                    </div>
                   </div>
-                  <div className="text-right text-[10px] text-slate-400">
-                    Active IPs
-                  </div>
-                </div>
-                
-                {/* Calculator inputs */}
-                <div className="grid grid-cols-3 gap-1 text-center">
-                  <div>
-                    <Input
-                      type="number"
-                      value={kw || ''}
-                      onChange={e => setAnswer('ud-1', e.target.value)}
-                      className="h-8 text-xs text-center font-mono bg-slate-700 border-slate-600 text-white"
-                      placeholder="KW"
-                    />
-                    <div className="text-[9px] text-slate-500 mt-0.5">KW</div>
-                  </div>
-                  <div className="flex items-center justify-center text-slate-400 font-bold">×</div>
-                  <div>
-                    <Input
-                      type="number"
-                      step="0.1"
-                      value={mult}
-                      onChange={e => setAnswer('ipam-multiplier', e.target.value)}
-                      className="h-8 text-xs text-center font-mono bg-slate-700 border-slate-600 text-white"
-                    />
-                    <div className="text-[9px] text-slate-500 mt-0.5">Mult</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Tokens Summary */}
-              {sizingSummary && (
-                <div className="flex items-center gap-2 text-xs bg-purple-500/10 px-3 py-2 rounded-lg mb-3">
-                  <Ticket className="h-4 w-4 text-purple-500" />
-                  <span className="font-bold text-lg">{formatKW(sizingSummary.totalTokens)}</span>
-                  <span className="text-muted-foreground">Tokens</span>
-                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 ml-auto">{sizingSummary.tokenPack || '—'}</Badge>
-                </div>
+                </>
               )}
-
-              <Separator className="my-3" />
             </>
-          )}
-
-          {/* Navigation Section - Only show when customer selected */}
-          {currentCustomer && (
-            <div className="space-y-0.5">
-              {NAV_ITEMS.map(item => (
-                <NavItem
-                  key={item.id}
-                  item={item}
-                  isActive={activeTab === item.id}
-                  onClick={() => onTabChange?.(item.id)}
-                  collapsed={collapsed}
-                />
-              ))}
-            </div>
           )}
         </div>
       </ScrollArea>
