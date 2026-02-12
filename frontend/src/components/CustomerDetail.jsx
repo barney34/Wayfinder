@@ -646,7 +646,7 @@ function CustomerDetailContent({
         currentOpportunity={currentOpportunity}
         onCustomerSelect={(c) => {
           if (c.id !== customer.id) {
-            window.location.href = `/?customer=${c.id}`;
+            window.location.href = `/customers/${c.id}`;
           }
         }}
         onBack={onBack}
