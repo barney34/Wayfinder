@@ -628,9 +628,46 @@ function CustomerDetailContent({
   securityTokenQuestions,
   uddiTokenQuestions
 }) {
+  const [activeTab, setActiveTab] = useState('discovery');
+  const discoveryContext = useDiscovery();
+  const { toast } = useToast();
+  const [saving, setSaving] = useState(false);
+
+  // Save handler
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await discoveryContext.saveToServer?.();
+      toast({ title: "Saved", description: "All changes saved successfully." });
+    } catch (err) {
+      toast({ title: "Error", description: "Failed to save changes.", variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Export handler
+  const handleExport = () => {
+    const data = {
+      customer: { name: currentName, opportunity: currentOpportunity },
+      answers: discoveryContext.answers || {},
+      dataCenters: discoveryContext.dataCenters || [],
+      sites: discoveryContext.sites || [],
+      exportedAt: new Date().toISOString(),
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${currentName.replace(/\s+/g, '_')}_sizing_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: "Exported", description: "Data exported as JSON." });
+  };
+
   return (
     <div className="flex h-[calc(100vh-60px)]">
-      {/* Sidebar */}
+      {/* Sidebar with Navigation */}
       <AppSidebar
         currentCustomer={customer}
         currentOpportunity={currentOpportunity}
@@ -640,77 +677,75 @@ function CustomerDetailContent({
           }
         }}
         onBack={onBack}
-        onSave={() => {}}
-        onExport={() => {}}
-        saving={false}
+        onSave={handleSave}
+        onExport={handleExport}
+        saving={saving}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
       />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0">
-        <Tabs defaultValue="discovery" className="flex flex-col h-full">
-          {/* Tabs as Separator - Sticky */}
-          <div className="flex-shrink-0 bg-background border-b px-4">
-            <TabsList className="bg-transparent h-10 gap-0 p-0">
-              {[
-                { value: 'discovery', label: 'Discovery', icon: Search },
-                { value: 'sizing', label: 'Sizing', icon: BarChart3 },
-                { value: 'tokens', label: 'Tokens', icon: Ticket },
-                { value: 'smartfill', label: 'SmartFill', icon: Sparkles },
-                { value: 'history', label: 'History', icon: Clock },
-              ].map(tab => (
-                <TabsTrigger 
-                  key={tab.value} 
-                  value={tab.value} 
-                  data-testid={`tab-${tab.value}`}
-                  className="flex items-center gap-1.5 border-b-2 border-transparent data-[state=active]:border-b-primary data-[state=active]:text-primary data-[state=active]:bg-transparent rounded-none px-4 py-2 text-sm font-medium transition-colors hover:text-primary/80"
-                >
-                  <tab.icon className="h-4 w-4" />
-                  {tab.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
+      <div className="flex-1 flex flex-col min-w-0 bg-background">
+        {/* Header Bar - Current Customer Info */}
+        <div className="flex-shrink-0 bg-card border-b px-4 py-2 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <h1 className="text-lg font-semibold">{currentName}</h1>
+            {currentOpportunity && (
+              <Badge variant="outline" className="text-xs">{currentOpportunity}</Badge>
+            )}
           </div>
+          <TargetSolutionToggles />
+        </div>
 
-          {/* Scrollable Content */}
-          <div className="flex-1 overflow-y-auto">
-            <div className="p-4 space-y-4">
-              {/* Discovery Tab */}
-              <TabsContent value="discovery" className="mt-0 space-y-4">
+        {/* Scrollable Content - No more nested Tabs, just direct content */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-4 space-y-4">
+            {/* Discovery Tab */}
+            {activeTab === 'discovery' && (
+              <div className="space-y-4" data-testid="tab-content-discovery">
                 <QuickSiteEntry />
                 <TargetSolutions />
                 <AssessmentQuestions questions={discoveryTabQuestions} compact={true} />
-              </TabsContent>
+              </div>
+            )}
 
-              {/* Sizing Tab */}
-              <TabsContent value="sizing" className="mt-0 space-y-4">
+            {/* Sizing Tab */}
+            {activeTab === 'sizing' && (
+              <div className="space-y-4" data-testid="tab-content-sizing">
                 <QuickSiteEntry />
                 <DeploymentModel />
                 <TokenCalculatorSummary />
                 <UDSMembersTable />
                 <AssessmentQuestions questions={sizingTabQuestions} />
-              </TabsContent>
+              </div>
+            )}
 
-              {/* Tokens Tab */}
-              <TabsContent value="tokens" className="mt-0">
+            {/* Tokens Tab */}
+            {activeTab === 'tokens' && (
+              <div data-testid="tab-content-tokens">
                 <AssessmentQuestions questions={[...securityTokenQuestions, ...uddiTokenQuestions]} />
-              </TabsContent>
+              </div>
+            )}
 
-              {/* SmartFill Tab */}
-              <TabsContent value="smartfill" className="mt-0">
+            {/* SmartFill Tab */}
+            {activeTab === 'smartfill' && (
+              <div data-testid="tab-content-smartfill">
                 <MeetingNotesAI />
-              </TabsContent>
+              </div>
+            )}
 
-              {/* History Tab */}
-              <TabsContent value="history" className="mt-0 space-y-4">
+            {/* History Tab */}
+            {activeTab === 'history' && (
+              <div className="space-y-4" data-testid="tab-content-history">
                 <VersionControl customerId={customer.id} />
                 <ImportExportSection customerId={customer.id} customerName={currentName} />
                 <div className="pt-4 border-t border-border">
                   <ClearDataButton />
                 </div>
-              </TabsContent>
-            </div>
+              </div>
+            )}
           </div>
-        </Tabs>
+        </div>
       </div>
       
       <FloatingSaveButton />
