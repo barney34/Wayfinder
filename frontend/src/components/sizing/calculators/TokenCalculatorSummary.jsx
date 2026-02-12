@@ -188,13 +188,29 @@ export function TokenCalculatorSummary() {
         defaultRole = index === 0 ? 'GM' : 'GMC';
       }
       
-      const role = override.role || defaultRole;
+      // In UDDI mode, force non-GM/GMC roles for any site
+      let role = override.role || defaultRole;
+      const isGmRole = role === 'GM' || role === 'GMC';
+      const isDisabledInUddi = platformMode === 'UDDI' && isGmRole;
+      
+      // If UDDI mode and GM/GMC, keep the role but mark as disabled
+      // When switching back, the role is preserved
+      
       const services = override.services || [];
       
-      // Default platform based on mode
+      // Default platform based on mode - auto-swap models
       let defaultPlatform = 'NIOS';
       if (platformMode === 'UDDI') defaultPlatform = 'NXVS';
-      const platform = override.platform || defaultPlatform;
+      else if (platformMode === 'Hybrid' && type !== 'dataCenter') defaultPlatform = 'NXVS';
+      
+      // For non-GM/GMC sites in UDDI mode, use UDDI platform
+      let platform = override.platform || defaultPlatform;
+      if (platformMode === 'UDDI' && !isGmRole) {
+        // Force UDDI platform options
+        if (platform === 'NIOS' || platform === 'NIOS-V' || platform === 'NIOS-HA') {
+          platform = 'NXVS';
+        }
+      }
       
       // Calculate IPs
       let numIPs;
@@ -229,6 +245,8 @@ export function TokenCalculatorSummary() {
         serverCount,
         addToReport: override.addToReport !== undefined ? override.addToReport : true,
         addToBom: override.addToBom !== undefined ? override.addToBom : true,
+        isDisabledInUddi, // New flag to gray out GM/GMC in UDDI mode
+        originalRole: role, // Preserve for switching back
       };
     };
     
