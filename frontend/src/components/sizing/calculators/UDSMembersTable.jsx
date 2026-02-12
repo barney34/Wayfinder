@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { useDiscovery } from "@/contexts/DiscoveryContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
