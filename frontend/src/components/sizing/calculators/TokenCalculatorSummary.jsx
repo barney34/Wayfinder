@@ -838,6 +838,210 @@ export function TokenCalculatorSummary() {
         </AlertDialogContent>
       </AlertDialog>
 
+      {/* "Why this model?" Dialog */}
+      <Dialog open={showModelDialog} onOpenChange={setShowModelDialog}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          {selectedSiteForDialog && (() => {
+            const site = selectedSiteForDialog;
+            const workload = getSiteWorkloadDetails(
+              site.numIPs, site.role, platformMode, dhcpPercent,
+              site.platform, { isSpoke: site.isSpoke, hubLPS: site.hubLPS || 0 }
+            );
+            
+            // Get server specs for comparison
+            const isUDDI = site.platform === 'NXVS' || site.platform === 'NXaaS';
+            const servers = isUDDI ? nxvsServers : niosServerGuardrails;
+            const selectedServer = servers.find(s => 
+              isUDDI ? s.serverSize === site.recommendedModel : s.model === site.recommendedModel
+            );
+            
+            const utilization = niosGridConstants.maxDbUtilizationPercent / 100;
+            const serverQPS = isUDDI ? selectedServer?.qps : selectedServer?.maxQPS;
+            const serverLPS = isUDDI ? selectedServer?.lps : selectedServer?.maxLPS;
+            const serverObj = isUDDI ? selectedServer?.objects : selectedServer?.maxDbObj;
+            
+            const qpsUtil = serverQPS ? Math.round((workload.adjustedQPS / (serverQPS * utilization)) * 100) : 0;
+            const lpsUtil = serverLPS ? Math.round((workload.adjustedLPS / (serverLPS * utilization)) * 100) : 0;
+            const objUtil = serverObj ? Math.round((workload.objects / (serverObj * utilization)) * 100) : 0;
+            
+            const driverLabels = {
+              qps: 'Query Performance (QPS)',
+              lps: 'Lease Performance (LPS)',
+              objects: 'Database Capacity (Objects)',
+            };
+            
+            return (
+              <>
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <HelpCircle className="h-5 w-5 text-blue-500" />
+                    Why {site.recommendedModel} for {site.name}?
+                  </DialogTitle>
+                  <DialogDescription>
+                    Detailed sizing breakdown and model selection rationale
+                  </DialogDescription>
+                </DialogHeader>
+                
+                <div className="space-y-6 py-4">
+                  {/* Site Summary */}
+                  <div className="grid grid-cols-2 gap-4 p-4 bg-muted/30 rounded-lg">
+                    <div>
+                      <div className="text-sm text-muted-foreground">Site</div>
+                      <div className="font-medium">{site.name}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-muted-foreground">Role</div>
+                      <div className="font-medium">{site.role}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-muted-foreground">IP Addresses</div>
+                      <div className="font-medium">{formatNumber(site.numIPs)}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-muted-foreground">DHCP Clients ({dhcpPercent}%)</div>
+                      <div className="font-medium">{formatNumber(workload.dhcpClients)}</div>
+                    </div>
+                  </div>
+                  
+                  {/* Driver Explanation */}
+                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Star className="h-5 w-5 text-blue-500 fill-blue-500" />
+                      <span className="font-medium text-blue-900 dark:text-blue-100">
+                        Model selected based on: {driverLabels[workload.driver]}
+                      </span>
+                    </div>
+                    <p className="text-sm text-blue-800 dark:text-blue-200">
+                      {workload.driver === 'qps' && `This site requires ${formatNumber(workload.adjustedQPS)} QPS capacity, which is the limiting factor.`}
+                      {workload.driver === 'lps' && `This site requires ${formatNumber(workload.adjustedLPS)} LPS capacity for DHCP operations, which is the limiting factor.`}
+                      {workload.driver === 'objects' && `This site requires ${formatNumber(workload.objects)} database objects, which is the limiting factor.`}
+                    </p>
+                  </div>
+                  
+                  {/* Workload Requirements */}
+                  <div>
+                    <h4 className="font-medium mb-3 flex items-center gap-2">
+                      <Activity className="h-4 w-4" /> Workload Requirements
+                    </h4>
+                    <div className="space-y-3">
+                      {/* QPS */}
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-sm">
+                          <span className={workload.driver === 'qps' ? 'font-bold text-blue-600' : ''}>
+                            QPS (Queries/sec) {workload.driver === 'qps' && '★'}
+                          </span>
+                          <span>{formatNumber(workload.adjustedQPS)} / {formatNumber(Math.round((serverQPS || 0) * utilization))} ({qpsUtil}%)</span>
+                        </div>
+                        <Progress value={Math.min(qpsUtil, 100)} className={`h-2 ${qpsUtil > 60 ? '[&>div]:bg-amber-500' : ''} ${qpsUtil > 80 ? '[&>div]:bg-red-500' : ''}`} />
+                      </div>
+                      
+                      {/* LPS */}
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-sm">
+                          <span className={workload.driver === 'lps' ? 'font-bold text-blue-600' : ''}>
+                            LPS (Leases/sec) {workload.driver === 'lps' && '★'}
+                          </span>
+                          <span>{formatNumber(workload.adjustedLPS)} / {formatNumber(Math.round((serverLPS || 0) * utilization))} ({lpsUtil}%)</span>
+                        </div>
+                        <Progress value={Math.min(lpsUtil, 100)} className={`h-2 ${lpsUtil > 60 ? '[&>div]:bg-amber-500' : ''} ${lpsUtil > 80 ? '[&>div]:bg-red-500' : ''}`} />
+                      </div>
+                      
+                      {/* Objects */}
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-sm">
+                          <span className={workload.driver === 'objects' ? 'font-bold text-blue-600' : ''}>
+                            DB Objects {workload.driver === 'objects' && '★'}
+                          </span>
+                          <span>{formatNumber(workload.objects)} / {formatNumber(Math.round((serverObj || 0) * utilization))} ({objUtil}%)</span>
+                        </div>
+                        <Progress value={Math.min(objUtil, 100)} className={`h-2 ${objUtil > 60 ? '[&>div]:bg-amber-500' : ''} ${objUtil > 80 ? '[&>div]:bg-red-500' : ''}`} />
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Capacity shown at 60% target utilization (recommended headroom for growth)
+                    </p>
+                  </div>
+                  
+                  {/* Penalties Applied */}
+                  {workload.penalties.length > 0 && (
+                    <div>
+                      <h4 className="font-medium mb-3 flex items-center gap-2">
+                        <AlertTriangle className="h-4 w-4 text-amber-500" /> Penalties Applied
+                      </h4>
+                      <div className="space-y-2">
+                        {workload.penalties.map((penalty, i) => (
+                          <div key={i} className="flex items-start gap-2 p-2 bg-amber-50 dark:bg-amber-900/20 rounded text-sm">
+                            <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
+                            <span>{penalty}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Object Breakdown */}
+                  <div>
+                    <h4 className="font-medium mb-3 flex items-center gap-2">
+                      <Archive className="h-4 w-4" /> Object Breakdown
+                    </h4>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div className="p-3 bg-muted/30 rounded">
+                        <div className="text-muted-foreground">DNS Objects</div>
+                        <div className="font-medium">{formatNumber(workload.dnsObjects)}</div>
+                        <div className="text-xs text-muted-foreground">DHCP×3 + Static×2</div>
+                      </div>
+                      <div className="p-3 bg-muted/30 rounded">
+                        <div className="text-muted-foreground">DHCP Lease Objects</div>
+                        <div className="font-medium">{formatNumber(workload.dhcpObjects)}</div>
+                        <div className="text-xs text-muted-foreground">Clients × 2</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Server Specs */}
+                  {selectedServer && (
+                    <div>
+                      <h4 className="font-medium mb-3 flex items-center gap-2">
+                        <Server className="h-4 w-4" /> {site.recommendedModel} Specifications
+                      </h4>
+                      <div className="grid grid-cols-3 gap-3 text-sm">
+                        <div className="p-3 bg-muted/30 rounded text-center">
+                          <div className="text-muted-foreground">Max QPS</div>
+                          <div className="font-medium">{formatNumber(serverQPS || 0)}</div>
+                        </div>
+                        <div className="p-3 bg-muted/30 rounded text-center">
+                          <div className="text-muted-foreground">Max LPS</div>
+                          <div className="font-medium">{formatNumber(serverLPS || 0)}</div>
+                        </div>
+                        <div className="p-3 bg-muted/30 rounded text-center">
+                          <div className="text-muted-foreground">Max Objects</div>
+                          <div className="font-medium">{formatNumber(serverObj || 0)}</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Tokens */}
+                  <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="font-medium text-green-900 dark:text-green-100">Token Cost</div>
+                        <div className="text-sm text-green-800 dark:text-green-200">
+                          {site.serverCount > 1 ? `${site.serverCount} servers × ${formatNumber(site.tokensPerServer || 0)} tokens` : 'Per server'}
+                        </div>
+                      </div>
+                      <div className="text-2xl font-bold text-green-700 dark:text-green-300">
+                        {formatNumber(site.tokens || 0)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
+
       {/* Site Sizing Table - Responsive with auto-fit columns */}
       <Card>
         <CardContent className="pt-4 lg:pt-6">
