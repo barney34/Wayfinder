@@ -623,7 +623,6 @@ function CustomerDetailContent({
   currentName, 
   currentOpportunity, 
   onBack, 
-  saving,
   discoveryTabQuestions,
   sizingTabQuestions,
   securityTokenQuestions,
