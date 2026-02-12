@@ -693,15 +693,15 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
           const isSectionEnabled = enabledSections[section] !== false;
           return (
             <AccordionItem key={section} value={section} className={`border rounded-md bg-card ${!isSectionEnabled ? 'opacity-50' : ''}`} data-testid={`section-${section.replace(/\s/g, '-')}`}>
-              <AccordionTrigger className="px-6 py-4 text-base font-semibold hover:no-underline">
-                <div className="flex items-center justify-between w-full pr-4">
+              <div className="flex items-center justify-between px-6 py-4">
+                <AccordionTrigger className="flex-1 text-base font-semibold hover:no-underline p-0 [&>svg]:ml-2">
                   <span>{section}</span>
-                  <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
-                    <Switch id={`section-toggle-${section}`} checked={isSectionEnabled} onCheckedChange={c => handleSectionToggle(section, c)} data-testid={`switch-section-${section.replace(/\s/g, '-')}`} />
-                    <Label htmlFor={`section-toggle-${section}`} className="text-xs font-normal cursor-pointer">{isSectionEnabled ? 'Enabled' : 'Disabled'}</Label>
-                  </div>
+                </AccordionTrigger>
+                <div className="flex items-center gap-2 ml-4" onClick={e => e.stopPropagation()}>
+                  <Switch id={`section-toggle-${section}`} checked={isSectionEnabled} onCheckedChange={c => handleSectionToggle(section, c)} data-testid={`switch-section-${section.replace(/\s/g, '-')}`} />
+                  <Label htmlFor={`section-toggle-${section}`} className="text-xs font-normal cursor-pointer">{isSectionEnabled ? 'Enabled' : 'Disabled'}</Label>
                 </div>
-              </AccordionTrigger>
+              </div>
               <AccordionContent className="px-6 pb-4">
                 <div className={`space-y-4 ${!isSectionEnabled ? 'pointer-events-none' : ''}`}>
                   {renderSectionQuestions(sectionQuestions, answers, expandedSubsections, setExpandedSubsections, handleBetaSubsectionToggle, expandedNotes, setExpandedNotes, notes, setNote, renderField)}
