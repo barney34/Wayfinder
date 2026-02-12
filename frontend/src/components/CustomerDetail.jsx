@@ -533,8 +533,6 @@ function CustomerDetailContent({
                 <DeploymentModel />
                 <SizingMathHelp />
                 <TokenCalculatorSummary />
-                <UDSMembersTable />
-                <AssessmentQuestions questions={sizingTabQuestions} />
               </div>
             )}
 
