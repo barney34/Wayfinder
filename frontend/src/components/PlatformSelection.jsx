@@ -81,14 +81,22 @@ export function TargetSolutions() {
 
 // Deployment Model - for Sizing tab
 export function DeploymentModel() {
-  const { answers, setAnswer } = useDiscovery();
+  const { answers, setAnswer, setPlatformMode } = useDiscovery();
   const platform = answers['ud-platform'] || 'NIOS (Physical/Virtual)';
 
   const MODES = [
-    { value: 'NIOS (Physical/Virtual)', label: 'NIOS Only', description: 'Physical/Virtual appliances' },
-    { value: 'UDDI', label: 'UDDI Only', description: 'Cloud-native DDI' },
-    { value: 'Hybrid (NIOS + UDDI)', label: 'Hybrid', description: 'NIOS + UDDI combined' },
+    { value: 'NIOS (Physical/Virtual)', label: 'NIOS Only', description: 'Physical/Virtual appliances', mode: 'NIOS' },
+    { value: 'UDDI', label: 'UDDI Only', description: 'Cloud-native DDI', mode: 'UDDI' },
+    { value: 'Hybrid (NIOS + UDDI)', label: 'Hybrid', description: 'NIOS + UDDI combined', mode: 'Hybrid' },
   ];
+
+  const handleModeChange = (mode) => {
+    setAnswer('ud-platform', mode.value);
+    // Also update platformMode in context for TokenCalculatorSummary
+    if (setPlatformMode) {
+      setPlatformMode(mode.mode);
+    }
+  };
 
   return (
     <div className="bg-muted/20 rounded-lg p-3 border">
@@ -102,7 +110,7 @@ export function DeploymentModel() {
           <button
             key={mode.value}
             type="button"
-            onClick={() => setAnswer('ud-platform', mode.value)}
+            onClick={() => handleModeChange(mode)}
             className={`flex-1 px-3 py-2 rounded-lg border-2 transition-all text-left ${
               platform === mode.value 
                 ? 'bg-primary text-primary-foreground border-primary' 
