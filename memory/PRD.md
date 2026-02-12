@@ -309,17 +309,28 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
   - "Sizing Planner" app name
   - Clicking header logo/name returns to Dashboard
 
+### Phase 25 — P2 Fixes Complete (Feb 12, 2026)
+**Implemented:**
+- **Sizing Math Help Panel**:
+  - New `SizingMathHelp.jsx` component added to Sizing tab
+  - Collapsible card with help icon
+  - Step 1: Active IPs formula (IPs = KW × Multiplier)
+  - Step 2: Workload formulas (QPS = IPs ÷ 3, LPS = DHCP ÷ 900)
+  - Step 3: Select Model reference (60% capacity)
+  - Key Formulas table (DNS Objects, DHCP Objects, Peak QPS, Aggregate LPS)
+  - Performance Penalties section (+30% multi-protocol, -50% DHCP Failover, etc.)
+  - NIOS TE-Series Models table (TE-926 to TE-4126)
+- **Console Error Fixes**:
+  - TokenCalculatorSummary.jsx (line 1312): Fixed nested button by using TooltipTrigger asChild with span wrapper
+  - AssessmentQuestions.jsx (lines 693-712): Fixed Switch inside AccordionTrigger by restructuring layout
+  - UDSMembersTable.jsx: Fixed missing key prop by using React.Fragment with key
+
 ## Pending / Backlog
 
-### P1
-- None - UDDI penalties now implemented from PDF documentation
-
 ### P2
-- **Display Sizing Math**: Show content from sizing-math.md as help/info panel within Sizing tab
 - AI Discovery Assistant (industry-specific follow-up questions)
 - Backend route refactoring (split server.py into routes/models)
 - Refactor large components (CustomerDetail.jsx, TokenCalculatorSummary.jsx) into smaller sub-components
-- Fix nested button console error (minor HTML validity issue)
 
 ## Test Reports
 - iteration_5.json: Post-migration (91 questions, 12 sections)
@@ -345,6 +356,7 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 - iteration_25.json: "Why this Model?" Dialog verification (100% pass rate)
 - iteration_26.json: UI/UX Improvements verification (100% pass rate)
 - iteration_27.json: Home Assistant Sidebar Navigation verification (100% pass rate)
+- iteration_28.json: P2 Fixes - Sizing Math Help & Console Errors (100% pass rate)
 
 ## Last Updated
-February 12, 2026 - Phase 24 complete: Home Assistant-style sidebar navigation
+February 12, 2026 - Phase 25 P2 fixes complete: Sizing Math Help panel, console error fixes
