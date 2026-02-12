@@ -176,7 +176,7 @@ export function TopBar({ customerName, opportunity }) {
             <Input
               value={dcName}
               onChange={e => setDcName(e.target.value)}
-              placeholder="Name"
+              placeholder="DC Name"
               className="h-7 flex-1 text-sm border-0 bg-transparent focus-visible:ring-0"
               onKeyDown={e => e.key === 'Enter' && handleAddDC()}
             />
@@ -184,8 +184,9 @@ export function TopBar({ customerName, opportunity }) {
               type="number"
               value={dcKW}
               onChange={e => setDcKW(e.target.value)}
-              placeholder="Knowledge Workers"
-              className="h-7 w-28 text-sm border-0 bg-transparent focus-visible:ring-0 text-right font-medium"
+              placeholder="KW"
+              title="Knowledge Workers"
+              className="h-7 w-20 text-sm border-0 bg-transparent focus-visible:ring-0 text-right font-medium"
               onKeyDown={e => e.key === 'Enter' && handleAddDC()}
             />
             <Button 
