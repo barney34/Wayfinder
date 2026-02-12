@@ -172,31 +172,36 @@ export function TopBar({ customerName, opportunity }) {
           </div>
           
           {/* DC Entry Form */}
-          <div className="flex items-center gap-1 bg-white dark:bg-slate-800 rounded-lg border p-1.5 mb-2">
-            <Input
-              value={dcName}
-              onChange={e => setDcName(e.target.value)}
-              placeholder="DC Name"
-              className="h-7 flex-1 text-sm border-0 bg-transparent focus-visible:ring-0"
-              onKeyDown={e => e.key === 'Enter' && handleAddDC()}
-            />
-            <Input
-              type="number"
-              value={dcKW}
-              onChange={e => setDcKW(e.target.value)}
-              placeholder="KW"
-              title="Knowledge Workers"
-              className="h-7 w-20 text-sm border-0 bg-transparent focus-visible:ring-0 text-right font-medium"
-              onKeyDown={e => e.key === 'Enter' && handleAddDC()}
-            />
-            <Button 
-              size="sm" 
-              className="h-7 w-7 p-0 bg-blue-500 hover:bg-blue-600"
-              onClick={handleAddDC}
-              disabled={!dcName.trim()}
-            >
-              <Plus className="h-3.5 w-3.5" />
-            </Button>
+          <div className="space-y-1 mb-2">
+            <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+              <span className="flex-1">Name</span>
+              <span className="w-24 text-right">Knowledge Workers</span>
+            </div>
+            <div className="flex items-center gap-1 bg-white dark:bg-slate-800 rounded-lg border p-1.5">
+              <Input
+                value={dcName}
+                onChange={e => setDcName(e.target.value)}
+                placeholder="DC Name"
+                className="h-8 flex-1 text-sm border-0 bg-transparent focus-visible:ring-0"
+                onKeyDown={e => e.key === 'Enter' && handleAddDC()}
+              />
+              <Input
+                type="number"
+                value={dcKW}
+                onChange={e => setDcKW(e.target.value)}
+                placeholder="0"
+                className="h-8 w-24 text-sm border-0 bg-transparent focus-visible:ring-0 text-right font-mono font-medium"
+                onKeyDown={e => e.key === 'Enter' && handleAddDC()}
+              />
+              <Button 
+                size="sm" 
+                className="h-8 w-8 p-0 bg-blue-500 hover:bg-blue-600"
+                onClick={handleAddDC}
+                disabled={!dcName.trim()}
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
           
           {/* DC Tags - 2 columns, expandable (no scroll) */}
