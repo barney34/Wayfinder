@@ -24,34 +24,6 @@ import { TargetSolutions, DeploymentModel } from "./PlatformSelection";
 import { SizingMathHelp } from "./SizingMathHelp";
 import yaml from "js-yaml";
 
-// ===== Target Solution Toggles =====
-function TargetSolutionToggles() {
-  const { answers, setAnswer } = useDiscovery();
-  const features = [
-    { key: 'feature-uddi', label: 'UDDI' },
-    { key: 'feature-security', label: 'Security' },
-    { key: 'feature-asset insights', label: 'Asset Insights' },
-  ];
-  const platform = answers['ud-platform'] || 'NIOS (Physical/Virtual)';
-  const platformShort = platform.includes('NIOS') && !platform.includes('UDDI') && !platform.includes('Hybrid') ? 'NIOS' : platform.includes('UDDI') ? 'UDDI' : 'Hybrid';
-
-  return (
-    <div className="flex items-center gap-1.5 flex-wrap" data-testid="platform-toggles">
-      <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/30">{platformShort}</Badge>
-      {features.map(f => {
-        const isOn = answers[f.key] === 'Yes';
-        return (
-          <Badge key={f.key} variant={isOn ? "default" : "outline"}
-            className={`text-xs cursor-pointer transition-colors ${isOn ? 'bg-green-600 hover:bg-green-700 text-white' : 'hover:bg-muted'}`}
-            onClick={() => setAnswer(f.key, isOn ? 'No' : 'Yes')}
-            data-testid={`toggle-${f.key}`}
-          >{f.label}</Badge>
-        );
-      })}
-    </div>
-  );
-}
-
 // ===== Dynamic Island Tag Component (Responsive) =====
 function DynamicIslandTag({ id, name, kw, color, onUpdate, onDelete }) {
   const [isEditingName, setIsEditingName] = useState(false);
