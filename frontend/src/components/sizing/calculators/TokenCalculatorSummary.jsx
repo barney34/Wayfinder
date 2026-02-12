@@ -1188,37 +1188,6 @@ export function TokenCalculatorSummary() {
                 {sites.map(site => (
                   <TableRow key={site.id} data-testid={`site-row-${site.id}`} className={site.isHub ? 'bg-blue-50/50 dark:bg-blue-900/10' : site.isSpoke ? 'bg-amber-50/50 dark:bg-amber-900/10' : ''}>
                     <TableCell className="p-2 lg:p-4">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger>
-                            <div className="relative">
-                              {site.sourceType === 'dataCenter' ? (
-                                <Building2 className="h-4 w-4 lg:h-5 lg:w-5 text-blue-500" />
-                              ) : site.sourceType === 'site' ? (
-                                <MapPin className="h-4 w-4 lg:h-5 lg:w-5 text-green-500" />
-                              ) : (
-                                <Server className="h-4 w-4 lg:h-5 lg:w-5 text-gray-400" />
-                              )}
-                              {/* Hub/Spoke indicator badge */}
-                              {site.isHub && (
-                                <span className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full" title="Hub" />
-                              )}
-                              {site.isSpoke && (
-                                <span className="absolute -top-1 -right-1 w-2 h-2 bg-amber-500 rounded-full" title="Spoke" />
-                              )}
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <div className="text-xs">
-                              <div>{site.sourceType === 'dataCenter' ? 'Data Center' : site.sourceType === 'site' ? 'Branch Site' : 'Manual Site'}</div>
-                              {site.isHub && <div className="text-blue-500 font-medium">Hub - receives traffic from {sites.filter(s => s.dhcpPartner === site.id).length} spoke(s)</div>}
-                              {site.isSpoke && <div className="text-amber-500 font-medium">Spoke - forwards to {sites.find(s => s.id === site.dhcpPartner)?.name}</div>}
-                            </div>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </TableCell>
-                    <TableCell className="p-2 lg:p-4">
                       <Input
                         value={site.name}
                         onChange={e => updateSite(site.id, 'name', e.target.value)}
