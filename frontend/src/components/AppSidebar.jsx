@@ -84,6 +84,7 @@ function NavItem({ item, isActive, onClick, collapsed }) {
           <TooltipTrigger asChild>
             <button
               onClick={onClick}
+              data-testid={`nav-${item.id}`}
               className={`w-full p-2 rounded-md transition-colors flex items-center justify-center ${isActive ? 'bg-primary/10 text-primary border-l-2 border-primary' : 'hover:bg-muted text-muted-foreground hover:text-foreground'}`}
             >
               <Icon className="h-5 w-5" />
@@ -98,6 +99,7 @@ function NavItem({ item, isActive, onClick, collapsed }) {
   return (
     <button
       onClick={onClick}
+      data-testid={`nav-${item.id}`}
       className={`w-full px-3 py-2 rounded-md text-left transition-colors flex items-center gap-3 ${isActive ? 'bg-primary/10 text-primary font-medium border-l-2 border-primary -ml-[2px] pl-[14px]' : 'hover:bg-muted text-muted-foreground hover:text-foreground'}`}
     >
       <Icon className="h-4 w-4 shrink-0" />
