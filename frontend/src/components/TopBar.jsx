@@ -248,36 +248,49 @@ export function TopBar({ customerName, opportunity }) {
             </div>
           </div>
           
-          {/* Site Entry Form */}
-          <div className="space-y-1 mb-2">
-            <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-              <span className="flex-1">Name</span>
-              <span className="w-24 text-right">Knowledge Workers</span>
-            </div>
-            <div className="flex items-center gap-1 bg-white dark:bg-slate-800 rounded-lg border p-1.5">
-              <Input
-                value={siteName}
-                onChange={e => setSiteName(e.target.value)}
-                placeholder="Site Name"
-                className="h-8 flex-1 text-sm border-0 bg-transparent focus-visible:ring-0"
-                onKeyDown={e => e.key === 'Enter' && handleAddSite()}
-              />
-              <Input
-                type="number"
-                value={siteKW}
-                onChange={e => setSiteKW(e.target.value)}
-                placeholder="0"
-                className="h-8 w-24 text-sm border-0 bg-transparent focus-visible:ring-0 text-right font-mono font-medium"
-                onKeyDown={e => e.key === 'Enter' && handleAddSite()}
-              />
-              <Button 
-                size="sm" 
-                className="h-8 w-8 p-0 bg-green-500 hover:bg-green-600"
-                onClick={handleAddSite}
-                disabled={!siteName.trim()}
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
+          {/* Site Entry Form - Clear separation */}
+          <div className="mb-2">
+            <div className="flex items-center gap-2">
+              {/* Name Input Box */}
+              <div className="flex-1">
+                <div className="text-[10px] text-muted-foreground mb-1">Name</div>
+                <div className="bg-white dark:bg-slate-800 rounded-lg border p-1">
+                  <Input
+                    value={siteName}
+                    onChange={e => setSiteName(e.target.value)}
+                    placeholder="Enter site name..."
+                    className="h-8 w-full text-sm border-0 bg-transparent focus-visible:ring-0"
+                    onKeyDown={e => e.key === 'Enter' && handleAddSite()}
+                  />
+                </div>
+              </div>
+              
+              {/* KW Input Box - Separate */}
+              <div className="w-28">
+                <div className="text-[10px] text-muted-foreground mb-1">Knowledge Workers</div>
+                <div className="bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800 p-1">
+                  <Input
+                    type="number"
+                    value={siteKW}
+                    onChange={e => setSiteKW(e.target.value)}
+                    placeholder="0"
+                    className="h-8 w-full text-sm border-0 bg-transparent focus-visible:ring-0 text-center font-mono font-semibold text-green-700 dark:text-green-300"
+                    onKeyDown={e => e.key === 'Enter' && handleAddSite()}
+                  />
+                </div>
+              </div>
+              
+              {/* Add Button */}
+              <div className="pt-5">
+                <Button 
+                  size="sm" 
+                  className="h-10 w-10 p-0 bg-green-500 hover:bg-green-600"
+                  onClick={handleAddSite}
+                  disabled={!siteName.trim()}
+                >
+                  <Plus className="h-5 w-5" />
+                </Button>
+              </div>
             </div>
           </div>
           
