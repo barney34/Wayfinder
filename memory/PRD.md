@@ -413,6 +413,7 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 - iteration_27.json: Home Assistant Sidebar Navigation verification (100% pass rate)
 - iteration_28.json: P2 Fixes - Sizing Math Help & Console Errors (100% pass rate)
 - iteration_29.json: P0/P1 - Top Bar DC/Site Names & Code Refactoring (100% pass rate)
+- iteration_30.json: P2 - TopBar 4-Column Redesign & CustomerDetail Split (100% pass rate)
 
 ## Code Architecture (Updated)
 ```
@@ -431,16 +432,20 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 │       └── test_discovery_api.py
 ├── frontend/src/
 │   ├── components/
-│   │   ├── TopBar.jsx             # DC/Site entry, Target Solutions, IP Calculator
+│   │   ├── TopBar.jsx             # 4-column layout: DC | Sites | Target Solutions | IP Calc
 │   │   ├── AppSidebar.jsx         # Navigation sidebar
-│   │   ├── CustomerDetail.jsx     # Main orchestrator
+│   │   ├── CustomerDetail.jsx     # Main orchestrator (572 lines, reduced from 972)
+│   │   ├── VersionControl.jsx     # Extracted: Version/revision management
+│   │   ├── ImportExportSection.jsx # Extracted: Import/export UI
 │   │   └── sizing/
 │   │       └── calculators/
-│   │           ├── TokenCalculatorSummary.jsx
+│   │           ├── TokenCalculatorSummary.jsx (1551 lines)
 │   │           ├── platformConfig.js    # Extracted constants
 │   │           └── tokenUtils.js        # Extracted utilities
+│   ├── lib/
+│   │   └── revisionHelpers.js     # Extracted: localStorage revision utilities
 │   └── ...
 ```
 
 ## Last Updated
-February 12, 2026 - Phase 27: Top Bar UI (DC/Site names display) + P1 Code Refactoring (Backend routes split, Frontend utilities extracted)
+February 12, 2026 - Phase 27: TopBar 4-column redesign + P2 Component splitting (CustomerDetail 972→572 lines)
