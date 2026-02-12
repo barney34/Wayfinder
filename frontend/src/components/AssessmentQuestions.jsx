@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { ChevronDown, ChevronUp, ChevronRight, X, Plus, Info, MessageSquare, Check } from "lucide-react";
+import { ChevronDown, ChevronUp, ChevronRight, X, Plus, Info, MessageSquare, Check, Zap } from "lucide-react";
 import { useDiscovery } from "@/contexts/DiscoveryContext";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -19,6 +19,14 @@ import {
   SocInsightsInput, DomainTakedownInput, ReportingInput, UDDIEstimator,
   SiteConfiguration,
 } from "./sizing";
+import { sizingDefaults } from "@/lib/tokenData";
+
+// Constants for auto-calculation
+const AUTO_CALC_DEFAULTS = {
+  dnsQpdPerIP: 3500, // DNS queries per day per active IP
+  workdayHours: 9,
+  peakQpsDivisor: 3, // peak_QPS = active_IPs / 3
+};
 
 // ===== InlineCheckboxSelect (for compact single-select) =====
 function InlineCheckboxSelect({ questionId, options, value, onChange }) {
