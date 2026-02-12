@@ -244,20 +244,36 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 - **Server Specifications**: Shows selected model's Max QPS, Max LPS, Max Objects
 - **Token Cost**: Shows total tokens with per-server breakdown for multi-server sites
 
-### Phase 23 — UI/UX Space Optimization (In Progress - Feb 12, 2026)
-- **Compact Header**: Single-row layout with Back + Customer inline, centered tabs, platform badges + actions right
-- **Tabs consolidated**: Removed Import/Export tab (merged into History), tabs fit without scrolling
-- **Compact Quick Capture Bar**: Inline IP calculator with Auto/Manual toggle, DC/Site counts, sizing summary
-- **Question type fixes**: "What is your strategy..." now uses note/textarea field type
-- **Auto-calculation foundation**: Added AUTO_CALC_DEFAULTS for DNS QPS calculations
-- **detectFieldType enhanced**: Now checks question.type before fieldType
+### Phase 23 — UI/UX Complete Restructure (In Progress - Feb 12, 2026)
+**Implemented:**
+- **Collapsible Sidebar**: New AppSidebar component with:
+  - Dashboard link at top
+  - Customer list section
+  - "Working on" section with current customer/opportunity
+  - DC/Site summary badges
+  - IP Calculator (compact)
+  - Sizing summary (IPs, Tokens, Pack)
+  - Save/Export buttons at bottom
+- **Quick Site Entry**: At top of Discovery & Sizing tabs
+  - DC/Site toggle
+  - Name + KW inputs
+  - + Add button
+  - Site tags showing all DCs and Sites
+- **Platform Selection**: New PlatformSelection component in Discovery tab
+  - Target Solutions: NIOS, UDDI, Security, Asset Insights toggles
+  - "Why not?" required fields when solution not selected
+  - Deployment Model selection (NIOS Only, UDDI Only, Hybrid)
+- **Tabs as Separator**: Clean tab bar between header and content
+- **Removed "Enable All Sections"**: Each section has its own toggle
+- **Dashboard Simplified**: Removed old sidebar from App.js
 
-**Remaining UI/UX work:**
-- Section collapse when toggled OFF
-- More prominent section separators
-- Auto-fill ⚡Auto badge visual indicator
-- Font size adjustments (slightly larger)
-- Color/branding consistency for popovers/dialogs
+**Remaining work:**
+- Customer list not populating in sidebar
+- Sidebar collapse animation refinement
+- Section separators more prominent
+- Auto-fill ⚡Auto badge for calculated fields
+- Font size adjustments
+- Color/branding consistency
 
 ## Pending / Backlog
 
