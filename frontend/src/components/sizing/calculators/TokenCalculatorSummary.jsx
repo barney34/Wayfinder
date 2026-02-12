@@ -962,7 +962,19 @@ export function TokenCalculatorSummary() {
       <Card>
         <CardContent className="pt-4 lg:pt-6">
           {/* Table Controls */}
-          <div className="flex items-center justify-end mb-3 gap-4">
+          <div className="flex items-center justify-between mb-3 gap-4">
+            {/* Drawing Number Input */}
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-muted-foreground whitespace-nowrap">Drawing #:</label>
+              <Input
+                value={drawingNumber}
+                onChange={e => setDrawingNumber(e.target.value)}
+                placeholder="Enter drawing number..."
+                className="h-8 w-48 text-sm"
+                data-testid="drawing-number-input"
+              />
+            </div>
+            
             <label className="flex items-center gap-2 text-sm cursor-pointer">
               <Checkbox 
                 checked={showHardware} 
