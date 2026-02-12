@@ -662,23 +662,15 @@ function CustomerDetailContent({
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0 bg-background">
-        {/* Header Bar - Current Customer Info */}
-        <div className="flex-shrink-0 bg-card border-b px-4 py-2 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <h1 className="text-lg font-semibold">{currentName}</h1>
-            {currentOpportunity && (
-              <Badge variant="outline" className="text-xs">{currentOpportunity}</Badge>
-            )}
-          </div>
-        </div>
+        {/* Top Bar with Target Solutions, DC/Site Entry, IP Calculator */}
+        <TopBar customerName={currentName} opportunity={currentOpportunity} />
 
-        {/* Scrollable Content - No more nested Tabs, just direct content */}
+        {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto">
           <div className="p-4 space-y-4">
             {/* Discovery Tab */}
             {activeTab === 'discovery' && (
               <div className="space-y-4" data-testid="tab-content-discovery">
-                <QuickSiteEntry />
                 <AssessmentQuestions questions={discoveryTabQuestions} compact={true} />
               </div>
             )}
@@ -686,7 +678,6 @@ function CustomerDetailContent({
             {/* Sizing Tab */}
             {activeTab === 'sizing' && (
               <div className="space-y-4" data-testid="tab-content-sizing">
-                <QuickSiteEntry />
                 <DeploymentModel />
                 <SizingMathHelp />
                 <TokenCalculatorSummary />
