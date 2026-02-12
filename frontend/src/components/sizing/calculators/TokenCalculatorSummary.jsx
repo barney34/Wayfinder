@@ -676,6 +676,101 @@ export function TokenCalculatorSummary() {
     doc.save('site-sizing-export.pdf');
   }, [sites, totals, bom, partnerSku, platformMode, securityEnabled, uddiEnabled]);
   
+  // Export Drawing (matches target spreadsheet format)
+  const exportDrawing = useCallback((sites, drawingNum) => {
+    // Build rows in the target format
+    const rows = [];
+    let unitCounter = {};
+    
+    // Sort sites: GM first, then GMC, then by type
+    const sortedSites = [...sites].sort((a, b) => {
+      const roleOrder = { 'GM': 0, 'GMC': 1, 'DNS/DHCP': 2, 'DNS': 3, 'DHCP': 4 };
+      return (roleOrder[a.role] || 5) - (roleOrder[b.role] || 5);
+    });
+    
+    sortedSites.forEach((site, idx) => {
+      if (!site.addToReport) return; // Skip if not checked for report
+      
+      const unitGroup = getUnitGroup(site.role, site.sourceType);
+      unitCounter[unitGroup] = (unitCounter[unitGroup] || 0) + 1;
+      
+      // Determine solution type
+      let solution = 'NIOS';
+      if (site.platform?.includes('NXVS') || site.platform?.includes('NXaaS')) {
+        solution = 'UDDI';
+      }
+      if (site.role === 'GM' || site.role === 'GMC') {
+        solution = 'NIOS';
+      }
+      
+      // Get model info
+      const model = site.recommendedModel || site.platform || 'TBD';
+      
+      // Get SKU info
+      const swBaseSku = getSwBaseSku(model);
+      const swPackage = getSwPackage(site.role, (site.services || []).includes('Discovery'));
+      const hwInfo = getHwSkuInfo(model);
+      
+      // Build description from role and services
+      let description = site.role || 'DNS/DHCP';
+      if (site.services && site.services.length > 0) {
+        description += ` + ${site.services.join(', ')}`;
+      }
+      if (site.name) {
+        description = `${site.name} - ${description}`;
+      }
+      
+      // SW Add-ons based on services
+      const swAddons = [];
+      if ((site.services || []).includes('DFP')) swAddons.push('ADP');
+      if ((site.services || []).includes('NTP')) swAddons.push('NTP');
+      
+      rows.push({
+        'Drawing #': drawingNum || '',
+        'Unit Group': unitGroup,
+        'Unit #/Range': site.serverCount > 1 ? `1-${site.serverCount}` : unitCounter[unitGroup].toString(),
+        'Solution': solution,
+        'Model Info': model,
+        'SW Instances': site.serverCount || 1,
+        'Description': description,
+        'SW Base SKU': swBaseSku,
+        'SW Package': swPackage,
+        'SW Add-ons': swAddons.join(', ') || '',
+        'HW License SKU': hwInfo.hwSku,
+        'HW Add-ons': '',
+        'HW Count': hwInfo.hwSku === 'VM' || hwInfo.hwSku === 'Cloud' ? 0 : site.serverCount || 1,
+        'Add to Report': site.addToReport ? 'Yes' : 'No',
+        'Add to BOM': site.addToBom ? 'Yes' : 'No',
+      });
+    });
+    
+    // Create Excel workbook
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(rows);
+    
+    // Set column widths
+    ws['!cols'] = [
+      { wch: 12 }, // Drawing #
+      { wch: 10 }, // Unit Group
+      { wch: 12 }, // Unit #/Range
+      { wch: 10 }, // Solution
+      { wch: 15 }, // Model Info
+      { wch: 12 }, // SW Instances
+      { wch: 35 }, // Description
+      { wch: 18 }, // SW Base SKU
+      { wch: 12 }, // SW Package
+      { wch: 15 }, // SW Add-ons
+      { wch: 18 }, // HW License SKU
+      { wch: 12 }, // HW Add-ons
+      { wch: 10 }, // HW Count
+      { wch: 12 }, // Add to Report
+      { wch: 12 }, // Add to BOM
+    ];
+    
+    XLSX.utils.book_append_sheet(wb, ws, 'Drawing');
+    XLSX.writeFile(wb, `${drawingNum || 'sizing'}-drawing-export.xlsx`);
+  }, []);
+  
   if (sites.length === 0 && dataCenters.length === 0 && contextSites.length === 0) {
     return (
       <Card className="bg-muted/30">
