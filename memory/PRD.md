@@ -244,6 +244,21 @@ Migrate DiscoveryTrackAI from Replit (Express.js/TypeScript/PostgreSQL) to Emerg
 - **Server Specifications**: Shows selected model's Max QPS, Max LPS, Max Objects
 - **Token Cost**: Shows total tokens with per-server breakdown for multi-server sites
 
+### Phase 23 — UI/UX Space Optimization (In Progress - Feb 12, 2026)
+- **Compact Header**: Single-row layout with Back + Customer inline, centered tabs, platform badges + actions right
+- **Tabs consolidated**: Removed Import/Export tab (merged into History), tabs fit without scrolling
+- **Compact Quick Capture Bar**: Inline IP calculator with Auto/Manual toggle, DC/Site counts, sizing summary
+- **Question type fixes**: "What is your strategy..." now uses note/textarea field type
+- **Auto-calculation foundation**: Added AUTO_CALC_DEFAULTS for DNS QPS calculations
+- **detectFieldType enhanced**: Now checks question.type before fieldType
+
+**Remaining UI/UX work:**
+- Section collapse when toggled OFF
+- More prominent section separators
+- Auto-fill ⚡Auto badge visual indicator
+- Font size adjustments (slightly larger)
+- Color/branding consistency for popovers/dialogs
+
 ## Pending / Backlog
 
 ### P1
