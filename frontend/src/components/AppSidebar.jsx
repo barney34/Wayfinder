@@ -144,14 +144,11 @@ export function AppSidebar({
 }) {
   const [collapsed, setCollapsed] = useState(false);
   
-  // Try to get discovery context - will be null if not in provider
-  let discoveryData = { dataCenters: [], sites: [], sizingSummary: null };
-  try {
-    discoveryData = useDiscovery();
-  } catch {
-    // Not inside DiscoveryProvider - use defaults
-  }
-  const { dataCenters = [], sites = [], sizingSummary } = discoveryData || {};
+  // Use optional hook - returns null if not in provider
+  const discoveryContext = useDiscoveryOptional();
+  const dataCenters = discoveryContext?.dataCenters || [];
+  const sites = discoveryContext?.sites || [];
+  const sizingSummary = discoveryContext?.sizingSummary;
 
   // Fetch all customers
   const { data: customers = [] } = useQuery({
