@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { 
   ChevronLeft, ChevronRight, ChevronDown, Users, Building2, MapPin, 
   Save, Download, Calculator, Home, Cpu, Package, Search, BarChart3,
-  Ticket, Sparkles, Clock, Plus, Check
+  Ticket, Sparkles, Clock, Plus, Check, Target
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +29,14 @@ const NAV_ITEMS = [
   { id: 'tokens', label: 'Tokens', icon: Ticket },
   { id: 'smartfill', label: 'SmartFill', icon: Sparkles },
   { id: 'history', label: 'History', icon: Clock },
+];
+
+// Target Solutions for sidebar
+const TARGET_SOLUTIONS = [
+  { key: 'feature-nios', label: 'NIOS' },
+  { key: 'feature-uddi', label: 'UDDI' },
+  { key: 'feature-security', label: 'Security' },
+  { key: 'feature-asset insights', label: 'Asset' },
 ];
 
 // Collapsible Section Header
@@ -67,7 +75,6 @@ function CustomerItem({ customer, isActive, onClick, collapsed }) {
           </TooltipTrigger>
           <TooltipContent side="right">
             <p className="font-medium">{customer.name}</p>
-            {customer.opportunity && <p className="text-muted-foreground text-xs">{customer.opportunity}</p>}
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -90,8 +97,8 @@ function CustomerItem({ customer, isActive, onClick, collapsed }) {
   );
 }
 
-// Navigation item
-function NavItem({ item, isActive, onClick, collapsed }) {
+// Navigation item with optional subsection
+function NavItem({ item, isActive, onClick, collapsed, children }) {
   const Icon = item.icon;
   
   if (collapsed) {
@@ -114,14 +121,22 @@ function NavItem({ item, isActive, onClick, collapsed }) {
   }
 
   return (
-    <button
-      onClick={onClick}
-      data-testid={`nav-${item.id}`}
-      className={`w-full px-3 py-2 rounded-md text-left transition-colors flex items-center gap-3 ${isActive ? 'bg-primary/10 text-primary font-medium border-l-2 border-primary -ml-[2px] pl-[14px]' : 'hover:bg-muted text-muted-foreground hover:text-foreground'}`}
-    >
-      <Icon className="h-4 w-4 shrink-0" />
-      <span className="text-sm">{item.label}</span>
-    </button>
+    <div>
+      <button
+        onClick={onClick}
+        data-testid={`nav-${item.id}`}
+        className={`w-full px-3 py-2 rounded-md text-left transition-colors flex items-center gap-3 ${isActive ? 'bg-primary/10 text-primary font-medium border-l-2 border-primary -ml-[2px] pl-[14px]' : 'hover:bg-muted text-muted-foreground hover:text-foreground'}`}
+      >
+        <Icon className="h-4 w-4 shrink-0" />
+        <span className="text-sm">{item.label}</span>
+      </button>
+      {/* Subsection - shows when this nav item is active */}
+      {isActive && children && (
+        <div className="ml-6 mt-1 mb-2 pl-2 border-l border-border/50">
+          {children}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -138,8 +153,6 @@ export function AppSidebar({
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const [customersOpen, setCustomersOpen] = useState(true);
-  const [navigationOpen, setNavigationOpen] = useState(true);
-  const [calculatorOpen, setCalculatorOpen] = useState(true);
   
   // Use optional hook - returns null if not in provider
   const discoveryContext = useDiscoveryOptional();
@@ -161,6 +174,88 @@ export function AppSidebar({
     queryKey: ['/api/customers'],
     queryFn: () => apiRequest('/api/customers'),
   });
+
+  // Target Solutions subsection for Discovery
+  const TargetSolutionsSubsection = () => (
+    <div className="space-y-1.5">
+      <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-medium">
+        <Target className="h-3 w-3" />
+        <span>Target Solutions</span>
+      </div>
+      <div className="flex flex-wrap gap-1">
+        {TARGET_SOLUTIONS.map(sol => {
+          const isOn = answers[sol.key] === 'Yes';
+          return (
+            <button
+              key={sol.key}
+              onClick={() => setAnswer(sol.key, isOn ? 'No' : 'Yes')}
+              className={`px-2 py-0.5 text-[10px] rounded-full font-medium transition-colors ${isOn ? 'bg-green-500 text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
+            >
+              {sol.label}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  // Sizing subsection for Sizing tab
+  const SizingSubsection = () => (
+    <div className="space-y-2">
+      {/* IP Calculator mini */}
+      <div className="space-y-1">
+        <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-medium">
+          <Calculator className="h-3 w-3" />
+          <span>IP Calculator</span>
+        </div>
+        <div className="flex items-center gap-1 text-xs">
+          <Input
+            type="number"
+            value={kw || ''}
+            onChange={e => setAnswer('ud-1', e.target.value)}
+            className="w-14 h-6 text-[10px] text-center px-1 font-mono"
+            placeholder="KW"
+          />
+          <span className="text-muted-foreground text-[10px]">×</span>
+          <Input
+            type="number"
+            step="0.1"
+            value={mult}
+            onChange={e => setAnswer('ipam-multiplier', e.target.value)}
+            className="w-10 h-6 text-[10px] text-center px-1 font-mono"
+          />
+          <span className="text-muted-foreground text-[10px]">=</span>
+          <span className="text-xs font-bold text-primary">{formatKW(activeIPs)}</span>
+        </div>
+      </div>
+      
+      {/* DC/Sites */}
+      <div className="flex items-center gap-3 text-xs">
+        <div className="flex items-center gap-1">
+          <Building2 className="h-3 w-3 text-blue-500" />
+          <span className="font-medium">{dataCenters.length}</span>
+          <span className="text-muted-foreground text-[10px]">DC</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <MapPin className="h-3 w-3 text-green-500" />
+          <span className="font-medium">{sites.length}</span>
+          <span className="text-muted-foreground text-[10px]">Sites</span>
+        </div>
+      </div>
+      
+      {/* Tokens */}
+      {sizingSummary && (
+        <div className="flex items-center gap-3 text-xs">
+          <div className="flex items-center gap-1">
+            <Ticket className="h-3 w-3 text-purple-500" />
+            <span className="font-medium">{formatKW(sizingSummary.totalTokens)}</span>
+            <span className="text-muted-foreground text-[10px]">Tokens</span>
+          </div>
+          <Badge variant="outline" className="text-[9px] px-1 py-0">{sizingSummary.tokenPack || '—'}</Badge>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div className={`flex flex-col h-full bg-card border-r transition-all duration-300 ${collapsed ? 'w-16' : 'w-56'}`}>
@@ -241,174 +336,25 @@ export function AppSidebar({
             </div>
           )}
 
-          {/* Navigation Section - Collapsible, Only show when customer selected */}
+          {/* Navigation Section - Only show when customer selected */}
           {currentCustomer && (
             <>
               <Separator className="my-2" />
               
-              {collapsed ? (
-                <div className="space-y-0.5">
-                  {NAV_ITEMS.map(item => (
-                    <NavItem
-                      key={item.id}
-                      item={item}
-                      isActive={activeTab === item.id}
-                      onClick={() => onTabChange?.(item.id)}
-                      collapsed={collapsed}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="py-1">
-                  <SectionHeader 
-                    icon={BarChart3} 
-                    label="Navigation" 
-                    isOpen={navigationOpen} 
-                    onToggle={() => setNavigationOpen(!navigationOpen)} 
-                  />
-                  {navigationOpen && (
-                    <div className="space-y-0.5 mt-1">
-                      {NAV_ITEMS.map(item => (
-                        <NavItem
-                          key={item.id}
-                          item={item}
-                          isActive={activeTab === item.id}
-                          onClick={() => onTabChange?.(item.id)}
-                          collapsed={collapsed}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </>
-          )}
-
-          {/* IP Calculator & Stats - Only show when customer selected */}
-          {currentCustomer && discoveryContext && (
-            <>
-              <Separator className="my-2" />
-              
-              {/* IP Calculator - Collapsible */}
-              {collapsed ? (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className="rounded-lg bg-muted/30 p-2 flex flex-col items-center gap-1">
-                        <Calculator className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-[10px] font-bold text-primary">{formatKW(activeIPs)}</span>
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">
-                      <p>{formatKW(kw)} KW × {mult} = {formatKW(activeIPs)} IPs</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              ) : (
-                <div className="py-1">
-                  <button
-                    type="button"
-                    onClick={() => setCalculatorOpen(!calculatorOpen)}
-                    className="flex items-center justify-between w-full px-2 py-1.5 rounded-md hover:bg-muted transition-colors"
+              <div className="space-y-0.5">
+                {NAV_ITEMS.map(item => (
+                  <NavItem
+                    key={item.id}
+                    item={item}
+                    isActive={activeTab === item.id}
+                    onClick={() => onTabChange?.(item.id)}
+                    collapsed={collapsed}
                   >
-                    <div className="flex items-center gap-2">
-                      <Calculator className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">IP Calculator</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {!calculatorOpen && <span className="text-xs font-bold text-primary">{formatKW(activeIPs)}</span>}
-                      <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform duration-200 ${calculatorOpen ? '' : '-rotate-90'}`} />
-                    </div>
-                  </button>
-                  {calculatorOpen && (
-                    <div className="mt-1 rounded-lg bg-muted/30 p-2.5 space-y-2">
-                      {/* Formula display: KW × Mult = IPs */}
-                      <div className="flex items-center gap-1.5 text-sm">
-                        <Input
-                          type="number"
-                          value={kw || ''}
-                          onChange={e => setAnswer('ud-1', e.target.value)}
-                          className="w-16 h-7 text-xs text-center px-1 font-mono"
-                          placeholder="KW"
-                        />
-                        <span className="text-muted-foreground font-medium">×</span>
-                        <Input
-                          type="number"
-                          step="0.1"
-                          value={mult}
-                          onChange={e => setAnswer('ipam-multiplier', e.target.value)}
-                          className="w-12 h-7 text-xs text-center px-1 font-mono"
-                        />
-                        <span className="text-muted-foreground font-medium">=</span>
-                        <div className="flex-1 h-7 flex items-center justify-center bg-primary/10 rounded border border-primary/30 min-w-[50px]">
-                          <span className="text-xs font-bold text-primary">{formatKW(activeIPs)}</span>
-                        </div>
-                      </div>
-                      
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const newVal = !manualOverride;
-                          setAnswer('ipam-1-override', newVal ? 'true' : 'false');
-                          if (!newVal) setAnswer('ipam-1', String(calculatedIPs));
-                        }}
-                        className={`w-full text-[10px] py-1 rounded transition-colors font-medium ${manualOverride ? 'bg-amber-500 text-white' : 'bg-muted/50 text-muted-foreground hover:bg-muted'}`}
-                      >
-                        {manualOverride ? 'Manual Override' : 'Auto Calculate'}
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Stats Summary */}
-              <div className={`rounded-lg bg-muted/30 ${collapsed ? 'p-2' : 'p-2.5'} space-y-1.5`}>
-                <div className={`flex ${collapsed ? 'flex-col' : ''} items-center gap-2`}>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="flex items-center gap-1">
-                          <Building2 className="h-3.5 w-3.5 text-blue-500" />
-                          <span className={`font-semibold ${collapsed ? 'text-[10px]' : 'text-xs'}`}>{dataCenters.length}</span>
-                          {!collapsed && <span className="text-[10px] text-muted-foreground">DC</span>}
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent side="right">{dataCenters.length} Data Centers</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                  
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="flex items-center gap-1">
-                          <MapPin className="h-3.5 w-3.5 text-green-500" />
-                          <span className={`font-semibold ${collapsed ? 'text-[10px]' : 'text-xs'}`}>{sites.length}</span>
-                          {!collapsed && <span className="text-[10px] text-muted-foreground">Sites</span>}
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent side="right">{sites.length} Branch Sites</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-
-                {/* Sizing Stats */}
-                {!collapsed && sizingSummary && (
-                  <div className="space-y-1 pt-1 border-t border-border/50">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground flex items-center gap-1"><Cpu className="h-3 w-3" /> IPs</span>
-                      <span className="font-semibold">{formatKW(sizingSummary.totalIPs)}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground flex items-center gap-1"><Package className="h-3 w-3" /> Tokens</span>
-                      <span className="font-semibold">{formatKW(sizingSummary.totalTokens)}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground">Pack</span>
-                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-medium">{sizingSummary.tokenPack || '—'}</Badge>
-                    </div>
-                  </div>
-                )}
+                    {/* Contextual subsections */}
+                    {item.id === 'discovery' && discoveryContext && <TargetSolutionsSubsection />}
+                    {item.id === 'sizing' && discoveryContext && <SizingSubsection />}
+                  </NavItem>
+                ))}
               </div>
             </>
           )}
