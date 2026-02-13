@@ -462,7 +462,25 @@ function CustomerDetailContent({
   const handleSave = async () => {
     setSaving(true);
     try {
-      await discoveryContext.saveToServer?.();
+      // Save to server immediately
+      await discoveryContext.saveToServer();
+      // Also create a revision in local storage
+      const exportData = {
+        customer: currentName,
+        exportDate: new Date().toISOString(),
+        meetingNotes: discoveryContext.meetingNotes || '',
+        discoveryAnswers: { ...discoveryContext.answers },
+        discoveryNotes: { ...discoveryContext.notes },
+        contextSummaries: { ...discoveryContext.contextFields },
+        enabledSections: discoveryContext.enabledSections,
+      };
+      addDynamicRevision(customer.id, {
+        exportedAt: new Date().toISOString(),
+        format: 'save',
+        customerName: currentName,
+        name: `Save ${formatRevisionDate()}`,
+        payload: JSON.stringify(exportData, null, 2),
+      });
       toast({ title: "Saved", description: "All changes saved successfully." });
     } catch (err) {
       toast({ title: "Error", description: "Failed to save changes.", variant: "destructive" });
