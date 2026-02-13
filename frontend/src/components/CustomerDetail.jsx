@@ -24,7 +24,7 @@ import { DeploymentModel } from "./PlatformSelection";
 import { SizingMathHelp } from "./SizingMathHelp";
 import { VersionControl } from "./VersionControl";
 import { ImportExportSection } from "./ImportExportSection";
-import { addDynamicRevision } from "@/lib/revisionHelpers";
+import { addDynamicRevision, formatRevisionDate } from "@/lib/revisionHelpers";
 import yaml from "js-yaml";
 
 // ===== Dynamic Island Tag Component (Responsive) =====
@@ -564,7 +564,7 @@ function CustomerDetailContent({
         </div>
       </div>
       
-      <FloatingSaveButton />
+      <FloatingSaveButton onSave={handleSave} />
     </div>
   );
 }

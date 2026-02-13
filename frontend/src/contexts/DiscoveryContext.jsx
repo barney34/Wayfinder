@@ -262,6 +262,23 @@ export function DiscoveryProvider({ children, customerId }) {
     setSizingSummaryState(summary);
   }, []);
 
+  // Immediate save to server (bypasses debounce)
+  const saveToServer = useCallback(async () => {
+    if (!customerId) return;
+    setIsSaving(true);
+    try {
+      const payload = {
+        answers, notes, contextFields, meetingNotes,
+        enabledSections, udsMembers, leaseTimeUnits, dataCenters, sites,
+      };
+      await apiRequest('PUT', `/api/customers/${customerId}/discovery`, payload);
+      setIsDirty(false);
+      setLastSaved(new Date().toISOString());
+    } finally {
+      setIsSaving(false);
+    }
+  }, [answers, notes, contextFields, meetingNotes, enabledSections, udsMembers, leaseTimeUnits, dataCenters, sites, customerId]);
+
   const defaultAnswers = getDefaultAnswers();
 
   return (
@@ -274,7 +291,7 @@ export function DiscoveryProvider({ children, customerId }) {
       addUDSMember, updateUDSMember, deleteUDSMember,
       setLeaseTimeUnit,
       addDataCenter, updateDataCenter, deleteDataCenter,
-      addSite, updateSite, deleteSite, setPlatformMode, setSizingSummary,
+      addSite, updateSite, deleteSite, setPlatformMode, setSizingSummary, saveToServer,
     }}>
       {children}
     </DiscoveryContext.Provider>
