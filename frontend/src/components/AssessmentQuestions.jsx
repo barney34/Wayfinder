@@ -603,27 +603,26 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
             {sections.map(section => {
               const isSectionEnabled = enabledSections[section] !== false;
               const isActive = activeSection === section;
-              const sectionColor = sectionColors[section] || 'bg-primary';
               const answeredCount = grouped[section].filter(q => answers[q.id]?.trim()).length;
+              const abbrev = sectionAbbreviations[section] || section;
+              const pillColor = sectionPillColors[section] || 'bg-muted/50 border-border/50';
               return (
                 <button
                   key={section}
                   onClick={() => scrollToSection(section)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all border
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold whitespace-nowrap transition-all border
                     ${isActive 
                       ? 'bg-primary text-primary-foreground border-primary shadow-md scale-105' 
                       : isSectionEnabled 
-                        ? 'bg-muted/50 hover:bg-muted border-border/50 text-foreground' 
-                        : 'bg-muted/20 border-border/30 text-muted-foreground line-through'
+                        ? `${pillColor}` 
+                        : 'bg-muted/20 border-border/30 text-muted-foreground line-through opacity-50'
                     }`}
                   data-testid={`nav-${section.replace(/\s/g, '-')}`}
                 >
-                  <span>{section}</span>
-                  {isSectionEnabled && (
-                    <span className={`text-[10px] font-normal ${isActive ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>
-                      {answeredCount}/{grouped[section].length}
-                    </span>
-                  )}
+                  <span>{abbrev}</span>
+                  <span className={`text-[9px] font-normal ${isActive ? 'text-primary-foreground/70' : 'opacity-70'}`}>
+                    {answeredCount}/{grouped[section].length}
+                  </span>
                 </button>
               );
             })}
