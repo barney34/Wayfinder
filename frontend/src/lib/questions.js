@@ -198,31 +198,6 @@ export const discoveryQuestions = [
     "technicalOnly": false
   },
   {
-    "id": "uddi-1",
-    "section": "Cloud Management",
-    "question": "Cloudflare management",
-    "technicalOnly": true,
-    "fieldType": "yesno"
-  },
-  {
-    "id": "uddi-4",
-    "section": "Cloud Management",
-    "question": "Akamai management",
-    "technicalOnly": true,
-    "fieldType": "yesno"
-  },
-  {
-    "id": "uddi-5",
-    "section": "Cloud Management",
-    "question": "Zone transfer",
-    "technicalOnly": true,
-    "fieldType": "yesno",
-    "conditionalOn": {
-      "questionId": "uddi-4",
-      "value": "Yes"
-    }
-  },
-  {
     "id": "idns-0",
     "section": "Internal DNS",
     "question": "Who is your current platform/vendor?",
