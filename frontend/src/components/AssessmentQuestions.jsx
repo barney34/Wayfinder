@@ -274,6 +274,39 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
     else { disableAllSections(); toast({ title: "All Sections Disabled" }); }
   };
 
+  // Toggle section collapse (visual only, doesn't affect enabled state)
+  const toggleCollapse = (section) => {
+    setCollapsedSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
+
+  // Scroll to section
+  const scrollToSection = (section) => {
+    const el = document.querySelector(`[data-section-id="${section}"]`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setActiveSection(section);
+      // Expand if collapsed
+      setCollapsedSections(prev => ({ ...prev, [section]: false }));
+    }
+  };
+
+  // DHCP redundancy options based on platform mode
+  const getDhcpRedundancyOptions = () => {
+    if (platformMode === 'NIOS') return [{ value: 'FO', label: 'Failover (F/O)' }];
+    if (platformMode === 'UDDI') return [
+      { value: 'AAP', label: 'Anycast Address Pair (AAP)' },
+      { value: 'AP', label: 'Active-Passive (AP)' },
+      { value: 'AA', label: 'Active-Active (AA)' },
+    ];
+    // Hybrid - all options
+    return [
+      { value: 'FO', label: 'Failover (F/O)' },
+      { value: 'AAP', label: 'Anycast Address Pair (AAP)' },
+      { value: 'AP', label: 'Active-Passive (AP)' },
+      { value: 'AA', label: 'Active-Active (AA)' },
+    ];
+  };
+
   // Group questions by section
   const grouped = questions.reduce((acc, q) => { if (!acc[q.section]) acc[q.section] = []; acc[q.section].push(q); return acc; }, {});
   const sections = Object.keys(grouped);
