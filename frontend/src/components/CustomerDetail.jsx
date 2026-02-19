@@ -16,6 +16,7 @@ import { discoveryQuestions } from "@/lib/questions";
 import { DiscoveryProvider, useDiscovery } from "@/contexts/DiscoveryContext";
 import { AssessmentQuestions } from "./AssessmentQuestions";
 import { MeetingNotesAI } from "./MeetingNotesAI";
+import { ValueFramework } from "./ValueFramework";
 import { TokenCalculatorSummary, UDSMembersTable } from "./sizing";
 import { FloatingSaveButton } from "./FloatingSaveButton";
 import { AppSidebar } from "./AppSidebar";
@@ -565,6 +566,9 @@ function CustomerDetailContent({
             {activeTab === 'smartfill' && (
               <div data-testid="tab-content-smartfill">
                 <MeetingNotesAI />
+                <div className="mt-6">
+                  <ValueFramework />
+                </div>
               </div>
             )}
 
