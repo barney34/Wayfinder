@@ -462,6 +462,31 @@ export const discoveryQuestions = [
     "fieldType": "yesno"
   },
   {
+    "id": "uddi-1",
+    "section": "Cloud Management",
+    "question": "Cloudflare management",
+    "technicalOnly": true,
+    "fieldType": "yesno"
+  },
+  {
+    "id": "uddi-4",
+    "section": "Cloud Management",
+    "question": "Akamai management",
+    "technicalOnly": true,
+    "fieldType": "yesno"
+  },
+  {
+    "id": "uddi-5",
+    "section": "Cloud Management",
+    "question": "Zone transfer",
+    "technicalOnly": true,
+    "fieldType": "yesno",
+    "conditionalOn": {
+      "questionId": "uddi-4",
+      "value": "Yes"
+    }
+  },
+  {
     "id": "svc-1",
     "section": "Services",
     "question": "Will NTP be enabled?",
