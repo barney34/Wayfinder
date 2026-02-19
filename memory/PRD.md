@@ -23,10 +23,13 @@ Infrastructure sizing calculator for planning network deployments. Full migratio
 - External DNS vendor multiselect (13 providers + freeform)
 
 ## Value Framework Integration (Completed Dec 2025)
-- **Seed Questions**: 1-2 VF questions per discovery section based on tag mapping
-  - N tag → IPAM, Internal DNS, External DNS, DHCP
-  - C tag → Cloud Management, Services
-  - S tag → Security
+- **Seed Questions**: 1-2 VF questions per discovery section based on section-specific tags
+  - IPAM tag → IPAM section (IP tracking, conflicts, asset visibility)
+  - IDNS tag → Internal DNS section (AD-integrated, BIND, zone management)
+  - EDNS tag → External DNS section (public DNS, availability, lookalike domains)
+  - DHCP tag → DHCP section (scopes, leases, redundancy)
+  - CLOUD tag → Cloud Management section (multi-cloud, automation)
+  - SECURITY tag → Security section (threats, incidents, DNS security)
 - **Follow-up Questions**: Triggered when seed questions are answered
 - **Framing Messages**: Contextual insights explaining why follow-ups are relevant
 - **Category Badges**: Optimize (blue), Accelerate (emerald), Protect (amber)
