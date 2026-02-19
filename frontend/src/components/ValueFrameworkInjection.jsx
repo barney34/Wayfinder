@@ -22,49 +22,79 @@ const SECTION_TO_TAGS = {
 };
 
 // Contextual follow-ups triggered by seed question answers
-// Each follow-up has a trigger (seed question ID + condition) and a framing message
+// Each follow-up has a trigger (seed question ID) and a framing message
 const FOLLOW_UPS = {
-  // Optimize seeds
-  'vf-opt-1': [
-    { id: 'vf-fu-opt-1a', question: 'How many cloud providers are you managing DNS/DHCP across today?', framing: 'Understanding your cloud footprint helps size the right deployment model.' },
-    { id: 'vf-fu-opt-1b', question: 'Are you experiencing delays deploying new cloud services due to DNS/IPAM provisioning?', framing: 'Cloud goals often get blocked by manual DDI processes.' },
+  // IPAM section follow-ups
+  'vf-opt-ipam-1': [
+    { id: 'vf-fu-ipam-1a', question: 'How many different tools/spreadsheets do you use for IP tracking?', framing: 'Fragmented IP management is a top cause of conflicts and audit failures.' },
+    { id: 'vf-fu-ipam-1b', question: 'How long does it take to find an available IP address when needed?', framing: 'Manual IP allocation often takes hours when it should take seconds.' },
   ],
-  'vf-opt-2': [
-    { id: 'vf-fu-opt-2a', question: 'How many hours per week does your team spend troubleshooting DNS/DHCP issues?', framing: 'Based on your challenges, quantifying the operational impact helps build the business case.' },
-    { id: 'vf-fu-opt-2b', question: 'Have these challenges resulted in any outages or compliance gaps?', framing: 'Day-to-day friction often masks larger risk exposure.' },
+  'vf-opt-ipam-2': [
+    { id: 'vf-fu-ipam-2a', question: 'How much time did the IP conflict resolution take?', framing: 'IP conflicts can cascade into application outages costing $300k+/hour.' },
   ],
-  'vf-opt-7': [
-    { id: 'vf-fu-opt-7a', question: 'Do you have a real-time inventory of all network-connected assets including IoT?', framing: 'Asset visibility gaps are a top cause of security blind spots.' },
+  'vf-acc-ipam-1': [
+    { id: 'vf-fu-ipam-3a', question: 'Is IP provisioning a bottleneck for your deployment pipeline?', framing: 'Automated IPAM can reduce provisioning from days to seconds.' },
   ],
-  'vf-opt-8': [
-    { id: 'vf-fu-opt-8a', question: 'How many different tools do you use to manage DNS, DHCP, and IPAM?', framing: 'Most enterprises use 3+ tools — each adding complexity and risk.' },
-    { id: 'vf-fu-opt-8b', question: 'Can you see the health of all DDI services from a single dashboard?', framing: 'Unified visibility is the #1 driver for DDI consolidation.' },
+  
+  // Internal DNS section follow-ups
+  'vf-opt-idns-1': [
+    { id: 'vf-fu-idns-1a', question: 'How many DNS servers/zones are you managing across all sites?', framing: 'Most enterprises have 3+ DNS tools — each adding complexity.' },
+    { id: 'vf-fu-idns-1b', question: 'How do you handle DNS changes when AD servers are updated?', framing: 'AD-integrated DNS often creates management silos.' },
   ],
-  // Accelerate seeds
-  'vf-acc-1': [
-    { id: 'vf-fu-acc-1a', question: 'How long does it take to provision DNS/IPAM for a new cloud instance?', framing: 'Most enterprises take 6+ weeks per new app deployment — automation cuts this to minutes.' },
+  'vf-acc-idns-2': [
+    { id: 'vf-fu-idns-2a', question: 'What was the MTTR for the DNS-related outage?', framing: 'DNS misconfigurations cause 80% of network outages.' },
   ],
-  'vf-acc-4': [
-    { id: 'vf-fu-acc-4a', question: 'What was the estimated cost of that outage (downtime, lost productivity, SLA penalties)?', framing: 'The average enterprise faces $2M/year in network outage costs.' },
-    { id: 'vf-fu-acc-4b', question: 'Was the root cause related to DNS, DHCP, or IP address conflicts?', framing: 'DDI misconfigurations are behind 80% of network outages.' },
+  'vf-pro-idns-1': [
+    { id: 'vf-fu-idns-3a', question: 'Can you detect DNS tunneling or exfiltration attempts?', framing: '>90% of malware uses DNS for command & control.' },
   ],
-  'vf-acc-7': [
-    { id: 'vf-fu-acc-7a', question: 'Are you using infrastructure-as-code (Terraform, Ansible) for DDI provisioning?', framing: 'API-first automation eliminates manual errors and accelerates deployment.' },
+  
+  // External DNS section follow-ups
+  'vf-opt-edns-1': [
+    { id: 'vf-fu-edns-1a', question: 'How do you coordinate external DNS changes across teams?', framing: 'External DNS changes often require multiple approvals, slowing deployments.' },
   ],
-  // Protect seeds
-  'vf-pro-3': [
-    { id: 'vf-fu-pro-3a', question: 'Was DNS involved in the attack chain (exfiltration, C2 communication, phishing)?', framing: '>90% of cyberattacks leverage DNS at some stage.' },
-    { id: 'vf-fu-pro-3b', question: 'How long did it take to detect and contain the incident?', framing: 'Industry average is 250+ days. DNS-level detection can flag threats 60+ days earlier.' },
+  'vf-pro-edns-2': [
+    { id: 'vf-fu-edns-2a', question: 'How many lookalike domains have you discovered targeting your brand?', framing: 'Average enterprise sees 20+ lookalike domains per month.' },
+    { id: 'vf-fu-edns-2b', question: 'How long does it take to get a malicious domain taken down?', framing: 'Infoblox achieves takedowns in 24-48 hours vs industry average of weeks.' },
   ],
-  'vf-pro-4': [
-    { id: 'vf-fu-pro-4a', question: 'What percentage of your security alerts does your SOC actually investigate?', framing: '55% of critical alerts are missed by the average SOC.' },
+  
+  // DHCP section follow-ups
+  'vf-opt-dhcp-1': [
+    { id: 'vf-fu-dhcp-1a', question: 'How do you monitor DHCP scope utilization across sites?', framing: 'DHCP exhaustion can silently block new device connections.' },
   ],
-  'vf-pro-8': [
-    { id: 'vf-fu-pro-8a', question: 'Are you concerned about lookalike domains targeting your brand?', framing: 'Infoblox detects and takes down lookalike domains in 24-48 hours.' },
-    { id: 'vf-fu-pro-8b', question: 'How do you protect IoT/OT devices that can\'t run endpoint agents?', framing: 'DNS-level protection covers every device without requiring agents.' },
+  'vf-opt-dhcp-2': [
+    { id: 'vf-fu-dhcp-2a', question: 'How long did it take to identify and resolve the DHCP issue?', framing: 'Without centralized visibility, DHCP troubleshooting can take hours.' },
   ],
-  'vf-pro-12': [
-    { id: 'vf-fu-pro-12a', question: 'Are you blocking threats at the DNS layer before they reach endpoints?', framing: 'DNS is the earliest point to detect and block — before the first connection.' },
+  'vf-acc-dhcp-1': [
+    { id: 'vf-fu-dhcp-3a', question: 'How long does it take to deploy DHCP to a new site?', framing: 'New site DHCP deployment typically costs $75-100k with manual processes.' },
+  ],
+  
+  // Cloud section follow-ups
+  'vf-opt-cloud-1': [
+    { id: 'vf-fu-cloud-1a', question: 'What challenges are blocking your cloud adoption goals?', framing: 'DDI complexity is a top blocker for cloud migrations.' },
+  ],
+  'vf-acc-cloud-1': [
+    { id: 'vf-fu-cloud-2a', question: 'How do you manage DNS/DHCP consistency across cloud providers?', framing: '90% of enterprises have 2+ clouds — each with different DNS/DHCP tools.' },
+  ],
+  'vf-acc-cloud-2': [
+    { id: 'vf-fu-cloud-3a', question: 'What percentage of your DDI provisioning is automated today?', framing: '80% of companies still manage DNS manually or in spreadsheets.' },
+  ],
+  
+  // Security section follow-ups
+  'vf-opt-sec-1': [
+    { id: 'vf-fu-sec-1a', question: 'What percentage of security alerts does your SOC actually investigate?', framing: '55% of critical alerts are missed by the average SOC.' },
+  ],
+  'vf-opt-sec-3': [
+    { id: 'vf-fu-sec-2a', question: 'Are you blocking threats at the DNS layer before they reach endpoints?', framing: 'DNS-level protection can detect threats 60+ days before other tools.' },
+  ],
+  'vf-pro-sec-2': [
+    { id: 'vf-fu-sec-3a', question: 'How long does it typically take to detect a breach in your environment?', framing: 'Industry average is 250+ days to detect and contain a breach.' },
+  ],
+  'vf-pro-sec-3': [
+    { id: 'vf-fu-sec-4a', question: 'Was DNS involved in the attack chain (exfiltration, C2, phishing)?', framing: '>90% of cyberattacks leverage DNS at some stage.' },
+    { id: 'vf-fu-sec-4b', question: 'What was the estimated cost of the incident?', framing: 'Average cost of a material breach is $800k+ (IBM reports $4.9M total).' },
+  ],
+  'vf-pro-sec-5': [
+    { id: 'vf-fu-sec-5a', question: 'What percentage of your devices are IoT/OT without endpoint agents?', framing: 'DNS-level protection covers every device without requiring agents.' },
   ],
 };
 
