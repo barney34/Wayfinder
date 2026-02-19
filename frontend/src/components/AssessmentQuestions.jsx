@@ -549,8 +549,43 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
   if (compact) {
     return (
       <div className="space-y-3">
+        {/* Sticky Section Navigation Bar */}
+        <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b py-2 -mx-1 px-1" data-testid="section-nav-bar">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+            {sections.map(section => {
+              const isSectionEnabled = enabledSections[section] !== false;
+              const isActive = activeSection === section;
+              const sectionColor = sectionColors[section] || 'bg-primary';
+              const answeredCount = grouped[section].filter(q => answers[q.id]?.trim()).length;
+              return (
+                <button
+                  key={section}
+                  onClick={() => scrollToSection(section)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all border
+                    ${isActive 
+                      ? 'bg-primary text-primary-foreground border-primary shadow-md scale-105' 
+                      : isSectionEnabled 
+                        ? 'bg-muted/50 hover:bg-muted border-border/50 text-foreground' 
+                        : 'bg-muted/20 border-border/30 text-muted-foreground line-through'
+                    }`}
+                  data-testid={`nav-${section.replace(/\s/g, '-')}`}
+                >
+                  <span>{section}</span>
+                  {isSectionEnabled && (
+                    <span className={`text-[10px] font-normal ${isActive ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>
+                      {answeredCount}/{grouped[section].length}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {Object.entries(grouped).map(([section, sectionQuestions]) => {
           const isSectionEnabled = enabledSections[section] !== false;
+          const isCollapsed = collapsedSections[section] === true;
+          const isActive = activeSection === section;
           
           // Get all questions including conditionals, mark which are conditional
           const allQuestionsWithMeta = sectionQuestions.map(q => {
