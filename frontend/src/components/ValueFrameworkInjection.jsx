@@ -10,21 +10,16 @@ import { Button } from "@/components/ui/button";
 import { Sparkles, ChevronRight, ChevronDown, MessageSquare, TrendingUp, Lightbulb } from "lucide-react";
 import { useDiscovery } from "@/contexts/DiscoveryContext";
 
-// Map VF tags to discovery sections
-const TAG_TO_SECTIONS = {
-  N: ['IPAM', 'Internal DNS', 'External DNS', 'DHCP'],
-  C: ['Cloud Management', 'Services'],
-  S: ['Security'],
+// Map discovery sections to VF tags (section-specific tags)
+const SECTION_TO_TAGS = {
+  'IPAM': ['IPAM'],
+  'Internal DNS': ['IDNS'],
+  'External DNS': ['EDNS'],
+  'DHCP': ['DHCP'],
+  'Cloud Management': ['CLOUD'],
+  'Services': ['CLOUD'],  // Services also uses cloud questions
+  'Security': ['SECURITY'],
 };
-
-// Reverse: section → which tags it maps to
-const SECTION_TO_TAGS = {};
-Object.entries(TAG_TO_SECTIONS).forEach(([tag, sections]) => {
-  sections.forEach(s => {
-    if (!SECTION_TO_TAGS[s]) SECTION_TO_TAGS[s] = [];
-    SECTION_TO_TAGS[s].push(tag);
-  });
-});
 
 // Contextual follow-ups triggered by seed question answers
 // Each follow-up has a trigger (seed question ID + condition) and a framing message
