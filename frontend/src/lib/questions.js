@@ -300,8 +300,9 @@ export const discoveryQuestions = [
     "section": "Internal DNS",
     "question": "DDNS update per second rate",
     "technicalOnly": true,
-    "fieldType": "text",
-    "defaultValue": "<1"
+    "fieldType": "prefixNumber",
+    "defaultValue": "<1",
+    "prefix": "<"
   },
   {
     "id": "idns-6",
@@ -325,7 +326,10 @@ export const discoveryQuestions = [
     "id": "edns-0",
     "section": "External DNS",
     "question": "Who is your current platform/vendor?",
-    "technicalOnly": true
+    "technicalOnly": true,
+    "fieldType": "multiselect",
+    "options": ["Microsoft", "BIND", "Bluecat", "EIP", "Akamai", "AT&T", "Cloudflare", "GoDaddy", "NS1", "Dyn", "ClouDNS", "Route53", "Google Cloud DNS"],
+    "allowFreeform": true
   },
   {
     "id": "edns-4",
@@ -427,13 +431,7 @@ export const discoveryQuestions = [
     "section": "DHCP",
     "question": "What type(s) of DHCP redundancy will be implemented?",
     "technicalOnly": true,
-    "fieldType": "select",
-    "options": [
-      "AAP",
-      "AP",
-      "AA",
-      "FO"
-    ]
+    "fieldType": "dhcpRedundancy"
   },
   {
     "id": "dhcp-2",
