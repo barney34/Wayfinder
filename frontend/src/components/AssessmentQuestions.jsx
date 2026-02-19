@@ -822,14 +822,19 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
           // Section color coding for visual distinction
           const sectionAccent = sectionColors[section] || 'border-l-primary';
 
+          const activeBg = sectionActiveBg[section] || 'bg-primary/5 ring-primary/40 shadow-primary/10';
+
           return (
             <div 
               key={section} 
-              className={`rounded-lg bg-card overflow-hidden transition-all duration-300
-                ${!isSectionEnabled ? 'opacity-50 grayscale-[30%] border border-border/50' : 'border border-border'}
+              className={`rounded-lg overflow-hidden transition-all duration-300
                 ${isActive && isSectionEnabled 
-                  ? 'ring-2 ring-primary/40 shadow-xl shadow-primary/10 border-primary/50 relative before:absolute before:inset-0 before:bg-primary/[0.03] before:pointer-events-none before:rounded-lg' 
-                  : ''
+                  ? `ring-2 shadow-xl ${activeBg}` 
+                  : !isSectionEnabled 
+                    ? 'opacity-40 grayscale-[30%] border border-border/50' 
+                    : activeSection && !isActive
+                      ? 'border border-border/60 opacity-75'
+                      : 'border border-border'
                 }
               `} 
               data-testid={`section-${section.replace(/\s/g, '-')}`}
@@ -837,16 +842,16 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
             >
               {/* Section Header */}
               <div 
-                className={`px-4 py-3 flex items-center justify-between transition-all border-l-4
-                  ${sectionAccent}
+                className={`px-4 flex items-center justify-between transition-all border-l-4 ${sectionAccent}
+                  ${isActive && isSectionEnabled ? 'py-4' : 'py-3'}
                   ${isSectionEnabled ? 'bg-muted/30 hover:bg-muted/50' : 'bg-muted/60'}
-                  ${isActive && isSectionEnabled ? 'bg-primary/[0.08] dark:bg-primary/[0.12]' : ''}
+                  ${isActive && isSectionEnabled ? 'border-l-[6px]' : ''}
                 `}
               >
                 <div className="flex items-center gap-3 cursor-pointer flex-1" onClick={() => toggleCollapse(section)}>
-                  <ChevronRight className={`h-4 w-4 transition-transform duration-200 ${!isCollapsed && isSectionEnabled ? 'rotate-90' : ''} ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
-                  <h3 className={`font-semibold tracking-tight transition-all duration-200 ${isActive && isSectionEnabled ? 'text-base text-primary' : 'text-sm text-foreground'}`}>{section}</h3>
-                  <Badge variant="outline" className={`text-[10px] px-1.5 py-0 font-normal transition-colors ${isActive ? 'border-primary/40 text-primary' : ''}`}>
+                  <ChevronRight className={`transition-transform duration-200 ${!isCollapsed && isSectionEnabled ? 'rotate-90' : ''} ${isActive ? 'h-5 w-5 text-foreground' : 'h-4 w-4 text-muted-foreground'}`} />
+                  <h3 className={`font-bold tracking-tight transition-all duration-200 ${isActive && isSectionEnabled ? 'text-lg' : 'text-sm font-semibold'}`}>{section}</h3>
+                  <Badge variant="outline" className={`text-[10px] px-1.5 py-0 font-normal ${isActive ? 'border-foreground/30' : ''}`}>
                     {gridQuestions.length} questions
                   </Badge>
                   {!isSectionEnabled && (
