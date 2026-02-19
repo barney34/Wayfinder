@@ -811,18 +811,22 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
           return (
             <div 
               key={section} 
-              className={`border rounded-lg bg-card overflow-hidden transition-all duration-300 border-l-4 ${sectionAccent}
-                ${!isSectionEnabled ? 'opacity-50 grayscale-[30%]' : ''}
-                ${isActive && isSectionEnabled ? 'ring-2 ring-primary/30 shadow-lg shadow-primary/5 bg-primary/[0.02] dark:bg-primary/[0.04]' : ''}
+              className={`rounded-lg bg-card overflow-hidden transition-all duration-300
+                ${!isSectionEnabled ? 'opacity-50 grayscale-[30%] border border-border/50' : 'border border-border'}
+                ${isActive && isSectionEnabled 
+                  ? 'ring-2 ring-primary/40 shadow-xl shadow-primary/10 border-primary/50 relative before:absolute before:inset-0 before:bg-primary/[0.03] before:pointer-events-none before:rounded-lg' 
+                  : ''
+                }
               `} 
               data-testid={`section-${section.replace(/\s/g, '-')}`}
               data-section-id={section}
             >
               {/* Section Header */}
               <div 
-                className={`px-4 py-3 flex items-center justify-between transition-all
+                className={`px-4 py-3 flex items-center justify-between transition-all border-l-4
+                  ${sectionAccent}
                   ${isSectionEnabled ? 'bg-muted/30 hover:bg-muted/50' : 'bg-muted/60'}
-                  ${isActive && isSectionEnabled ? 'bg-primary/[0.06] dark:bg-primary/[0.08] border-b border-primary/20' : ''}
+                  ${isActive && isSectionEnabled ? 'bg-primary/[0.08] dark:bg-primary/[0.12]' : ''}
                 `}
               >
                 <div className="flex items-center gap-3 cursor-pointer flex-1" onClick={() => toggleCollapse(section)}>
