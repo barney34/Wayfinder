@@ -237,8 +237,10 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
   };
 
   const handleSectionToggle = (section, enabled) => {
-    if (!enabled) setSectionToDisable(section);
-    else toggleSection(section);
+    toggleSection(section);
+    if (!enabled) {
+      toast({ title: "Section Disabled", description: `"${section}" marked as Out of Scope for export.` });
+    }
   };
 
   const confirmDisableSection = () => {
