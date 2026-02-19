@@ -14,6 +14,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { ChevronDown, ChevronUp, ChevronRight, X, Plus, Info, MessageSquare, Check, Zap } from "lucide-react";
 import { useDiscovery } from "@/contexts/DiscoveryContext";
 import { useToast } from "@/hooks/use-toast";
+import { ValueFrameworkInjection } from "./ValueFrameworkInjection";
 import {
   TDNiosSection, DossierInput, LookalikeInput, AssetConfigInput,
   SocInsightsInput, DomainTakedownInput, ReportingInput, UDDIEstimator,
