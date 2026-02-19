@@ -217,6 +217,43 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
   const [collapsedSections, setCollapsedSections] = useState({});
   const [activeSection, setActiveSection] = useState(null);
   const { toast } = useToast();
+  const navRef = useRef(null);
+  const isScrolling = useRef(false);
+
+  // Scroll-spy: track which section is in view and auto-highlight the pill
+  useEffect(() => {
+    if (!compact) return;
+    const sectionEls = document.querySelectorAll('[data-section-id]');
+    if (!sectionEls.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (isScrolling.current) return;
+        // Find the most visible section
+        let bestEntry = null;
+        let bestRatio = 0;
+        entries.forEach(entry => {
+          if (entry.isIntersecting && entry.intersectionRatio > bestRatio) {
+            bestRatio = entry.intersectionRatio;
+            bestEntry = entry;
+          }
+        });
+        if (bestEntry) {
+          const sectionId = bestEntry.target.getAttribute('data-section-id');
+          setActiveSection(sectionId);
+          // Auto-scroll the nav pill into view
+          if (navRef.current) {
+            const pill = navRef.current.querySelector(`[data-nav-section="${sectionId}"]`);
+            if (pill) pill.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+          }
+        }
+      },
+      { threshold: [0.1, 0.3, 0.5], rootMargin: '-80px 0px -40% 0px' }
+    );
+
+    sectionEls.forEach(el => observer.observe(el));
+    return () => observer.disconnect();
+  }, [compact, questions]);
 
   const handleAnswerChange = (questionId, value) => {
     setAnswer(questionId, value);
