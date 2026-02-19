@@ -811,19 +811,24 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
           return (
             <div 
               key={section} 
-              className={`border rounded-lg bg-card overflow-hidden transition-all duration-300 border-l-4 ${sectionAccent} ${!isSectionEnabled ? 'opacity-60' : ''} ${isActive ? 'ring-2 ring-primary/40 shadow-lg' : ''}`} 
+              className={`border rounded-lg bg-card overflow-hidden transition-all duration-300 border-l-4 ${sectionAccent}
+                ${!isSectionEnabled ? 'opacity-50 grayscale-[30%]' : ''}
+                ${isActive && isSectionEnabled ? 'ring-2 ring-primary/30 shadow-lg shadow-primary/5 bg-primary/[0.02] dark:bg-primary/[0.04]' : ''}
+              `} 
               data-testid={`section-${section.replace(/\s/g, '-')}`}
               data-section-id={section}
-              onClick={() => setActiveSection(section)}
             >
-              {/* Section Header - Enhanced */}
+              {/* Section Header */}
               <div 
-                className={`px-4 py-3 flex items-center justify-between transition-colors ${isSectionEnabled ? 'bg-muted/30 hover:bg-muted/50' : 'bg-muted/60'} ${isActive ? 'bg-primary/5' : ''}`}
+                className={`px-4 py-3 flex items-center justify-between transition-all
+                  ${isSectionEnabled ? 'bg-muted/30 hover:bg-muted/50' : 'bg-muted/60'}
+                  ${isActive && isSectionEnabled ? 'bg-primary/[0.06] dark:bg-primary/[0.08] border-b border-primary/20' : ''}
+                `}
               >
                 <div className="flex items-center gap-3 cursor-pointer flex-1" onClick={() => toggleCollapse(section)}>
-                  <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${!isCollapsed && isSectionEnabled ? 'rotate-90' : ''}`} />
-                  <h3 className={`font-semibold tracking-tight transition-all ${isActive ? 'text-base text-primary' : 'text-sm'}`}>{section}</h3>
-                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-normal">
+                  <ChevronRight className={`h-4 w-4 transition-transform duration-200 ${!isCollapsed && isSectionEnabled ? 'rotate-90' : ''} ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <h3 className={`font-semibold tracking-tight transition-all duration-200 ${isActive && isSectionEnabled ? 'text-base text-primary' : 'text-sm text-foreground'}`}>{section}</h3>
+                  <Badge variant="outline" className={`text-[10px] px-1.5 py-0 font-normal transition-colors ${isActive ? 'border-primary/40 text-primary' : ''}`}>
                     {gridQuestions.length} questions
                   </Badge>
                   {!isSectionEnabled && (
