@@ -320,12 +320,44 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
     'Internal DNS': 'border-l-green-500',
     'External DNS': 'border-l-teal-500',
     'DHCP': 'border-l-orange-500',
+    'Cloud Management': 'border-l-sky-500',
     'Security': 'border-l-red-500',
     'Network Insight': 'border-l-purple-500',
     'Integrations': 'border-l-indigo-500',
     'Automation': 'border-l-pink-500',
     'UDDI': 'border-l-cyan-500',
     'Services': 'border-l-emerald-500',
+    'Microsoft Management': 'border-l-violet-500',
+    'Asset/ Network Insight': 'border-l-amber-500',
+    'Professional Services': 'border-l-slate-500',
+  };
+
+  // Abbreviated section names for nav pills
+  const sectionAbbreviations = {
+    'IPAM': 'IPAM',
+    'Internal DNS': 'I DNS',
+    'External DNS': 'E DNS',
+    'DHCP': 'DHCP',
+    'Cloud Management': 'Cloud',
+    'Services': 'Services',
+    'Microsoft Management': 'MSFT MGT',
+    'Asset/ Network Insight': 'AI/NI',
+    'Security': 'Security',
+    'Professional Services': 'PS',
+  };
+
+  // Nav pill background colors to match section accent
+  const sectionPillColors = {
+    'IPAM': 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700',
+    'Internal DNS': 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700',
+    'External DNS': 'bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300 border-teal-300 dark:border-teal-700',
+    'DHCP': 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 border-orange-300 dark:border-orange-700',
+    'Cloud Management': 'bg-sky-100 dark:bg-sky-900/40 text-sky-700 dark:text-sky-300 border-sky-300 dark:border-sky-700',
+    'Services': 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700',
+    'Microsoft Management': 'bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300 border-violet-300 dark:border-violet-700',
+    'Asset/ Network Insight': 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700',
+    'Security': 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 border-red-300 dark:border-red-700',
+    'Professional Services': 'bg-slate-100 dark:bg-slate-900/40 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700',
   };
 
   // Render a single question's field (compact mode adjusts sizing)
