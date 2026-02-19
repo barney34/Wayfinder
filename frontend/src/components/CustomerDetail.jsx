@@ -423,6 +423,7 @@ export function CustomerDetail({ customer, onBack }) {
     !(q.section === 'Security' && q.subsection === 'Token Calculator') &&
     q.section !== 'Sizing Data' && q.section !== 'UDDI'
   );
+  // Cloud Management questions are now in discoveryTabQuestions (section: "Cloud Management")
   const sizingTabQuestions = discoveryQuestions.filter(q => q.section === 'Sizing Data');
   const securityTokenQuestions = discoveryQuestions.filter(q => q.section === 'Security' && q.subsection === 'Token Calculator');
   const uddiTokenQuestions = discoveryQuestions.filter(q => q.section === 'UDDI');
