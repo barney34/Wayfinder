@@ -107,7 +107,7 @@ function EditableTag({ item, color, onUpdate, onDelete }) {
 }
 
 export function TopBar({ customerName, opportunity }) {
-  const { answers, setAnswer, dataCenters, sites, addDataCenter, addSite, deleteDataCenter, deleteSite, updateDataCenter, updateSite } = useDiscovery();
+  const { answers, setAnswer, dataCenters, sites, addDataCenter, addSite, deleteDataCenter, deleteSite, updateDataCenter, updateSite, setPlatformMode } = useDiscovery();
   const [collapsed, setCollapsed] = useState(false);
   
   // DC/Site entry state
@@ -126,6 +126,33 @@ export function TopBar({ customerName, opportunity }) {
 
   // Enabled solutions count
   const enabledSolutions = TARGET_SOLUTIONS.filter(s => answers[s.key] === 'Yes');
+
+  // Target solution keys
+  const niosEnabled = answers['feature-nios'] === 'Yes';
+  const uddiEnabled = answers['feature-uddi'] === 'Yes';
+  const assetEnabled = answers['feature-asset insights'] === 'Yes';
+
+  // Cloud Management auto-selects UDDI
+  const cloudMgmtActive = answers['uddi-1'] === 'Yes' || answers['uddi-4'] === 'Yes';
+  const prevCloudMgmt = useRef(cloudMgmtActive);
+  
+  useEffect(() => {
+    if (cloudMgmtActive && !prevCloudMgmt.current && !uddiEnabled) {
+      setAnswer('feature-uddi', 'Yes');
+    }
+    prevCloudMgmt.current = cloudMgmtActive;
+  }, [cloudMgmtActive, uddiEnabled, setAnswer]);
+
+  // Auto-set deployment model based on target solutions
+  useEffect(() => {
+    if (niosEnabled && (uddiEnabled || assetEnabled)) {
+      setPlatformMode('Hybrid');
+    } else if (uddiEnabled && !niosEnabled) {
+      setPlatformMode('UDDI');
+    } else if (niosEnabled && !uddiEnabled && !assetEnabled) {
+      setPlatformMode('NIOS');
+    }
+  }, [niosEnabled, uddiEnabled, assetEnabled, setPlatformMode]);
 
   // Add DC handler
   const handleAddDC = () => {
