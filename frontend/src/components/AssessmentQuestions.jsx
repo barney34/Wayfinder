@@ -635,10 +635,9 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
           const getConditionals = (parentId) => 
             allQuestionsWithMeta.filter(q => q.isConditional && q.conditionalOn?.questionId === parentId && q.conditionMet);
 
-          // Check if question needs an input field (not text-only)
           const needsInputField = (q) => {
             const ft = detectFieldType(q);
-            return ['yesno', 'select', 'multiselect', 'number', 'enableSwitch', 'leaseTime'].includes(ft);
+            return ['yesno', 'select', 'multiselect', 'number', 'enableSwitch', 'leaseTime', 'prefixNumber', 'dhcpRedundancy', 'dnsAggregateCalculated', 'dnsPerServerCalculated'].includes(ft);
           };
 
           // Check if question is freeform/text type
