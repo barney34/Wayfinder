@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { 
-  Building2, MapPin, Calculator, Target, Plus, AlertCircle, Check, X, Pencil
+  Building2, MapPin, Calculator, Target, Plus, AlertCircle, Check, X, Pencil, ChevronDown, ChevronUp
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -108,6 +108,7 @@ function EditableTag({ item, color, onUpdate, onDelete }) {
 
 export function TopBar({ customerName, opportunity }) {
   const { answers, setAnswer, dataCenters, sites, addDataCenter, addSite, deleteDataCenter, deleteSite, updateDataCenter, updateSite } = useDiscovery();
+  const [collapsed, setCollapsed] = useState(false);
   
   // DC/Site entry state
   const [dcName, setDcName] = useState('');
@@ -119,6 +120,12 @@ export function TopBar({ customerName, opportunity }) {
   const kw = parseInt(answers['ud-1']) || 0;
   const mult = parseFloat(answers['ipam-multiplier']) || 2.5;
   const activeIPs = Math.ceil(kw * mult);
+
+  // Total KW
+  const totalKW = dataCenters.reduce((sum, dc) => sum + (dc.knowledgeWorkers || 0), 0) + sites.reduce((sum, s) => sum + (s.knowledgeWorkers || 0), 0);
+
+  // Enabled solutions count
+  const enabledSolutions = TARGET_SOLUTIONS.filter(s => answers[s.key] === 'Yes');
 
   // Add DC handler
   const handleAddDC = () => {
@@ -137,8 +144,8 @@ export function TopBar({ customerName, opportunity }) {
   };
 
   return (
-    <div className="flex-shrink-0 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border-b shadow-sm">
-      {/* Row 1: Customer Name */}
+    <div className="flex-shrink-0 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border-b shadow-sm" data-testid="topbar">
+      {/* Row 1: Customer Name + Collapse Toggle */}
       <div className="px-5 py-2 flex items-center justify-between border-b border-border/30">
         <div className="flex items-center gap-4">
           <h1 className="text-xl font-bold text-foreground">{customerName}</h1>
@@ -147,13 +154,66 @@ export function TopBar({ customerName, opportunity }) {
           )}
         </div>
         
-        {/* Summary Stats */}
-        <div className="text-sm text-muted-foreground">
-          Total Knowledge Workers: <span className="font-bold text-foreground text-lg">{formatKW(dataCenters.reduce((sum, dc) => sum + (dc.knowledgeWorkers || 0), 0) + sites.reduce((sum, s) => sum + (s.knowledgeWorkers || 0), 0))}</span>
+        <div className="flex items-center gap-4">
+          {/* Collapsed summary stats */}
+          {collapsed && (
+            <div className="flex items-center gap-4 text-sm" data-testid="topbar-collapsed-summary">
+              <div className="flex items-center gap-1.5">
+                <Building2 className="h-3.5 w-3.5 text-blue-600" />
+                <span className="font-bold text-blue-600">{dataCenters.length}</span>
+                <span className="text-muted-foreground">DCs</span>
+              </div>
+              <div className="w-px h-4 bg-border" />
+              <div className="flex items-center gap-1.5">
+                <MapPin className="h-3.5 w-3.5 text-green-600" />
+                <span className="font-bold text-green-600">{sites.length}</span>
+                <span className="text-muted-foreground">Sites</span>
+              </div>
+              <div className="w-px h-4 bg-border" />
+              <div className="flex items-center gap-1.5">
+                <span className="text-muted-foreground">KW:</span>
+                <span className="font-bold">{formatKW(totalKW)}</span>
+              </div>
+              <div className="w-px h-4 bg-border" />
+              <div className="flex items-center gap-1.5">
+                <Calculator className="h-3.5 w-3.5 text-green-500" />
+                <span className="font-bold text-green-500">{formatKW(activeIPs)}</span>
+                <span className="text-muted-foreground">IPs</span>
+              </div>
+              <div className="w-px h-4 bg-border" />
+              <div className="flex items-center gap-1.5">
+                <Target className="h-3.5 w-3.5 text-purple-600" />
+                <span className="font-bold text-purple-600">{enabledSolutions.length}/{TARGET_SOLUTIONS.length}</span>
+                {enabledSolutions.length > 0 && (
+                  <span className="text-xs text-muted-foreground">
+                    ({enabledSolutions.map(s => s.label).join(', ')})
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+          
+          {!collapsed && (
+            <div className="text-sm text-muted-foreground">
+              Total Knowledge Workers: <span className="font-bold text-foreground text-lg">{formatKW(totalKW)}</span>
+            </div>
+          )}
+          
+          {/* Collapse/Expand Toggle */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-7 p-0"
+            onClick={() => setCollapsed(!collapsed)}
+            data-testid="topbar-collapse-toggle"
+          >
+            {collapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+          </Button>
         </div>
       </div>
 
-      {/* Row 2: 4 Equal Columns - DC | Sites | Target Solutions | IP Calculator */}
+      {/* Row 2: 4 Equal Columns - only visible when expanded */}
+      {!collapsed && (
       <div className="px-5 py-3 grid grid-cols-4 gap-6">
         
         {/* Column 1: Data Centers */}
@@ -435,6 +495,7 @@ export function TopBar({ customerName, opportunity }) {
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 }
