@@ -735,37 +735,43 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
           };
 
           // Section color coding for visual distinction
-          const sectionColors = {
-            'IPAM': 'border-l-blue-500',
-            'Internal DNS': 'border-l-green-500',
-            'External DNS': 'border-l-teal-500',
-            'DHCP': 'border-l-orange-500',
-            'Security': 'border-l-red-500',
-            'Network Insight': 'border-l-purple-500',
-            'Integrations': 'border-l-indigo-500',
-            'Automation': 'border-l-pink-500',
-          };
           const sectionAccent = sectionColors[section] || 'border-l-primary';
 
           return (
             <div 
               key={section} 
-              className={`border rounded-lg bg-card overflow-hidden transition-all duration-300 border-l-4 ${sectionAccent} ${!isSectionEnabled ? 'opacity-60' : ''}`} 
+              className={`border rounded-lg bg-card overflow-hidden transition-all duration-300 border-l-4 ${sectionAccent} ${!isSectionEnabled ? 'opacity-60' : ''} ${isActive ? 'ring-2 ring-primary/40 shadow-lg' : ''}`} 
               data-testid={`section-${section.replace(/\s/g, '-')}`}
+              data-section-id={section}
+              onClick={() => setActiveSection(section)}
             >
               {/* Section Header - Enhanced */}
               <div 
-                className={`px-4 py-3 flex items-center justify-between cursor-pointer transition-colors ${isSectionEnabled ? 'bg-muted/30 hover:bg-muted/50' : 'bg-muted/60'}`}
-                onClick={() => handleSectionToggle(section, !isSectionEnabled)}
+                className={`px-4 py-3 flex items-center justify-between transition-colors ${isSectionEnabled ? 'bg-muted/30 hover:bg-muted/50' : 'bg-muted/60'} ${isActive ? 'bg-primary/5' : ''}`}
               >
-                <div className="flex items-center gap-3">
-                  <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${isSectionEnabled ? 'rotate-90' : ''}`} />
-                  <h3 className="text-sm font-semibold tracking-tight">{section}</h3>
+                <div className="flex items-center gap-3 cursor-pointer flex-1" onClick={() => toggleCollapse(section)}>
+                  <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${!isCollapsed && isSectionEnabled ? 'rotate-90' : ''}`} />
+                  <h3 className={`font-semibold tracking-tight transition-all ${isActive ? 'text-base text-primary' : 'text-sm'}`}>{section}</h3>
                   <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-normal">
                     {gridQuestions.length} questions
                   </Badge>
+                  {!isSectionEnabled && (
+                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0 bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+                      Out of Scope
+                    </Badge>
+                  )}
                 </div>
                 <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+                  <Button
+                    variant="ghost" size="sm" className="h-6 text-[10px] text-muted-foreground hover:text-destructive"
+                    onClick={() => {
+                      clearSection(section);
+                      toast({ title: "Cleared", description: `Answers for "${section}" cleared.` });
+                    }}
+                    data-testid={`clear-section-${section.replace(/\s/g, '-')}`}
+                  >
+                    Clear
+                  </Button>
                   <span className={`text-xs font-medium transition-colors ${isSectionEnabled ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'}`}>
                     {isSectionEnabled ? 'On' : 'Off'}
                   </span>
