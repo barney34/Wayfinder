@@ -637,7 +637,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
       <div className="space-y-3">
         {/* Sticky Section Navigation Bar */}
         <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b py-2 -mx-1 px-1" data-testid="section-nav-bar">
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+          <div ref={navRef} className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
             {sections.map(section => {
               const isSectionEnabled = enabledSections[section] !== false;
               const isActive = activeSection === section;
@@ -648,11 +648,12 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                 <button
                   key={section}
                   onClick={() => scrollToSection(section)}
-                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold whitespace-nowrap transition-all border
+                  data-nav-section={section}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold whitespace-nowrap transition-all duration-200 border
                     ${isActive 
-                      ? 'bg-primary text-primary-foreground border-primary shadow-md scale-105' 
+                      ? 'bg-primary text-primary-foreground border-primary shadow-md scale-110 ring-2 ring-primary/30' 
                       : isSectionEnabled 
-                        ? `${pillColor}` 
+                        ? `${pillColor} hover:scale-105` 
                         : 'bg-muted/20 border-border/30 text-muted-foreground line-through opacity-50'
                     }`}
                   data-testid={`nav-${section.replace(/\s/g, '-')}`}
