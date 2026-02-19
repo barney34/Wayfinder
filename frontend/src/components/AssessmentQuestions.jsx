@@ -312,6 +312,20 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
   const sections = Object.keys(grouped);
   const allEnabled = sections.every(s => enabledSections[s] !== false);
 
+  // Section color coding for visual distinction
+  const sectionColors = {
+    'IPAM': 'border-l-blue-500',
+    'Internal DNS': 'border-l-green-500',
+    'External DNS': 'border-l-teal-500',
+    'DHCP': 'border-l-orange-500',
+    'Security': 'border-l-red-500',
+    'Network Insight': 'border-l-purple-500',
+    'Integrations': 'border-l-indigo-500',
+    'Automation': 'border-l-pink-500',
+    'UDDI': 'border-l-cyan-500',
+    'Services': 'border-l-emerald-500',
+  };
+
   // Render a single question's field (compact mode adjusts sizing)
   const renderField = (q) => {
     const fieldType = detectFieldType(q);
