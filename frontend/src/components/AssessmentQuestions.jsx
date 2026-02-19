@@ -471,6 +471,50 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
           </div>
         );
       }
+      case 'dhcpRedundancy': {
+        const options = getDhcpRedundancyOptions();
+        return (
+          <div className="flex flex-wrap gap-1" data-testid={`dhcp-redundancy-${q.id}`}>
+            {options.map(opt => (
+              <label key={opt.value} className="flex items-center gap-1.5 cursor-pointer group" data-testid={`checkbox-${q.id}-${opt.value}`}>
+                <Checkbox
+                  checked={currentValue === opt.value}
+                  onCheckedChange={(checked) => handleAnswerChange(q.id, checked ? opt.value : '')}
+                  className="h-4 w-4"
+                />
+                <span className={`text-xs group-hover:text-foreground ${currentValue === opt.value ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>{opt.value}</span>
+              </label>
+            ))}
+          </div>
+        );
+      }
+      case 'prefixNumber': {
+        const prefix = q.prefix || '<';
+        const rawVal = currentValue || q.defaultValue || `${prefix}1`;
+        const numPart = rawVal.replace(/[<>]/g, '').trim();
+        const hasPrefix = rawVal.startsWith(prefix);
+        return (
+          <div className="flex items-center gap-1" data-testid={`prefix-number-${q.id}`}>
+            <label className="flex items-center gap-1 cursor-pointer">
+              <Checkbox
+                checked={hasPrefix}
+                onCheckedChange={(checked) => {
+                  handleAnswerChange(q.id, checked ? `${prefix}${numPart}` : numPart);
+                }}
+                className="h-3.5 w-3.5"
+              />
+              <span className="text-xs text-muted-foreground font-mono">{prefix}</span>
+            </label>
+            <Input
+              type="number"
+              value={numPart}
+              onChange={e => handleAnswerChange(q.id, hasPrefix ? `${prefix}${e.target.value}` : e.target.value)}
+              className={compact ? "w-16 h-7 text-xs" : "w-20"}
+              data-testid={`input-answer-${q.id}`}
+            />
+          </div>
+        );
+      }
       case 'tdNiosSection':
         return <TDNiosSection value={currentValue} onChange={v => handleAnswerChange(q.id, v)} questionId={q.id} />;
       case 'assetConfigInput':
