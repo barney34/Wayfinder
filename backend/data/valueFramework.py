@@ -2,6 +2,14 @@
 Infoblox Value Framework Data
 Contains value drivers, discovery questions, and solution outcomes
 for the 3 key categories.
+
+Tags are section-specific:
+- IPAM: IP Address Management section
+- IDNS: Internal DNS section  
+- EDNS: External DNS section
+- DHCP: DHCP section
+- CLOUD: Cloud Management section
+- SECURITY: Security section
 """
 
 VALUE_FRAMEWORK = {
@@ -12,20 +20,32 @@ VALUE_FRAMEWORK = {
             "icon": "shield-check",
             "description": "Drive productivity and business continuity through unified visibility, contextual insights and management of critical network services.",
             "discovery_questions": [
-                {"id": "vf-opt-1", "question": "What are your business goals for cloud and how are you organized to deliver against these goals?", "tags": ["C", "N"]},
-                {"id": "vf-opt-2", "question": "What challenges do you see in achieving these goals and how is this impacting your day-to-day activities?", "tags": ["C", "N"]},
-                {"id": "vf-opt-3", "question": "Can you explain your current enterprise, private and public cloud infrastructure? How do you see this evolving?", "tags": ["C", "N"]},
-                {"id": "vf-opt-4", "question": "How are your teams structured to manage these environments?", "tags": ["C", "N"]},
-                {"id": "vf-opt-5", "question": "How do you work with the cloud / security / networking teams and any plans to change this?", "tags": ["N", "C", "S"]},
-                {"id": "vf-opt-6", "question": "How do you know what IT or user assets you have across your on-premises and cloud instances?", "tags": ["C", "N"]},
-                {"id": "vf-opt-7", "question": "How do you currently maintain visibility of assets across your entire infrastructure?", "tags": ["N"]},
-                {"id": "vf-opt-8", "question": "How do you currently maintain visibility of your critical network services (DNS, DHCP and IPAM) across your enterprise and cloud environments?", "tags": ["N", "C"]},
-                {"id": "vf-opt-9", "question": "What concerns do you have across your different environments and users?", "tags": ["S"]},
-                {"id": "vf-opt-10", "question": "How do you currently achieve visibility of security events and incidents across your entire network and security stack?", "tags": ["S"]},
-                {"id": "vf-opt-11", "question": "How do you currently determine the user and owner of an asset that displays an IOC (indicator of compromise)?", "tags": ["S"]},
-                {"id": "vf-opt-12", "question": "How are you currently leveraging threat intelligence, and how is it helping you?", "tags": ["S"]},
-                {"id": "vf-opt-13", "question": "How are you using DNS for visibility of security events?", "tags": ["S"]},
-                {"id": "vf-opt-14", "question": "Have you had issues with orphaned assets? What was the impact?", "tags": ["S"]},
+                # IPAM-specific questions
+                {"id": "vf-opt-ipam-1", "question": "How do you currently track and manage IP address allocation across your organization?", "tags": ["IPAM"]},
+                {"id": "vf-opt-ipam-2", "question": "Have you experienced IP conflicts or addressing issues? What was the impact?", "tags": ["IPAM"]},
+                {"id": "vf-opt-ipam-3", "question": "How do you maintain visibility of all networked assets and their IP assignments?", "tags": ["IPAM"]},
+                
+                # Internal DNS-specific questions
+                {"id": "vf-opt-idns-1", "question": "How do you manage internal DNS zones and records today (AD-integrated, BIND, other)?", "tags": ["IDNS"]},
+                {"id": "vf-opt-idns-2", "question": "What challenges do you face with internal name resolution performance or reliability?", "tags": ["IDNS"]},
+                {"id": "vf-opt-idns-3", "question": "How do you handle DNS for internal applications and services?", "tags": ["IDNS"]},
+                
+                # External DNS-specific questions
+                {"id": "vf-opt-edns-1", "question": "Who manages your external/public DNS zones and how is that coordinated?", "tags": ["EDNS"]},
+                {"id": "vf-opt-edns-2", "question": "How do you ensure high availability for your external DNS?", "tags": ["EDNS"]},
+                
+                # DHCP-specific questions
+                {"id": "vf-opt-dhcp-1", "question": "How do you manage DHCP scopes and lease allocation across your sites?", "tags": ["DHCP"]},
+                {"id": "vf-opt-dhcp-2", "question": "Have you had DHCP exhaustion or scope conflicts? How did you resolve them?", "tags": ["DHCP"]},
+                
+                # Cloud-specific questions
+                {"id": "vf-opt-cloud-1", "question": "What are your business goals for cloud and how are you organized to deliver against these goals?", "tags": ["CLOUD"]},
+                {"id": "vf-opt-cloud-2", "question": "How do you maintain visibility of DDI services across your cloud environments (AWS, Azure, GCP)?", "tags": ["CLOUD"]},
+                
+                # Security-specific questions
+                {"id": "vf-opt-sec-1", "question": "How do you currently achieve visibility of security events across your entire network?", "tags": ["SECURITY"]},
+                {"id": "vf-opt-sec-2", "question": "How do you determine the user and owner of an asset that displays an IOC?", "tags": ["SECURITY"]},
+                {"id": "vf-opt-sec-3", "question": "How are you using DNS for visibility of security events?", "tags": ["SECURITY"]},
             ],
             "before_scenarios": [
                 "Fragmented monitoring and management across cloud providers and on-premises with different tools/APIs",
@@ -66,18 +86,29 @@ VALUE_FRAMEWORK = {
             "icon": "rocket",
             "description": "Leveraging standards-based automation and control to deploy new applications at speed across hybrid multi-cloud boundaries.",
             "discovery_questions": [
-                {"id": "vf-acc-1", "question": "How many private and public cloud instances do you have today and how do you manage these?", "tags": ["C"]},
-                {"id": "vf-acc-2", "question": "Who is involved in delivering new applications or cloud services to the business? What is your role?", "tags": ["C", "N"]},
-                {"id": "vf-acc-3", "question": "Who and what is involved when you provision a new cloud instance or application?", "tags": ["C"]},
-                {"id": "vf-acc-4", "question": "Have you had a recent unplanned outage or performance issue? What happened and who was impacted?", "tags": ["N", "C"]},
-                {"id": "vf-acc-5", "question": "Have you had a third-party cloud provider outage? What caused it and how long to resolve?", "tags": ["N", "C"]},
-                {"id": "vf-acc-6", "question": "What internal or external compliance activities are you responsible for?", "tags": ["C", "N", "S"]},
-                {"id": "vf-acc-7", "question": "How are you currently using automation to deliver services across your environment?", "tags": ["C"]},
-                {"id": "vf-acc-8", "question": "How do you currently measure and manage performance and availability across your entire network?", "tags": ["N"]},
-                {"id": "vf-acc-9", "question": "What processes and tools do you use for managing your infrastructure?", "tags": ["N"]},
-                {"id": "vf-acc-10", "question": "How do you synchronize IPAM provisioning/deprovisioning and DNS record management across enterprise and cloud?", "tags": ["C", "N"]},
-                {"id": "vf-acc-11", "question": "Can you share how you currently research and respond to attacks/alerts?", "tags": ["S"]},
-                {"id": "vf-acc-12", "question": "How are you currently leveraging threat intelligence, and how is it helping you?", "tags": ["S"]},
+                # IPAM-specific questions
+                {"id": "vf-acc-ipam-1", "question": "How long does it take to provision IP addresses for new applications or services?", "tags": ["IPAM"]},
+                {"id": "vf-acc-ipam-2", "question": "How do you synchronize IPAM changes across enterprise and cloud environments?", "tags": ["IPAM"]},
+                
+                # Internal DNS-specific questions
+                {"id": "vf-acc-idns-1", "question": "How do you handle DNS record provisioning when deploying new internal services?", "tags": ["IDNS"]},
+                {"id": "vf-acc-idns-2", "question": "Have DNS misconfigurations caused outages? What was the root cause?", "tags": ["IDNS"]},
+                
+                # External DNS-specific questions
+                {"id": "vf-acc-edns-1", "question": "How quickly can you update external DNS records for new services or failover?", "tags": ["EDNS"]},
+                {"id": "vf-acc-edns-2", "question": "Have you experienced external DNS outages from third-party providers?", "tags": ["EDNS"]},
+                
+                # DHCP-specific questions
+                {"id": "vf-acc-dhcp-1", "question": "How do you deploy DHCP services to new sites or locations?", "tags": ["DHCP"]},
+                {"id": "vf-acc-dhcp-2", "question": "What is your process for DHCP failover and redundancy?", "tags": ["DHCP"]},
+                
+                # Cloud-specific questions
+                {"id": "vf-acc-cloud-1", "question": "How many cloud providers do you use and how do you manage DDI across them?", "tags": ["CLOUD"]},
+                {"id": "vf-acc-cloud-2", "question": "How are you using automation (Terraform, Ansible) for DDI provisioning?", "tags": ["CLOUD"]},
+                {"id": "vf-acc-cloud-3", "question": "What is your average time to deploy a new cloud application end-to-end?", "tags": ["CLOUD"]},
+                
+                # Security-specific questions
+                {"id": "vf-acc-sec-1", "question": "How do you ensure security compliance when rapidly deploying new services?", "tags": ["SECURITY"]},
             ],
             "before_scenarios": [
                 "Service stability challenges with critical network outages and delays deploying new applications",
@@ -125,19 +156,30 @@ VALUE_FRAMEWORK = {
             "icon": "shield",
             "description": "Proactively shield the business by monitoring, detecting, and blocking malicious activities leveraging DNS before they reach the network.",
             "discovery_questions": [
-                {"id": "vf-pro-1", "question": "How do you currently align your cybersecurity strategy with your overall business objectives?", "tags": ["S"]},
-                {"id": "vf-pro-2", "question": "What are the key business initiatives that could be impacted by cybersecurity risks?", "tags": ["C", "N", "S"]},
-                {"id": "vf-pro-3", "question": "Can you describe a recent incident or near-miss that highlighted vulnerabilities, and how did it impact operations?", "tags": ["C", "N", "S"]},
-                {"id": "vf-pro-4", "question": "How confident are you in your team's ability to detect and respond to a cyber threat in real-time?", "tags": ["S"]},
-                {"id": "vf-pro-5", "question": "How do you measure the effectiveness of your cybersecurity initiatives?", "tags": ["S"]},
-                {"id": "vf-pro-6", "question": "How do you ensure your cybersecurity strategy evolves with emerging threats?", "tags": ["C", "S"]},
-                {"id": "vf-pro-7", "question": "How do you manage network security across all your locations and users?", "tags": ["N", "S"]},
-                {"id": "vf-pro-8", "question": "What specific security concerns do you have across your on-premises and cloud environments?", "tags": ["S"]},
-                {"id": "vf-pro-9", "question": "How are you securing your digital transformations (IoT, hybrid workplace, multi-cloud)?", "tags": ["S"]},
-                {"id": "vf-pro-10", "question": "How do you currently research and respond to attacks/alerts across all environments?", "tags": ["S"]},
-                {"id": "vf-pro-11", "question": "How do you determine the user and owner of an asset displaying an IOC?", "tags": ["S"]},
-                {"id": "vf-pro-12", "question": "How are you using DNS to inform your threat posture? What DNS visibility do you have?", "tags": ["S"]},
-                {"id": "vf-pro-13", "question": "What internal or external compliance activities are you responsible for?", "tags": ["C", "N", "S"]},
+                # IPAM-specific questions
+                {"id": "vf-pro-ipam-1", "question": "Have you had issues with orphaned or rogue IP assets? What was the security impact?", "tags": ["IPAM"]},
+                
+                # Internal DNS-specific questions  
+                {"id": "vf-pro-idns-1", "question": "How do you monitor internal DNS for signs of malicious activity or data exfiltration?", "tags": ["IDNS"]},
+                {"id": "vf-pro-idns-2", "question": "Are you using DNS response policy zones (RPZ) for threat blocking internally?", "tags": ["IDNS"]},
+                
+                # External DNS-specific questions
+                {"id": "vf-pro-edns-1", "question": "How do you protect against DNS-based attacks on your external infrastructure?", "tags": ["EDNS"]},
+                {"id": "vf-pro-edns-2", "question": "Are you concerned about lookalike domains targeting your brand?", "tags": ["EDNS"]},
+                
+                # DHCP-specific questions
+                {"id": "vf-pro-dhcp-1", "question": "How do you detect and respond to rogue DHCP servers on your network?", "tags": ["DHCP"]},
+                
+                # Cloud-specific questions
+                {"id": "vf-pro-cloud-1", "question": "How are you securing DNS and DHCP in your cloud environments?", "tags": ["CLOUD"]},
+                {"id": "vf-pro-cloud-2", "question": "What security concerns do you have across on-premises and cloud?", "tags": ["CLOUD"]},
+                
+                # Security-specific questions
+                {"id": "vf-pro-sec-1", "question": "How do you currently align your cybersecurity strategy with business objectives?", "tags": ["SECURITY"]},
+                {"id": "vf-pro-sec-2", "question": "How confident are you in detecting and responding to threats in real-time?", "tags": ["SECURITY"]},
+                {"id": "vf-pro-sec-3", "question": "Can you describe a recent incident that highlighted vulnerabilities?", "tags": ["SECURITY"]},
+                {"id": "vf-pro-sec-4", "question": "How are you using DNS to inform your overall threat posture?", "tags": ["SECURITY"]},
+                {"id": "vf-pro-sec-5", "question": "How do you protect IoT/OT devices that can't run endpoint agents?", "tags": ["SECURITY"]},
             ],
             "before_scenarios": [
                 "Expanded attack surface as companies embrace hybrid multi-cloud",
