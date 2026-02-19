@@ -657,7 +657,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
               const isActive = activeSection === section;
               const answeredCount = grouped[section].filter(q => answers[q.id]?.trim()).length;
               const abbrev = sectionAbbreviations[section] || section;
-              const pillColor = sectionPillColors[section] || 'bg-muted/50 border-border/50';
+              const styles = sectionPillStyles[section] || { normal: 'bg-muted/50 border-border/50 text-foreground', active: 'bg-primary text-white border-primary' };
               return (
                 <button
                   key={section}
@@ -665,15 +665,15 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                   data-nav-section={section}
                   className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold whitespace-nowrap transition-all duration-200 border
                     ${isActive 
-                      ? 'bg-primary text-primary-foreground border-primary shadow-md scale-110 ring-2 ring-primary/30' 
+                      ? `${styles.active} shadow-lg scale-110 ring-1 ring-white/30` 
                       : isSectionEnabled 
-                        ? `${pillColor} hover:scale-105` 
-                        : 'bg-muted/20 border-border/30 text-muted-foreground line-through opacity-50'
+                        ? `${styles.normal} hover:scale-105` 
+                        : 'bg-muted/20 border-border/30 text-muted-foreground line-through opacity-40'
                     }`}
                   data-testid={`nav-${section.replace(/\s/g, '-')}`}
                 >
                   <span>{abbrev}</span>
-                  <span className={`text-[9px] font-normal ${isActive ? 'text-primary-foreground/70' : 'opacity-70'}`}>
+                  <span className={`text-[9px] font-normal ${isActive ? 'opacity-80' : 'opacity-60'}`}>
                     {answeredCount}/{grouped[section].length}
                   </span>
                 </button>
