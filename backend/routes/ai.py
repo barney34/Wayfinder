@@ -9,6 +9,7 @@ from fastapi import APIRouter, HTTPException
 
 from models.schemas import AnalyzeNotesRequest, GenerateContextRequest
 from data.questions import DISCOVERY_QUESTIONS
+from data.valueFramework import VALUE_FRAMEWORK
 from emergentintegrations.llm.chat import LlmChat, UserMessage
 
 router = APIRouter(prefix="/api", tags=["ai"])
@@ -20,6 +21,89 @@ EMERGENT_LLM_KEY = os.environ.get("EMERGENT_LLM_KEY", "")
 async def get_questions():
     """Get all discovery questions"""
     return DISCOVERY_QUESTIONS
+
+
+@router.get("/value-framework")
+async def get_value_framework():
+    """Get the value framework data"""
+    return VALUE_FRAMEWORK
+
+
+@router.post("/generate-value-props")
+async def generate_value_props(request: GenerateContextRequest):
+    """Generate value propositions for a specific category based on customer data"""
+    if not EMERGENT_LLM_KEY:
+        raise HTTPException(status_code=500, detail="AI integration not configured")
+
+    category_id = request.contextType  # optimize, accelerate, or protect
+    category = next((c for c in VALUE_FRAMEWORK["categories"] if c["id"] == category_id), None)
+    if not category:
+        raise HTTPException(status_code=400, detail=f"Unknown category: {category_id}")
+
+    # Build customer context from answers
+    answers_text_parts = []
+    for question_id, answer in request.answers.items():
+        question = next((q for q in DISCOVERY_QUESTIONS if q["id"] == question_id), None)
+        if question and answer:
+            answers_text_parts.append(f"Q: {question['question']}\nA: {answer}")
+    answers_text = "\n\n".join(answers_text_parts) if answers_text_parts else "No discovery answers available yet."
+
+    meeting_notes_section = f"Meeting Notes:\n{request.meetingNotes}" if request.meetingNotes else ""
+
+    # Build prompt with value framework context
+    before_scenarios = "\n".join(f"- {s}" for s in category["before_scenarios"])
+    solutions = "\n".join(f"- {s}" for s in category["infoblox_solves"])
+    outcomes = "\n".join(f"- {o}" for o in category["positive_outcomes"])
+    metrics = "\n".join(f"- {m}" for m in category["key_metrics"])
+
+    prompt = f"""You are an Infoblox value consultant. Based on the customer's discovery data, generate a customer-specific value proposition for the "{category['name']}" category.
+
+VALUE FRAMEWORK CONTEXT:
+Before Scenarios (problems customers face):
+{before_scenarios}
+
+How Infoblox Solves These:
+{solutions}
+
+Positive Business Outcomes:
+{outcomes}
+
+Industry Metrics:
+{metrics}
+
+CUSTOMER DATA:
+{answers_text}
+
+{meeting_notes_section}
+
+INSTRUCTIONS:
+Generate a response with these 3 sections, using bullet points:
+
+**Problems Identified**
+Based on the customer's data, list the specific problems/pain points they face that align with this category. Be specific to their situation. If no customer data, use the most common before scenarios.
+
+**How Infoblox Solves This**
+Map the customer's problems to specific Infoblox solutions. Be concrete about which capabilities address which pain points.
+
+**Expected Business Outcomes**
+List measurable outcomes the customer can expect, citing relevant industry metrics where appropriate.
+
+Keep each bullet point concise (1-2 lines). Be specific and actionable, not generic marketing speak."""
+
+    try:
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"value-props-{uuid.uuid4()}",
+            system_message="You are an expert Infoblox value consultant who creates compelling, customer-specific value propositions. Output professional bullet points. Be specific with technologies, quantities, and metrics."
+        ).with_model("gemini", "gemini-3-flash-preview")
+
+        user_message = UserMessage(text=prompt)
+        response = await chat.send_message(user_message)
+        return {"summary": response.strip()}
+
+    except Exception as e:
+        print(f"Error generating value props: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to generate value propositions: {str(e)}")
 
 
 @router.post("/analyze-notes")
