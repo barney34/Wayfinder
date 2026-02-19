@@ -419,18 +419,23 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
       case 'dnsAggregateCalculated':
       case 'dnsPerServerCalculated': {
         // Auto-calculate DNS QPS from active IPs
-        const activeIPs = parseInt(answers['ipam-1']) || 0;
+        const ipCalcManualOverride = answers['ipam-1-override'] === 'true';
+        const kwNum = parseInt(answers['ud-1']) || 0;
+        const ipMultiplier = parseFloat(answers['ipam-multiplier']) || 2.5;
+        const calculatedIPs = Math.round(kwNum * ipMultiplier);
+        const manualIPs = parseInt(answers['ipam-1']) || 0;
+        const activeIPs = ipCalcManualOverride ? manualIPs : calculatedIPs;
+        const dnsServers = parseInt(answers['idns-servers']) || 1;
         let autoValue = '';
         let formula = '';
         
         if (q.fieldType === 'dnsAggregateCalculated' && activeIPs > 0) {
-          // Aggregate QPS = active_IPs / 3
           autoValue = Math.ceil(activeIPs / AUTO_CALC_DEFAULTS.peakQpsDivisor).toLocaleString();
-          formula = `IPs ÷ 3`;
+          formula = `${activeIPs.toLocaleString()} IPs \u00f7 3`;
         } else if (q.fieldType === 'dnsPerServerCalculated' && activeIPs > 0) {
-          // Per-server would depend on number of DNS servers (default to aggregate if unknown)
-          autoValue = Math.ceil(activeIPs / AUTO_CALC_DEFAULTS.peakQpsDivisor).toLocaleString();
-          formula = `IPs ÷ 3`;
+          const aggregateQPS = Math.ceil(activeIPs / AUTO_CALC_DEFAULTS.peakQpsDivisor);
+          autoValue = Math.ceil(aggregateQPS / dnsServers).toLocaleString();
+          formula = `Aggregate (${aggregateQPS.toLocaleString()}) \u00f7 ${dnsServers} servers`;
         } else if (q.fieldType === 'ipCalculated') {
           autoValue = activeIPs.toLocaleString();
         }
