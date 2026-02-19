@@ -148,7 +148,7 @@ export function ValueFramework() {
         return (
           <Card key={category.id} className={`${colors.border} border`} data-testid={`vf-category-${category.id}`}>
             <CardHeader className="pb-2">
-              <Collapsible open={isExpanded} onOpenChange={() => toggleCategory(category.id)}>
+              <Collapsible open={!!isExpanded} onOpenChange={() => toggleCategory(category.id)}>
                 <CollapsibleTrigger className="w-full">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
