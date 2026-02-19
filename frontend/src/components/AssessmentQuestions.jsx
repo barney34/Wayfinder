@@ -886,6 +886,10 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
 
               {/* 3-Column Grid for ALL Questions - with collapse animation */}
               <div className={`transition-all duration-300 overflow-hidden ${!isCollapsed && isSectionEnabled ? 'max-h-[5000px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                {/* Value Framework seed questions injected at top of section */}
+                <div className="px-4 pt-3">
+                  <ValueFrameworkInjection section={section} />
+                </div>
                 {gridQuestions.length > 0 && (
                   <div className="grid grid-cols-1 lg:grid-cols-3 border-t">
                     {/* Column 1 */}
