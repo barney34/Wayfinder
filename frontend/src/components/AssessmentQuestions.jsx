@@ -318,16 +318,17 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
     setCollapsedSections(prev => ({ ...prev, [section]: !prev[section] }));
   };
 
-  // Scroll to section
-  const scrollToSection = (section) => {
+  // Scroll to section (programmatic)
+  const scrollToSection = useCallback((section) => {
     const el = document.querySelector(`[data-section-id="${section}"]`);
     if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      isScrolling.current = true;
       setActiveSection(section);
-      // Expand if collapsed
       setCollapsedSections(prev => ({ ...prev, [section]: false }));
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setTimeout(() => { isScrolling.current = false; }, 800);
     }
-  };
+  }, []);
 
   // DHCP redundancy options based on platform mode
   const getDhcpRedundancyOptions = () => {
