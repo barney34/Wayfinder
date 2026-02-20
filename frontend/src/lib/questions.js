@@ -188,8 +188,34 @@ export const discoveryQuestions = [
   {
     "id": "ipam-11",
     "section": "IPAM",
-    "question": "What 3rd parties would you like to integrate?",
-    "technicalOnly": false
+    "question": "3rd Party Integrations",
+    "technicalOnly": false,
+    "fieldType": "multiselect",
+    "options": [
+      "Qradar",
+      "Splunk",
+      "SNOW",
+      "Tenable",
+      "Crowdstrike",
+      "Cisco (ISE)",
+      "Qualys",
+      "Rapid 7",
+      "VMWare",
+      "ZScaler"
+    ],
+    "allowFreeform": true
+  },
+  {
+    "id": "ipam-13",
+    "section": "IPAM",
+    "question": "Orchestration Tools",
+    "technicalOnly": false,
+    "fieldType": "multiselect",
+    "options": [
+      "Ansible",
+      "Terraform"
+    ],
+    "allowFreeform": true
   },
   {
     "id": "ipam-12",
