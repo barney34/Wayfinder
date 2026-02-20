@@ -780,68 +780,73 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
             const isEvenRow = rowIndex % 2 === 0;
             
             return (
-              <div key={q.id} className="border-b border-border/40 last:border-b-0">
-                {/* Main question cell - MINIMAL: high contrast, no color */}
+              <div key={q.id} className="border-b border-gray-200 dark:border-gray-800 last:border-b-0">
+                {/* Question cell - ULTRA MINIMAL */}
                 <div 
-                  className={`${compactMode ? 'px-3 py-2' : 'px-4 py-3'} transition-all hover:bg-muted/5 ${isClickableRow ? 'cursor-pointer' : ''} ${isNoteExpanded && isClickableRow ? 'bg-muted/10' : ''}`}
+                  className={`${compactMode ? 'px-3 py-3' : 'px-4 py-4'} ${isClickableRow ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900' : ''}`}
                   onClick={isClickableRow ? () => setExpandedNotes(p => ({ ...p, [q.id]: !p[q.id] })) : undefined}
                   data-testid={`question-${q.id}`}
                 >
-                  {/* Question Label - BOLD black/white, maximum contrast */}
-                  <div className={`flex items-start justify-between gap-2 ${compactMode ? 'mb-1.5' : 'mb-2'}`}>
-                    <label className={`${compactMode ? 'text-[12px]' : 'text-[13px]'} font-semibold text-black dark:text-white leading-snug flex-1 min-w-0`} style={{wordBreak: 'break-word'}}>
+                  {/* Question Label - BIG and BOLD */}
+                  <div className={`flex items-start justify-between gap-3 ${compactMode ? 'mb-2' : 'mb-3'}`}>
+                    <label className={`${compactMode ? 'text-sm' : 'text-[15px]'} font-bold text-black dark:text-white leading-relaxed flex-1`}>
                       {q.question}
                     </label>
-                    {/* Note toggle - minimal gray icon */}
-                    <button 
-                      className={`${compactMode ? 'p-1' : 'p-1.5'} rounded transition-all flex-shrink-0 ${hasNote ? 'text-black dark:text-white' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
-                      onClick={(e) => { e.stopPropagation(); setExpandedNotes(p => ({ ...p, [q.id]: !p[q.id] })); }}
-                      title={hasNote ? "View note" : "Add note"}
-                      data-testid={`toggle-note-${q.id}`}
-                    >
-                      <MessageSquare className={`${compactMode ? 'h-3 w-3' : 'h-3.5 w-3.5'}`} />
-                    </button>
+                    {hasNote && (
+                      <span className="text-[10px] text-gray-400 uppercase tracking-wide">noted</span>
+                    )}
                   </div>
                   
-                  {/* Input field - below label */}
+                  {/* Input field */}
                   {hasInput ? (
                     <div onClick={e => e.stopPropagation()}>
                       {renderField(q)}
                     </div>
                   ) : (
-                    <div className={`${compactMode ? 'text-[10px]' : 'text-xs'} text-gray-400 ${hasNote ? 'text-gray-600 dark:text-gray-300' : ''}`}>
-                      {hasNote ? 'Click to edit' : 'Click to respond'}
-                    </div>
+                    <button 
+                      className="text-sm text-gray-400 hover:text-black dark:hover:text-white"
+                      onClick={() => setExpandedNotes(p => ({ ...p, [q.id]: !p[q.id] }))}
+                    >
+                      {hasNote ? 'Edit response →' : 'Add response →'}
+                    </button>
                   )}
                   
-                  {/* Note textarea - simple expansion */}
-                  <div className={`overflow-hidden transition-all duration-200 ${isNoteExpanded ? 'max-h-[200px] opacity-100 mt-3' : 'max-h-0 opacity-0'}`}>
-                    <Textarea
-                      value={notes[q.id] || ''}
-                      onChange={e => setNote(q.id, e.target.value)}
-                      placeholder={hasInput ? "Add a note..." : "Enter your response..."}
-                      className={`${compactMode ? 'min-h-[50px]' : 'min-h-[70px]'} text-sm resize-y bg-transparent border-gray-300 dark:border-gray-600`}
-                      data-testid={`note-${q.id}`}
-                      onClick={e => e.stopPropagation()}
-                    />
-                  </div>
+                  {/* Note textarea */}
+                  {isNoteExpanded && (
+                    <div className="mt-4">
+                      <Textarea
+                        value={notes[q.id] || ''}
+                        onChange={e => setNote(q.id, e.target.value)}
+                        placeholder="Type here..."
+                        className="min-h-[80px] text-sm bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700"
+                        data-testid={`note-${q.id}`}
+                        onClick={e => e.stopPropagation()}
+                        autoFocus
+                      />
+                    </div>
+                  )}
                 </div>
                 
-                {/* Conditional sub-questions - minimal gray indent */}
+                {/* Conditional sub-questions */}
                 {conditionals.length > 0 && (
-                  <div className={`${compactMode ? 'mx-2 mb-2' : 'mx-3 mb-3'} overflow-hidden transition-all duration-200`}>
+                  <div className="ml-6 border-l-2 border-gray-200 dark:border-gray-700">
                     {conditionals.map(cq => (
                       <div 
                         key={cq.id} 
-                        className={`ml-4 ${compactMode ? 'pl-3 py-2' : 'pl-4 py-2.5'} border-l-2 border-gray-300 dark:border-gray-600`}
+                        className="px-4 py-3"
                         data-testid={`question-${cq.id}`}
                       >
-                        <div className="text-[10px] text-gray-500 dark:text-gray-400 font-medium mb-1.5 uppercase tracking-wide">
-                          If {cq.conditionalOn.value}
+                        <div className="text-xs text-gray-400 mb-2 uppercase tracking-wide">
+                          If {cq.conditionalOn.value}:
                         </div>
-                        <label className={`${compactMode ? 'text-[11px]' : 'text-[12px]'} text-gray-700 dark:text-gray-200 leading-snug block mb-2`}>
+                        <label className="text-sm font-semibold text-black dark:text-white block mb-2">
                           {cq.question}
                         </label>
+                        {renderField(cq)}
+                      </div>
+                    ))}
+                  </div>
+                )}
                         <div>{renderField(cq)}</div>
                       </div>
                     ))}
