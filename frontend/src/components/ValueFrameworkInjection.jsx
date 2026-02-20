@@ -247,6 +247,4 @@ export function ValueFrameworkInjection({ section }) {
       </div>
     </div>
   );
-    </div>
-  );
 }
