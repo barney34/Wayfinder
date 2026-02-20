@@ -442,7 +442,7 @@ export function TokenCalculatorSummary() {
                 data-testid="export-drawing-button"
               >
                 <FileSpreadsheet className="h-4 w-4 mr-1" />
-                Export Drawing
+                Export for Lucid
               </Button>
             </div>
           </div>
