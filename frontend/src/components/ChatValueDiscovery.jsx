@@ -135,22 +135,30 @@ export function ChatValueDiscovery({ section }) {
   const sectionConfig = SECTION_TOPICS[section] || DEFAULT_SECTION;
   const storageKey = `vd-chat-${section.replace(/\s/g, '-')}`;
 
+  // Initialize conversation with opener
+  const getInitialConversation = useCallback(() => {
+    return [{ role: 'system', content: sectionConfig.opener, timestamp: Date.now() }];
+  }, [sectionConfig.opener]);
+
   // Load conversation from answers context on mount
   useEffect(() => {
     const savedConvo = answers[storageKey];
     if (savedConvo) {
       try {
         const parsed = JSON.parse(savedConvo);
-        setConversation(parsed.messages || []);
-        setCoveredTopics(parsed.coveredTopics || []);
+        if (parsed.messages && parsed.messages.length > 0) {
+          setConversation(parsed.messages);
+          setCoveredTopics(parsed.coveredTopics || []);
+          return;
+        }
       } catch (e) {
-        // Start fresh if invalid
-        initConversation();
+        // Fall through to init
       }
-    } else {
-      initConversation();
     }
-  }, [section]);
+    // Start fresh
+    setConversation(getInitialConversation());
+    setCoveredTopics([]);
+  }, [section, storageKey, getInitialConversation]);
 
   // Save conversation to answers context
   useEffect(() => {
@@ -160,7 +168,7 @@ export function ChatValueDiscovery({ section }) {
         coveredTopics: coveredTopics
       }));
     }
-  }, [conversation, coveredTopics]);
+  }, [conversation, coveredTopics, storageKey, setAnswer]);
 
   // Scroll to bottom on new messages
   useEffect(() => {
