@@ -493,21 +493,21 @@ export const discoveryQuestions = [
   },
   {
     "id": "uddi-1",
-    "section": "Cloud Management",
+    "section": "Overlay",
     "question": "Cloudflare management",
     "technicalOnly": true,
     "fieldType": "yesno"
   },
   {
     "id": "uddi-4",
-    "section": "Cloud Management",
+    "section": "Overlay",
     "question": "Akamai management",
     "technicalOnly": true,
     "fieldType": "yesno"
   },
   {
     "id": "uddi-5",
-    "section": "Cloud Management",
+    "section": "Overlay",
     "question": "Zone transfer",
     "technicalOnly": true,
     "fieldType": "yesno",
