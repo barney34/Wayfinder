@@ -14,11 +14,20 @@ import { formatNumber } from "@/lib/utils";
 import { ADDITIONAL_SERVICES } from "./platformConfig";
 import { getSiteWorkloadDetails } from "../calculations";
 
+// Calculate token packs (500K per pack, rounded up)
+const TOKENS_PER_PACK = 500000;
+function calculateTokenPacks(tokens) {
+  if (!tokens || tokens <= 0) return 0;
+  return Math.ceil(tokens / TOKENS_PER_PACK);
+}
+
 export function SiteTableRow({
   site, sites, platformMode, dhcpPercent,
   roleOptions, platformOptions, showHardware,
   onUpdateSite, onToggleService, onDeleteSite, onOpenModelDialog,
 }) {
+  const showTokens = platformMode !== 'NIOS'; // Hide tokens for NIOS-only mode
+  
   return (
     <TableRow
       data-testid={`site-row-${site.id}`}
