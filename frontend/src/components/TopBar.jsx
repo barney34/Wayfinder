@@ -171,113 +171,254 @@ export function TopBar({ customerName, opportunity }) {
   };
 
   return (
-    <div className="flex-shrink-0 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border-b shadow-sm" data-testid="topbar">
+    <div className="flex-shrink-0 bg-[#1c1c1e] dark:bg-[#1c1c1e] border-b border-[#2c2c2e]" data-testid="topbar">
       {/* Row 1: Customer Name + Collapse Toggle */}
-      <div className="px-5 py-2 flex items-center justify-between border-b border-border/30">
+      <div className="px-5 py-3 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <h1 className="text-xl font-bold text-foreground">{customerName}</h1>
+          <h1 className="text-lg font-semibold text-white">{customerName}</h1>
           {opportunity && (
-            <Badge variant="secondary" className="text-xs font-medium">{opportunity}</Badge>
+            <span className="text-xs text-[#8e8e93] px-2 py-0.5 rounded-full bg-[#2c2c2e]">{opportunity}</span>
           )}
         </div>
         
-        <div className="flex items-center gap-4">
-          {/* Collapsed summary stats */}
-          {collapsed && (
-            <div className="flex items-center gap-4 text-sm" data-testid="topbar-collapsed-summary">
-              <div className="flex items-center gap-1.5">
-                <Building2 className="h-3.5 w-3.5 text-blue-600" />
-                <span className="font-bold text-blue-600">{dataCenters.length}</span>
-                <span className="text-muted-foreground">DCs</span>
-              </div>
-              <div className="w-px h-4 bg-border" />
-              <div className="flex items-center gap-1.5">
-                <MapPin className="h-3.5 w-3.5 text-green-600" />
-                <span className="font-bold text-green-600">{sites.length}</span>
-                <span className="text-muted-foreground">Sites</span>
-              </div>
-              <div className="w-px h-4 bg-border" />
-              <div className="flex items-center gap-1.5">
-                <span className="text-muted-foreground">KW:</span>
-                <span className="font-bold">{formatKW(totalKW)}</span>
-              </div>
-              <div className="w-px h-4 bg-border" />
-              <div className="flex items-center gap-1.5">
-                <Calculator className="h-3.5 w-3.5 text-green-500" />
-                <span className="font-bold text-green-500">{formatKW(activeIPs)}</span>
-                <span className="text-muted-foreground">IPs</span>
-              </div>
-              <div className="w-px h-4 bg-border" />
-              <div className="flex items-center gap-1.5">
-                <Target className="h-3.5 w-3.5 text-purple-600" />
-                <span className="font-bold text-purple-600">{enabledSolutions.length}/{TARGET_SOLUTIONS.length}</span>
-                {enabledSolutions.length > 0 && (
-                  <span className="text-xs text-muted-foreground">
-                    ({enabledSolutions.map(s => s.label).join(', ')})
-                  </span>
-                )}
-              </div>
+        <div className="flex items-center gap-6">
+          {/* Stats pills - Home Assistant style */}
+          <div className="flex items-center gap-4 text-sm">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#2c2c2e]">
+              <Building2 className="h-4 w-4 text-[#30d158]" />
+              <span className="font-semibold text-white">{dataCenters.length}</span>
+              <span className="text-[#8e8e93]">DCs</span>
             </div>
-          )}
-          
-          {!collapsed && (
-            <div className="text-sm text-muted-foreground">
-              Total Knowledge Workers: <span className="font-bold text-foreground text-lg">{formatKW(totalKW)}</span>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#2c2c2e]">
+              <MapPin className="h-4 w-4 text-[#5e5ce6]" />
+              <span className="font-semibold text-white">{sites.length}</span>
+              <span className="text-[#8e8e93]">Sites</span>
             </div>
-          )}
-          
-          {/* Collapse/Expand Toggle */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 w-7 p-0"
-            onClick={() => setCollapsed(!collapsed)}
-            data-testid="topbar-collapse-toggle"
-          >
-            {collapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
-          </Button>
-        </div>
-      </div>
-
-      {/* Row 2: 4 Equal Columns - only visible when expanded */}
-      {!collapsed && (
-      <div className="px-5 py-3 grid grid-cols-4 gap-6">
-        
-        {/* Column 1: Data Centers */}
-        <div className="flex flex-col">
-          {/* DC Header with count */}
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-blue-500/15 flex items-center justify-center">
-                <Building2 className="h-4 w-4 text-blue-600" />
-              </div>
-              <div>
-                <div className="text-xs text-muted-foreground font-medium">Data Centers</div>
-                <div className="text-lg font-bold leading-none text-blue-600">{dataCenters.length}</div>
-              </div>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#2c2c2e]">
+              <span className="text-[#8e8e93]">KW</span>
+              <span className="font-semibold text-white">{formatKW(totalKW)}</span>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#32d74b]/10 border border-[#32d74b]/30">
+              <Calculator className="h-4 w-4 text-[#32d74b]" />
+              <span className="font-semibold text-[#32d74b]">{formatKW(activeIPs)}</span>
+              <span className="text-[#32d74b]/70">IPs</span>
             </div>
           </div>
           
-          {/* DC Entry Form - Clear separation */}
-          <div className="mb-2">
-            <div className="flex items-center gap-2">
-              {/* Name Input Box */}
-              <div className="flex-1">
-                <div className="text-[10px] text-muted-foreground mb-1">Name</div>
-                <div className="bg-white dark:bg-slate-800 rounded-lg border p-1">
-                  <Input
-                    value={dcName}
-                    onChange={e => setDcName(e.target.value)}
-                    placeholder="Enter DC name..."
-                    className="h-8 w-full text-sm border-0 bg-transparent focus-visible:ring-0"
-                    onKeyDown={e => e.key === 'Enter' && handleAddDC()}
-                  />
-                </div>
+          {/* Collapse Toggle */}
+          <button
+            className="p-2 rounded-xl bg-[#2c2c2e] hover:bg-[#3c3c3e] transition-colors"
+            onClick={() => setCollapsed(!collapsed)}
+            data-testid="topbar-collapse-toggle"
+          >
+            {collapsed ? <ChevronDown className="h-4 w-4 text-[#8e8e93]" /> : <ChevronUp className="h-4 w-4 text-[#8e8e93]" />}
+          </button>
+        </div>
+      </div>
+
+      {/* Row 2: Cards Grid - Home Assistant style */}
+      {!collapsed && (
+      <div className="px-5 pb-4 grid grid-cols-4 gap-4">
+        
+        {/* Card 1: Data Centers */}
+        <div className="bg-[#2c2c2e] rounded-2xl p-4">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-[#30d158]/20 flex items-center justify-center">
+              <Building2 className="h-5 w-5 text-[#30d158]" />
+            </div>
+            <div>
+              <div className="text-[#8e8e93] text-xs">Data Centers</div>
+              <div className="text-2xl font-bold text-white">{dataCenters.length}</div>
+            </div>
+          </div>
+          
+          {/* DC Tags */}
+          <div className="flex flex-wrap gap-2 mb-3 min-h-[32px]">
+            {dataCenters.map((dc, idx) => (
+              <div key={idx} className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#3c3c3e] group">
+                <span className="text-xs font-medium text-white">{dc.name}</span>
+                <span className="text-[10px] text-[#30d158]">{formatKW(dc.knowledgeWorkers || 0)}</span>
+                <button 
+                  onClick={() => deleteDataCenter(idx)}
+                  className="opacity-0 group-hover:opacity-100 ml-1"
+                >
+                  <X className="h-3 w-3 text-[#8e8e93] hover:text-[#ff453a]" />
+                </button>
               </div>
-              
-              {/* KW Input Box - Separate */}
-              <div className="w-28">
-                <div className="text-[10px] text-muted-foreground mb-1">Knowledge Workers</div>
+            ))}
+          </div>
+          
+          {/* Add DC Input */}
+          <div className="flex items-center gap-2">
+            <input
+              value={dcName}
+              onChange={e => setDcName(e.target.value)}
+              placeholder="Name"
+              className="flex-1 h-9 px-3 rounded-xl bg-[#1c1c1e] border-0 text-sm text-white placeholder:text-[#8e8e93] focus:outline-none focus:ring-2 focus:ring-[#30d158]/50"
+              onKeyDown={e => e.key === 'Enter' && handleAddDC()}
+            />
+            <input
+              type="number"
+              value={dcKW}
+              onChange={e => setDcKW(e.target.value)}
+              placeholder="KW"
+              className="w-20 h-9 px-3 rounded-xl bg-[#1c1c1e] border-0 text-sm text-white placeholder:text-[#8e8e93] focus:outline-none focus:ring-2 focus:ring-[#30d158]/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              onKeyDown={e => e.key === 'Enter' && handleAddDC()}
+            />
+            <button
+              onClick={handleAddDC}
+              disabled={!dcName.trim()}
+              className="h-9 w-9 rounded-xl bg-[#30d158] hover:bg-[#30d158]/80 disabled:bg-[#3c3c3e] disabled:text-[#8e8e93] flex items-center justify-center transition-colors"
+            >
+              <Plus className="h-4 w-4 text-black" />
+            </button>
+          </div>
+        </div>
+
+        {/* Card 2: Sites */}
+        <div className="bg-[#2c2c2e] rounded-2xl p-4">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-[#5e5ce6]/20 flex items-center justify-center">
+              <MapPin className="h-5 w-5 text-[#5e5ce6]" />
+            </div>
+            <div>
+              <div className="text-[#8e8e93] text-xs">Sites</div>
+              <div className="text-2xl font-bold text-white">{sites.length}</div>
+            </div>
+          </div>
+          
+          {/* Site Tags */}
+          <div className="flex flex-wrap gap-2 mb-3 min-h-[32px]">
+            {sites.map((site, idx) => (
+              <div key={idx} className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#3c3c3e] group">
+                <span className="text-xs font-medium text-white">{site.name}</span>
+                <span className="text-[10px] text-[#5e5ce6]">{formatKW(site.knowledgeWorkers || 0)}</span>
+                <button 
+                  onClick={() => deleteSite(idx)}
+                  className="opacity-0 group-hover:opacity-100 ml-1"
+                >
+                  <X className="h-3 w-3 text-[#8e8e93] hover:text-[#ff453a]" />
+                </button>
+              </div>
+            ))}
+          </div>
+          
+          {/* Add Site Input */}
+          <div className="flex items-center gap-2">
+            <input
+              value={siteName}
+              onChange={e => setSiteName(e.target.value)}
+              placeholder="Name"
+              className="flex-1 h-9 px-3 rounded-xl bg-[#1c1c1e] border-0 text-sm text-white placeholder:text-[#8e8e93] focus:outline-none focus:ring-2 focus:ring-[#5e5ce6]/50"
+              onKeyDown={e => e.key === 'Enter' && handleAddSite()}
+            />
+            <input
+              type="number"
+              value={siteKW}
+              onChange={e => setSiteKW(e.target.value)}
+              placeholder="KW"
+              className="w-20 h-9 px-3 rounded-xl bg-[#1c1c1e] border-0 text-sm text-white placeholder:text-[#8e8e93] focus:outline-none focus:ring-2 focus:ring-[#5e5ce6]/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              onKeyDown={e => e.key === 'Enter' && handleAddSite()}
+            />
+            <button
+              onClick={handleAddSite}
+              disabled={!siteName.trim()}
+              className="h-9 w-9 rounded-xl bg-[#5e5ce6] hover:bg-[#5e5ce6]/80 disabled:bg-[#3c3c3e] disabled:text-[#8e8e93] flex items-center justify-center transition-colors"
+            >
+              <Plus className="h-4 w-4 text-white" />
+            </button>
+          </div>
+        </div>
+
+        {/* Card 3: Target Solutions */}
+        <div className="bg-[#2c2c2e] rounded-2xl p-4">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-[#ff9f0a]/20 flex items-center justify-center">
+              <Target className="h-5 w-5 text-[#ff9f0a]" />
+            </div>
+            <div>
+              <div className="text-[#8e8e93] text-xs">Target Solutions</div>
+              <div className="text-2xl font-bold text-white">{enabledSolutions.length}<span className="text-lg text-[#8e8e93]">/{TARGET_SOLUTIONS.length}</span></div>
+            </div>
+          </div>
+          
+          {/* Solution Toggles - HA style */}
+          <div className="space-y-2">
+            {TARGET_SOLUTIONS.map(sol => {
+              const isOn = answers[sol.key] === 'Yes';
+              return (
+                <button
+                  key={sol.key}
+                  onClick={() => setAnswer(sol.key, isOn ? 'No' : 'Yes')}
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all ${
+                    isOn 
+                      ? 'bg-[#ff9f0a]/20 border border-[#ff9f0a]/30' 
+                      : 'bg-[#3c3c3e] hover:bg-[#4c4c4e]'
+                  }`}
+                  data-testid={`toggle-${sol.key}`}
+                >
+                  <span className={`text-sm font-medium ${isOn ? 'text-[#ff9f0a]' : 'text-white'}`}>
+                    {sol.label}
+                  </span>
+                  {/* Toggle pill */}
+                  <div className={`w-11 h-6 rounded-full p-0.5 transition-colors ${isOn ? 'bg-[#ff9f0a]' : 'bg-[#636366]'}`}>
+                    <div className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${isOn ? 'translate-x-5' : 'translate-x-0'}`} />
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Card 4: IP Calculator */}
+        <div className="bg-[#2c2c2e] rounded-2xl p-4">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-[#32d74b]/20 flex items-center justify-center">
+              <Calculator className="h-5 w-5 text-[#32d74b]" />
+            </div>
+            <div>
+              <div className="text-[#8e8e93] text-xs">Active IPs</div>
+              <div className="text-2xl font-bold text-[#32d74b]">{formatKW(activeIPs)}</div>
+            </div>
+          </div>
+          
+          {/* Calculator Inputs */}
+          <div className="space-y-3">
+            <div>
+              <div className="text-[10px] text-[#8e8e93] mb-1.5">Knowledge Workers</div>
+              <input
+                type="number"
+                value={answers['ud-1'] || ''}
+                onChange={e => setAnswer('ud-1', e.target.value)}
+                placeholder="0"
+                className="w-full h-10 px-3 rounded-xl bg-[#1c1c1e] border-0 text-white text-lg font-semibold placeholder:text-[#8e8e93] focus:outline-none focus:ring-2 focus:ring-[#32d74b]/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              />
+            </div>
+            <div>
+              <div className="text-[10px] text-[#8e8e93] mb-1.5">Multiplier</div>
+              <input
+                type="number"
+                step="0.1"
+                value={answers['ipam-multiplier'] || '2.5'}
+                onChange={e => setAnswer('ipam-multiplier', e.target.value)}
+                className="w-full h-10 px-3 rounded-xl bg-[#1c1c1e] border-0 text-white text-lg font-semibold placeholder:text-[#8e8e93] focus:outline-none focus:ring-2 focus:ring-[#32d74b]/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              />
+            </div>
+            {/* Formula display */}
+            <div className="flex items-center justify-center gap-2 pt-2 text-sm">
+              <span className="text-[#8e8e93]">{formatKW(kw)}</span>
+              <span className="text-[#8e8e93]">×</span>
+              <span className="text-[#8e8e93]">{mult}</span>
+              <span className="text-[#8e8e93]">=</span>
+              <span className="font-bold text-[#32d74b]">{formatKW(activeIPs)}</span>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+      )}
+    </div>
+  );
                 <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800 p-1">
                   <Input
                     type="number"
