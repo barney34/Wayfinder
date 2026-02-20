@@ -434,6 +434,12 @@ export function CustomerDetail({ customer, onBack }) {
         customer={customer}
         currentName={currentName}
         currentOpportunity={currentOpportunity}
+        editName={editName}
+        setEditName={setEditName}
+        editOpportunity={editOpportunity}
+        setEditOpportunity={setEditOpportunity}
+        handleSaveName={handleSaveName}
+        handleSaveOpportunity={handleSaveOpportunity}
         onBack={onBack}
         discoveryTabQuestions={discoveryTabQuestions}
         sizingTabQuestions={sizingTabQuestions}
@@ -448,7 +454,13 @@ export function CustomerDetail({ customer, onBack }) {
 function CustomerDetailContent({ 
   customer, 
   currentName, 
-  currentOpportunity, 
+  currentOpportunity,
+  editName,
+  setEditName,
+  editOpportunity,
+  setEditOpportunity,
+  handleSaveName,
+  handleSaveOpportunity,
   onBack, 
   discoveryTabQuestions,
   sizingTabQuestions,
