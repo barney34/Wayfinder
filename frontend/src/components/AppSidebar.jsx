@@ -249,14 +249,21 @@ export function AppSidebar({
                   <Separator className="my-3" />
                   <div className="bg-muted/50 rounded-lg p-3 space-y-2">
                     <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Summary</div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Tokens</span>
-                      <span className="font-bold">{formatKW(sizingSummary.totalTokens)}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Pack</span>
-                      <Badge variant="outline" className="text-xs">{sizingSummary.tokenPack || '—'}</Badge>
-                    </div>
+                    {sizingSummary.platformMode !== 'NIOS' && (
+                      <>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">Tokens</span>
+                          <span className="font-bold">{formatKW(sizingSummary.totalTokens)}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">Token Packs</span>
+                          <Badge variant="outline" className="text-xs">{sizingSummary.tokenPack || '—'}</Badge>
+                        </div>
+                      </>
+                    )}
+                    {sizingSummary.platformMode === 'NIOS' && (
+                      <div className="text-xs text-muted-foreground italic">NIOS mode - no tokens</div>
+                    )}
                   </div>
                 </>
               )}
