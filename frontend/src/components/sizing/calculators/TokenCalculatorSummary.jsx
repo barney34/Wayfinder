@@ -287,8 +287,12 @@ export function TokenCalculatorSummary() {
     if (field === 'role' && value !== 'DHCP' && value !== 'DNS/DHCP') updates.dhcpPartner = null;
 
     // If updating KW, also sync to context (which updates TopBar)
-    if (field === 'knowledgeWorkers' && site.sourceType === 'site' && contextUpdateSite) {
-      contextUpdateSite(siteId, { knowledgeWorkers: value });
+    if (field === 'knowledgeWorkers') {
+      if (site.sourceType === 'site' && contextUpdateSite) {
+        contextUpdateSite(site.sourceId, { knowledgeWorkers: value });
+      } else if (site.sourceType === 'dataCenter' && contextUpdateDC) {
+        contextUpdateDC(site.sourceId, { knowledgeWorkers: value });
+      }
     }
 
     if (site.sourceType) {
@@ -296,7 +300,7 @@ export function TokenCalculatorSummary() {
     } else {
       setManualSites(prev => prev.map(s => s.id === siteId ? { ...s, ...updates } : s));
     }
-  }, [sites, contextUpdateSite]);
+  }, [sites, contextUpdateSite, contextUpdateDC]);
 
   // Add manual site
   const addManualSite = useCallback(() => {
