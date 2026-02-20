@@ -2,12 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { 
   Building2, MapPin, Calculator, Target, Plus, AlertCircle, Check, X, Pencil, ChevronDown, ChevronUp, Info
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { useDiscovery } from "@/contexts/DiscoveryContext";
 
 // Format numbers
@@ -20,10 +14,10 @@ const formatKW = (n) => {
 
 // Target Solutions config
 const TARGET_SOLUTIONS = [
-  { key: 'feature-nios', label: 'NIOS', noWhyNot: true },
-  { key: 'feature-uddi', label: 'UDDI', noWhyNot: false },
-  { key: 'feature-security', label: 'Security', noWhyNot: false },
-  { key: 'feature-asset insights', label: 'Asset', noWhyNot: false },
+  { key: 'feature-nios', label: 'NIOS', color: '#30d158' },
+  { key: 'feature-uddi', label: 'UDDI', color: '#0a84ff' },
+  { key: 'feature-security', label: 'Security', color: '#ff453a' },
+  { key: 'feature-asset insights', label: 'Asset', color: '#bf5af2' },
 ];
 
 export function TopBar({ customerName, opportunity, onNameChange, onOpportunityChange, onNameBlur, onOpportunityBlur }) {
@@ -43,9 +37,6 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
 
   // Total KW
   const totalKW = dataCenters.reduce((sum, dc) => sum + (dc.knowledgeWorkers || 0), 0) + sites.reduce((sum, s) => sum + (s.knowledgeWorkers || 0), 0);
-
-  // Enabled solutions count
-  const enabledSolutions = TARGET_SOLUTIONS.filter(s => answers[s.key] === 'Yes');
 
   // Target solution keys
   const niosEnabled = answers['feature-nios'] === 'Yes';
@@ -96,72 +87,101 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
   const isSecurity = answers['feature-security'] === 'Yes';
   const isAsset = answers['feature-asset insights'] === 'Yes';
   const isHybrid = isNIOS && isUDDI;
+  const activeSolutions = TARGET_SOLUTIONS.filter(s => answers[s.key] === 'Yes');
+
+  // Auto-size input width based on content
+  const nameLen = Math.max((customerName || '').length, 6);
+  const oppLen = Math.max((opportunity || '').length, 8);
+  const inputWidth = Math.max(nameLen, oppLen);
 
   return (
     <div className="flex-shrink-0 bg-[#1c1c1e] border-b border-[#2c2c2e]" data-testid="topbar">
-      {/* Row 1: Customer Info - Clickable to expand/collapse */}
+      {/* Header Row: Customer pill + summary info — always visible */}
       <div 
-        className="px-4 py-2 flex items-center justify-between border-b border-[#2c2c2e] cursor-pointer hover:bg-[#2c2c2e]/30"
+        className="px-4 py-1.5 flex items-center gap-3 border-b border-[#2c2c2e] cursor-pointer hover:bg-[#2c2c2e]/30"
         onClick={() => setCollapsed(!collapsed)}
       >
-        {/* Customer + Opportunity stacked in one pill */}
-        <div className="flex items-center" onClick={e => e.stopPropagation()}>
-          <div className="flex flex-col gap-0.5 px-3 py-1.5 rounded-xl bg-[#2c2c2e] border border-[#3c3c3e]">
-            <div className="flex items-center gap-2">
-              <span className="text-[9px] text-[#8e8e93] uppercase tracking-wide shrink-0 w-[70px]">Customer:</span>
+        {/* Customer/Opp pill — compact, auto-expands */}
+        <div className="shrink-0" onClick={e => e.stopPropagation()}>
+          <div className="flex flex-col gap-0 px-2.5 py-1 rounded-lg bg-[#2c2c2e] border border-[#3c3c3e]">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[8px] text-[#8e8e93] uppercase tracking-wide shrink-0">Customer:</span>
               <input
                 value={customerName}
                 onChange={e => onNameChange?.(e.target.value)}
                 onBlur={() => onNameBlur?.()}
-                className="text-sm font-semibold text-white bg-transparent border-0 focus:outline-none w-[180px] placeholder:text-[#6e6e73]"
+                style={{ width: `${Math.min(Math.max(nameLen * 7.5 + 20, 60), 300)}px` }}
+                className="text-xs font-semibold text-white bg-transparent border-0 focus:outline-none placeholder:text-[#6e6e73]"
                 placeholder="Name..."
                 data-testid="topbar-customer-name"
               />
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-[9px] text-[#ff9f0a]/70 uppercase tracking-wide shrink-0 w-[70px]">Opportunity:</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[8px] text-[#ff9f0a]/70 uppercase tracking-wide shrink-0">Opportunity:</span>
               <input
                 value={opportunity || ''}
                 onChange={e => onOpportunityChange?.(e.target.value)}
                 onBlur={() => onOpportunityBlur?.()}
-                className="text-xs text-[#ff9f0a] bg-transparent border-0 focus:outline-none w-[180px] placeholder:text-[#6e6e73]"
+                style={{ width: `${Math.min(Math.max(oppLen * 7 + 20, 60), 300)}px` }}
+                className="text-[11px] text-[#ff9f0a] bg-transparent border-0 focus:outline-none placeholder:text-[#6e6e73]"
                 placeholder="Opportunity..."
                 data-testid="topbar-opportunity"
               />
             </div>
           </div>
         </div>
-        
-        {/* Compact stats + collapse chevron */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 text-xs">
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-[#2c2c2e]">
-              <Building2 className="h-3 w-3 text-[#30d158]" />
-              <span className="font-semibold text-white">{dataCenters.length}</span>
-              <span className="text-[#8e8e93]">DCs</span>
-            </div>
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-[#2c2c2e]">
-              <MapPin className="h-3 w-3 text-[#5e5ce6]" />
-              <span className="font-semibold text-white">{sites.length}</span>
-              <span className="text-[#8e8e93]">Sites</span>
-            </div>
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-[#2c2c2e]">
-              <span className="text-[#8e8e93]">KW</span>
-              <span className="font-semibold text-white">{formatKW(totalKW)}</span>
-            </div>
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-[#32d74b]/10 border border-[#32d74b]/30">
-              <Calculator className="h-3 w-3 text-[#32d74b]" />
-              <span className="font-semibold text-[#32d74b]">{formatKW(activeIPs)}</span>
-              <span className="text-[#32d74b]/70">IPs</span>
-            </div>
+
+        {/* Summary: DC/Site pills | Target Solutions | KW/IP */}
+        <div className="flex-1 flex items-center gap-3 min-w-0 overflow-hidden">
+          {/* DC + Site mini pills */}
+          <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
+            {dataCenters.map(dc => (
+              <span key={dc.id} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#30d158]/15 text-[10px] text-[#30d158] font-medium shrink-0">
+                <Building2 className="h-2.5 w-2.5" />{dc.name}
+                <span className="text-[#30d158]/60">{formatKW(dc.knowledgeWorkers || 0)}</span>
+              </span>
+            ))}
+            {sites.map(site => (
+              <span key={site.id} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#5e5ce6]/15 text-[10px] text-[#5e5ce6] font-medium shrink-0">
+                <MapPin className="h-2.5 w-2.5" />{site.name}
+                <span className="text-[#5e5ce6]/60">{formatKW(site.knowledgeWorkers || 0)}</span>
+              </span>
+            ))}
+            {dataCenters.length === 0 && sites.length === 0 && (
+              <span className="text-[10px] text-[#6e6e73]">No DCs/Sites</span>
+            )}
           </div>
-          <div className="p-1.5 rounded-lg bg-[#2c2c2e]">
-            {collapsed ? <ChevronDown className="h-3.5 w-3.5 text-[#8e8e93]" /> : <ChevronUp className="h-3.5 w-3.5 text-[#8e8e93]" />}
+
+          {/* Active target solutions */}
+          <div className="flex items-center gap-1 shrink-0">
+            {activeSolutions.length > 0 ? activeSolutions.map(s => (
+              <span key={s.key} className="px-1.5 py-0.5 rounded text-[10px] font-semibold" style={{ backgroundColor: s.color + '25', color: s.color }}>
+                {s.label}
+              </span>
+            )) : (
+              <span className="text-[10px] text-[#6e6e73]">No targets</span>
+            )}
+            {isHybrid && (
+              <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gradient-to-r from-[#30d158]/25 to-[#0a84ff]/25 text-[#64d2ff]">
+                Hybrid
+              </span>
+            )}
           </div>
+
+          {/* KW + Active IPs */}
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-[10px] text-[#8e8e93]">KW <span className="font-semibold text-white">{formatKW(totalKW)}</span></span>
+            <span className="text-[10px] font-semibold text-[#32d74b]">{formatKW(activeIPs)} IPs</span>
+          </div>
+        </div>
+
+        {/* Chevron */}
+        <div className="p-1 rounded-lg bg-[#2c2c2e] shrink-0">
+          {collapsed ? <ChevronDown className="h-3.5 w-3.5 text-[#8e8e93]" /> : <ChevronUp className="h-3.5 w-3.5 text-[#8e8e93]" />}
         </div>
       </div>
 
-      {/* Row 2: Inputs — DC/Sites 5fr each, Target Solutions/Active IPs 3fr each */}
+      {/* Row 2: Inputs — DC/Sites wider, Target Solutions/Active IPs equal */}
       {!collapsed && (
       <div className="px-4 py-3 grid gap-3" style={{ gridTemplateColumns: '5fr 5fr 3fr 3fr' }}>
         
@@ -172,9 +192,9 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
             <span className="text-xs font-medium text-white">Data Centers</span>
           </div>
           
-          {/* DC Pills — grid of 3 per row, expands naturally */}
+          {/* DC Pills — grid of 2 per row, expands naturally */}
           {dataCenters.length > 0 && (
-            <div className="grid grid-cols-3 gap-1.5 mb-2">
+            <div className="grid grid-cols-2 gap-1.5 mb-2">
               {dataCenters.map((dc) => (
                 <div key={dc.id} className="flex items-center bg-[#3c3c3e] rounded-lg overflow-hidden">
                   <input
@@ -186,7 +206,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
                     type="number"
                     value={dc.knowledgeWorkers || ''}
                     onChange={e => updateDataCenter(dc.id, { knowledgeWorkers: e.target.value })}
-                    className="w-10 px-1 py-1 text-[11px] text-[#30d158] bg-transparent border-0 focus:outline-none focus:bg-[#4c4c4e] text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-12 px-1 py-1 text-[11px] text-[#30d158] bg-transparent border-0 focus:outline-none focus:bg-[#4c4c4e] text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                   <button 
                     onClick={() => deleteDataCenter(dc.id)}
@@ -237,9 +257,9 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
             <span className="text-xs font-medium text-white">Sites</span>
           </div>
           
-          {/* Site Pills — grid of 3 per row, expands naturally */}
+          {/* Site Pills — grid of 2 per row, expands naturally */}
           {sites.length > 0 && (
-            <div className="grid grid-cols-3 gap-1.5 mb-2">
+            <div className="grid grid-cols-2 gap-1.5 mb-2">
               {sites.map((site) => (
                 <div key={site.id} className="flex items-center bg-[#3c3c3e] rounded-lg overflow-hidden">
                   <input
@@ -251,7 +271,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
                     type="number"
                     value={site.knowledgeWorkers || ''}
                     onChange={e => updateSite(site.id, { knowledgeWorkers: e.target.value })}
-                    className="w-10 px-1 py-1 text-[11px] text-[#5e5ce6] bg-transparent border-0 focus:outline-none focus:bg-[#4c4c4e] text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-12 px-1 py-1 text-[11px] text-[#5e5ce6] bg-transparent border-0 focus:outline-none focus:bg-[#4c4c4e] text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                   <button 
                     onClick={() => deleteSite(site.id)}
