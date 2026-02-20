@@ -375,46 +375,27 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
           </div>
           
           {(() => {
-            const isNIOS = answers['target-nios'] === 'Yes';
-            const isUDDI = answers['target-uddi'] === 'Yes';
-            const isSecurity = answers['target-security'] === 'Yes';
-            const isAsset = answers['target-asset'] === 'Yes';
+            const isNIOS = answers['feature-nios'] === 'Yes';
+            const isUDDI = answers['feature-uddi'] === 'Yes';
+            const isSecurity = answers['feature-security'] === 'Yes';
+            const isAsset = answers['feature-asset insights'] === 'Yes';
             const isHybrid = isNIOS && isUDDI;
             
-            // Set deployment model based on selections
-            const setDeploymentModel = (nios, uddi) => {
-              if (nios && uddi) {
-                setAnswer('deployment-model', 'Hybrid');
-              } else if (uddi && !nios) {
-                setAnswer('deployment-model', 'UDDI');
-              } else if (nios && !uddi) {
-                setAnswer('deployment-model', 'NIOS');
-              } else {
-                setAnswer('deployment-model', '');
-              }
-            };
-            
             const handleNIOSToggle = () => {
-              const newVal = !isNIOS;
-              setAnswer('target-nios', newVal ? 'Yes' : 'No');
-              setDeploymentModel(newVal, isUDDI);
+              setAnswer('feature-nios', !isNIOS ? 'Yes' : 'No');
             };
             
             const handleUDDIToggle = () => {
-              const newVal = !isUDDI;
-              setAnswer('target-uddi', newVal ? 'Yes' : 'No');
-              setDeploymentModel(isNIOS, newVal);
+              setAnswer('feature-uddi', !isUDDI ? 'Yes' : 'No');
             };
             
             const handleHybridToggle = () => {
               if (isHybrid) {
-                setAnswer('target-nios', 'No');
-                setAnswer('target-uddi', 'No');
-                setAnswer('deployment-model', '');
+                setAnswer('feature-nios', 'No');
+                setAnswer('feature-uddi', 'No');
               } else {
-                setAnswer('target-nios', 'Yes');
-                setAnswer('target-uddi', 'Yes');
-                setAnswer('deployment-model', 'Hybrid');
+                setAnswer('feature-nios', 'Yes');
+                setAnswer('feature-uddi', 'Yes');
               }
             };
             
@@ -429,7 +410,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
                         ? 'bg-[#30d158] text-black' 
                         : 'bg-[#3c3c3e] text-[#8e8e93] hover:bg-[#4c4c4e]'
                     }`}
-                    data-testid="toggle-target-nios"
+                    data-testid="toggle-feature-nios"
                   >
                     NIOS
                     {isNIOS && isAsset && (
@@ -448,7 +429,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
                         ? 'bg-[#0a84ff] text-white' 
                         : 'bg-[#3c3c3e] text-[#8e8e93] hover:bg-[#4c4c4e]'
                     }`}
-                    data-testid="toggle-target-uddi"
+                    data-testid="toggle-feature-uddi"
                   >
                     UDDI
                   </button>
@@ -457,24 +438,24 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
                 {/* Row 2: Security + Asset Insight */}
                 <div className="grid grid-cols-2 gap-1.5">
                   <button
-                    onClick={() => setAnswer('target-security', isSecurity ? 'No' : 'Yes')}
+                    onClick={() => setAnswer('feature-security', isSecurity ? 'No' : 'Yes')}
                     className={`flex items-center justify-center px-2 py-2 rounded-lg text-xs font-semibold transition-all ${
                       isSecurity 
                         ? 'bg-[#ff453a] text-white' 
                         : 'bg-[#3c3c3e] text-[#8e8e93] hover:bg-[#4c4c4e]'
                     }`}
-                    data-testid="toggle-target-security"
+                    data-testid="toggle-feature-security"
                   >
                     Security
                   </button>
                   <button
-                    onClick={() => setAnswer('target-asset', isAsset ? 'No' : 'Yes')}
+                    onClick={() => setAnswer('feature-asset insights', isAsset ? 'No' : 'Yes')}
                     className={`flex items-center justify-center gap-1 px-2 py-2 rounded-lg text-xs font-semibold transition-all ${
                       isAsset 
                         ? 'bg-[#bf5af2] text-white' 
                         : 'bg-[#3c3c3e] text-[#8e8e93] hover:bg-[#4c4c4e]'
                     }`}
-                    data-testid="toggle-target-asset"
+                    data-testid="toggle-feature-asset"
                   >
                     Asset Insight
                     {isAsset && isNIOS && (
