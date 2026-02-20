@@ -120,17 +120,17 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
               <span className="text-[11px] font-bold text-foreground">{dataCenters.length}</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <MapPin className="h-3 w-3 text-[#5e5ce6]" />
-              <span className="text-[10px] font-medium text-[#5e5ce6]">Sites</span>
-              <span className="text-[11px] font-semibold text-foreground">{sites.length}</span>
+              <MapPin className="h-3 w-3 text-[#7c3aed]" />
+              <span className="text-[10px] font-semibold text-[#7c3aed]">Sites</span>
+              <span className="text-[11px] font-bold text-foreground">{sites.length}</span>
             </div>
           </div>
 
           {/* TS stacked */}
-          <div className="flex flex-col items-center gap-0.5">
+          <div className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg bg-secondary/50">
             <div className="flex items-center gap-1">
-              <Target className="h-3 w-3 text-[#ff9f0a]" />
-              <span className="text-[10px] font-medium text-[#ff9f0a]">TS</span>
+              <Target className="h-3 w-3 text-[#ea580c]" />
+              <span className="text-[10px] font-semibold text-[#ea580c]">TS</span>
             </div>
             {activeSolutions.length > 0 ? (
               <div className="flex items-center gap-1">
@@ -141,26 +141,26 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
                 ))}
               </div>
             ) : (
-              <span className="text-[9px] text-muted-foreground">--</span>
+              <span className="text-[9px] text-muted-foreground font-medium">--</span>
             )}
             {isHybrid && (
-              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-gradient-to-r from-[#30d158]/25 to-[#0a84ff]/25 text-[#64d2ff]">Hybrid</span>
+              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-gradient-to-r from-[#16a34a]/25 to-[#2563eb]/25 text-[#0891b2]">Hybrid</span>
             )}
           </div>
 
           {/* KW / IPs stacked */}
-          <div className="flex flex-col items-center gap-0.5">
+          <div className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg bg-secondary/50">
             <div className="flex items-center gap-1">
-              <Calculator className="h-3 w-3 text-[#32d74b]" />
-              <span className="text-[10px] text-muted-foreground">KW</span>
-              <span className="text-[11px] font-semibold text-foreground">{formatKW(totalKW)}</span>
+              <Calculator className="h-3 w-3 text-[#16a34a]" />
+              <span className="text-[10px] text-muted-foreground font-medium">KW</span>
+              <span className="text-[11px] font-bold text-foreground">{formatKW(totalKW)}</span>
             </div>
-            <span className="text-[11px] font-bold text-[#32d74b]">{formatKW(activeIPs)} IPs</span>
+            <span className="text-[11px] font-bold text-[#16a34a]">{formatKW(activeIPs)} IPs</span>
           </div>
         </div>
 
         {/* Chevron - always visible on the right */}
-        <div className="shrink-0 ml-2 p-1 rounded-lg bg-muted">
+        <div className="shrink-0 ml-2 p-1 rounded-lg bg-secondary border border-border">
           {collapsed ? <ChevronDown className="h-3 w-3 text-muted-foreground" /> : <ChevronUp className="h-3 w-3 text-muted-foreground" />}
         </div>
       </div>
