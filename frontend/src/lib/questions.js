@@ -31,7 +31,7 @@ export const discoveryQuestions = [
   {
     "id": "ipam-0",
     "section": "IPAM",
-    "question": "Who is your current platform/vendor?",
+    "question": "Current DNS Platform",
     "technicalOnly": false,
     "fieldType": "multiselect",
     "options": [
@@ -39,6 +39,22 @@ export const discoveryQuestions = [
       "Microsoft",
       "Bluecat",
       "EIP"
+    ],
+    "allowFreeform": true
+  },
+  {
+    "id": "ipam-9",
+    "section": "IPAM",
+    "question": "Current or Planned Cloud Platform",
+    "technicalOnly": false,
+    "fieldType": "multiselect",
+    "options": [
+      "AWS",
+      "Azure",
+      "GCP",
+      "OCI",
+      "Alibaba",
+      "IBM"
     ],
     "allowFreeform": true
   },
