@@ -413,18 +413,18 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
     'Professional Services': { normal: 'bg-transparent text-gray-500 border-transparent hover:text-black dark:hover:text-white', active: 'bg-transparent text-black dark:text-white border-transparent font-bold underline underline-offset-4' },
   };
 
-  // Active section background - minimal, just slightly elevated
+  // Active section background - NONE, just rely on header styling
   const sectionActiveBg = {
-    'IPAM': 'bg-white dark:bg-gray-800/50 ring-gray-300/50 dark:ring-gray-600/50',
-    'Internal DNS': 'bg-white dark:bg-gray-800/50 ring-gray-300/50 dark:ring-gray-600/50',
-    'External DNS': 'bg-white dark:bg-gray-800/50 ring-gray-300/50 dark:ring-gray-600/50',
-    'DHCP': 'bg-white dark:bg-gray-800/50 ring-gray-300/50 dark:ring-gray-600/50',
-    'Cloud Management': 'bg-white dark:bg-gray-800/50 ring-gray-300/50 dark:ring-gray-600/50',
-    'Services': 'bg-white dark:bg-gray-800/50 ring-gray-300/50 dark:ring-gray-600/50',
-    'Microsoft Management': 'bg-white dark:bg-gray-800/50 ring-gray-300/50 dark:ring-gray-600/50',
-    'Asset/ Network Insight': 'bg-white dark:bg-gray-800/50 ring-gray-300/50 dark:ring-gray-600/50',
-    'Security': 'bg-white dark:bg-gray-800/50 ring-gray-300/50 dark:ring-gray-600/50',
-    'Professional Services': 'bg-white dark:bg-gray-800/50 ring-gray-300/50 dark:ring-gray-600/50',
+    'IPAM': '',
+    'Internal DNS': '',
+    'External DNS': '',
+    'DHCP': '',
+    'Cloud Management': '',
+    'Services': '',
+    'Microsoft Management': '',
+    'Asset/ Network Insight': '',
+    'Security': '',
+    'Professional Services': '',
   };
 
   // Render a single question's field (compact mode adjusts sizing)
