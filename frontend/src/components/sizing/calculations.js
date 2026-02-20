@@ -183,6 +183,53 @@ export function getSiteRecommendedModel(numIPs, role, platform, dhcpPercent, lea
     return 'TE-4126';
   }
   
+  // Handle GM/GMC with DNS/DHCP services (not recommended but supported)
+  // These are ADDITIVE: object management + QPS/LPS penalties
+  if (role.startsWith('GM+') || role.startsWith('GMC+')) {
+    const gridObjects = dnsObjects + dhcpObjects;
+    const hasDNS = role.includes('DNS');
+    const hasDHCP = role.includes('DHCP') && !role.includes('DNS/DHCP') || role.includes('DNS/DHCP');
+    const hasBoth = role.includes('DNS/DHCP');
+    
+    // Calculate combined workload requirements
+    let requiredQPS = 0;
+    let requiredLPS = 0;
+    let requiredObjects = gridObjects; // Start with grid management objects
+    
+    if (hasDNS || hasBoth) {
+      requiredQPS = qps;
+      requiredObjects += dnsObjects;
+    }
+    if (hasDHCP || hasBoth) {
+      requiredLPS = lps;
+      requiredObjects += dhcpObjects;
+    }
+    
+    // Apply multi-role penalty for combined DNS/DHCP
+    if (hasBoth) {
+      requiredQPS = Math.ceil(requiredQPS * niosGridConstants.multiRoleCapacityMultiplier);
+      requiredLPS = Math.ceil(requiredLPS * niosGridConstants.multiRoleCapacityMultiplier);
+    }
+    
+    // Find a server that can handle BOTH the GM object load AND the DNS/DHCP workload
+    // This is additive sizing - we need capacity for both roles
+    for (const server of niosServerGuardrails) {
+      const effectiveQPS = server.maxQPS * (niosGridConstants.maxDbUtilizationPercent / 100);
+      const effectiveLPS = server.maxLPS * (niosGridConstants.maxDbUtilizationPercent / 100);
+      const effectiveObjects = server.maxDbObj * (niosGridConstants.maxDbUtilizationPercent / 100);
+      
+      // Check if server can handle the combined workload
+      const meetsQPS = !hasDNS && !hasBoth || effectiveQPS >= requiredQPS;
+      const meetsLPS = !hasDHCP && !hasBoth || effectiveLPS >= requiredLPS;
+      const meetsObjects = effectiveObjects >= requiredObjects;
+      
+      if (meetsQPS && meetsLPS && meetsObjects) {
+        return server.model;
+      }
+    }
+    return 'TE-4126';
+  }
+  
   // Handle combined DNS/DHCP role with multi-role penalty
   if (role === 'DNS/DHCP') {
     const combinedObjects = dnsObjects + dhcpObjects;
