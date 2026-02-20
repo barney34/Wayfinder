@@ -9,12 +9,25 @@ Infrastructure sizing calculator for planning network deployments. Full migratio
   - DC stacked over Sites (like Customer/Opp)
   - TS with solution badges stacked
   - KW stacked over IPs
-- **Input cards row**: 4 cards with weighted grid (1.3fr 1.3fr 0.7fr 0.7fr):
+- **Input cards row**: 4 cards with weighted grid (`minmax(0, 1fr) minmax(0, 1fr) minmax(150px, 0.7fr) minmax(150px, 0.7fr)`):
   - Data Centers (larger) - 2-column grid for entries
   - Sites (larger) - 2-column grid for entries  
-  - Target Solutions (smaller) - NIOS, UDDI, Security, Asset toggles + Hybrid
+  - Target Solutions (smaller, equal to Active IPs) - NIOS, UDDI, Security, Asset toggles + Hybrid
   - Active IPs (smaller, equal to TS) - KW input with multiplier
 - **Collapsible**: Click header to collapse/expand
+- **Enter to accept**: Customer/Opp fields accept on Enter key press
+
+## IPAM Section Enhancements (Dec 2025)
+- **Platform Vendor (ipam-0)**: 2-column grid layout with checkboxes (Spreadsheets, Microsoft, Bluecat, EIP + Other freeform), click away accepts
+- **Cloud Providers (ipam-9)**: 3-column grid layout (AWS, Azure, GCP, OCI, Alibaba, IBM + Other freeform), click away accepts
+- **DC/Sites Sync**: 
+  - `# of Data Centers` (ud-5) syncs with TopBar `dataCenters.length`
+  - `# of Sites` (ud-7) syncs with TopBar `sites.length`
+  - Shows orange mismatch badge if counts differ (e.g., "⚠ 0 in TopBar")
+- **Add Response**: 
+  - Text questions show "+ Add response" button
+  - Clicking expands textarea with "Examine for answers" button for SmartFill AI
+  - Section-level "+ Add response" at bottom of each section for contextual notes
 
 ## Core Features (Implemented)
 - Customer management CRUD
