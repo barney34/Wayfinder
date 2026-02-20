@@ -171,7 +171,7 @@ export function SiteTableRow({
 
       {/* DHCP Partner */}
       <TableCell className="p-2 lg:p-4">
-        {(site.role === 'DHCP' || site.role === 'DNS/DHCP') && !site.isDisabledInUddi ? (
+        {(site.role === 'DHCP' || site.role === 'DNS/DHCP' || site.role.includes('+DHCP') || site.role.includes('+DNS/DHCP')) && !site.isDisabledInUddi ? (
           <Select
             value={site.dhcpPartner || '__none__'}
             onValueChange={v => onUpdateSite(site.id, 'dhcpPartner', v === '__none__' ? null : v)}
@@ -190,9 +190,12 @@ export function SiteTableRow({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="__none__">None (Standalone)</SelectItem>
-              {sites.filter(s =>
-                s.id !== site.id && !s.isSpoke && (s.role === 'DHCP' || s.role === 'DNS/DHCP')
-              ).map(s => (
+              {sites.filter(s => {
+                // Can be a DHCP partner if: different site, not a spoke, and has DHCP capability
+                const hasDHCP = s.role === 'DHCP' || s.role === 'DNS/DHCP' || 
+                                s.role.includes('+DHCP') || s.role.includes('+DNS/DHCP');
+                return s.id !== site.id && !s.isSpoke && hasDHCP;
+              }).map(s => (
                 <SelectItem key={s.id} value={s.id}>{s.name} {s.isHub && '(Hub)'}</SelectItem>
               ))}
             </SelectContent>
