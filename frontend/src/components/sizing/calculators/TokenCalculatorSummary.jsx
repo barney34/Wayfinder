@@ -172,12 +172,14 @@ export function TokenCalculatorSummary() {
     const branchSites = contextSites.map((site, i) => buildBasicSite(site, i, 'site'));
     const allBasicSites = [...dcSites, ...branchSites];
 
-    // Calculate Hub LPS
+    // Calculate Hub LPS - Hub needs to handle 50% of combined spoke capacity for failover
+    const HUB_FAILOVER_CAPACITY = 0.5; // 50% of spoke LPS added to hub
     const hubLPSMap = {};
     allBasicSites.forEach(site => {
       if (site.dhcpPartner) {
         const spokeLPS = calculateSiteLPS(site.numIPs, site.dhcpPercent, site.role);
-        hubLPSMap[site.dhcpPartner] = (hubLPSMap[site.dhcpPartner] || 0) + spokeLPS;
+        // Hub only needs 50% of spoke capacity for failover scenarios
+        hubLPSMap[site.dhcpPartner] = (hubLPSMap[site.dhcpPartner] || 0) + Math.ceil(spokeLPS * HUB_FAILOVER_CAPACITY);
       }
     });
 
