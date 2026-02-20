@@ -645,6 +645,16 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
       return <GridMultiSelect questionId={q.id} options={q.options} value={currentValue} onChange={v => handleAnswerChange(q.id, v)} allowFreeform={q.allowFreeform} columns={3} />;
     }
 
+    // 3rd Party Integrations (ipam-11) - 5-column grid layout for many options
+    if (q.id === 'ipam-11' && q.options) {
+      return <GridMultiSelect questionId={q.id} options={q.options} value={currentValue} onChange={v => handleAnswerChange(q.id, v)} allowFreeform={q.allowFreeform} columns={5} />;
+    }
+
+    // Orchestration Tools (ipam-13) - 2-column grid layout
+    if (q.id === 'ipam-13' && q.options) {
+      return <GridMultiSelect questionId={q.id} options={q.options} value={currentValue} onChange={v => handleAnswerChange(q.id, v)} allowFreeform={q.allowFreeform} columns={2} />;
+    }
+
     // # of Data Centers (ud-5) - synced with TopBar
     if (q.id === 'ud-5') {
       return <SyncedNumberField questionId={q.id} value={currentValue} onChange={v => handleAnswerChange(q.id, v)} syncValue={dataCenters?.length} syncLabel="Data Centers" />;
