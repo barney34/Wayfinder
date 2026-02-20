@@ -11,7 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { ChevronDown, ChevronUp, ChevronRight, X, Plus, Info, MessageSquare, Check, Zap } from "lucide-react";
+import { ChevronDown, ChevronUp, ChevronRight, X, Plus, Info, MessageSquare, Check, Zap, Minimize2, Maximize2 } from "lucide-react";
 import { useDiscovery } from "@/contexts/DiscoveryContext";
 import { useToast } from "@/hooks/use-toast";
 import { ValueFrameworkInjection } from "./ValueFrameworkInjection";
