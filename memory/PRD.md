@@ -1,53 +1,109 @@
-# Sizing Planner - PRD
+# Sizing Planner - Product Requirements Document
 
 ## Original Problem Statement
-Infrastructure sizing calculator for planning network deployments. Full migration from TypeScript source with React frontend + FastAPI backend + MongoDB.
+Migration and enhancement of a "Sizing" calculator application for infrastructure planning. The goal is a faithful conversion of the original tool's features while adding significant user-driven enhancements.
 
-## TopBar Component (Latest — Dec 2025)
-- **Customer/Opp pill**: Auto-sizing stacked pill (Customer: on top, Opportunity: below), positioned on the left
-- **Summary row**: 3 stacked sections equally spaced:
-  - DC stacked over Sites (like Customer/Opp)
-  - TS with solution badges stacked
-  - KW stacked over IPs
-- **Input cards row**: 4 cards with weighted grid (`minmax(0, 1fr) minmax(0, 1fr) minmax(150px, 0.7fr) minmax(150px, 0.7fr)`):
-  - Data Centers (larger) - 2-column grid for entries
-  - Sites (larger) - 2-column grid for entries  
-  - Target Solutions (smaller, equal to Active IPs) - NIOS, UDDI, Security, Asset toggles + Hybrid
-  - Active IPs (smaller, equal to TS) - KW input with multiplier
-- **Collapsible**: Click header to collapse/expand
-- **Enter to accept**: Customer/Opp fields accept on Enter key press
+## Core Product Requirements
+1. **Full UI/UX Parity**: Match source code layout with "Quick Capture" bar, multi-tab interface, platform toggles
+2. **Full Data and Logic Migration**: Port all business logic including sizing calculations
+3. **Feature: History/Versioning**: Auto-save and named revisions
+4. **Feature: SmartFill**: AI-powered content generation for discovery questions
+5. **Feature: Hub & Spoke Sizing**: Advanced sizing logic for topologies
+6. **Feature: GM Sizing & Guardrails**: Grid Master sizing with object counts and service warnings
+7. **Feature: Detailed Sizing Rationale**: UI elements explaining hardware recommendations
+8. **Feature: Export**: Excel export in specific format
+9. **UI/UX Overhaul**: Home Assistant-inspired dark theme
+10. **Feature: Value Framework Integration**: Contextual value-based questions in discovery
+11. **Feature: Conversational Value Discovery**: AI-powered chat interface for discovery (NEW)
 
-## IPAM Section Enhancements (Dec 2025)
-- **Platform Vendor (ipam-0)**: 2-column grid layout with checkboxes (Spreadsheets, Microsoft, Bluecat, EIP + Other freeform), click away accepts
-- **Cloud Providers (ipam-9)**: 3-column grid layout (AWS, Azure, GCP, OCI, Alibaba, IBM + Other freeform), click away accepts
-- **DC/Sites Sync**: 
-  - `# of Data Centers` (ud-5) syncs with TopBar `dataCenters.length`
-  - `# of Sites` (ud-7) syncs with TopBar `sites.length`
-  - Shows orange mismatch badge if counts differ (e.g., "⚠ 0 in TopBar")
-- **Add Response**: 
-  - Text questions show "+ Add response" button
-  - Clicking expands textarea with "Examine for answers" button for SmartFill AI
-  - Section-level "+ Add response" at bottom of each section for contextual notes
-
-## Core Features (Implemented)
-- Customer management CRUD
-- Discovery questions with collapsible sections, scroll-spy nav, section pills
-- Cloud Management auto-selects UDDI
-- Auto deployment model (NIOS/UDDI/Hybrid)
-- Sizing table, Token calculations, Hub/Spoke topology
-- SmartFill AI + Value Framework Injection
-- History/Versioning, Export (CSV, YAML, Excel, PDF)
-- QPS auto-calculation, External DNS vendor multiselect
+## Tech Stack
+- **Frontend**: React, Vite, Tailwind CSS, shadcn/ui
+- **Backend**: Flask/FastAPI
+- **Database**: MongoDB
+- **AI**: Gemini 3 Flash via Emergent LLM Key
 
 ## Architecture
 ```
 /app
-├── backend/ (Flask: server.py, routes/, data/, models/)
-└── frontend/src/ (React: TopBar.jsx, AssessmentQuestions.jsx, CustomerDetail.jsx, DiscoveryContext.jsx)
+├── backend/
+│   ├── data/
+│   │   ├── questions.py      # Backend source of truth for questions
+│   │   └── valueFramework.py # Value framework definitions
+│   ├── routes/
+│   │   ├── ai.py             # AI endpoints including value-discovery-chat
+│   │   ├── customers.py
+│   │   └── discovery.py
+│   └── server.py
+└── frontend/
+    └── src/
+        ├── components/
+        │   ├── TopBar.jsx
+        │   ├── AssessmentQuestions.jsx
+        │   ├── ChatValueDiscovery.jsx   # NEW - Conversational discovery
+        │   └── sizing/
+        ├── contexts/
+        │   └── DiscoveryContext.jsx
+        └── lib/
+            └── questions.js   # Static frontend copy (sync issue)
 ```
 
-## Backlog
-- P1: Full Home Assistant UI consistency review
-- P2: Keyboard shortcuts (Tab, Ctrl+S)
-- P2: AI Discovery Assistant enhancements
-- P3: AssessmentQuestions.jsx decomposition (800+ lines)
+## What's Been Implemented
+
+### December 2025
+- **Conversational Value Discovery** (ChatValueDiscovery.jsx)
+  - Chat-style interface for discovery questions
+  - AI-powered follow-ups using Gemini 3 Flash
+  - Topic tracking with visual progress bar
+  - Conversation persistence across sessions
+  - Section-specific openers and context hints
+
+- **3rd Party Integrations Dropdown** - Fixed to 2-column layout
+
+- **TopBar Layout & Alignment** - Major overhaul completed
+
+- **IPAM Section Enhancements**:
+  - GridMultiSelect components for DNS Platform, Cloud Platform
+  - SyncedNumberField for DC/Sites with TopBar mismatch warnings
+  - SmartFill input ("+ Add response" button with textarea)
+  - 3rd Party Integrations and Orchestration Tools dropdowns
+
+## Known Issues
+1. **Static Question File**: Frontend uses `/frontend/src/lib/questions.js` instead of fetching from API. Must sync manually with `/backend/data/questions.py`
+2. **External DNS QPS Auto-Calculation**: May not work reliably (needs verification)
+
+## Backlog (Prioritized)
+
+### P0 - Critical
+- None currently
+
+### P1 - High Priority  
+- [ ] Implement AI logic for "Examine for answers" button
+- [ ] Verify External DNS QPS auto-calculation
+- [ ] Full Home Assistant UI consistency review
+
+### P2 - Medium Priority
+- [ ] Keyboard shortcuts (Tab navigation, Ctrl+S to save)
+- [ ] AI Discovery Assistant enhancements
+- [ ] Decouple frontend from static questions.js
+
+### P3 - Low Priority
+- [ ] AssessmentQuestions.jsx decomposition (1300+ lines)
+
+## API Endpoints
+
+### AI Endpoints
+- `POST /api/value-discovery-chat` - Conversational discovery with AI follow-ups
+- `POST /api/analyze-notes` - SmartFill note analysis
+- `POST /api/generate-context` - Generate context summaries
+- `POST /api/generate-value-props` - Generate value propositions
+- `GET /api/questions` - Get discovery questions
+- `GET /api/value-framework` - Get value framework data
+
+### Customer Endpoints
+- `GET/POST /api/customers` - List/Create customers
+- `GET/PUT/DELETE /api/customers/{id}` - CRUD operations
+- `GET/PUT /api/customers/{id}/discovery` - Discovery data
+
+## 3rd Party Integrations
+- **Gemini 3 Flash**: Via Emergent LLM Key for SmartFill and Value Discovery Chat
+- **xlsx**: Excel file generation for exports
