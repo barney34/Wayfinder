@@ -134,7 +134,7 @@ function SyncedNumberField({ questionId, value, onChange, syncValue, syncLabel }
         onChange={e => onChange(e.target.value)}
         onBlur={e => onChange(e.target.value)}
         onKeyDown={e => e.key === 'Enter' && e.target.blur()}
-        className={`w-20 h-8 text-xs ${hasMismatch ? 'border-[#ff9f0a] bg-[#ff9f0a]/10' : 'bg-[#1c1c1e] border-[#3c3c3e]'}`}
+        className={`w-20 h-8 text-xs ${hasMismatch ? 'border-[#ff9f0a] bg-[#ff9f0a]/10' : 'bg-background border-border'}`}
         placeholder="0"
         data-testid={`input-answer-${questionId}`}
       />
@@ -192,7 +192,7 @@ function AddResponseField({ questionId, value, onChange, onExamine, sectionConte
         onChange={e => onChange(e.target.value)}
         onBlur={e => onChange(e.target.value)}
         placeholder="Enter additional context or notes..."
-        className="min-h-[80px] text-sm bg-[#1c1c1e] border-[#3c3c3e] text-white placeholder:text-[#8e8e93] rounded-xl focus:ring-[#0a84ff] focus:border-[#0a84ff]"
+        className="min-h-[80px] text-sm bg-background border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:ring-[#0a84ff] focus:border-[#0a84ff]"
         data-testid={`response-textarea-${questionId}`}
         autoFocus
       />
@@ -202,7 +202,7 @@ function AddResponseField({ questionId, value, onChange, onExamine, sectionConte
           variant="outline"
           onClick={handleExamine}
           disabled={!value?.trim() || isExamining}
-          className="h-7 text-xs bg-[#2c2c2e] border-[#3c3c3e] hover:bg-[#3c3c3e] text-white"
+          className="h-7 text-xs bg-muted border-border hover:bg-secondary text-foreground"
           data-testid={`examine-btn-${questionId}`}
         >
           <Sparkles className="h-3 w-3 mr-1" />
@@ -212,7 +212,7 @@ function AddResponseField({ questionId, value, onChange, onExamine, sectionConte
           size="sm"
           variant="ghost"
           onClick={() => setIsExpanded(false)}
-          className="h-7 text-xs text-[#8e8e93] hover:text-white"
+          className="h-7 text-xs text-muted-foreground hover:text-foreground"
         >
           Done
         </Button>
