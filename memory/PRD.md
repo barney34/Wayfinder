@@ -49,7 +49,11 @@ Migration and enhancement of a "Sizing" calculator application for infrastructur
 
 ## What's Been Implemented
 
-### December 2025
+### December 2025 (Latest Session)
+- **P0 Bug Fix: DC Count Sync** - Adding Data Center from Sizing page now correctly updates the "# of Data Centers" field (ud-5) in Discovery IPAM section. Fixed by making `saveToServer()` call synchronous in `addManualDataCenter()`.
+  
+- **P1 Bug Fix: Site/DC Persistence** - Manually added Sites and Data Centers now persist across navigation. Fixed by removing local state and using context functions (`addSite`, `addDataCenter`) for all entries.
+
 - **Conversational Value Discovery v2** (ChatValueDiscovery.jsx)
   - Mode toggle: Guided (3Q per topic) vs Free Ask
   - Clickable topic pills to pivot conversation
@@ -75,7 +79,8 @@ Migration and enhancement of a "Sizing" calculator application for infrastructur
 ## Backlog (Prioritized)
 
 ### P0 - Critical
-- None currently
+- ✅ COMPLETED: DC count sync between Sizing and Discovery tabs
+- ✅ COMPLETED: Manual Site/DC persistence across navigation
 
 ### P1 - High Priority  
 - [ ] Implement AI logic for "Examine for answers" button
