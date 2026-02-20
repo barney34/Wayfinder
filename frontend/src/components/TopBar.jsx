@@ -117,12 +117,12 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
             <div className="flex items-center gap-1.5">
               <Building2 className="h-3 w-3 text-[#30d158]" />
               <span className="text-[10px] font-medium text-[#30d158]">DC</span>
-              <span className="text-[11px] font-semibold text-white">{dataCenters.length}</span>
+              <span className="text-[11px] font-semibold text-foreground">{dataCenters.length}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <MapPin className="h-3 w-3 text-[#5e5ce6]" />
               <span className="text-[10px] font-medium text-[#5e5ce6]">Sites</span>
-              <span className="text-[11px] font-semibold text-white">{sites.length}</span>
+              <span className="text-[11px] font-semibold text-foreground">{sites.length}</span>
             </div>
           </div>
 
@@ -141,7 +141,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
                 ))}
               </div>
             ) : (
-              <span className="text-[9px] text-[#6e6e73]">--</span>
+              <span className="text-[9px] text-muted-foreground">--</span>
             )}
             {isHybrid && (
               <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-gradient-to-r from-[#30d158]/25 to-[#0a84ff]/25 text-[#64d2ff]">Hybrid</span>
@@ -152,16 +152,16 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
           <div className="flex flex-col items-center gap-0.5">
             <div className="flex items-center gap-1">
               <Calculator className="h-3 w-3 text-[#32d74b]" />
-              <span className="text-[10px] text-[#8e8e93]">KW</span>
-              <span className="text-[11px] font-semibold text-white">{formatKW(totalKW)}</span>
+              <span className="text-[10px] text-muted-foreground">KW</span>
+              <span className="text-[11px] font-semibold text-foreground">{formatKW(totalKW)}</span>
             </div>
             <span className="text-[11px] font-bold text-[#32d74b]">{formatKW(activeIPs)} IPs</span>
           </div>
         </div>
 
         {/* Chevron - always visible on the right */}
-        <div className="shrink-0 ml-2 p-1 rounded-lg bg-[#2c2c2e]">
-          {collapsed ? <ChevronDown className="h-3 w-3 text-[#8e8e93]" /> : <ChevronUp className="h-3 w-3 text-[#8e8e93]" />}
+        <div className="shrink-0 ml-2 p-1 rounded-lg bg-muted">
+          {collapsed ? <ChevronDown className="h-3 w-3 text-muted-foreground" /> : <ChevronUp className="h-3 w-3 text-muted-foreground" />}
         </div>
       </div>
 
