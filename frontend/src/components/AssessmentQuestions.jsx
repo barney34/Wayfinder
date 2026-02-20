@@ -926,7 +926,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                       ${isActive 
                         ? `${styles.active} scale-105` 
                         : isSectionEnabled 
-                          ? `${styles.normal} hover:scale-102 hover:bg-muted/20` 
+                          ? `${styles.normal} hover:scale-102` 
                           : 'bg-transparent border-border/30 text-muted-foreground/50 line-through'
                       }`}
                     data-testid={`nav-${section.replace(/\s/g, '-')}`}
@@ -934,12 +934,12 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                     {/* Progress bar background */}
                     {!isActive && isSectionEnabled && progress > 0 && (
                       <div 
-                        className="absolute bottom-0 left-0 h-0.5 bg-current opacity-30 transition-all"
+                        className="absolute bottom-0 left-0 h-0.5 bg-[#16a34a] transition-all"
                         style={{ width: `${progress}%` }}
                       />
                     )}
                     <span>{abbrev}</span>
-                    <span className={`text-[9px] font-normal ${isActive ? 'opacity-90' : 'opacity-50'}`}>
+                    <span className={`text-[9px] font-medium ${isActive ? 'text-white/90' : 'text-muted-foreground'}`}>
                       {answeredCount}/{totalCount}
                     </span>
                   </button>
