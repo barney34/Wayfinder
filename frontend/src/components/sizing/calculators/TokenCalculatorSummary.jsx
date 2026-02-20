@@ -323,7 +323,7 @@ export function TokenCalculatorSummary() {
     setManualSites(prev => [...prev, newSite]);
   }, [sites.length, dhcpPercent, platformMode]);
 
-  // Add manual data center - syncs to TopBar and updates IPAM # of Data Centers
+  // Add manual data center - syncs to TopBar and updates Discovery # of Data Centers
   const addManualDataCenter = useCallback(() => {
     const currentDCCount = dataCenters.length;
     const newDCName = `Data Center ${currentDCCount + 1}`;
@@ -335,7 +335,9 @@ export function TokenCalculatorSummary() {
     
     // Update "# of Data Centers" answer (ud-5) to match the new count
     // Use currentDCCount + 1 since we just added a DC
-    setAnswer('ud-5', String(currentDCCount + 1));
+    const newCount = String(currentDCCount + 1);
+    console.log(`[addManualDataCenter] Setting ud-5 to ${newCount}`);
+    setAnswer('ud-5', newCount);
     
   }, [dataCenters.length, contextAddDC, setAnswer]);
 
