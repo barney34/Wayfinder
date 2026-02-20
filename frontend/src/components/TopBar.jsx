@@ -217,56 +217,56 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
           </div>
 
           {/* Target Solutions */}
-          <div className="bg-muted rounded-xl p-2.5">
+          <div className="bg-card rounded-xl p-2.5 border border-border shadow-sm">
             <div className="flex items-center gap-1.5 mb-1.5">
-              <Target className="h-3.5 w-3.5 text-[#ff9f0a]" />
-              <span className="text-[11px] font-medium text-foreground">Target Solutions</span>
+              <Target className="h-3.5 w-3.5 text-[#ea580c]" />
+              <span className="text-[11px] font-semibold text-foreground">Target Solutions</span>
             </div>
             <div className="space-y-1">
               <div className="grid grid-cols-2 gap-1">
-                <button onClick={() => setAnswer('feature-nios', !isNIOS ? 'Yes' : 'No')} className={`flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${isNIOS ? 'bg-[#30d158] text-black' : 'bg-secondary text-muted-foreground hover:bg-muted'}`} data-testid="toggle-feature-nios">
+                <button onClick={() => setAnswer('feature-nios', !isNIOS ? 'Yes' : 'No')} className={`flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all border ${isNIOS ? 'bg-[#16a34a] text-white border-[#16a34a] shadow-sm' : 'bg-secondary text-secondary-foreground hover:bg-muted border-border'}`} data-testid="toggle-feature-nios">
                   NIOS
-                  {isNIOS && isAsset && (<div className="relative group"><Info className="h-2.5 w-2.5" /><div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-popover text-popover-foreground text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-10">+Mgmt Tokens Added</div></div>)}
+                  {isNIOS && isAsset && (<div className="relative group"><Info className="h-2.5 w-2.5" /><div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-popover text-popover-foreground text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-10 shadow-lg border border-border">+Mgmt Tokens Added</div></div>)}
                 </button>
-                <button onClick={() => setAnswer('feature-uddi', !isUDDI ? 'Yes' : 'No')} className={`flex items-center justify-center px-1.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${isUDDI ? 'bg-[#0a84ff] text-white' : 'bg-secondary text-muted-foreground hover:bg-muted'}`} data-testid="toggle-feature-uddi">UDDI</button>
+                <button onClick={() => setAnswer('feature-uddi', !isUDDI ? 'Yes' : 'No')} className={`flex items-center justify-center px-1.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all border ${isUDDI ? 'bg-[#2563eb] text-white border-[#2563eb] shadow-sm' : 'bg-secondary text-secondary-foreground hover:bg-muted border-border'}`} data-testid="toggle-feature-uddi">UDDI</button>
               </div>
               <div className="grid grid-cols-2 gap-1">
-                <button onClick={() => setAnswer('feature-security', !isSecurity ? 'Yes' : 'No')} className={`flex items-center justify-center px-1.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${isSecurity ? 'bg-[#ff453a] text-white' : 'bg-secondary text-muted-foreground hover:bg-muted'}`} data-testid="toggle-feature-security">Security</button>
-                <button onClick={() => setAnswer('feature-asset insights', !isAsset ? 'Yes' : 'No')} className={`flex items-center justify-center gap-0.5 px-1.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${isAsset ? 'bg-[#bf5af2] text-white' : 'bg-secondary text-muted-foreground hover:bg-muted'}`} data-testid="toggle-feature-asset">
+                <button onClick={() => setAnswer('feature-security', !isSecurity ? 'Yes' : 'No')} className={`flex items-center justify-center px-1.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all border ${isSecurity ? 'bg-[#dc2626] text-white border-[#dc2626] shadow-sm' : 'bg-secondary text-secondary-foreground hover:bg-muted border-border'}`} data-testid="toggle-feature-security">Security</button>
+                <button onClick={() => setAnswer('feature-asset insights', !isAsset ? 'Yes' : 'No')} className={`flex items-center justify-center gap-0.5 px-1.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all border ${isAsset ? 'bg-[#9333ea] text-white border-[#9333ea] shadow-sm' : 'bg-secondary text-secondary-foreground hover:bg-muted border-border'}`} data-testid="toggle-feature-asset">
                   Asset
-                  {isAsset && isNIOS && (<div className="relative group"><Info className="h-2.5 w-2.5" /><div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-popover text-popover-foreground text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-10">+Mgmt Tokens Added</div></div>)}
+                  {isAsset && isNIOS && (<div className="relative group"><Info className="h-2.5 w-2.5" /><div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-popover text-popover-foreground text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-10 shadow-lg border border-border">+Mgmt Tokens Added</div></div>)}
                 </button>
               </div>
-              <button onClick={() => { if (isHybrid) { setAnswer('feature-nios', 'No'); setAnswer('feature-uddi', 'No'); } else { setAnswer('feature-nios', 'Yes'); setAnswer('feature-uddi', 'Yes'); } }} className={`w-full flex items-center justify-center gap-1.5 px-1.5 py-1.5 rounded-lg text-[11px] font-bold transition-all ${isHybrid ? 'bg-gradient-to-r from-[#30d158] to-[#0a84ff] text-white shadow-lg' : 'bg-secondary text-muted-foreground hover:bg-muted border border-dashed border-border'}`} data-testid="toggle-hybrid">
+              <button onClick={() => { if (isHybrid) { setAnswer('feature-nios', 'No'); setAnswer('feature-uddi', 'No'); } else { setAnswer('feature-nios', 'Yes'); setAnswer('feature-uddi', 'Yes'); } }} className={`w-full flex items-center justify-center gap-1.5 px-1.5 py-1.5 rounded-lg text-[11px] font-bold transition-all border ${isHybrid ? 'bg-gradient-to-r from-[#16a34a] to-[#2563eb] text-white shadow-md border-transparent' : 'bg-secondary text-secondary-foreground hover:bg-muted border-dashed border-border'}`} data-testid="toggle-hybrid">
                 <span>Hybrid</span>{isHybrid && <Check className="h-3 w-3" />}
               </button>
             </div>
           </div>
 
           {/* Active IPs */}
-          <div className="bg-muted rounded-xl p-2.5">
+          <div className="bg-card rounded-xl p-2.5 border border-border shadow-sm">
             <div className="flex items-center justify-between mb-1.5">
               <div className="flex items-center gap-1.5">
-                <Calculator className="h-3.5 w-3.5 text-[#32d74b]" />
-                <span className="text-[11px] font-medium text-foreground">Active IPs</span>
+                <Calculator className="h-3.5 w-3.5 text-[#16a34a]" />
+                <span className="text-[11px] font-semibold text-foreground">Active IPs</span>
               </div>
-              <span className="text-base font-bold text-[#32d74b]">{formatKW(activeIPs)}</span>
+              <span className="text-base font-bold text-[#16a34a]">{formatKW(activeIPs)}</span>
             </div>
             <div className="space-y-1.5">
               <div>
-                <label className="text-[10px] text-muted-foreground mb-0.5 block">Knowledge Workers</label>
-                <input type="number" value={answers['ud-1'] || ''} onChange={e => setAnswer('ud-1', e.target.value)} placeholder="0" className="w-full h-7 px-2 text-xs rounded-lg bg-background border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#32d74b] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" data-testid="kw-input" />
+                <label className="text-[10px] text-muted-foreground font-medium mb-0.5 block">Knowledge Workers</label>
+                <input type="number" value={answers['ud-1'] || ''} onChange={e => setAnswer('ud-1', e.target.value)} placeholder="0" className="w-full h-7 px-2 text-xs rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" data-testid="kw-input" />
               </div>
               <div>
-                <label className="text-[10px] text-muted-foreground mb-0.5 block">Multiplier</label>
+                <label className="text-[10px] text-muted-foreground font-medium mb-0.5 block">Multiplier</label>
                 <div className="flex items-center gap-1">
-                  <button onClick={() => { const c = parseFloat(answers['ipam-multiplier'] || '2.5'); setAnswer('ipam-multiplier', Math.max(0.5, c - 0.5).toString()); }} className="h-7 w-7 shrink-0 rounded-lg bg-secondary hover:bg-muted flex items-center justify-center text-foreground" data-testid="multiplier-down"><ChevronDown className="h-3.5 w-3.5" /></button>
-                  <input type="number" step="0.5" value={answers['ipam-multiplier'] || '2.5'} onChange={e => setAnswer('ipam-multiplier', e.target.value)} className="flex-1 min-w-0 h-7 px-1 text-xs text-center rounded-lg bg-background border border-border text-foreground focus:outline-none focus:border-[#32d74b] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" data-testid="multiplier-input" />
-                  <button onClick={() => { const c = parseFloat(answers['ipam-multiplier'] || '2.5'); setAnswer('ipam-multiplier', (c + 0.5).toString()); }} className="h-7 w-7 shrink-0 rounded-lg bg-secondary hover:bg-muted flex items-center justify-center text-foreground" data-testid="multiplier-up"><ChevronUp className="h-3.5 w-3.5" /></button>
+                  <button onClick={() => { const c = parseFloat(answers['ipam-multiplier'] || '2.5'); setAnswer('ipam-multiplier', Math.max(0.5, c - 0.5).toString()); }} className="h-7 w-7 shrink-0 rounded-lg bg-secondary border border-border hover:bg-muted flex items-center justify-center text-foreground" data-testid="multiplier-down"><ChevronDown className="h-3.5 w-3.5" /></button>
+                  <input type="number" step="0.5" value={answers['ipam-multiplier'] || '2.5'} onChange={e => setAnswer('ipam-multiplier', e.target.value)} className="flex-1 min-w-0 h-7 px-1 text-xs text-center rounded-lg bg-secondary border border-border text-foreground focus:outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" data-testid="multiplier-input" />
+                  <button onClick={() => { const c = parseFloat(answers['ipam-multiplier'] || '2.5'); setAnswer('ipam-multiplier', (c + 0.5).toString()); }} className="h-7 w-7 shrink-0 rounded-lg bg-secondary border border-border hover:bg-muted flex items-center justify-center text-foreground" data-testid="multiplier-up"><ChevronUp className="h-3.5 w-3.5" /></button>
                 </div>
               </div>
-              <div className="text-[10px] text-muted-foreground text-center pt-0.5">
-                {formatKW(kw)} x {mult} = <span className="text-[#32d74b] font-semibold">{formatKW(activeIPs)}</span>
+              <div className="text-[10px] text-muted-foreground font-medium text-center pt-0.5">
+                {formatKW(kw)} x {mult} = <span className="text-[#16a34a] font-bold">{formatKW(activeIPs)}</span>
               </div>
             </div>
           </div>
