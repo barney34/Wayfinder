@@ -37,7 +37,7 @@ export function SizingTableHeader({ showHardware, showKW, platformMode }) {
         <HeaderWithTooltip className="w-20 lg:w-24" tooltip="Co-located services that can run on the same host. Each service adds performance overhead.">
           Services
         </HeaderWithTooltip>
-        <HeaderWithTooltip className="w-24 lg:w-28" tooltip="Select a Hub site for DHCP failover. Spokes forward DHCP to their Hub (50% LPS penalty).">
+        <HeaderWithTooltip className="w-24 lg:w-28" tooltip="Select a Hub site for DHCP failover. Hub receives 50% of combined spoke LPS for failover capacity.">
           DHCP Partner
         </HeaderWithTooltip>
         <HeaderWithTooltip className="w-14 lg:w-16" tooltip="Number of identical servers at this location. Tokens multiply by server count.">
