@@ -157,28 +157,28 @@ export function ValueFrameworkInjection({ section }) {
 
   return (
     <div className="mb-4" data-testid={`vf-injection-${section.replace(/\s/g, '-')}`}>
-      {/* Header toggle - softer styling */}
+      {/* Header toggle - MINIMAL: gray, no gradient */}
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-lg bg-gradient-to-r from-indigo-50/60 to-purple-50/60 dark:from-indigo-950/20 dark:to-purple-950/20 hover:from-indigo-50/80 hover:to-purple-50/80 transition-all"
+        className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all"
       >
-        <Sparkles className="h-4 w-4 text-indigo-500" />
-        <span className="text-sm font-semibold text-indigo-700 dark:text-indigo-300">Value Discovery</span>
-        <Badge variant="outline" className="text-[10px] px-1.5 py-0.5 border-indigo-300/50 dark:border-indigo-700/50 text-indigo-600 dark:text-indigo-400 bg-white/50 dark:bg-black/20">
+        <Sparkles className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+        <span className="text-sm font-semibold text-black dark:text-white">Value Discovery</span>
+        <span className="text-[10px] px-1.5 py-0.5 text-gray-500 dark:text-gray-400">
           {answeredSeeds.length}/{seeds.length}
-        </Badge>
+        </span>
         {triggeredFollowUps.length > 0 && (
-          <Badge className="text-[10px] px-1.5 py-0.5 bg-indigo-500/90 text-white">
+          <span className="text-[10px] px-1.5 py-0.5 text-gray-600 dark:text-gray-300 font-medium">
             +{triggeredFollowUps.length} follow-up{triggeredFollowUps.length > 1 ? 's' : ''}
-          </Badge>
+          </span>
         )}
         <div className="flex-1" />
-        {expanded ? <ChevronDown className="h-4 w-4 text-indigo-400" /> : <ChevronRight className="h-4 w-4 text-indigo-400" />}
+        {expanded ? <ChevronDown className="h-4 w-4 text-gray-400" /> : <ChevronRight className="h-4 w-4 text-gray-400" />}
       </button>
 
-      {/* Expanded content - REFACTORED: blockquote style, no heavy borders */}
+      {/* Expanded content - MINIMAL: no colors, just indentation */}
       <div className={`overflow-hidden transition-all duration-300 ${expanded ? 'max-h-[2000px] opacity-100 mt-3' : 'max-h-0 opacity-0'}`}>
-        <div className="space-y-4 pl-4 border-l-4 border-indigo-300/60 dark:border-indigo-700/50">
+        <div className="space-y-4 pl-4 border-l-2 border-gray-200 dark:border-gray-700">
           {/* Seed Questions */}
           {seeds.map(seed => {
             const catStyle = CATEGORY_STYLES[seed.categoryId] || CATEGORY_STYLES.optimize;
@@ -189,49 +189,47 @@ export function ValueFrameworkInjection({ section }) {
 
             return (
               <div key={seed.id} className="space-y-3" data-testid={`vf-seed-${seed.id}`}>
-                {/* Seed Question - clean card, minimal border */}
-                <div className={`rounded-lg px-4 py-3 transition-all ${hasAnswer ? 'bg-white dark:bg-card shadow-sm' : 'bg-muted/30'}`}>
-                  {/* Question label above input */}
+                {/* Seed Question - minimal card */}
+                <div className={`rounded-lg px-4 py-3 border ${hasAnswer ? 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800/50' : 'border-gray-200 dark:border-gray-700'}`}>
+                  {/* Question label */}
                   <div className="flex items-start gap-2 mb-2.5">
-                    <MessageSquare className="h-3.5 w-3.5 text-indigo-400 mt-0.5 shrink-0" />
-                    <span className="text-sm leading-relaxed flex-1 text-foreground/90">{seed.question}</span>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium shrink-0 ${catStyle.badge}`}>
+                    <span className="text-sm leading-relaxed flex-1 text-black dark:text-white font-medium">{seed.question}</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-600">
                       {seed.categoryName.split(' ')[0]}
                     </span>
                   </div>
-                  {/* Input below label */}
+                  {/* Input */}
                   <Input
                     value={currentAnswer}
                     onChange={e => setAnswer(seed.id, e.target.value)}
                     placeholder="Customer's response..."
-                    className="h-9 text-sm bg-background/80"
+                    className="h-9 text-sm bg-transparent border-gray-300 dark:border-gray-600"
                     data-testid={`vf-seed-input-${seed.id}`}
                   />
                 </div>
 
-                {/* Triggered Follow-ups - BLOCKQUOTE STYLE, no boxes */}
+                {/* Triggered Follow-ups - minimal gray indent */}
                 {showFollowUps && (
-                  <div className="ml-4 space-y-3 pl-4 border-l-3 border-amber-300/60 dark:border-amber-600/40 bg-gradient-to-r from-amber-50/30 to-transparent dark:from-amber-950/10 rounded-r-lg py-2">
+                  <div className="ml-4 space-y-3 pl-4 border-l-2 border-gray-200 dark:border-gray-600 py-2">
                     {followUps.map(fu => {
                       const fuAnswer = answers[fu.id] || '';
                       return (
                         <div key={fu.id} className="space-y-2" data-testid={`vf-followup-${fu.id}`}>
-                          {/* Framing - contextual insight */}
+                          {/* Framing - italic gray */}
                           <div className="flex items-start gap-2">
-                            <Lightbulb className="h-3.5 w-3.5 text-amber-500 mt-0.5 shrink-0" />
-                            <span className="text-[11px] text-amber-700 dark:text-amber-400 italic leading-relaxed">{fu.framing}</span>
+                            <Lightbulb className="h-3.5 w-3.5 text-gray-400 mt-0.5 shrink-0" />
+                            <span className="text-[11px] text-gray-500 dark:text-gray-400 italic leading-relaxed">{fu.framing}</span>
                           </div>
                           {/* Follow-up question + input */}
                           <div className="pl-5">
                             <div className="flex items-start gap-2 mb-2">
-                              <TrendingUp className="h-3 w-3 text-indigo-400 mt-0.5 shrink-0" />
-                              <span className="text-xs text-muted-foreground leading-relaxed">{fu.question}</span>
+                              <span className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">{fu.question}</span>
                             </div>
                             <Input
                               value={fuAnswer}
                               onChange={e => setAnswer(fu.id, e.target.value)}
                               placeholder="Response..."
-                              className="h-8 text-sm bg-white/60 dark:bg-card/60"
+                              className="h-8 text-sm bg-transparent border-gray-300 dark:border-gray-600"
                               data-testid={`vf-fu-input-${fu.id}`}
                             />
                           </div>
