@@ -73,6 +73,32 @@ class GenerateContextResponse(BaseModel):
     summary: str
 
 
+# ========== Value Discovery Chat Models ==========
+class ChatMessage(BaseModel):
+    role: str  # 'system' or 'user'
+    content: str
+    timestamp: Optional[int] = None
+
+
+class TopicConfig(BaseModel):
+    id: str
+    label: str
+    required: bool = False
+
+
+class ValueDiscoveryChatRequest(BaseModel):
+    section: str
+    conversation: List[ChatMessage]
+    coveredTopics: List[str] = []
+    requiredTopics: List[TopicConfig] = []
+    contextHints: List[str] = []
+
+
+class ValueDiscoveryChatResponse(BaseModel):
+    response: str
+    newTopicsCovered: List[str] = []
+
+
 # ========== Discovery Data Models ==========
 class DiscoveryData(BaseModel):
     answers: Dict[str, str] = {}
