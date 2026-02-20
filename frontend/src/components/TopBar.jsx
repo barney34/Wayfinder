@@ -169,8 +169,8 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
           {/* Spacer to match customer pill width exactly */}
           <div className="shrink-0 mr-4" style={{ width: pillWidth > 0 ? `${pillWidth}px` : 'auto' }} />
           
-          {/* Input cards grid - matches summary grid exactly */}
-          <div className="flex-1 grid gap-x-3 py-3" style={{ gridTemplateColumns: '5fr 5fr 3fr 3fr' }}>
+          {/* Input cards grid - DC/Sites smaller, TS and Active IPs larger */}
+          <div className="flex-1 grid gap-x-3 py-3" style={{ gridTemplateColumns: '3fr 3fr 4fr 4fr' }}>
             {/* Data Centers */}
             <div className="pr-0">
               <div className="bg-[#2c2c2e] rounded-xl p-3 flex flex-col h-full">
