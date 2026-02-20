@@ -1,18 +1,28 @@
 /**
  * ChatValueDiscovery - Conversational Value Discovery with AI-powered follow-ups
  * 
- * Hybrid approach:
- * - Pre-defined key topics that MUST be covered (pain points, impact, goals, timeline)
- * - AI generates natural follow-up questions based on responses
- * - Ensures completeness while feeling conversational
+ * Features:
+ * - 3-question limit per topic for focused discovery
+ * - Mode toggle: Guided (AI-led) vs Free Ask (user-led)
+ * - Clickable topic pills to pivot conversation
+ * - Progress tracking per topic
  */
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Send, ChevronDown, ChevronRight, CheckCircle2, Circle, Loader2, MessageSquare, RotateCcw } from "lucide-react";
+import { Send, ChevronDown, ChevronRight, CheckCircle2, Loader2, MessageSquare, RotateCcw, Compass, MessageCircleQuestion } from "lucide-react";
 import { useDiscovery } from "@/contexts/DiscoveryContext";
 import { useToast } from "@/hooks/use-toast";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
+const MAX_QUESTIONS_PER_TOPIC = 3;
+
+// Topic opener questions for when user clicks a topic pill
+const TOPIC_OPENERS = {
+  'current-state': "Tell me about your current setup and how things work today.",
+  'pain-points': "What are the biggest challenges or frustrations you're facing?",
+  'business-impact': "How do these issues affect your business - time, money, risk?",
+  'goals': "What outcomes are you hoping to achieve?"
+};
 
 // Key topics that MUST be covered per section
 const SECTION_TOPICS = {
@@ -128,7 +138,9 @@ export function ChatValueDiscovery({ section }) {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [conversation, setConversation] = useState([]);
-  const [coveredTopics, setCoveredTopics] = useState([]);
+  const [topicQuestionCounts, setTopicQuestionCounts] = useState({}); // { 'current-state': 2, 'pain-points': 1 }
+  const [currentTopic, setCurrentTopic] = useState('current-state');
+  const [mode, setMode] = useState('guided'); // 'guided' or 'free'
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   
@@ -137,7 +149,7 @@ export function ChatValueDiscovery({ section }) {
 
   // Initialize conversation with opener
   const getInitialConversation = useCallback(() => {
-    return [{ role: 'system', content: sectionConfig.opener, timestamp: Date.now() }];
+    return [{ role: 'system', content: sectionConfig.opener, timestamp: Date.now(), topic: 'current-state' }];
   }, [sectionConfig.opener]);
 
   // Load conversation from answers context on mount
@@ -148,7 +160,9 @@ export function ChatValueDiscovery({ section }) {
         const parsed = JSON.parse(savedConvo);
         if (parsed.messages && parsed.messages.length > 0) {
           setConversation(parsed.messages);
-          setCoveredTopics(parsed.coveredTopics || []);
+          setTopicQuestionCounts(parsed.topicQuestionCounts || {});
+          setCurrentTopic(parsed.currentTopic || 'current-state');
+          setMode(parsed.mode || 'guided');
           return;
         }
       } catch (e) {
@@ -157,7 +171,8 @@ export function ChatValueDiscovery({ section }) {
     }
     // Start fresh
     setConversation(getInitialConversation());
-    setCoveredTopics([]);
+    setTopicQuestionCounts({ 'current-state': 1 });
+    setCurrentTopic('current-state');
   }, [section, storageKey, getInitialConversation]);
 
   // Save conversation to answers context
@@ -165,10 +180,12 @@ export function ChatValueDiscovery({ section }) {
     if (conversation.length > 0) {
       setAnswer(storageKey, JSON.stringify({
         messages: conversation,
-        coveredTopics: coveredTopics
+        topicQuestionCounts: topicQuestionCounts,
+        currentTopic: currentTopic,
+        mode: mode
       }));
     }
-  }, [conversation, coveredTopics, storageKey, setAnswer]);
+  }, [conversation, topicQuestionCounts, currentTopic, mode, storageKey, setAnswer]);
 
   // Scroll to bottom on new messages (within chat container only)
   useEffect(() => {
@@ -179,17 +196,60 @@ export function ChatValueDiscovery({ section }) {
 
   const resetConversation = () => {
     setConversation(getInitialConversation());
-    setCoveredTopics([]);
+    setTopicQuestionCounts({ 'current-state': 1 });
+    setCurrentTopic('current-state');
+    setMode('guided');
     toast({
       title: "Conversation reset",
       description: "Starting fresh with Value Discovery",
     });
   };
 
+  // Check if a topic is complete (3 questions asked)
+  const isTopicComplete = (topicId) => {
+    return (topicQuestionCounts[topicId] || 0) >= MAX_QUESTIONS_PER_TOPIC;
+  };
+
+  // Get question count for a topic
+  const getTopicQuestionCount = (topicId) => {
+    return topicQuestionCounts[topicId] || 0;
+  };
+
+  // Handle clicking on a topic pill to switch focus
+  const handleTopicClick = (topicId) => {
+    if (isLoading) return;
+    
+    const count = getTopicQuestionCount(topicId);
+    if (count >= MAX_QUESTIONS_PER_TOPIC) {
+      toast({
+        title: "Topic complete",
+        description: `You've covered ${sectionConfig.topics.find(t => t.id === topicId)?.label || topicId}. Try another topic!`,
+      });
+      return;
+    }
+
+    setCurrentTopic(topicId);
+    
+    // Add a transition message from the AI
+    const topicLabel = sectionConfig.topics.find(t => t.id === topicId)?.label || topicId;
+    const pivotMessage = {
+      role: 'system',
+      content: TOPIC_OPENERS[topicId] || `Let's talk about ${topicLabel.toLowerCase()}.`,
+      timestamp: Date.now(),
+      topic: topicId
+    };
+    
+    setConversation(prev => [...prev, pivotMessage]);
+    setTopicQuestionCounts(prev => ({
+      ...prev,
+      [topicId]: (prev[topicId] || 0) + 1
+    }));
+  };
+
   const sendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
 
-    const userMessage = { role: 'user', content: inputValue.trim(), timestamp: Date.now() };
+    const userMessage = { role: 'user', content: inputValue.trim(), timestamp: Date.now(), topic: currentTopic };
     const newConversation = [...conversation, userMessage];
     setConversation(newConversation);
     setInputValue('');
@@ -203,9 +263,12 @@ export function ChatValueDiscovery({ section }) {
         body: JSON.stringify({
           section,
           conversation: newConversation,
-          coveredTopics,
+          currentTopic,
+          topicQuestionCounts,
+          maxQuestionsPerTopic: MAX_QUESTIONS_PER_TOPIC,
           requiredTopics: sectionConfig.topics,
-          contextHints: sectionConfig.contextHints
+          contextHints: sectionConfig.contextHints,
+          mode // 'guided' or 'free'
         })
       });
 
@@ -215,13 +278,30 @@ export function ChatValueDiscovery({ section }) {
 
       const data = await response.json();
       
+      // Determine the topic for this response
+      const responseTopic = data.topic || currentTopic;
+      
       // Add AI response to conversation
-      const aiMessage = { role: 'system', content: data.response, timestamp: Date.now() };
+      const aiMessage = { 
+        role: 'system', 
+        content: data.response, 
+        timestamp: Date.now(),
+        topic: responseTopic
+      };
       setConversation([...newConversation, aiMessage]);
       
-      // Update covered topics
-      if (data.newTopicsCovered && data.newTopicsCovered.length > 0) {
-        setCoveredTopics(prev => [...new Set([...prev, ...data.newTopicsCovered])]);
+      // Update question count for the topic
+      if (mode === 'guided') {
+        setTopicQuestionCounts(prev => ({
+          ...prev,
+          [responseTopic]: (prev[responseTopic] || 0) + 1
+        }));
+        
+        // If topic is now complete, suggest next topic
+        const newCount = (topicQuestionCounts[responseTopic] || 0) + 1;
+        if (newCount >= MAX_QUESTIONS_PER_TOPIC && data.suggestedNextTopic) {
+          setCurrentTopic(data.suggestedNextTopic);
+        }
       }
 
     } catch (error) {
@@ -230,7 +310,8 @@ export function ChatValueDiscovery({ section }) {
       const fallbackMessage = { 
         role: 'system', 
         content: "Thanks for sharing. Can you tell me more about the business impact of this situation?",
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        topic: currentTopic
       };
       setConversation([...newConversation, fallbackMessage]);
     } finally {
@@ -246,11 +327,11 @@ export function ChatValueDiscovery({ section }) {
     }
   };
 
-  // Calculate progress
+  // Calculate overall progress
   const requiredTopics = sectionConfig.topics.filter(t => t.required);
-  const requiredCovered = requiredTopics.filter(t => coveredTopics.includes(t.id)).length;
+  const completedRequired = requiredTopics.filter(t => isTopicComplete(t.id)).length;
   const progressPercent = requiredTopics.length > 0 
-    ? Math.round((requiredCovered / requiredTopics.length) * 100) 
+    ? Math.round((completedRequired / requiredTopics.length) * 100) 
     : 0;
 
   return (
@@ -295,28 +376,74 @@ export function ChatValueDiscovery({ section }) {
       {/* Chat Interface */}
       {expanded && (
         <div className="mt-3 rounded-2xl bg-[#1c1c1e] border border-[#3c3c3e] overflow-hidden">
-          {/* Topics Progress Bar */}
-          <div className="px-4 py-2 border-b border-[#3c3c3e] flex items-center gap-3 bg-[#2c2c2e]/50">
-            <span className="text-[10px] text-[#8e8e93] uppercase tracking-wider">Topics:</span>
-            <div className="flex items-center gap-2">
-              {sectionConfig.topics.map(topic => (
-                <div 
-                  key={topic.id}
-                  className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] transition-colors ${
-                    coveredTopics.includes(topic.id)
-                      ? 'bg-[#30d158]/20 text-[#30d158]'
-                      : topic.required
-                        ? 'bg-[#ff9f0a]/10 text-[#ff9f0a]/70'
-                        : 'bg-[#3c3c3e] text-[#8e8e93]'
+          {/* Mode Toggle + Topics Bar */}
+          <div className="px-4 py-2 border-b border-[#3c3c3e] bg-[#2c2c2e]/50">
+            {/* Mode Toggle */}
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-1 p-0.5 bg-[#1c1c1e] rounded-lg">
+                <button
+                  onClick={() => setMode('guided')}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-medium transition-colors ${
+                    mode === 'guided' 
+                      ? 'bg-[#5e5ce6] text-white' 
+                      : 'text-[#8e8e93] hover:text-white'
                   }`}
                 >
-                  {coveredTopics.includes(topic.id) 
-                    ? <CheckCircle2 className="h-2.5 w-2.5" />
-                    : <Circle className="h-2.5 w-2.5" />
-                  }
-                  {topic.label}
-                </div>
-              ))}
+                  <Compass className="h-3 w-3" />
+                  Guided
+                </button>
+                <button
+                  onClick={() => setMode('free')}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-medium transition-colors ${
+                    mode === 'free' 
+                      ? 'bg-[#5e5ce6] text-white' 
+                      : 'text-[#8e8e93] hover:text-white'
+                  }`}
+                >
+                  <MessageCircleQuestion className="h-3 w-3" />
+                  Free Ask
+                </button>
+              </div>
+              <span className="text-[10px] text-[#8e8e93]">
+                {mode === 'guided' ? '3 questions per topic' : 'Ask anything'}
+              </span>
+            </div>
+            
+            {/* Clickable Topic Pills */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[10px] text-[#8e8e93] uppercase tracking-wider mr-1">Topics:</span>
+              {sectionConfig.topics.map(topic => {
+                const count = getTopicQuestionCount(topic.id);
+                const isComplete = count >= MAX_QUESTIONS_PER_TOPIC;
+                const isActive = currentTopic === topic.id && mode === 'guided';
+                
+                return (
+                  <button
+                    key={topic.id}
+                    onClick={() => handleTopicClick(topic.id)}
+                    disabled={isLoading}
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium transition-all ${
+                      isComplete
+                        ? 'bg-[#30d158]/20 text-[#30d158] cursor-default'
+                        : isActive
+                          ? 'bg-[#5e5ce6]/30 text-[#5e5ce6] ring-1 ring-[#5e5ce6]'
+                          : topic.required
+                            ? 'bg-[#ff9f0a]/10 text-[#ff9f0a]/80 hover:bg-[#ff9f0a]/20 hover:text-[#ff9f0a] cursor-pointer'
+                            : 'bg-[#3c3c3e] text-[#8e8e93] hover:bg-[#48484a] hover:text-white cursor-pointer'
+                    }`}
+                    data-testid={`topic-pill-${topic.id}`}
+                  >
+                    {isComplete ? (
+                      <CheckCircle2 className="h-3 w-3" />
+                    ) : (
+                      <span className="w-3 h-3 flex items-center justify-center text-[9px] font-bold">
+                        {count}/{MAX_QUESTIONS_PER_TOPIC}
+                      </span>
+                    )}
+                    {topic.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -358,7 +485,7 @@ export function ChatValueDiscovery({ section }) {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Type your response..."
+                placeholder={mode === 'guided' ? "Type your response..." : "Ask any question..."}
                 disabled={isLoading}
                 className="flex-1 h-10 px-4 rounded-xl bg-[#1c1c1e] border border-[#3c3c3e] text-white placeholder:text-[#8e8e93] focus:outline-none focus:border-[#0a84ff] disabled:opacity-50 text-sm"
                 data-testid={`chat-input-${section.replace(/\s/g, '-')}`}
