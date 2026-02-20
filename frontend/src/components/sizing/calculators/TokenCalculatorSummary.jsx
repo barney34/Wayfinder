@@ -141,7 +141,7 @@ export function TokenCalculatorSummary() {
 
       let platform = override.platform || defaultPlatform;
       if (platformMode === 'UDDI' && !isGmRole) {
-        if (platform === 'NIOS' || platform === 'NIOS-V' || platform === 'NIOS-HA') platform = 'NXVS';
+        if (platform === 'NIOS' || platform === 'NIOS-V' || platform === 'NIOS-PHA' || platform === 'NIOS-VHA') platform = 'NXVS';
       }
 
       let numIPs;
