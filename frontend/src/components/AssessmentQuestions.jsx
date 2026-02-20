@@ -601,16 +601,16 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
 
   // Nav pill colors - Theme-aware with improved light mode contrast
   const sectionPillStyles = {
-    'IPAM':                  { normal: 'bg-secondary text-secondary-foreground border border-border hover:bg-muted hover:shadow-sm', active: 'bg-[#2563eb] text-white border-transparent shadow-md' },
-    'Internal DNS':          { normal: 'bg-secondary text-secondary-foreground border border-border hover:bg-muted hover:shadow-sm', active: 'bg-[#2563eb] text-white border-transparent shadow-md' },
-    'External DNS':          { normal: 'bg-secondary text-secondary-foreground border border-border hover:bg-muted hover:shadow-sm', active: 'bg-[#2563eb] text-white border-transparent shadow-md' },
-    'DHCP':                  { normal: 'bg-secondary text-secondary-foreground border border-border hover:bg-muted hover:shadow-sm', active: 'bg-[#2563eb] text-white border-transparent shadow-md' },
-    'Cloud Management':      { normal: 'bg-secondary text-secondary-foreground border border-border hover:bg-muted hover:shadow-sm', active: 'bg-[#2563eb] text-white border-transparent shadow-md' },
-    'Services':              { normal: 'bg-secondary text-secondary-foreground border border-border hover:bg-muted hover:shadow-sm', active: 'bg-[#2563eb] text-white border-transparent shadow-md' },
-    'Microsoft Management':  { normal: 'bg-secondary text-secondary-foreground border border-border hover:bg-muted hover:shadow-sm', active: 'bg-[#2563eb] text-white border-transparent shadow-md' },
-    'Asset/ Network Insight': { normal: 'bg-secondary text-secondary-foreground border border-border hover:bg-muted hover:shadow-sm', active: 'bg-[#2563eb] text-white border-transparent shadow-md' },
-    'Security':              { normal: 'bg-secondary text-secondary-foreground border border-border hover:bg-muted hover:shadow-sm', active: 'bg-[#2563eb] text-white border-transparent shadow-md' },
-    'Professional Services': { normal: 'bg-secondary text-secondary-foreground border border-border hover:bg-muted hover:shadow-sm', active: 'bg-[#2563eb] text-white border-transparent shadow-md' },
+    'IPAM':                  { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#2563eb] text-white border-[#2563eb] shadow-md' },
+    'Internal DNS':          { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#2563eb] text-white border-[#2563eb] shadow-md' },
+    'External DNS':          { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#2563eb] text-white border-[#2563eb] shadow-md' },
+    'DHCP':                  { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#2563eb] text-white border-[#2563eb] shadow-md' },
+    'Cloud Management':      { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#2563eb] text-white border-[#2563eb] shadow-md' },
+    'Services':              { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#2563eb] text-white border-[#2563eb] shadow-md' },
+    'Microsoft Management':  { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#2563eb] text-white border-[#2563eb] shadow-md' },
+    'Asset/ Network Insight': { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#2563eb] text-white border-[#2563eb] shadow-md' },
+    'Security':              { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#2563eb] text-white border-[#2563eb] shadow-md' },
+    'Professional Services': { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#2563eb] text-white border-[#2563eb] shadow-md' },
   };
 
   // Active section background - NONE, just rely on header styling
