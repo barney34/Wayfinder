@@ -414,18 +414,18 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
     'Professional Services': { normal: 'bg-transparent text-slate-600 border-slate-300 dark:text-slate-400 dark:border-slate-600', active: 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/25 dark:bg-blue-500 dark:border-blue-500' },
   };
 
-  // Active section background wash colors (matches section accent)
+  // Active section background - subtle neutral with accent border
   const sectionActiveBg = {
-    'IPAM': 'bg-blue-50/60 dark:bg-blue-950/30 ring-blue-400/50 shadow-blue-200/30',
-    'Internal DNS': 'bg-green-50/60 dark:bg-green-950/30 ring-green-400/50 shadow-green-200/30',
-    'External DNS': 'bg-teal-50/60 dark:bg-teal-950/30 ring-teal-400/50 shadow-teal-200/30',
-    'DHCP': 'bg-orange-50/60 dark:bg-orange-950/30 ring-orange-400/50 shadow-orange-200/30',
-    'Cloud Management': 'bg-sky-50/60 dark:bg-sky-950/30 ring-sky-400/50 shadow-sky-200/30',
-    'Services': 'bg-emerald-50/60 dark:bg-emerald-950/30 ring-emerald-400/50 shadow-emerald-200/30',
-    'Microsoft Management': 'bg-violet-50/60 dark:bg-violet-950/30 ring-violet-400/50 shadow-violet-200/30',
-    'Asset/ Network Insight': 'bg-amber-50/60 dark:bg-amber-950/30 ring-amber-400/50 shadow-amber-200/30',
-    'Security': 'bg-red-50/60 dark:bg-red-950/30 ring-red-400/50 shadow-red-200/30',
-    'Professional Services': 'bg-slate-50/60 dark:bg-slate-800/30 ring-slate-400/50 shadow-slate-200/30',
+    'IPAM': 'bg-slate-50/60 dark:bg-slate-800/40 ring-blue-500/40 shadow-slate-200/30',
+    'Internal DNS': 'bg-slate-50/60 dark:bg-slate-800/40 ring-blue-500/40 shadow-slate-200/30',
+    'External DNS': 'bg-slate-50/60 dark:bg-slate-800/40 ring-blue-500/40 shadow-slate-200/30',
+    'DHCP': 'bg-slate-50/60 dark:bg-slate-800/40 ring-blue-500/40 shadow-slate-200/30',
+    'Cloud Management': 'bg-slate-50/60 dark:bg-slate-800/40 ring-blue-500/40 shadow-slate-200/30',
+    'Services': 'bg-slate-50/60 dark:bg-slate-800/40 ring-blue-500/40 shadow-slate-200/30',
+    'Microsoft Management': 'bg-slate-50/60 dark:bg-slate-800/40 ring-blue-500/40 shadow-slate-200/30',
+    'Asset/ Network Insight': 'bg-slate-50/60 dark:bg-slate-800/40 ring-blue-500/40 shadow-slate-200/30',
+    'Security': 'bg-slate-50/60 dark:bg-slate-800/40 ring-blue-500/40 shadow-slate-200/30',
+    'Professional Services': 'bg-slate-50/60 dark:bg-slate-800/40 ring-blue-500/40 shadow-slate-200/30',
   };
 
   // Render a single question's field (compact mode adjusts sizing)
