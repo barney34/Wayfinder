@@ -33,8 +33,14 @@ export const PLATFORM_OPTIONS_BY_MODE = {
 // Role options by platform mode (UDDI doesn't have GM/GMC)
 export const ROLE_OPTIONS_BY_MODE = {
   NIOS: [
-    { value: 'GM', label: 'GM', description: 'Grid Master' },
-    { value: 'GMC', label: 'GMC', description: 'Grid Master Candidate' },
+    { value: 'GM', label: 'GM', description: 'Grid Master (no DNS/DHCP)' },
+    { value: 'GM+DNS', label: 'GM+DNS', description: 'Grid Master with DNS (not recommended)', notRecommended: true },
+    { value: 'GM+DHCP', label: 'GM+DHCP', description: 'Grid Master with DHCP (not recommended)', notRecommended: true },
+    { value: 'GM+DNS/DHCP', label: 'GM+DNS/DHCP', description: 'Grid Master with DNS+DHCP (not recommended)', notRecommended: true },
+    { value: 'GMC', label: 'GMC', description: 'Grid Master Candidate (no DNS/DHCP)' },
+    { value: 'GMC+DNS', label: 'GMC+DNS', description: 'GMC with DNS (not recommended)', notRecommended: true },
+    { value: 'GMC+DHCP', label: 'GMC+DHCP', description: 'GMC with DHCP (not recommended)', notRecommended: true },
+    { value: 'GMC+DNS/DHCP', label: 'GMC+DNS/DHCP', description: 'GMC with DNS+DHCP (not recommended)', notRecommended: true },
     { value: 'DNS', label: 'DNS', description: 'DNS Only' },
     { value: 'DHCP', label: 'DHCP', description: 'DHCP Only' },
     { value: 'DNS/DHCP', label: 'DNS/DHCP', description: 'DNS + DHCP' },
@@ -45,8 +51,14 @@ export const ROLE_OPTIONS_BY_MODE = {
     { value: 'DNS/DHCP', label: 'DNS/DHCP', description: 'DNS + DHCP' },
   ],
   Hybrid: [
-    { value: 'GM', label: 'GM', description: 'Grid Master (NIOS only)' },
-    { value: 'GMC', label: 'GMC', description: 'Grid Master Candidate (NIOS only)' },
+    { value: 'GM', label: 'GM', description: 'Grid Master (NIOS only, no DNS/DHCP)' },
+    { value: 'GM+DNS', label: 'GM+DNS', description: 'Grid Master with DNS (not recommended)', notRecommended: true },
+    { value: 'GM+DHCP', label: 'GM+DHCP', description: 'Grid Master with DHCP (not recommended)', notRecommended: true },
+    { value: 'GM+DNS/DHCP', label: 'GM+DNS/DHCP', description: 'Grid Master with DNS+DHCP (not recommended)', notRecommended: true },
+    { value: 'GMC', label: 'GMC', description: 'Grid Master Candidate (NIOS only, no DNS/DHCP)' },
+    { value: 'GMC+DNS', label: 'GMC+DNS', description: 'GMC with DNS (not recommended)', notRecommended: true },
+    { value: 'GMC+DHCP', label: 'GMC+DHCP', description: 'GMC with DHCP (not recommended)', notRecommended: true },
+    { value: 'GMC+DNS/DHCP', label: 'GMC+DNS/DHCP', description: 'GMC with DNS+DHCP (not recommended)', notRecommended: true },
     { value: 'DNS', label: 'DNS', description: 'DNS Only' },
     { value: 'DHCP', label: 'DHCP', description: 'DHCP Only' },
     { value: 'DNS/DHCP', label: 'DNS/DHCP', description: 'DNS + DHCP' },
