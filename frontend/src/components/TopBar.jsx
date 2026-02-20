@@ -177,28 +177,28 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
         className="px-4 py-2 flex items-center justify-between border-b border-[#2c2c2e] cursor-pointer hover:bg-[#2c2c2e]/30"
         onClick={() => setCollapsed(!collapsed)}
       >
-        <div className="flex items-center gap-4" onClick={e => e.stopPropagation()}>
-          {/* Customer Name - Editable inline */}
-          <div>
-            <label className="text-[9px] text-[#8e8e93] uppercase tracking-wide block mb-0.5">Customer</label>
+        <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+          {/* Customer Name - pill */}
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#2c2c2e] border border-[#3c3c3e]">
+            <span className="text-[9px] text-[#8e8e93] uppercase tracking-wide">Customer</span>
             <input
               value={customerName}
               onChange={e => onNameChange?.(e.target.value)}
               onBlur={() => onNameBlur?.()}
-              className="text-sm font-semibold text-white bg-transparent border-0 border-b border-transparent hover:border-[#4c4c4e] focus:border-[#0a84ff] focus:outline-none px-0 py-0.5 min-w-[80px] max-w-[200px]"
-              placeholder="Customer Name"
+              className="text-sm font-semibold text-white bg-transparent border-0 focus:outline-none w-[140px] placeholder:text-[#6e6e73]"
+              placeholder="Name..."
               data-testid="topbar-customer-name"
             />
           </div>
           
-          {/* Opportunity - Editable inline */}
-          <div>
-            <label className="text-[9px] text-[#8e8e93] uppercase tracking-wide block mb-0.5">Opportunity</label>
+          {/* Opportunity - pill, right next to customer */}
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#2c2c2e] border border-[#3c3c3e]">
+            <span className="text-[9px] text-[#ff9f0a]/70 uppercase tracking-wide">Opp</span>
             <input
               value={opportunity || ''}
               onChange={e => onOpportunityChange?.(e.target.value)}
               onBlur={() => onOpportunityBlur?.()}
-              className="text-xs text-[#ff9f0a] bg-transparent border-0 border-b border-transparent hover:border-[#4c4c4e] focus:border-[#ff9f0a] focus:outline-none px-0 py-0.5 min-w-[80px] max-w-[200px] placeholder:text-[#6e6e73]"
+              className="text-xs text-[#ff9f0a] bg-transparent border-0 focus:outline-none w-[120px] placeholder:text-[#6e6e73]"
               placeholder="Opportunity..."
               data-testid="topbar-opportunity"
             />
@@ -235,24 +235,22 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
         </div>
       </div>
 
-      {/* Row 2: Inputs */}
+      {/* Row 2: Inputs — weighted grid */}
       {!collapsed && (
-      <div className="px-4 py-3 grid grid-cols-4 gap-3">
+      <div className="px-4 py-3 grid gap-3" style={{ gridTemplateColumns: '2fr 2fr 1.4fr 1.4fr' }}>
         
         {/* Data Centers */}
-        <div className="bg-[#2c2c2e] rounded-xl p-3">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <Building2 className="h-4 w-4 text-[#30d158]" />
-              <span className="text-xs font-medium text-white">Data Centers</span>
-            </div>
+        <div className="bg-[#2c2c2e] rounded-xl p-3 flex flex-col">
+          <div className="flex items-center gap-2 mb-2">
+            <Building2 className="h-3.5 w-3.5 text-[#30d158]" />
+            <span className="text-xs font-medium text-white">Data Centers</span>
           </div>
           
-          {/* DC Pills - Editable */}
+          {/* DC Pills - scrollable area */}
           {dataCenters.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mb-2">
+            <div className="flex flex-wrap gap-1.5 mb-2 max-h-[60px] overflow-y-auto">
               {dataCenters.map((dc) => (
-                <div key={dc.id} className="flex items-center bg-[#3c3c3e] rounded-lg overflow-hidden">
+                <div key={dc.id} className="flex items-center bg-[#3c3c3e] rounded-lg overflow-hidden shrink-0">
                   <input
                     value={dc.name}
                     onChange={e => updateDataCenter(dc.id, { name: e.target.value })}
@@ -267,6 +265,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
                   <button 
                     onClick={() => deleteDataCenter(dc.id)}
                     className="px-1.5 py-1 hover:bg-[#ff453a]/20"
+                    data-testid={`delete-dc-${dc.id}`}
                   >
                     <X className="h-3 w-3 text-[#ff453a]" />
                   </button>
@@ -275,14 +274,15 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
             </div>
           )}
           
-          {/* Add new DC */}
-          <div className="flex gap-1.5">
+          {/* Add new DC — always visible at bottom */}
+          <div className="flex gap-1.5 mt-auto">
             <input
               value={dcName}
               onChange={e => setDcName(e.target.value)}
               placeholder="Name"
-              className="flex-1 h-7 px-2 text-xs rounded-lg bg-[#1c1c1e] border border-[#4c4c4e] text-white placeholder:text-[#6e6e73] focus:outline-none focus:border-[#30d158]"
+              className="flex-1 min-w-0 h-7 px-2 text-xs rounded-lg bg-[#1c1c1e] border border-[#4c4c4e] text-white placeholder:text-[#6e6e73] focus:outline-none focus:border-[#30d158]"
               onKeyDown={e => e.key === 'Enter' && handleAddDC()}
+              data-testid="dc-name-input"
             />
             <input
               type="number"
@@ -291,32 +291,31 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
               placeholder="KW"
               className="w-14 h-7 px-2 text-xs rounded-lg bg-[#1c1c1e] border border-[#4c4c4e] text-white placeholder:text-[#6e6e73] focus:outline-none focus:border-[#30d158] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               onKeyDown={e => e.key === 'Enter' && handleAddDC()}
+              data-testid="dc-kw-input"
             />
             <button
               onClick={handleAddDC}
               disabled={!dcName.trim()}
-              className="h-7 px-2 rounded-lg bg-[#30d158] hover:bg-[#30d158]/80 disabled:bg-[#3c3c3e] flex items-center justify-center gap-1 text-[10px] font-semibold text-black disabled:text-[#8e8e93]"
+              className="shrink-0 h-7 w-7 rounded-lg bg-[#30d158] hover:bg-[#30d158]/80 disabled:bg-[#3c3c3e] flex items-center justify-center text-black disabled:text-[#8e8e93]"
+              data-testid="dc-add-btn"
             >
-              <Plus className="h-3 w-3" />
-              Add
+              <Plus className="h-3.5 w-3.5" />
             </button>
           </div>
         </div>
 
         {/* Sites */}
-        <div className="bg-[#2c2c2e] rounded-xl p-3">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-[#5e5ce6]" />
-              <span className="text-xs font-medium text-white">Sites</span>
-            </div>
+        <div className="bg-[#2c2c2e] rounded-xl p-3 flex flex-col">
+          <div className="flex items-center gap-2 mb-2">
+            <MapPin className="h-3.5 w-3.5 text-[#5e5ce6]" />
+            <span className="text-xs font-medium text-white">Sites</span>
           </div>
           
-          {/* Site Pills - Editable */}
+          {/* Site Pills - scrollable area */}
           {sites.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mb-2">
+            <div className="flex flex-wrap gap-1.5 mb-2 max-h-[60px] overflow-y-auto">
               {sites.map((site) => (
-                <div key={site.id} className="flex items-center bg-[#3c3c3e] rounded-lg overflow-hidden">
+                <div key={site.id} className="flex items-center bg-[#3c3c3e] rounded-lg overflow-hidden shrink-0">
                   <input
                     value={site.name}
                     onChange={e => updateSite(site.id, { name: e.target.value })}
@@ -331,6 +330,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
                   <button 
                     onClick={() => deleteSite(site.id)}
                     className="px-1.5 py-1 hover:bg-[#ff453a]/20"
+                    data-testid={`delete-site-${site.id}`}
                   >
                     <X className="h-3 w-3 text-[#ff453a]" />
                   </button>
@@ -339,14 +339,15 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
             </div>
           )}
           
-          {/* Add new Site */}
-          <div className="flex gap-1.5">
+          {/* Add new Site — always visible at bottom */}
+          <div className="flex gap-1.5 mt-auto">
             <input
               value={siteName}
               onChange={e => setSiteName(e.target.value)}
               placeholder="Name"
-              className="flex-1 h-7 px-2 text-xs rounded-lg bg-[#1c1c1e] border border-[#4c4c4e] text-white placeholder:text-[#6e6e73] focus:outline-none focus:border-[#5e5ce6]"
+              className="flex-1 min-w-0 h-7 px-2 text-xs rounded-lg bg-[#1c1c1e] border border-[#4c4c4e] text-white placeholder:text-[#6e6e73] focus:outline-none focus:border-[#5e5ce6]"
               onKeyDown={e => e.key === 'Enter' && handleAddSite()}
+              data-testid="site-name-input"
             />
             <input
               type="number"
@@ -355,23 +356,24 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
               placeholder="KW"
               className="w-14 h-7 px-2 text-xs rounded-lg bg-[#1c1c1e] border border-[#4c4c4e] text-white placeholder:text-[#6e6e73] focus:outline-none focus:border-[#5e5ce6] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               onKeyDown={e => e.key === 'Enter' && handleAddSite()}
+              data-testid="site-kw-input"
             />
             <button
               onClick={handleAddSite}
               disabled={!siteName.trim()}
-              className="h-7 px-2 rounded-lg bg-[#5e5ce6] hover:bg-[#5e5ce6]/80 disabled:bg-[#3c3c3e] flex items-center justify-center gap-1 text-[10px] font-semibold text-white disabled:text-[#8e8e93]"
+              className="shrink-0 h-7 w-7 rounded-lg bg-[#5e5ce6] hover:bg-[#5e5ce6]/80 disabled:bg-[#3c3c3e] flex items-center justify-center text-white disabled:text-[#8e8e93]"
+              data-testid="site-add-btn"
             >
-              <Plus className="h-3 w-3" />
-              Add
+              <Plus className="h-3.5 w-3.5" />
             </button>
           </div>
         </div>
 
-        {/* Deployment - with deployment model logic */}
-        <div className="bg-[#2c2c2e] rounded-xl p-3">
-          <div className="flex items-center gap-2 mb-2">
-            <Target className="h-4 w-4 text-[#ff9f0a]" />
-            <span className="text-xs font-medium text-white">Deployment</span>
+        {/* Deployment — compact */}
+        <div className="bg-[#2c2c2e] rounded-xl p-2.5">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <Target className="h-3.5 w-3.5 text-[#ff9f0a]" />
+            <span className="text-[11px] font-medium text-white">Deployment</span>
           </div>
           
           {(() => {
@@ -400,12 +402,12 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
             };
             
             return (
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 {/* Row 1: NIOS + UDDI */}
-                <div className="grid grid-cols-2 gap-1.5">
+                <div className="grid grid-cols-2 gap-1">
                   <button
                     onClick={handleNIOSToggle}
-                    className={`flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg text-xs font-semibold transition-all ${
+                    className={`flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${
                       isNIOS 
                         ? 'bg-[#30d158] text-black' 
                         : 'bg-[#3c3c3e] text-[#8e8e93] hover:bg-[#4c4c4e]'
@@ -415,7 +417,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
                     NIOS
                     {isNIOS && isAsset && (
                       <div className="relative group">
-                        <Info className="h-3 w-3" />
+                        <Info className="h-2.5 w-2.5" />
                         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-black text-white text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-10">
                           +Mgmt Tokens Added
                         </div>
@@ -424,7 +426,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
                   </button>
                   <button
                     onClick={handleUDDIToggle}
-                    className={`flex items-center justify-center px-2 py-2 rounded-lg text-xs font-semibold transition-all ${
+                    className={`flex items-center justify-center px-1.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${
                       isUDDI 
                         ? 'bg-[#0a84ff] text-white' 
                         : 'bg-[#3c3c3e] text-[#8e8e93] hover:bg-[#4c4c4e]'
@@ -436,10 +438,10 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
                 </div>
                 
                 {/* Row 2: Security + Asset Insight */}
-                <div className="grid grid-cols-2 gap-1.5">
+                <div className="grid grid-cols-2 gap-1">
                   <button
                     onClick={() => setAnswer('feature-security', isSecurity ? 'No' : 'Yes')}
-                    className={`flex items-center justify-center px-2 py-2 rounded-lg text-xs font-semibold transition-all ${
+                    className={`flex items-center justify-center px-1.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${
                       isSecurity 
                         ? 'bg-[#ff453a] text-white' 
                         : 'bg-[#3c3c3e] text-[#8e8e93] hover:bg-[#4c4c4e]'
@@ -450,17 +452,17 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
                   </button>
                   <button
                     onClick={() => setAnswer('feature-asset insights', isAsset ? 'No' : 'Yes')}
-                    className={`flex items-center justify-center gap-1 px-2 py-2 rounded-lg text-xs font-semibold transition-all ${
+                    className={`flex items-center justify-center gap-0.5 px-1.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${
                       isAsset 
                         ? 'bg-[#bf5af2] text-white' 
                         : 'bg-[#3c3c3e] text-[#8e8e93] hover:bg-[#4c4c4e]'
                     }`}
                     data-testid="toggle-feature-asset"
                   >
-                    Asset Insight
+                    Asset
                     {isAsset && isNIOS && (
                       <div className="relative group">
-                        <Info className="h-3 w-3" />
+                        <Info className="h-2.5 w-2.5" />
                         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-black text-white text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-10">
                           +Mgmt Tokens Added
                         </div>
@@ -469,10 +471,10 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
                   </button>
                 </div>
                 
-                {/* Hybrid Button - Center */}
+                {/* Hybrid Button */}
                 <button
                   onClick={handleHybridToggle}
-                  className={`w-full flex items-center justify-center gap-2 px-2 py-2 rounded-lg text-xs font-bold transition-all ${
+                  className={`w-full flex items-center justify-center gap-1.5 px-1.5 py-1.5 rounded-lg text-[11px] font-bold transition-all ${
                     isHybrid 
                       ? 'bg-gradient-to-r from-[#30d158] to-[#0a84ff] text-white shadow-lg' 
                       : 'bg-[#3c3c3e] text-[#8e8e93] hover:bg-[#4c4c4e] border border-dashed border-[#5c5c5e]'
@@ -480,24 +482,23 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
                   data-testid="toggle-hybrid"
                 >
                   <span>Hybrid</span>
-                  {isHybrid && <Check className="h-3.5 w-3.5" />}
+                  {isHybrid && <Check className="h-3 w-3" />}
                 </button>
               </div>
             );
           })()}
         </div>
 
-        {/* IP Calculator */}
-        <div className="bg-[#2c2c2e] rounded-xl p-3">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <Calculator className="h-4 w-4 text-[#32d74b]" />
-              <span className="text-xs font-medium text-white">Active IPs</span>
+        {/* IP Calculator — compact */}
+        <div className="bg-[#2c2c2e] rounded-xl p-2.5">
+          <div className="flex items-center justify-between mb-1.5">
+            <div className="flex items-center gap-1.5">
+              <Calculator className="h-3.5 w-3.5 text-[#32d74b]" />
+              <span className="text-[11px] font-medium text-white">Active IPs</span>
             </div>
-            <span className="text-lg font-bold text-[#32d74b]">{formatKW(activeIPs)}</span>
+            <span className="text-base font-bold text-[#32d74b]">{formatKW(activeIPs)}</span>
           </div>
           
-          {/* Inputs */}
           <div className="space-y-1.5">
             <div>
               <label className="text-[10px] text-[#8e8e93] mb-0.5 block">Knowledge Workers</label>
@@ -507,6 +508,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
                 onChange={e => setAnswer('ud-1', e.target.value)}
                 placeholder="0"
                 className="w-full h-7 px-2 text-xs rounded-lg bg-[#1c1c1e] border border-[#4c4c4e] text-white placeholder:text-[#6e6e73] focus:outline-none focus:border-[#32d74b] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                data-testid="kw-input"
               />
             </div>
             <div>
@@ -517,7 +519,8 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
                     const current = parseFloat(answers['ipam-multiplier'] || '2.5');
                     setAnswer('ipam-multiplier', Math.max(0.5, current - 0.5).toString());
                   }}
-                  className="h-7 w-7 rounded-lg bg-[#3c3c3e] hover:bg-[#4c4c4e] flex items-center justify-center text-white"
+                  className="h-7 w-7 shrink-0 rounded-lg bg-[#3c3c3e] hover:bg-[#4c4c4e] flex items-center justify-center text-white"
+                  data-testid="multiplier-down"
                 >
                   <ChevronDown className="h-3.5 w-3.5" />
                 </button>
@@ -526,21 +529,23 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
                   step="0.5"
                   value={answers['ipam-multiplier'] || '2.5'}
                   onChange={e => setAnswer('ipam-multiplier', e.target.value)}
-                  className="flex-1 h-7 px-2 text-xs text-center rounded-lg bg-[#1c1c1e] border border-[#4c4c4e] text-white focus:outline-none focus:border-[#32d74b] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="flex-1 min-w-0 h-7 px-1 text-xs text-center rounded-lg bg-[#1c1c1e] border border-[#4c4c4e] text-white focus:outline-none focus:border-[#32d74b] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  data-testid="multiplier-input"
                 />
                 <button
                   onClick={() => {
                     const current = parseFloat(answers['ipam-multiplier'] || '2.5');
                     setAnswer('ipam-multiplier', (current + 0.5).toString());
                   }}
-                  className="h-7 w-7 rounded-lg bg-[#3c3c3e] hover:bg-[#4c4c4e] flex items-center justify-center text-white"
+                  className="h-7 w-7 shrink-0 rounded-lg bg-[#3c3c3e] hover:bg-[#4c4c4e] flex items-center justify-center text-white"
+                  data-testid="multiplier-up"
                 >
                   <ChevronUp className="h-3.5 w-3.5" />
                 </button>
               </div>
             </div>
-            <div className="text-[10px] text-[#8e8e93] text-center pt-1">
-              {formatKW(kw)} × {mult} = <span className="text-[#32d74b] font-semibold">{formatKW(activeIPs)}</span>
+            <div className="text-[10px] text-[#8e8e93] text-center pt-0.5">
+              {formatKW(kw)} x {mult} = <span className="text-[#32d74b] font-semibold">{formatKW(activeIPs)}</span>
             </div>
           </div>
         </div>
