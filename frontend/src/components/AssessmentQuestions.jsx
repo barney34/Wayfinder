@@ -385,18 +385,18 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
     'Professional Services': 'PS',
   };
 
-  // Nav pill colors - each section gets its own color, both normal and active states
+  // Nav pill colors - OUTLINE STYLE: transparent bg with colored borders, filled when active
   const sectionPillStyles = {
-    'IPAM':                  { normal: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800',       active: 'bg-blue-600 text-white border-blue-600 shadow-blue-300/50 dark:bg-blue-500 dark:border-blue-500 dark:shadow-blue-500/30' },
-    'Internal DNS':          { normal: 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950/50 dark:text-green-300 dark:border-green-800',   active: 'bg-green-600 text-white border-green-600 shadow-green-300/50 dark:bg-green-500 dark:border-green-500 dark:shadow-green-500/30' },
-    'External DNS':          { normal: 'bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-950/50 dark:text-teal-300 dark:border-teal-800',         active: 'bg-teal-600 text-white border-teal-600 shadow-teal-300/50 dark:bg-teal-500 dark:border-teal-500 dark:shadow-teal-500/30' },
-    'DHCP':                  { normal: 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/50 dark:text-orange-300 dark:border-orange-800', active: 'bg-orange-600 text-white border-orange-600 shadow-orange-300/50 dark:bg-orange-500 dark:border-orange-500 dark:shadow-orange-500/30' },
-    'Cloud Management':      { normal: 'bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950/50 dark:text-sky-300 dark:border-sky-800',               active: 'bg-sky-600 text-white border-sky-600 shadow-sky-300/50 dark:bg-sky-500 dark:border-sky-500 dark:shadow-sky-500/30' },
-    'Services':              { normal: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800', active: 'bg-emerald-600 text-white border-emerald-600 shadow-emerald-300/50 dark:bg-emerald-500 dark:border-emerald-500 dark:shadow-emerald-500/30' },
-    'Microsoft Management':  { normal: 'bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-950/50 dark:text-violet-300 dark:border-violet-800', active: 'bg-violet-600 text-white border-violet-600 shadow-violet-300/50 dark:bg-violet-500 dark:border-violet-500 dark:shadow-violet-500/30' },
-    'Asset/ Network Insight': { normal: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800',  active: 'bg-amber-600 text-white border-amber-600 shadow-amber-300/50 dark:bg-amber-500 dark:border-amber-500 dark:shadow-amber-500/30' },
-    'Security':              { normal: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950/50 dark:text-red-300 dark:border-red-800',               active: 'bg-red-600 text-white border-red-600 shadow-red-300/50 dark:bg-red-500 dark:border-red-500 dark:shadow-red-500/30' },
-    'Professional Services': { normal: 'bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800/50 dark:text-slate-300 dark:border-slate-700',   active: 'bg-slate-600 text-white border-slate-600 shadow-slate-300/50 dark:bg-slate-500 dark:border-slate-500 dark:shadow-slate-500/30' },
+    'IPAM':                  { normal: 'bg-transparent text-blue-600 border-blue-400 dark:text-blue-400 dark:border-blue-500',       active: 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-300/40 dark:bg-blue-500 dark:border-blue-500' },
+    'Internal DNS':          { normal: 'bg-transparent text-green-600 border-green-400 dark:text-green-400 dark:border-green-500',   active: 'bg-green-600 text-white border-green-600 shadow-lg shadow-green-300/40 dark:bg-green-500 dark:border-green-500' },
+    'External DNS':          { normal: 'bg-transparent text-teal-600 border-teal-400 dark:text-teal-400 dark:border-teal-500',       active: 'bg-teal-600 text-white border-teal-600 shadow-lg shadow-teal-300/40 dark:bg-teal-500 dark:border-teal-500' },
+    'DHCP':                  { normal: 'bg-transparent text-orange-600 border-orange-400 dark:text-orange-400 dark:border-orange-500', active: 'bg-orange-600 text-white border-orange-600 shadow-lg shadow-orange-300/40 dark:bg-orange-500 dark:border-orange-500' },
+    'Cloud Management':      { normal: 'bg-transparent text-sky-600 border-sky-400 dark:text-sky-400 dark:border-sky-500',           active: 'bg-sky-600 text-white border-sky-600 shadow-lg shadow-sky-300/40 dark:bg-sky-500 dark:border-sky-500' },
+    'Services':              { normal: 'bg-transparent text-emerald-600 border-emerald-400 dark:text-emerald-400 dark:border-emerald-500', active: 'bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-300/40 dark:bg-emerald-500 dark:border-emerald-500' },
+    'Microsoft Management':  { normal: 'bg-transparent text-violet-600 border-violet-400 dark:text-violet-400 dark:border-violet-500', active: 'bg-violet-600 text-white border-violet-600 shadow-lg shadow-violet-300/40 dark:bg-violet-500 dark:border-violet-500' },
+    'Asset/ Network Insight': { normal: 'bg-transparent text-amber-600 border-amber-400 dark:text-amber-400 dark:border-amber-500',  active: 'bg-amber-600 text-white border-amber-600 shadow-lg shadow-amber-300/40 dark:bg-amber-500 dark:border-amber-500' },
+    'Security':              { normal: 'bg-transparent text-red-600 border-red-400 dark:text-red-400 dark:border-red-500',           active: 'bg-red-600 text-white border-red-600 shadow-lg shadow-red-300/40 dark:bg-red-500 dark:border-red-500' },
+    'Professional Services': { normal: 'bg-transparent text-slate-600 border-slate-400 dark:text-slate-400 dark:border-slate-500',   active: 'bg-slate-600 text-white border-slate-600 shadow-lg shadow-slate-300/40 dark:bg-slate-500 dark:border-slate-500' },
   };
 
   // Active section background wash colors (matches section accent)
