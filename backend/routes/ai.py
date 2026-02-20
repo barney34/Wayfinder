@@ -275,10 +275,10 @@ async def value_discovery_chat(request: ValueDiscoveryChatRequest):
     """
     AI-powered conversational Value Discovery.
     
-    Hybrid approach:
-    - Tracks which topics have been covered
-    - Generates contextual follow-up questions
-    - Ensures all required topics are addressed naturally
+    Features:
+    - 3-question limit per topic for focused discovery
+    - Mode toggle: Guided (AI-led) vs Free Ask (user-led)
+    - Topic tracking and suggestions
     """
     if not EMERGENT_LLM_KEY:
         raise HTTPException(status_code=500, detail="AI integration not configured")
@@ -287,63 +287,80 @@ async def value_discovery_chat(request: ValueDiscoveryChatRequest):
         # Build conversation history for context
         convo_text = "\n".join([
             f"{'Assistant' if m.role == 'system' else 'Customer'}: {m.content}"
-            for m in request.conversation
+            for m in request.conversation[-10:]  # Last 10 messages for context
         ])
         
-        # Determine uncovered topics
-        covered = set(request.coveredTopics)
-        uncovered_required = [t for t in request.requiredTopics if t.required and t.id not in covered]
-        uncovered_optional = [t for t in request.requiredTopics if not t.required and t.id not in covered]
+        # Calculate topic status
+        topic_status = []
+        incomplete_topics = []
+        for t in request.requiredTopics:
+            count = request.topicQuestionCounts.get(t.id, 0)
+            remaining = request.maxQuestionsPerTopic - count
+            status = "complete" if remaining <= 0 else f"{remaining} questions left"
+            topic_status.append(f"- {t.label}: {status}")
+            if remaining > 0:
+                incomplete_topics.append(t)
         
-        # Build topic guidance
-        topic_guidance = ""
-        if uncovered_required:
-            topic_guidance = f"Topics still to cover (required): {', '.join(t.label for t in uncovered_required)}"
-        elif uncovered_optional:
-            topic_guidance = f"Optional topics to explore: {', '.join(t.label for t in uncovered_optional)}"
-        else:
-            topic_guidance = "All key topics covered. You can wrap up or explore any interesting points deeper."
+        topic_status_text = "\n".join(topic_status)
+        
+        # Determine next topic suggestion
+        suggested_next = None
+        current_count = request.topicQuestionCounts.get(request.currentTopic, 0)
+        if current_count >= request.maxQuestionsPerTopic - 1:  # About to complete
+            # Find first incomplete required topic
+            for t in request.requiredTopics:
+                if t.required and request.topicQuestionCounts.get(t.id, 0) < request.maxQuestionsPerTopic:
+                    if t.id != request.currentTopic:
+                        suggested_next = t.id
+                        break
         
         # Context hints for the section
         hints = ', '.join(request.contextHints) if request.contextHints else 'general DDI challenges'
         
-        prompt = f"""You are a skilled sales engineer conducting a Value Discovery conversation for the {request.section} area.
+        # Build mode-specific instructions
+        if request.mode == 'free':
+            mode_instructions = """FREE ASK MODE:
+The user is asking their own question. Respond naturally and helpfully.
+Answer their question directly, then optionally ask a brief follow-up."""
+        else:
+            mode_instructions = f"""GUIDED MODE (3-question discovery):
+Current topic focus: {request.currentTopic}
+Questions asked on this topic: {current_count}/{request.maxQuestionsPerTopic}
 
-CONVERSATION SO FAR:
-{convo_text}
-
-GUIDANCE:
-{topic_guidance}
-
-Context hints for this section: {hints}
-
-TOPIC DEFINITIONS:
-- current-state: Understanding their current tools, processes, and infrastructure
-- pain-points: Specific problems, frustrations, or challenges they face
-- business-impact: How these issues affect the business (costs, time, risk, productivity)
-- goals: What outcomes they want to achieve
+TOPIC STATUS:
+{topic_status_text}
 
 INSTRUCTIONS:
-1. Acknowledge what the customer just shared (briefly, 1 sentence max)
-2. Ask ONE focused follow-up question that:
-   - Digs deeper into what they said OR
-   - Naturally transitions to an uncovered topic
-3. Keep your response conversational and under 50 words
-4. Don't be robotic - sound like a human consultant
-5. If they mention numbers or specifics, probe deeper on those
+1. Acknowledge what the customer shared (1 sentence max)
+2. Ask ONE focused follow-up question about {request.currentTopic}
+3. If this is question 3/{request.maxQuestionsPerTopic} for this topic, make it a wrap-up question
+4. Keep response under 50 words - be concise"""
 
-Also analyze which topics the customer's LAST response touched on. Return your analysis.
+        prompt = f"""You are a skilled sales engineer conducting a Value Discovery conversation for {request.section}.
+
+CONVERSATION:
+{convo_text}
+
+{mode_instructions}
+
+Context hints: {hints}
+
+TOPIC DEFINITIONS:
+- current-state: Current tools, processes, infrastructure
+- pain-points: Problems, frustrations, challenges
+- business-impact: Business effects (costs, time, risk)
+- goals: Desired outcomes
 
 OUTPUT FORMAT (JSON):
 {{
-  "response": "Your conversational follow-up question here",
-  "topicsCovered": ["topic-id-1", "topic-id-2"]  // IDs of topics touched in customer's LAST message
+  "response": "Your response here",
+  "topic": "{request.currentTopic}"
 }}"""
 
         chat = LlmChat(
             api_key=EMERGENT_LLM_KEY,
             session_id=f"vd-chat-{uuid.uuid4()}",
-            system_message="You are a consultative sales engineer skilled at discovery conversations. Be natural, curious, and empathetic. Keep responses brief."
+            system_message="You are a consultative sales engineer. Be natural, curious, concise. Max 50 words per response."
         ).with_model("gemini", "gemini-3-flash-preview")
 
         user_message = UserMessage(text=prompt)
@@ -362,12 +379,25 @@ OUTPUT FORMAT (JSON):
         try:
             data = json.loads(response_text)
             return {
-                "response": data.get("response", "Can you tell me more about the business impact of that?"),
-                "newTopicsCovered": data.get("topicsCovered", [])
+                "response": data.get("response", "Can you tell me more about that?"),
+                "topic": data.get("topic", request.currentTopic),
+                "suggestedNextTopic": suggested_next
             }
         except json.JSONDecodeError:
             # If JSON parsing fails, use the raw response
             return {
+                "response": response_text if len(response_text) < 200 else "Thanks for sharing. Can you tell me more?",
+                "topic": request.currentTopic,
+                "suggestedNextTopic": suggested_next
+            }
+
+    except Exception as e:
+        print(f"Error in value discovery chat: {e}")
+        return {
+            "response": "Thanks for that. Can you tell me more about how this impacts your operations?",
+            "topic": request.currentTopic,
+            "suggestedNextTopic": None
+        }
                 "response": response_text if len(response_text) < 200 else "That's helpful. Can you tell me more about the business impact?",
                 "newTopicsCovered": []
             }
