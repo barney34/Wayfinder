@@ -95,7 +95,15 @@ export function SiteTableRow({
           </SelectTrigger>
           <SelectContent>
             {roleOptions.map(o => (
-              <SelectItem key={o.value} value={o.value} title={o.description}>{o.label}</SelectItem>
+              <SelectItem 
+                key={o.value} 
+                value={o.value} 
+                title={o.description}
+                className={o.notRecommended ? 'text-amber-600 dark:text-amber-400' : ''}
+              >
+                {o.label}
+                {o.notRecommended && <span className="ml-1 text-[10px]">⚠️</span>}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
