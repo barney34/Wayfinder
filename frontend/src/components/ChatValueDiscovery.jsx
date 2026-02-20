@@ -477,7 +477,7 @@ export function ChatValueDiscovery({ section }) {
           </div>
 
           {/* Input */}
-          <div className="p-3 border-t border-border bg-muted/30">
+          <div className="p-3 border-t border-border bg-secondary/30">
             <div className="flex items-center gap-2">
               <input
                 ref={inputRef}
@@ -487,14 +487,14 @@ export function ChatValueDiscovery({ section }) {
                 onKeyDown={handleKeyDown}
                 placeholder={mode === 'guided' ? "Type your response..." : "Ask any question..."}
                 disabled={isLoading}
-                className="flex-1 h-10 px-4 rounded-xl bg-background border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#0a84ff] disabled:opacity-50 text-sm"
+                className="flex-1 h-10 px-4 rounded-xl bg-background border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/20 disabled:opacity-50 text-sm shadow-sm"
                 data-testid={`chat-input-${section.replace(/\s/g, '-')}`}
               />
               <Button
                 onClick={sendMessage}
                 disabled={!inputValue.trim() || isLoading}
                 size="icon"
-                className="h-10 w-10 rounded-xl bg-[#0a84ff] hover:bg-[#0a84ff]/80 disabled:opacity-50"
+                className="h-10 w-10 rounded-xl bg-[#2563eb] hover:bg-[#2563eb]/90 disabled:opacity-50 shadow-sm"
                 data-testid={`chat-send-${section.replace(/\s/g, '-')}`}
               >
                 <Send className="h-4 w-4" />
