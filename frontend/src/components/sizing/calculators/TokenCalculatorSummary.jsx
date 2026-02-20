@@ -260,6 +260,12 @@ export function TokenCalculatorSummary() {
   }, [sites]);
 
   const partnerSku = useMemo(() => getPartnerSkuFromTokens(totals.totalTokens), [totals.totalTokens]);
+  
+  // Calculate token packs (500K per pack, rounded up)
+  const tokenPacks = useMemo(() => {
+    if (platformMode === 'NIOS' || totals.totalTokens <= 0) return null;
+    return Math.ceil(totals.totalTokens / 500000);
+  }, [totals.totalTokens, platformMode]);
 
   // Update context with sizing summary
   useEffect(() => {
@@ -267,8 +273,10 @@ export function TokenCalculatorSummary() {
       totalTokens: totals.totalTokens, totalIPs: totals.totalIPs,
       partnerSku: partnerSku.sku, siteCount: sites.length,
       infraTokens: totals.infraTokens, securityTokens: totals.securityTokens,
+      tokenPack: tokenPacks,
+      platformMode: platformMode,
     });
-  }, [totals, partnerSku.sku, sites.length, setSizingSummary]);
+  }, [totals, partnerSku.sku, sites.length, tokenPacks, platformMode, setSizingSummary]);
 
   // Update site field
   const updateSite = useCallback((siteId, field, value) => {
