@@ -108,16 +108,16 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
           </div>
         </div>
 
-        {/* Summary items - uses same grid as input cards for perfect alignment */}
-        <div className="flex-1 grid gap-x-3" style={{ gridTemplateColumns: '5fr 5fr 3fr 3fr' }}>
-          {/* DC Summary - shifted right to center over gap */}
+        {/* Summary items - DC/Sites left-justified, more space for TS and Active IPs */}
+        <div className="flex-1 grid gap-x-3" style={{ gridTemplateColumns: '3fr 3fr 4fr 4fr' }}>
+          {/* DC Summary - left justified */}
           <div className="flex items-center justify-end gap-1.5 pr-2">
             <Building2 className="h-3 w-3 text-[#30d158]" />
             <span className="text-[10px] font-medium text-[#30d158]">DC</span>
             <span className="text-[11px] font-semibold text-white">{dataCenters.length}</span>
           </div>
 
-          {/* Sites Summary - shifted left to center over gap */}
+          {/* Sites Summary - left justified */}
           <div className="flex items-center justify-start gap-1.5 pl-2">
             <MapPin className="h-3 w-3 text-[#5e5ce6]" />
             <span className="text-[10px] font-medium text-[#5e5ce6]">Sites</span>
