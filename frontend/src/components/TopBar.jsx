@@ -172,20 +172,25 @@ export function TopBar({ customerName, opportunity }) {
 
   return (
     <div className="flex-shrink-0 bg-[#1c1c1e] border-b border-[#2c2c2e]" data-testid="topbar">
-      {/* Row 1: Customer Name + Opportunity - Clear identification */}
-      <div className="px-4 py-2 flex items-center justify-between border-b border-[#2c2c2e]">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[#0a84ff]/20 flex items-center justify-center">
-              <span className="text-sm font-bold text-[#0a84ff]">{customerName?.charAt(0) || 'C'}</span>
-            </div>
-            <div>
-              <h1 className="text-sm font-semibold text-white leading-tight">{customerName}</h1>
-              {opportunity && (
-                <span className="text-[10px] text-[#ff9f0a]">{opportunity}</span>
-              )}
-            </div>
+      {/* Row 1: Customer Info - Clickable to expand/collapse */}
+      <div 
+        className="px-4 py-2 flex items-center justify-between border-b border-[#2c2c2e] cursor-pointer hover:bg-[#2c2c2e]/30"
+        onClick={() => setCollapsed(!collapsed)}
+      >
+        <div className="flex items-center gap-4" onClick={e => e.stopPropagation()}>
+          {/* Customer Name - Display only (not editable in TopBar) */}
+          <div>
+            <label className="text-[9px] text-[#8e8e93] uppercase tracking-wide block mb-0.5">Customer</label>
+            <div className="text-sm font-semibold text-white">{customerName}</div>
           </div>
+          
+          {/* Opportunity - Display only (not editable in TopBar) */}
+          {opportunity && (
+            <div>
+              <label className="text-[9px] text-[#8e8e93] uppercase tracking-wide block mb-0.5">Opportunity</label>
+              <div className="text-xs text-[#ff9f0a]">{opportunity}</div>
+            </div>
+          )}
         </div>
         
         <div className="flex items-center gap-3">
@@ -212,48 +217,53 @@ export function TopBar({ customerName, opportunity }) {
             </div>
           </div>
           
-          <button
-            className="p-1.5 rounded-lg bg-[#2c2c2e] hover:bg-[#3c3c3e]"
-            onClick={() => setCollapsed(!collapsed)}
-            data-testid="topbar-collapse-toggle"
-          >
+          <div className="p-1.5 rounded-lg bg-[#2c2c2e]">
             {collapsed ? <ChevronDown className="h-3.5 w-3.5 text-[#8e8e93]" /> : <ChevronUp className="h-3.5 w-3.5 text-[#8e8e93]" />}
-          </button>
+          </div>
         </div>
       </div>
 
-      {/* Row 2: Compact Inputs */}
+      {/* Row 2: Inputs */}
       {!collapsed && (
       <div className="px-4 py-3 grid grid-cols-4 gap-3">
         
-        {/* Data Centers - with editable tags */}
+        {/* Data Centers */}
         <div className="bg-[#2c2c2e] rounded-xl p-3">
-          <div className="flex items-center gap-2 mb-2">
-            <Building2 className="h-4 w-4 text-[#30d158]" />
-            <span className="text-xs font-medium text-white">Data Centers</span>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <Building2 className="h-4 w-4 text-[#30d158]" />
+              <span className="text-xs font-medium text-white">Data Centers</span>
+            </div>
           </div>
           
-          {/* DC Tags - Editable */}
+          {/* DC Pills - Editable */}
           {dataCenters.length > 0 && (
-            <div className="flex flex-wrap gap-1 mb-2">
-              {dataCenters.map((dc, idx) => (
-                <div key={idx} className="flex items-center gap-1 px-2 py-1 rounded-lg bg-[#3c3c3e] group text-[11px] cursor-pointer hover:bg-[#4c4c4e]"
-                  onClick={() => {
-                    setDcName(dc.name);
-                    setDcKW(dc.knowledgeWorkers || '');
-                    deleteDataCenter(idx);
-                  }}
-                  title="Click to edit"
-                >
-                  <span className="text-white font-medium">{dc.name}</span>
-                  <span className="text-[#30d158]">{dc.knowledgeWorkers || 0}</span>
-                  <X className="h-2.5 w-2.5 text-[#8e8e93] opacity-0 group-hover:opacity-100" />
+            <div className="flex flex-wrap gap-1.5 mb-2">
+              {dataCenters.map((dc) => (
+                <div key={dc.id} className="flex items-center bg-[#3c3c3e] rounded-lg overflow-hidden">
+                  <input
+                    value={dc.name}
+                    onChange={e => updateDataCenter(dc.id, { name: e.target.value })}
+                    className="w-16 px-2 py-1 text-[11px] text-white bg-transparent border-0 focus:outline-none focus:bg-[#4c4c4e]"
+                  />
+                  <input
+                    type="number"
+                    value={dc.knowledgeWorkers || ''}
+                    onChange={e => updateDataCenter(dc.id, { knowledgeWorkers: e.target.value })}
+                    className="w-12 px-1 py-1 text-[11px] text-[#30d158] bg-transparent border-0 focus:outline-none focus:bg-[#4c4c4e] text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                  <button 
+                    onClick={() => deleteDataCenter(dc.id)}
+                    className="px-1.5 py-1 hover:bg-[#ff453a]/20"
+                  >
+                    <X className="h-3 w-3 text-[#ff453a]" />
+                  </button>
                 </div>
               ))}
             </div>
           )}
           
-          {/* Inputs */}
+          {/* Add new DC */}
           <div className="flex gap-1.5">
             <input
               value={dcName}
@@ -273,41 +283,51 @@ export function TopBar({ customerName, opportunity }) {
             <button
               onClick={handleAddDC}
               disabled={!dcName.trim()}
-              className="h-7 w-7 rounded-lg bg-[#30d158] hover:bg-[#30d158]/80 disabled:bg-[#3c3c3e] flex items-center justify-center"
+              className="h-7 px-2 rounded-lg bg-[#30d158] hover:bg-[#30d158]/80 disabled:bg-[#3c3c3e] flex items-center justify-center gap-1 text-[10px] font-semibold text-black disabled:text-[#8e8e93]"
             >
-              <Plus className="h-3.5 w-3.5 text-black" />
+              <Plus className="h-3 w-3" />
+              Add
             </button>
           </div>
         </div>
 
-        {/* Sites - with editable tags */}
+        {/* Sites */}
         <div className="bg-[#2c2c2e] rounded-xl p-3">
-          <div className="flex items-center gap-2 mb-2">
-            <MapPin className="h-4 w-4 text-[#5e5ce6]" />
-            <span className="text-xs font-medium text-white">Sites</span>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-[#5e5ce6]" />
+              <span className="text-xs font-medium text-white">Sites</span>
+            </div>
           </div>
           
-          {/* Site Tags - Editable */}
+          {/* Site Pills - Editable */}
           {sites.length > 0 && (
-            <div className="flex flex-wrap gap-1 mb-2">
-              {sites.map((site, idx) => (
-                <div key={idx} className="flex items-center gap-1 px-2 py-1 rounded-lg bg-[#3c3c3e] group text-[11px] cursor-pointer hover:bg-[#4c4c4e]"
-                  onClick={() => {
-                    setSiteName(site.name);
-                    setSiteKW(site.knowledgeWorkers || '');
-                    deleteSite(idx);
-                  }}
-                  title="Click to edit"
-                >
-                  <span className="text-white font-medium">{site.name}</span>
-                  <span className="text-[#5e5ce6]">{site.knowledgeWorkers || 0}</span>
-                  <X className="h-2.5 w-2.5 text-[#8e8e93] opacity-0 group-hover:opacity-100" />
+            <div className="flex flex-wrap gap-1.5 mb-2">
+              {sites.map((site) => (
+                <div key={site.id} className="flex items-center bg-[#3c3c3e] rounded-lg overflow-hidden">
+                  <input
+                    value={site.name}
+                    onChange={e => updateSite(site.id, { name: e.target.value })}
+                    className="w-16 px-2 py-1 text-[11px] text-white bg-transparent border-0 focus:outline-none focus:bg-[#4c4c4e]"
+                  />
+                  <input
+                    type="number"
+                    value={site.knowledgeWorkers || ''}
+                    onChange={e => updateSite(site.id, { knowledgeWorkers: e.target.value })}
+                    className="w-12 px-1 py-1 text-[11px] text-[#5e5ce6] bg-transparent border-0 focus:outline-none focus:bg-[#4c4c4e] text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                  <button 
+                    onClick={() => deleteSite(site.id)}
+                    className="px-1.5 py-1 hover:bg-[#ff453a]/20"
+                  >
+                    <X className="h-3 w-3 text-[#ff453a]" />
+                  </button>
                 </div>
               ))}
             </div>
           )}
           
-          {/* Inputs */}
+          {/* Add new Site */}
           <div className="flex gap-1.5">
             <input
               value={siteName}
@@ -327,14 +347,15 @@ export function TopBar({ customerName, opportunity }) {
             <button
               onClick={handleAddSite}
               disabled={!siteName.trim()}
-              className="h-7 w-7 rounded-lg bg-[#5e5ce6] hover:bg-[#5e5ce6]/80 disabled:bg-[#3c3c3e] flex items-center justify-center"
+              className="h-7 px-2 rounded-lg bg-[#5e5ce6] hover:bg-[#5e5ce6]/80 disabled:bg-[#3c3c3e] flex items-center justify-center gap-1 text-[10px] font-semibold text-white disabled:text-[#8e8e93]"
             >
-              <Plus className="h-3.5 w-3.5 text-white" />
+              <Plus className="h-3 w-3" />
+              Add
             </button>
           </div>
         </div>
 
-        {/* Target Solutions - New Layout */}
+        {/* Deployment - with deployment model logic */}
         <div className="bg-[#2c2c2e] rounded-xl p-3">
           <div className="flex items-center gap-2 mb-2">
             <Target className="h-4 w-4 text-[#ff9f0a]" />
@@ -348,15 +369,40 @@ export function TopBar({ customerName, opportunity }) {
             const isAsset = answers['target-asset'] === 'Yes';
             const isHybrid = isNIOS && isUDDI;
             
+            // Set deployment model based on selections
+            const setDeploymentModel = (nios, uddi) => {
+              if (nios && uddi) {
+                setAnswer('deployment-model', 'Hybrid');
+              } else if (uddi && !nios) {
+                setAnswer('deployment-model', 'UDDI');
+              } else if (nios && !uddi) {
+                setAnswer('deployment-model', 'NIOS');
+              } else {
+                setAnswer('deployment-model', '');
+              }
+            };
+            
+            const handleNIOSToggle = () => {
+              const newVal = !isNIOS;
+              setAnswer('target-nios', newVal ? 'Yes' : 'No');
+              setDeploymentModel(newVal, isUDDI);
+            };
+            
+            const handleUDDIToggle = () => {
+              const newVal = !isUDDI;
+              setAnswer('target-uddi', newVal ? 'Yes' : 'No');
+              setDeploymentModel(isNIOS, newVal);
+            };
+            
             const handleHybridToggle = () => {
               if (isHybrid) {
-                // Turn off both
                 setAnswer('target-nios', 'No');
                 setAnswer('target-uddi', 'No');
+                setAnswer('deployment-model', '');
               } else {
-                // Turn on both
                 setAnswer('target-nios', 'Yes');
                 setAnswer('target-uddi', 'Yes');
+                setAnswer('deployment-model', 'Hybrid');
               }
             };
             
@@ -365,7 +411,7 @@ export function TopBar({ customerName, opportunity }) {
                 {/* Row 1: NIOS + UDDI */}
                 <div className="grid grid-cols-2 gap-1.5">
                   <button
-                    onClick={() => setAnswer('target-nios', isNIOS ? 'No' : 'Yes')}
+                    onClick={handleNIOSToggle}
                     className={`flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg text-xs font-semibold transition-all ${
                       isNIOS 
                         ? 'bg-[#30d158] text-black' 
@@ -384,7 +430,7 @@ export function TopBar({ customerName, opportunity }) {
                     )}
                   </button>
                   <button
-                    onClick={() => setAnswer('target-uddi', isUDDI ? 'No' : 'Yes')}
+                    onClick={handleUDDIToggle}
                     className={`flex items-center justify-center px-2 py-2 rounded-lg text-xs font-semibold transition-all ${
                       isUDDI 
                         ? 'bg-[#0a84ff] text-white' 
@@ -448,7 +494,7 @@ export function TopBar({ customerName, opportunity }) {
           })()}
         </div>
 
-        {/* IP Calculator - compact */}
+        {/* IP Calculator */}
         <div className="bg-[#2c2c2e] rounded-xl p-3">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
@@ -470,20 +516,38 @@ export function TopBar({ customerName, opportunity }) {
                 className="w-full h-7 px-2 text-xs rounded-lg bg-[#1c1c1e] border border-[#4c4c4e] text-white placeholder:text-[#6e6e73] focus:outline-none focus:border-[#32d74b] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
             </div>
-            <div className="flex gap-1.5 items-end">
-              <div className="flex-1">
-                <label className="text-[10px] text-[#8e8e93] mb-0.5 block">Multiplier</label>
+            <div>
+              <label className="text-[10px] text-[#8e8e93] mb-0.5 block">Multiplier</label>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => {
+                    const current = parseFloat(answers['ipam-multiplier'] || '2.5');
+                    setAnswer('ipam-multiplier', Math.max(0.5, current - 0.5).toString());
+                  }}
+                  className="h-7 w-7 rounded-lg bg-[#3c3c3e] hover:bg-[#4c4c4e] flex items-center justify-center text-white"
+                >
+                  <ChevronDown className="h-3.5 w-3.5" />
+                </button>
                 <input
                   type="number"
-                  step="0.1"
+                  step="0.5"
                   value={answers['ipam-multiplier'] || '2.5'}
                   onChange={e => setAnswer('ipam-multiplier', e.target.value)}
-                  className="w-full h-7 px-2 text-xs rounded-lg bg-[#1c1c1e] border border-[#4c4c4e] text-white focus:outline-none focus:border-[#32d74b] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="flex-1 h-7 px-2 text-xs text-center rounded-lg bg-[#1c1c1e] border border-[#4c4c4e] text-white focus:outline-none focus:border-[#32d74b] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
+                <button
+                  onClick={() => {
+                    const current = parseFloat(answers['ipam-multiplier'] || '2.5');
+                    setAnswer('ipam-multiplier', (current + 0.5).toString());
+                  }}
+                  className="h-7 w-7 rounded-lg bg-[#3c3c3e] hover:bg-[#4c4c4e] flex items-center justify-center text-white"
+                >
+                  <ChevronUp className="h-3.5 w-3.5" />
+                </button>
               </div>
-              <div className="text-[10px] text-[#8e8e93] pb-1.5">
-                {formatKW(kw)} × {mult} = <span className="text-[#32d74b] font-semibold">{formatKW(activeIPs)}</span>
-              </div>
+            </div>
+            <div className="text-[10px] text-[#8e8e93] text-center pt-1">
+              {formatKW(kw)} × {mult} = <span className="text-[#32d74b] font-semibold">{formatKW(activeIPs)}</span>
             </div>
           </div>
         </div>
