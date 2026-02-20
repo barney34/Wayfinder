@@ -535,7 +535,22 @@ function CustomerDetailContent({
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0 bg-background">
         {/* Top Bar with Target Solutions, DC/Site Entry, IP Calculator */}
-        <TopBar customerName={currentName} opportunity={currentOpportunity} />
+        <TopBar 
+          customerName={editName} 
+          opportunity={editOpportunity}
+          onNameChange={(val) => {
+            setEditName(val);
+            if (val.trim() && val.trim() !== currentName) {
+              updateCustomerMutation.mutate({ name: val.trim() });
+            }
+          }}
+          onOpportunityChange={(val) => {
+            setEditOpportunity(val);
+            if (val !== currentOpportunity) {
+              updateCustomerMutation.mutate({ opportunity: val.trim() });
+            }
+          }}
+        />
 
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto">
