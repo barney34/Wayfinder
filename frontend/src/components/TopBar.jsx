@@ -163,38 +163,41 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
         </div>
       </div>
 
-      {/* Input cards row */}
+      {/* Input cards row - DC/Sites larger (5fr), TS/IPs smaller (3fr) */}
       {!collapsed && (
         <div className="px-4 flex py-3 gap-3">
-          {/* Data Centers - directly under Customer/Opp pill */}
-          <div className="shrink-0" style={{ width: pillWidth > 0 ? `${pillWidth}px` : '200px' }}>
-            <div className="bg-[#2c2c2e] rounded-xl p-3 flex flex-col h-full">
-              <div className="flex items-center gap-2 mb-2">
-                <Building2 className="h-3.5 w-3.5 text-[#30d158]" />
-                <span className="text-xs font-medium text-white">Data Centers</span>
-              </div>
-              {dataCenters.length > 0 && (
-                <div className="grid grid-cols-2 gap-1.5 mb-2">
-                  {dataCenters.map((dc) => (
-                    <div key={dc.id} className="flex items-center bg-[#3c3c3e] rounded-lg overflow-hidden">
-                      <input value={dc.name} onChange={e => updateDataCenter(dc.id, { name: e.target.value })} className="flex-1 min-w-0 px-1.5 py-1 text-[11px] text-white bg-transparent border-0 focus:outline-none focus:bg-[#4c4c4e]" />
-                      <input type="number" value={dc.knowledgeWorkers || ''} onChange={e => updateDataCenter(dc.id, { knowledgeWorkers: e.target.value })} className="w-12 px-1 py-1 text-[11px] text-[#30d158] bg-transparent border-0 focus:outline-none focus:bg-[#4c4c4e] text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
-                      <button onClick={() => deleteDataCenter(dc.id)} className="px-1 py-1 hover:bg-[#ff453a]/20 shrink-0" data-testid={`delete-dc-${dc.id}`}><X className="h-3 w-3 text-[#ff453a]" /></button>
-                    </div>
-                  ))}
+          {/* Spacer to match customer pill */}
+          <div className="shrink-0 mr-1" style={{ width: pillWidth > 0 ? `${pillWidth}px` : '180px' }} />
+
+          {/* Cards grid - same proportions as summary */}
+          <div className="flex-1 grid gap-x-3" style={{ gridTemplateColumns: '5fr 5fr 3fr 3fr' }}>
+            {/* Data Centers - larger */}
+            <div>
+              <div className="bg-[#2c2c2e] rounded-xl p-3 flex flex-col h-full">
+                <div className="flex items-center gap-2 mb-2">
+                  <Building2 className="h-3.5 w-3.5 text-[#30d158]" />
+                  <span className="text-xs font-medium text-white">Data Centers</span>
                 </div>
-              )}
-              <div className="flex gap-1.5 mt-auto">
-                <input value={dcName} onChange={e => setDcName(e.target.value)} placeholder="Name" className="flex-1 min-w-0 h-7 px-2 text-xs rounded-lg bg-[#1c1c1e] border border-[#4c4c4e] text-white placeholder:text-[#6e6e73] focus:outline-none focus:border-[#30d158]" onKeyDown={e => e.key === 'Enter' && handleAddDC()} data-testid="dc-name-input" />
-                <input type="number" value={dcKW} onChange={e => setDcKW(e.target.value)} placeholder="KW" className="w-14 h-7 px-2 text-xs rounded-lg bg-[#1c1c1e] border border-[#4c4c4e] text-white placeholder:text-[#6e6e73] focus:outline-none focus:border-[#30d158] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" onKeyDown={e => e.key === 'Enter' && handleAddDC()} data-testid="dc-kw-input" />
-                <button onClick={handleAddDC} disabled={!dcName.trim()} className="shrink-0 h-7 w-7 rounded-lg bg-[#30d158] hover:bg-[#30d158]/80 disabled:bg-[#3c3c3e] flex items-center justify-center text-black disabled:text-[#8e8e93]" data-testid="dc-add-btn"><Plus className="h-3.5 w-3.5" /></button>
+                {dataCenters.length > 0 && (
+                  <div className="grid grid-cols-2 gap-1.5 mb-2">
+                    {dataCenters.map((dc) => (
+                      <div key={dc.id} className="flex items-center bg-[#3c3c3e] rounded-lg overflow-hidden">
+                        <input value={dc.name} onChange={e => updateDataCenter(dc.id, { name: e.target.value })} className="flex-1 min-w-0 px-1.5 py-1 text-[11px] text-white bg-transparent border-0 focus:outline-none focus:bg-[#4c4c4e]" />
+                        <input type="number" value={dc.knowledgeWorkers || ''} onChange={e => updateDataCenter(dc.id, { knowledgeWorkers: e.target.value })} className="w-12 px-1 py-1 text-[11px] text-[#30d158] bg-transparent border-0 focus:outline-none focus:bg-[#4c4c4e] text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+                        <button onClick={() => deleteDataCenter(dc.id)} className="px-1 py-1 hover:bg-[#ff453a]/20 shrink-0" data-testid={`delete-dc-${dc.id}`}><X className="h-3 w-3 text-[#ff453a]" /></button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="flex gap-1.5 mt-auto">
+                  <input value={dcName} onChange={e => setDcName(e.target.value)} placeholder="Name" className="flex-1 min-w-0 h-7 px-2 text-xs rounded-lg bg-[#1c1c1e] border border-[#4c4c4e] text-white placeholder:text-[#6e6e73] focus:outline-none focus:border-[#30d158]" onKeyDown={e => e.key === 'Enter' && handleAddDC()} data-testid="dc-name-input" />
+                  <input type="number" value={dcKW} onChange={e => setDcKW(e.target.value)} placeholder="KW" className="w-14 h-7 px-2 text-xs rounded-lg bg-[#1c1c1e] border border-[#4c4c4e] text-white placeholder:text-[#6e6e73] focus:outline-none focus:border-[#30d158] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" onKeyDown={e => e.key === 'Enter' && handleAddDC()} data-testid="dc-kw-input" />
+                  <button onClick={handleAddDC} disabled={!dcName.trim()} className="shrink-0 h-7 w-7 rounded-lg bg-[#30d158] hover:bg-[#30d158]/80 disabled:bg-[#3c3c3e] flex items-center justify-center text-black disabled:text-[#8e8e93]" data-testid="dc-add-btn"><Plus className="h-3.5 w-3.5" /></button>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Sites, Target Solutions, Active IPs in a grid */}
-          <div className="flex-1 grid gap-x-3" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
-            {/* Sites */}
+            {/* Sites - larger */}
             <div>
               <div className="bg-[#2c2c2e] rounded-xl p-3 flex flex-col h-full">
                 <div className="flex items-center gap-2 mb-2">
@@ -220,7 +223,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
               </div>
             </div>
 
-            {/* Target Solutions */}
+            {/* Target Solutions - smaller */}
             <div>
               <div className="bg-[#2c2c2e] rounded-xl p-2.5 h-full">
                 <div className="flex items-center gap-1.5 mb-1.5">
@@ -249,7 +252,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
               </div>
             </div>
 
-            {/* Active IPs */}
+            {/* Active IPs - smaller */}
             <div>
               <div className="bg-[#2c2c2e] rounded-xl p-2.5 h-full">
                 <div className="flex items-center justify-between mb-1.5">
@@ -280,7 +283,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
             </div>
           </div>
 
-          {/* Spacer to match chevron width */}
+          {/* Spacer for chevron */}
           <div className="shrink-0" style={{ width: '28px' }} />
         </div>
       )}
