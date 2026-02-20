@@ -180,22 +180,6 @@ export const discoveryQuestions = [
     "technicalOnly": true
   },
   {
-    "id": "ipam-9",
-    "section": "IPAM",
-    "question": "What cloud providers do you use today or in the future?",
-    "technicalOnly": true,
-    "fieldType": "multiselect",
-    "options": [
-      "AWS",
-      "Azure",
-      "GCP",
-      "OCI",
-      "Alibaba",
-      "IBM"
-    ],
-    "allowFreeform": true
-  },
-  {
     "id": "ipam-10",
     "section": "IPAM",
     "question": "What specific IT/Security systems (e.g., SIEM/SOAR/ITSM) do you need seamless, automated DDI/Security integration with?",
