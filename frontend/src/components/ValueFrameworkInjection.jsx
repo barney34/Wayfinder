@@ -157,19 +157,24 @@ export function ValueFrameworkInjection({ section }) {
 
   return (
     <div className="mb-6" data-testid={`vf-injection-${section.replace(/\s/g, '-')}`}>
-      {/* Header - just text, no box */}
+      {/* Header - HA style card */}
       <button
         onClick={() => setExpanded(!expanded)}
-        className="flex items-center gap-2 text-gray-500 hover:text-black dark:hover:text-white mb-3"
+        className="w-full flex items-center justify-between px-4 py-3 rounded-2xl bg-[#2c2c2e] hover:bg-[#3c3c3e] transition-colors"
       >
-        <span className="text-sm font-medium">Value Discovery</span>
-        <span className="text-xs">({answeredSeeds.length}/{seeds.length})</span>
-        {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-xl bg-[#5e5ce6]/20 flex items-center justify-center">
+            <Sparkles className="h-4 w-4 text-[#5e5ce6]" />
+          </div>
+          <span className="text-sm font-semibold text-white">Value Discovery</span>
+          <span className="text-xs text-[#8e8e93]">{answeredSeeds.length}/{seeds.length}</span>
+        </div>
+        {expanded ? <ChevronDown className="h-4 w-4 text-[#8e8e93]" /> : <ChevronRight className="h-4 w-4 text-[#8e8e93]" />}
       </button>
 
-      {/* Questions - plain list */}
+      {/* Questions - HA card style */}
       {expanded && (
-        <div className="space-y-6 pl-4 border-l border-gray-200 dark:border-gray-800">
+        <div className="mt-3 space-y-3">
           {seeds.map(seed => {
             const currentAnswer = answers[seed.id] || '';
             const hasAnswer = currentAnswer.trim().length > 0;
@@ -177,37 +182,37 @@ export function ValueFrameworkInjection({ section }) {
             const showFollowUps = hasAnswer && followUps.length > 0;
 
             return (
-              <div key={seed.id} className="space-y-4" data-testid={`vf-seed-${seed.id}`}>
-                {/* Seed Question */}
-                <div>
-                  <label className="text-[15px] font-bold text-black dark:text-white block mb-2">
+              <div key={seed.id} className="space-y-3" data-testid={`vf-seed-${seed.id}`}>
+                {/* Seed Question Card */}
+                <div className={`rounded-2xl p-4 transition-all ${hasAnswer ? 'bg-[#2c2c2e] ring-1 ring-[#32d74b]/30' : 'bg-[#2c2c2e]'}`}>
+                  <label className="text-[15px] font-semibold text-white block mb-3">
                     {seed.question}
                   </label>
-                  <Input
+                  <input
                     value={currentAnswer}
                     onChange={e => setAnswer(seed.id, e.target.value)}
                     placeholder="Response..."
-                    className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700"
+                    className="w-full h-11 px-4 rounded-xl bg-[#1c1c1e] border-0 text-white placeholder:text-[#8e8e93] focus:outline-none focus:ring-2 focus:ring-[#0a84ff]/50"
                     data-testid={`vf-seed-input-${seed.id}`}
                   />
                 </div>
 
-                {/* Follow-ups */}
+                {/* Follow-ups - nested card */}
                 {showFollowUps && (
-                  <div className="pl-4 border-l border-gray-200 dark:border-gray-800 space-y-4">
+                  <div className="ml-4 space-y-3">
                     {followUps.map(fu => {
                       const fuAnswer = answers[fu.id] || '';
                       return (
-                        <div key={fu.id} data-testid={`vf-followup-${fu.id}`}>
-                          <p className="text-xs text-gray-400 italic mb-2">{fu.framing}</p>
-                          <label className="text-sm font-semibold text-black dark:text-white block mb-2">
+                        <div key={fu.id} className="rounded-2xl p-4 bg-[#2c2c2e] border-l-4 border-[#ff9f0a]" data-testid={`vf-followup-${fu.id}`}>
+                          <p className="text-xs text-[#ff9f0a] mb-2 italic">{fu.framing}</p>
+                          <label className="text-sm font-semibold text-white block mb-2">
                             {fu.question}
                           </label>
-                          <Input
+                          <input
                             value={fuAnswer}
                             onChange={e => setAnswer(fu.id, e.target.value)}
                             placeholder="Response..."
-                            className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700"
+                            className="w-full h-10 px-3 rounded-xl bg-[#1c1c1e] border-0 text-white placeholder:text-[#8e8e93] focus:outline-none focus:ring-2 focus:ring-[#0a84ff]/50"
                             data-testid={`vf-fu-input-${fu.id}`}
                           />
                         </div>
