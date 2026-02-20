@@ -428,7 +428,7 @@ export function TokenCalculatorSummary() {
 
           <div className="border rounded-lg overflow-hidden">
             <Table className="table-auto w-full">
-              <SizingTableHeader showHardware={showHardware} platformMode={platformMode} />
+              <SizingTableHeader showHardware={showHardware} showKW={showKW} platformMode={platformMode} />
               <TableBody>
                 {sites.map(site => (
                   <SiteTableRow
