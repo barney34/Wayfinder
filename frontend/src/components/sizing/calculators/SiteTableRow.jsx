@@ -23,7 +23,7 @@ function calculateTokenPacks(tokens) {
 
 export function SiteTableRow({
   site, sites, platformMode, dhcpPercent,
-  roleOptions, platformOptions, showHardware,
+  roleOptions, platformOptions, showHardware, showKW,
   onUpdateSite, onToggleService, onDeleteSite, onOpenModelDialog,
 }) {
   const showTokens = platformMode !== 'NIOS'; // Hide tokens for NIOS-only mode
