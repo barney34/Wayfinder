@@ -780,20 +780,20 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
             const isEvenRow = rowIndex % 2 === 0;
             
             return (
-              <div key={q.id} className="border-b border-gray-200 dark:border-gray-800 last:border-b-0">
-                {/* Question cell - ULTRA MINIMAL */}
+              <div key={q.id} className="border-b border-[#2c2c2e] last:border-b-0">
+                {/* Question cell - Home Assistant style */}
                 <div 
-                  className={`${compactMode ? 'px-3 py-3' : 'px-4 py-4'} ${isClickableRow ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900' : ''}`}
+                  className={`${compactMode ? 'px-4 py-3' : 'px-5 py-4'} ${isClickableRow ? 'cursor-pointer hover:bg-[#2c2c2e]/50' : ''}`}
                   onClick={isClickableRow ? () => setExpandedNotes(p => ({ ...p, [q.id]: !p[q.id] })) : undefined}
                   data-testid={`question-${q.id}`}
                 >
-                  {/* Question Label - BIG and BOLD */}
+                  {/* Question Label */}
                   <div className={`flex items-start justify-between gap-3 ${compactMode ? 'mb-2' : 'mb-3'}`}>
-                    <label className={`${compactMode ? 'text-sm' : 'text-[15px]'} font-bold text-black dark:text-white leading-relaxed flex-1`}>
+                    <label className={`${compactMode ? 'text-sm' : 'text-[15px]'} font-semibold text-white leading-relaxed flex-1`}>
                       {q.question}
                     </label>
                     {hasNote && (
-                      <span className="text-[10px] text-gray-400 uppercase tracking-wide">noted</span>
+                      <span className="text-[10px] text-[#32d74b] uppercase tracking-wide px-2 py-0.5 rounded-full bg-[#32d74b]/10">noted</span>
                     )}
                   </div>
                   
@@ -804,7 +804,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                     </div>
                   ) : (
                     <button 
-                      className="text-sm text-gray-400 hover:text-black dark:hover:text-white"
+                      className="text-sm text-[#0a84ff] hover:text-[#0a84ff]/80"
                       onClick={() => setExpandedNotes(p => ({ ...p, [q.id]: !p[q.id] }))}
                     >
                       {hasNote ? 'Edit response →' : 'Add response →'}
@@ -818,7 +818,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                         value={notes[q.id] || ''}
                         onChange={e => setNote(q.id, e.target.value)}
                         placeholder="Type here..."
-                        className="min-h-[80px] text-sm bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700"
+                        className="min-h-[80px] text-sm bg-[#1c1c1e] border-[#3c3c3e] text-white placeholder:text-[#8e8e93] rounded-xl focus:ring-[#0a84ff] focus:border-[#0a84ff]"
                         data-testid={`note-${q.id}`}
                         onClick={e => e.stopPropagation()}
                         autoFocus
@@ -829,17 +829,17 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                 
                 {/* Conditional sub-questions */}
                 {conditionals.length > 0 && (
-                  <div className="ml-6 border-l-2 border-gray-200 dark:border-gray-700">
+                  <div className="ml-6 border-l-2 border-[#3c3c3e]">
                     {conditionals.map(cq => (
                       <div 
                         key={cq.id} 
-                        className="px-4 py-3"
+                        className="px-5 py-4"
                         data-testid={`question-${cq.id}`}
                       >
-                        <div className="text-xs text-gray-400 mb-2 uppercase tracking-wide">
-                          If {cq.conditionalOn.value}:
+                        <div className="text-xs text-[#ff9f0a] mb-2 uppercase tracking-wide">
+                          If {cq.conditionalOn.value}
                         </div>
-                        <label className="text-sm font-semibold text-black dark:text-white block mb-2">
+                        <label className="text-sm font-semibold text-white block mb-2">
                           {cq.question}
                         </label>
                         {renderField(cq)}
