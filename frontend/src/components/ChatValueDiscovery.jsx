@@ -411,7 +411,7 @@ export function ChatValueDiscovery({ section }) {
             
             {/* Clickable Topic Pills */}
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[10px] text-muted-foreground uppercase tracking-wider mr-1">Topics:</span>
+              <span className="text-[10px] text-muted-foreground uppercase tracking-wider mr-1 font-medium">Topics:</span>
               {sectionConfig.topics.map(topic => {
                 const count = getTopicQuestionCount(topic.id);
                 const isComplete = count >= MAX_QUESTIONS_PER_TOPIC;
@@ -422,14 +422,14 @@ export function ChatValueDiscovery({ section }) {
                     key={topic.id}
                     onClick={() => handleTopicClick(topic.id)}
                     disabled={isLoading}
-                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium transition-all ${
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium transition-all border ${
                       isComplete
-                        ? 'bg-[#30d158]/20 text-[#30d158] cursor-default'
+                        ? 'bg-[#16a34a]/15 text-[#16a34a] border-[#16a34a]/30 cursor-default'
                         : isActive
-                          ? 'bg-[#5e5ce6]/30 text-[#5e5ce6] ring-1 ring-[#5e5ce6]'
+                          ? 'bg-[#7c3aed]/20 text-[#7c3aed] border-[#7c3aed] ring-1 ring-[#7c3aed]/30'
                           : topic.required
-                            ? 'bg-[#ff9f0a]/10 text-[#ff9f0a]/80 hover:bg-[#ff9f0a]/20 hover:text-[#ff9f0a] cursor-pointer'
-                            : 'bg-secondary text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer'
+                            ? 'bg-[#ea580c]/10 text-[#ea580c] border-[#ea580c]/30 hover:bg-[#ea580c]/20 cursor-pointer'
+                            : 'bg-secondary text-secondary-foreground border-border hover:bg-muted hover:text-foreground cursor-pointer'
                     }`}
                     data-testid={`topic-pill-${topic.id}`}
                   >
@@ -448,17 +448,17 @@ export function ChatValueDiscovery({ section }) {
           </div>
 
           {/* Messages */}
-          <div className="max-h-[320px] overflow-y-auto p-4 space-y-3">
+          <div className="max-h-[320px] overflow-y-auto p-4 space-y-3 bg-background/50">
             {conversation.map((msg, idx) => (
               <div 
                 key={idx}
                 className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div 
-                  className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
+                  className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm ${
                     msg.role === 'user'
-                      ? 'bg-[#0a84ff] text-white rounded-br-md'
-                      : 'bg-muted text-foreground rounded-bl-md'
+                      ? 'bg-[#2563eb] text-white rounded-br-md'
+                      : 'bg-secondary border border-border text-foreground rounded-bl-md'
                   }`}
                 >
                   {msg.content}
@@ -467,7 +467,7 @@ export function ChatValueDiscovery({ section }) {
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-muted text-muted-foreground px-4 py-2.5 rounded-2xl rounded-bl-md flex items-center gap-2">
+                <div className="bg-secondary border border-border text-muted-foreground px-4 py-2.5 rounded-2xl rounded-bl-md flex items-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin" />
                   <span className="text-sm">Thinking...</span>
                 </div>
