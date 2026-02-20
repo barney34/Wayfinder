@@ -286,12 +286,15 @@ export function TokenCalculatorSummary() {
     let updates = { [field]: value };
     if (field === 'role' && value !== 'DHCP' && value !== 'DNS/DHCP') updates.dhcpPartner = null;
 
-    // If updating KW, also sync to context (which updates TopBar)
-    if (field === 'knowledgeWorkers') {
+    // If updating KW, sync to context (which updates TopBar) and DON'T add to local override
+    // The value will flow back through context
+    if (field === 'knowledgeWorkers' && site.sourceType) {
       if (site.sourceType === 'site' && contextUpdateSite) {
         contextUpdateSite(site.sourceId, { knowledgeWorkers: value });
+        return; // Don't update local override for KW - let context be source of truth
       } else if (site.sourceType === 'dataCenter' && contextUpdateDC) {
         contextUpdateDC(site.sourceId, { knowledgeWorkers: value });
+        return; // Don't update local override for KW - let context be source of truth
       }
     }
 
