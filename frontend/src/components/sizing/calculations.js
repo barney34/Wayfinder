@@ -381,6 +381,16 @@ export function getSiteWorkloadDetails(numIPs, role, platform, dhcpPercent, site
   let objects = 0;
   if (role === 'GM' || role === 'GMC') {
     objects = dnsObjects + dhcpObjects;
+  } else if (role.startsWith('GM+') || role.startsWith('GMC+')) {
+    // GM/GMC with services: grid management objects + service objects
+    objects = dnsObjects + dhcpObjects; // Grid management base
+    if (role.includes('DNS/DHCP')) {
+      objects += dnsObjects + dhcpObjects; // Add service objects
+    } else if (role.includes('DNS')) {
+      objects += dnsObjects;
+    } else if (role.includes('DHCP')) {
+      objects += dhcpObjects;
+    }
   } else if (role === 'DNS/DHCP') {
     objects = dnsObjects + dhcpObjects;
   } else if (role === 'DNS') {
