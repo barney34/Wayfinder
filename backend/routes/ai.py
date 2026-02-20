@@ -267,3 +267,115 @@ Generate a concise, professional summary using bullet points. Keep each bullet p
     except Exception as e:
         print(f"Error generating context: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to generate context summary: {str(e)}")
+
+
+
+@router.post("/value-discovery-chat")
+async def value_discovery_chat(request: ValueDiscoveryChatRequest):
+    """
+    AI-powered conversational Value Discovery.
+    
+    Hybrid approach:
+    - Tracks which topics have been covered
+    - Generates contextual follow-up questions
+    - Ensures all required topics are addressed naturally
+    """
+    if not EMERGENT_LLM_KEY:
+        raise HTTPException(status_code=500, detail="AI integration not configured")
+    
+    try:
+        # Build conversation history for context
+        convo_text = "\n".join([
+            f"{'Assistant' if m.role == 'system' else 'Customer'}: {m.content}"
+            for m in request.conversation
+        ])
+        
+        # Determine uncovered topics
+        covered = set(request.coveredTopics)
+        uncovered_required = [t for t in request.requiredTopics if t.required and t.id not in covered]
+        uncovered_optional = [t for t in request.requiredTopics if not t.required and t.id not in covered]
+        
+        # Build topic guidance
+        topic_guidance = ""
+        if uncovered_required:
+            topic_guidance = f"Topics still to cover (required): {', '.join(t.label for t in uncovered_required)}"
+        elif uncovered_optional:
+            topic_guidance = f"Optional topics to explore: {', '.join(t.label for t in uncovered_optional)}"
+        else:
+            topic_guidance = "All key topics covered. You can wrap up or explore any interesting points deeper."
+        
+        # Context hints for the section
+        hints = ', '.join(request.contextHints) if request.contextHints else 'general DDI challenges'
+        
+        prompt = f"""You are a skilled sales engineer conducting a Value Discovery conversation for the {request.section} area.
+
+CONVERSATION SO FAR:
+{convo_text}
+
+GUIDANCE:
+{topic_guidance}
+
+Context hints for this section: {hints}
+
+TOPIC DEFINITIONS:
+- current-state: Understanding their current tools, processes, and infrastructure
+- pain-points: Specific problems, frustrations, or challenges they face
+- business-impact: How these issues affect the business (costs, time, risk, productivity)
+- goals: What outcomes they want to achieve
+
+INSTRUCTIONS:
+1. Acknowledge what the customer just shared (briefly, 1 sentence max)
+2. Ask ONE focused follow-up question that:
+   - Digs deeper into what they said OR
+   - Naturally transitions to an uncovered topic
+3. Keep your response conversational and under 50 words
+4. Don't be robotic - sound like a human consultant
+5. If they mention numbers or specifics, probe deeper on those
+
+Also analyze which topics the customer's LAST response touched on. Return your analysis.
+
+OUTPUT FORMAT (JSON):
+{{
+  "response": "Your conversational follow-up question here",
+  "topicsCovered": ["topic-id-1", "topic-id-2"]  // IDs of topics touched in customer's LAST message
+}}"""
+
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"vd-chat-{uuid.uuid4()}",
+            system_message="You are a consultative sales engineer skilled at discovery conversations. Be natural, curious, and empathetic. Keep responses brief."
+        ).with_model("gemini", "gemini-3-flash-preview")
+
+        user_message = UserMessage(text=prompt)
+        response_text = await chat.send_message(user_message)
+        
+        # Parse JSON response
+        response_text = response_text.strip()
+        if response_text.startswith("```json"):
+            response_text = response_text[7:]
+        if response_text.startswith("```"):
+            response_text = response_text[3:]
+        if response_text.endswith("```"):
+            response_text = response_text[:-3]
+        response_text = response_text.strip()
+        
+        try:
+            data = json.loads(response_text)
+            return {
+                "response": data.get("response", "Can you tell me more about the business impact of that?"),
+                "newTopicsCovered": data.get("topicsCovered", [])
+            }
+        except json.JSONDecodeError:
+            # If JSON parsing fails, use the raw response
+            return {
+                "response": response_text if len(response_text) < 200 else "That's helpful. Can you tell me more about the business impact?",
+                "newTopicsCovered": []
+            }
+
+    except Exception as e:
+        print(f"Error in value discovery chat: {e}")
+        # Return a fallback response instead of erroring
+        return {
+            "response": "Thanks for sharing that. Can you tell me more about how this impacts your day-to-day operations?",
+            "newTopicsCovered": []
+        }
