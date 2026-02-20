@@ -119,7 +119,7 @@ export function TokenCalculatorSummary() {
     const buildBasicSite = (source, index, type) => {
       const key = type === 'dataCenter' ? `dc-${source.id}` : `site-${source.id}`;
       const override = siteOverrides[key] || {};
-      const kw = source.knowledgeWorkers || 0;
+      const kw = override.knowledgeWorkers !== undefined ? override.knowledgeWorkers : (source.knowledgeWorkers || 0);
 
       let defaultRole = 'DNS/DHCP';
       if (type === 'dataCenter' && platformMode !== 'UDDI') {
@@ -127,8 +127,8 @@ export function TokenCalculatorSummary() {
       }
 
       let role = override.role || defaultRole;
-      const isGmRole = role === 'GM' || role === 'GMC';
-      const isDisabledInUddi = platformMode === 'UDDI' && isGmRole;
+      const isGmRole = role === 'GM' || role === 'GMC' || role.startsWith('GM+') || role.startsWith('GMC+');
+      const isDisabledInUddi = platformMode === 'UDDI' && (role === 'GM' || role === 'GMC');
       const services = override.services || [];
 
       let defaultPlatform = 'NIOS';
@@ -143,7 +143,7 @@ export function TokenCalculatorSummary() {
       let numIPs;
       if (type === 'dataCenter') {
         numIPs = override.numIPs !== undefined ? override.numIPs : ipCalcValue;
-        const serviceIPs = (role === 'GM' || role === 'GMC') ? services.length * 100 : 0;
+        const serviceIPs = (role === 'GM' || role === 'GMC' || role.startsWith('GM+') || role.startsWith('GMC+')) ? services.length * 100 : 0;
         numIPs += serviceIPs;
       } else {
         const baseIPs = Math.round(kw * ipMultiplier);
