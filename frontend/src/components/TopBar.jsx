@@ -132,7 +132,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
         </div>
 
         {/* Summary — same grid as input row, centered over each section */}
-        <div className="flex-1 grid gap-3 items-center" style={{ gridTemplateColumns: '5fr 5fr 3fr 3fr' }}>
+        <div className="flex-1 min-w-0 grid gap-3 items-center" style={{ gridTemplateColumns: '5fr 5fr 3fr 3fr' }}>
           {/* DC summary — centered over Data Centers */}
           <div className="flex items-center justify-center gap-1.5">
             <Building2 className="h-3 w-3 text-[#30d158]" />
