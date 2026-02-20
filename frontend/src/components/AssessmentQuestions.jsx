@@ -763,28 +763,30 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
             const hasAnswer = answers[q.id]?.trim();
             // For text-only questions, make entire cell clickable
             const isClickableRow = !hasInput;
+            // Zebra striping for better scanability
+            const isEvenRow = rowIndex % 2 === 0;
             
             return (
-              <div key={q.id} className="border-b border-border/30 last:border-b-0">
+              <div key={q.id} className={`border-b border-border/20 last:border-b-0 ${isEvenRow ? '' : 'bg-muted/5'}`}>
                 {/* Main question cell - VERTICAL LAYOUT: label above input */}
                 <div 
-                  className={`px-4 py-3 transition-colors ${isClickableRow ? 'cursor-pointer hover:bg-muted/30' : ''} ${isNoteExpanded && isClickableRow ? 'bg-muted/20' : ''}`}
+                  className={`${compactMode ? 'px-3 py-2' : 'px-4 py-3'} transition-all hover:bg-muted/10 ${isClickableRow ? 'cursor-pointer' : ''} ${isNoteExpanded && isClickableRow ? 'bg-muted/15' : ''}`}
                   onClick={isClickableRow ? () => setExpandedNotes(p => ({ ...p, [q.id]: !p[q.id] })) : undefined}
                   data-testid={`question-${q.id}`}
                 >
                   {/* Question Label - always on top */}
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <label className="text-[13px] font-medium text-foreground leading-snug flex-1 min-w-0" style={{wordBreak: 'break-word'}}>
+                  <div className={`flex items-start justify-between gap-2 ${compactMode ? 'mb-1.5' : 'mb-2'}`}>
+                    <label className={`${compactMode ? 'text-[12px]' : 'text-[13px]'} font-medium text-foreground leading-snug flex-1 min-w-0`} style={{wordBreak: 'break-word'}}>
                       {q.question}
                     </label>
                     {/* Note toggle button */}
                     <button 
-                      className={`p-1.5 rounded-md transition-all flex-shrink-0 ${hasNote ? 'text-blue-600 bg-blue-100 dark:bg-blue-900/40' : 'text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted/50'}`}
+                      className={`${compactMode ? 'p-1' : 'p-1.5'} rounded-md transition-all flex-shrink-0 ${hasNote ? 'text-blue-600 bg-blue-100 dark:bg-blue-900/40' : 'text-muted-foreground/40 hover:text-muted-foreground hover:bg-muted/50'}`}
                       onClick={(e) => { e.stopPropagation(); setExpandedNotes(p => ({ ...p, [q.id]: !p[q.id] })); }}
                       title={hasNote ? "View note" : "Add note"}
                       data-testid={`toggle-note-${q.id}`}
                     >
-                      <MessageSquare className="h-3.5 w-3.5" />
+                      <MessageSquare className={`${compactMode ? 'h-3 w-3' : 'h-3.5 w-3.5'}`} />
                     </button>
                   </div>
                   
@@ -795,7 +797,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                     </div>
                   ) : (
                     /* Text-only: show click hint */
-                    <div className={`text-xs text-muted-foreground/60 ${hasNote ? 'text-blue-500' : ''}`}>
+                    <div className={`${compactMode ? 'text-[10px]' : 'text-xs'} text-muted-foreground/50 ${hasNote ? 'text-blue-500' : ''}`}>
                       {hasNote ? 'Click to edit response' : 'Click to add response'}
                     </div>
                   )}
@@ -806,7 +808,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                       value={notes[q.id] || ''}
                       onChange={e => setNote(q.id, e.target.value)}
                       placeholder={hasInput ? "Add a note..." : "Enter your response..."}
-                      className="min-h-[70px] text-sm resize-y bg-muted/30 border-muted-foreground/20"
+                      className={`${compactMode ? 'min-h-[50px]' : 'min-h-[70px]'} text-sm resize-y bg-muted/20 border-muted-foreground/15`}
                       data-testid={`note-${q.id}`}
                       onClick={e => e.stopPropagation()}
                     />
@@ -815,17 +817,17 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                 
                 {/* Conditional sub-questions - smooth expansion below parent */}
                 {conditionals.length > 0 && (
-                  <div className="mx-3 mb-3 overflow-hidden transition-all duration-200">
+                  <div className={`${compactMode ? 'mx-2 mb-2' : 'mx-3 mb-3'} overflow-hidden transition-all duration-200`}>
                     {conditionals.map(cq => (
                       <div 
                         key={cq.id} 
-                        className="ml-2 pl-3 py-2.5 border-l-3 border-blue-400 dark:border-blue-500 bg-blue-50/40 dark:bg-blue-950/20 rounded-r-md"
+                        className={`ml-2 ${compactMode ? 'pl-2 py-2' : 'pl-3 py-2.5'} border-l-3 border-blue-400 dark:border-blue-500 bg-blue-50/30 dark:bg-blue-950/15 rounded-r-md`}
                         data-testid={`question-${cq.id}`}
                       >
                         <div className="text-[10px] text-blue-500 dark:text-blue-400 font-medium mb-1.5 uppercase tracking-wide">
                           If {cq.conditionalOn.value}
                         </div>
-                        <label className="text-[12px] text-muted-foreground leading-snug block mb-2">
+                        <label className={`${compactMode ? 'text-[11px]' : 'text-[12px]'} text-muted-foreground leading-snug block mb-2`}>
                           {cq.question}
                         </label>
                         <div>{renderField(cq)}</div>
