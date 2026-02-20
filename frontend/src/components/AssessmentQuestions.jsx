@@ -731,7 +731,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
             return ft === 'text' && !q.options;
           };
 
-          // Render a single question cell
+          // Render a single question cell - REFACTORED: Label above input, smooth expansions
           const renderQuestionCell = (q, colIndex, rowIndex) => {
             const hasNote = notes[q.id]?.trim();
             const isNoteExpanded = expandedNotes[q.id];
@@ -739,83 +739,78 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
             const isFreeform = isFreeformQuestion(q);
             const hasInput = needsInputField(q);
             const hasAnswer = answers[q.id]?.trim();
-            // Alternating row backgrounds for better separation
-            const rowBg = rowIndex % 2 === 0 ? '' : 'bg-muted/20';
-            // Column shading - middle column gets subtle gray
-            const colBg = colIndex === 1 ? 'bg-gray-100/50 dark:bg-gray-800/30' : '';
-            // For text-only questions, make entire row clickable
+            // For text-only questions, make entire cell clickable
             const isClickableRow = !hasInput;
             
             return (
-              <div key={q.id} className={`${colBg} ${rowBg}`}>
-                {/* Main question row - with visible separator */}
+              <div key={q.id} className="border-b border-border/30 last:border-b-0">
+                {/* Main question cell - VERTICAL LAYOUT: label above input */}
                 <div 
-                  className={`px-3 py-2.5 border-b border-border/60 ${isClickableRow ? 'cursor-pointer hover:bg-muted/40 transition-colors' : ''} ${isNoteExpanded && isClickableRow ? 'bg-muted/30' : ''}`}
+                  className={`px-4 py-3 transition-colors ${isClickableRow ? 'cursor-pointer hover:bg-muted/30' : ''} ${isNoteExpanded && isClickableRow ? 'bg-muted/20' : ''}`}
                   onClick={isClickableRow ? () => setExpandedNotes(p => ({ ...p, [q.id]: !p[q.id] })) : undefined}
                   data-testid={`question-${q.id}`}
                 >
-                  {/* Questions WITH inputs: single line layout */}
+                  {/* Question Label - always on top */}
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <label className="text-[13px] font-medium text-foreground leading-snug flex-1 min-w-0" style={{wordBreak: 'break-word'}}>
+                      {q.question}
+                    </label>
+                    {/* Note toggle button */}
+                    <button 
+                      className={`p-1.5 rounded-md transition-all flex-shrink-0 ${hasNote ? 'text-blue-600 bg-blue-100 dark:bg-blue-900/40' : 'text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted/50'}`}
+                      onClick={(e) => { e.stopPropagation(); setExpandedNotes(p => ({ ...p, [q.id]: !p[q.id] })); }}
+                      title={hasNote ? "View note" : "Add note"}
+                      data-testid={`toggle-note-${q.id}`}
+                    >
+                      <MessageSquare className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                  
+                  {/* Input field - below label */}
                   {hasInput ? (
-                    <div className="flex items-start justify-between gap-2">
-                      <span className="text-[13px] text-foreground leading-relaxed flex-1 min-w-0" style={{wordBreak: 'break-word'}}>
-                        {q.question}
-                      </span>
-                      <div className="flex items-center gap-1.5 flex-shrink-0 pt-0.5" onClick={e => e.stopPropagation()}>
-                        {renderField(q)}
-                        <button 
-                          className={`p-1 rounded transition-colors ${hasNote ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/30' : 'text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
-                          onClick={(e) => { e.stopPropagation(); setExpandedNotes(p => ({ ...p, [q.id]: !p[q.id] })); }}
-                          title={hasNote ? "View note" : "Add note"}
-                          data-testid={`toggle-note-${q.id}`}
-                        >
-                          <MessageSquare className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
+                    <div onClick={e => e.stopPropagation()}>
+                      {renderField(q)}
                     </div>
                   ) : (
-                    /* Questions WITHOUT inputs (text-only): ENTIRE ROW CLICKABLE */
-                    <div className="flex items-start justify-between gap-2">
-                      <span className="text-[13px] text-foreground leading-relaxed flex-1" style={{wordBreak: 'break-word'}}>
-                        {q.question}
-                      </span>
-                      <div className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-xs transition-colors flex-shrink-0 ${hasNote ? 'text-blue-600 bg-blue-100 dark:bg-blue-900/40 dark:text-blue-300' : 'text-gray-400 bg-gray-100 dark:bg-gray-800'}`}>
-                        <MessageSquare className="h-3 w-3" />
-                        <span className="hidden sm:inline">{hasNote ? 'Edit' : 'Add'}</span>
-                      </div>
+                    /* Text-only: show click hint */
+                    <div className={`text-xs text-muted-foreground/60 ${hasNote ? 'text-blue-500' : ''}`}>
+                      {hasNote ? 'Click to edit response' : 'Click to add response'}
                     </div>
                   )}
                   
-                  {/* Inline expanded section - JUST NOTE FIELD for consistency */}
-                  {isNoteExpanded && (
-                    <div className="mt-2">
-                      <Textarea
-                        value={notes[q.id] || ''}
-                        onChange={e => setNote(q.id, e.target.value)}
-                        placeholder={hasInput ? "Add a note..." : "Enter your response..."}
-                        className="min-h-[60px] text-sm resize-y"
-                        data-testid={`note-${q.id}`}
-                        autoFocus
-                      />
-                    </div>
-                  )}
+                  {/* Note textarea - expands BELOW input smoothly */}
+                  <div className={`overflow-hidden transition-all duration-200 ${isNoteExpanded ? 'max-h-[200px] opacity-100 mt-3' : 'max-h-0 opacity-0'}`}>
+                    <Textarea
+                      value={notes[q.id] || ''}
+                      onChange={e => setNote(q.id, e.target.value)}
+                      placeholder={hasInput ? "Add a note..." : "Enter your response..."}
+                      className="min-h-[70px] text-sm resize-y bg-muted/30 border-muted-foreground/20"
+                      data-testid={`note-${q.id}`}
+                      onClick={e => e.stopPropagation()}
+                    />
+                  </div>
                 </div>
                 
-                {/* Conditional questions - indented below parent with LIGHTER styling */}
-                {conditionals.map(cq => (
-                  <div key={cq.id} className="border-l-2 border-blue-200 dark:border-blue-800 bg-blue-50/20 dark:bg-blue-900/5 ml-2" data-testid={`question-${cq.id}`}>
-                    <div className="px-3 py-2 border-b border-border/30">
-                      <div className="text-[10px] text-blue-400 dark:text-blue-500 font-medium mb-1">↳ If {cq.conditionalOn.value}:</div>
-                      <div className="flex items-start justify-between gap-2">
-                        <span className="text-[13px] text-foreground leading-relaxed flex-1" style={{wordBreak: 'break-word'}}>
-                          {cq.question}
-                        </span>
-                        <div className="flex items-center gap-1.5 flex-shrink-0">
-                          {renderField(cq)}
+                {/* Conditional sub-questions - smooth expansion below parent */}
+                {conditionals.length > 0 && (
+                  <div className="mx-3 mb-3 overflow-hidden transition-all duration-200">
+                    {conditionals.map(cq => (
+                      <div 
+                        key={cq.id} 
+                        className="ml-2 pl-3 py-2.5 border-l-3 border-blue-400 dark:border-blue-500 bg-blue-50/40 dark:bg-blue-950/20 rounded-r-md"
+                        data-testid={`question-${cq.id}`}
+                      >
+                        <div className="text-[10px] text-blue-500 dark:text-blue-400 font-medium mb-1.5 uppercase tracking-wide">
+                          If {cq.conditionalOn.value}
                         </div>
+                        <label className="text-[12px] text-muted-foreground leading-snug block mb-2">
+                          {cq.question}
+                        </label>
+                        <div>{renderField(cq)}</div>
                       </div>
-                    </div>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
             );
           };
