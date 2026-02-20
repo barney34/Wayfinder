@@ -194,6 +194,13 @@ export function exportPDF(sites, totals, bom, partnerSku, platformMode, security
 }
 
 export function exportDrawing(sites, drawingNum) {
+  console.log('[exportDrawing] Called with', sites?.length, 'sites');
+  
+  if (!sites || sites.length === 0) {
+    alert('No sites to export. Please add sites to the sizing table first.');
+    return;
+  }
+
   const rows = [];
   let unitCounter = {};
 
@@ -202,8 +209,11 @@ export function exportDrawing(sites, drawingNum) {
     return (roleOrder[a.role] || 5) - (roleOrder[b.role] || 5);
   });
 
-  sortedSites.forEach((site) => {
-    // Include all sites by default (removed addToReport check)
+  console.log('[exportDrawing] Processing', sortedSites.length, 'sorted sites');
+
+  sortedSites.forEach((site, idx) => {
+    console.log('[exportDrawing] Site', idx, site.name, site.role);
+    
     const unitGroup = getUnitGroup(site.role, site.sourceType);
     unitCounter[unitGroup] = (unitCounter[unitGroup] || 0) + 1;
 
@@ -243,18 +253,23 @@ export function exportDrawing(sites, drawingNum) {
     });
   });
 
-  if (rows.length === 0) {
-    alert('No sites to export. Please add sites to the sizing table first.');
-    return;
-  }
+  console.log('[exportDrawing] Created', rows.length, 'rows');
 
-  const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.json_to_sheet(rows);
-  ws['!cols'] = [
-    { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 15 },
-    { wch: 12 }, { wch: 35 }, { wch: 18 }, { wch: 12 }, { wch: 15 },
-    { wch: 18 }, { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 12 },
-  ];
-  XLSX.utils.book_append_sheet(wb, ws, 'Drawing');
-  XLSX.writeFile(wb, `${drawingNum || 'sizing'}-lucid-export.xlsx`);
+  try {
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(rows);
+    ws['!cols'] = [
+      { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 15 },
+      { wch: 12 }, { wch: 35 }, { wch: 18 }, { wch: 12 }, { wch: 15 },
+      { wch: 18 }, { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 12 },
+    ];
+    XLSX.utils.book_append_sheet(wb, ws, 'Drawing');
+    const filename = `${drawingNum || 'sizing'}-lucid-export.xlsx`;
+    console.log('[exportDrawing] Writing file:', filename);
+    XLSX.writeFile(wb, filename);
+    console.log('[exportDrawing] Export complete');
+  } catch (err) {
+    console.error('[exportDrawing] Error:', err);
+    alert('Export failed: ' + err.message);
+  }
 }
