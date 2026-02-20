@@ -131,11 +131,30 @@ function MultiSelectField({ questionId, options, optionsWithPermission = [], opt
   const addFreeformValue = () => { const t = freeformInput.trim(); if (t && !selectedValues.includes(t)) { onChange([...selectedValues, t].join(', ')); setFreeformInput(''); } };
 
   return (
-    <div className={compact ? "space-y-1" : "space-y-2"}>
+    <div className="space-y-2">
+      {/* Always show selected items as a horizontal row of badges */}
+      {selectedValues.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {selectedValues.map(val => (
+            <Badge 
+              key={val} 
+              variant="secondary" 
+              className="gap-1 pr-1 text-[11px] bg-primary/10 text-primary border border-primary/20 hover:bg-primary/15"
+            >
+              {val}
+              <button onClick={() => removeValue(val)} className="ml-0.5 rounded-full hover:bg-primary/20 p-0.5">
+                <X className="h-2.5 w-2.5" />
+              </button>
+            </Badge>
+          ))}
+        </div>
+      )}
+      
+      {/* Dropdown trigger */}
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" className={`justify-between font-normal ${compact ? 'h-7 text-xs px-2 min-w-[100px]' : 'w-full'}`} data-testid={`multiselect-trigger-${questionId}`}>
-            <span className="text-muted-foreground truncate">{selectedValues.length === 0 ? 'Select...' : `${selectedValues.length} selected`}</span>
+          <Button variant="outline" className={`justify-between font-normal ${compact ? 'h-7 text-xs px-2 min-w-[100px]' : 'h-8 text-xs w-full'}`} data-testid={`multiselect-trigger-${questionId}`}>
+            <span className="text-muted-foreground truncate">{selectedValues.length === 0 ? 'Select options...' : `+ Add more`}</span>
             <ChevronDown className="h-3 w-3 opacity-50 ml-1" />
           </Button>
         </PopoverTrigger>
@@ -147,9 +166,9 @@ function MultiSelectField({ questionId, options, optionsWithPermission = [], opt
               const isSelected = isOptionSelected(option);
               return (
                 <div key={option} className="space-y-1">
-                  <label className="flex items-center gap-2 p-1.5 rounded-md hover:bg-muted/50 cursor-pointer" data-testid={`multiselect-option-${questionId}-${option.replace(/\s/g, '-')}`}>
+                  <label className={`flex items-center gap-2 p-1.5 rounded-md cursor-pointer transition-colors ${isSelected ? 'bg-primary/10 hover:bg-primary/15' : 'hover:bg-muted/50'}`} data-testid={`multiselect-option-${questionId}-${option.replace(/\s/g, '-')}`}>
                     <Checkbox checked={isSelected} onCheckedChange={() => toggleOption(option)} className="h-4 w-4" />
-                    <span className="text-xs flex-1">{option}</span>
+                    <span className={`text-xs flex-1 ${isSelected ? 'font-medium' : ''}`}>{option}</span>
                     {needsPerm && isSelected && (
                       <div className="flex gap-1" onClick={e => e.stopPropagation()}>
                         <Button size="sm" variant={getOptionPermission(option) === 'R/W' ? 'default' : 'outline'} className="h-5 px-1.5 text-[10px]" onClick={() => setPermission(option, 'R/W')}>R/W</Button>
@@ -188,11 +207,7 @@ function MultiSelectField({ questionId, options, optionsWithPermission = [], opt
           </div>
         </PopoverContent>
       </Popover>
-      {!compact && selectedValues.length > 0 && (
-        <div className="flex flex-wrap gap-1">
-          {selectedValues.map(val => <Badge key={val} variant="secondary" className="gap-1 pr-1 text-xs">{val}<button onClick={() => removeValue(val)} className="ml-1 rounded-full hover:bg-muted p-0.5"><X className="h-3 w-3" /></button></Badge>)}
-        </div>
-      )}
+    </div>
     </div>
   );
 }
