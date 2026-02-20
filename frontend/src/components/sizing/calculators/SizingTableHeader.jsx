@@ -28,7 +28,9 @@ export function SizingTableHeader({ showHardware, platformMode }) {
       <TableRow className="bg-muted/50">
         <TableHead className="w-32 lg:w-40 text-xs lg:text-sm">Location</TableHead>
         <TableHead className="w-20 lg:w-24 text-xs lg:text-sm"># IPs</TableHead>
-        <TableHead className="w-16 lg:w-20 text-xs lg:text-sm">KW</TableHead>
+        <HeaderWithTooltip className="w-16 lg:w-20" tooltip="Knowledge Workers. Editable here and syncs with DCs/Sites in the TopBar.">
+          KW
+        </HeaderWithTooltip>
         <TableHead className="w-28 lg:w-32 text-xs lg:text-sm">Role</TableHead>
         <HeaderWithTooltip className="w-20 lg:w-24" tooltip="Co-located services that can run on the same host. Each service adds performance overhead.">
           Services
