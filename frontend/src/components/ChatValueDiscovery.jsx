@@ -340,22 +340,22 @@ export function ChatValueDiscovery({ section }) {
       <div className="flex items-center gap-2">
         <button
           onClick={() => setExpanded(!expanded)}
-          className="flex-1 flex items-center justify-between px-4 py-3 rounded-2xl bg-muted hover:bg-secondary transition-colors"
+          className="flex-1 flex items-center justify-between px-4 py-3 rounded-2xl bg-card border border-border shadow-sm hover:shadow-md transition-all"
         >
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-[#5e5ce6]/20 flex items-center justify-center">
-              <MessageSquare className="h-4 w-4 text-[#5e5ce6]" />
+            <div className="w-8 h-8 rounded-xl bg-[#7c3aed]/15 flex items-center justify-center">
+              <MessageSquare className="h-4 w-4 text-[#7c3aed]" />
             </div>
             <span className="text-sm font-semibold text-foreground">Value Discovery</span>
             {/* Progress indicator */}
             <div className="flex items-center gap-2 ml-2">
-              <div className="w-16 h-1.5 bg-secondary rounded-full overflow-hidden">
+              <div className="w-16 h-1.5 bg-border rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-[#30d158] transition-all duration-300" 
+                  className="h-full bg-[#16a34a] transition-all duration-300" 
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
-              <span className="text-[10px] text-muted-foreground">{progressPercent}%</span>
+              <span className="text-[10px] text-muted-foreground font-medium">{progressPercent}%</span>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -365,7 +365,7 @@ export function ChatValueDiscovery({ section }) {
         {expanded && (
           <button
             onClick={resetConversation}
-            className="p-2 rounded-xl bg-muted hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+            className="p-2 rounded-xl bg-card border border-border shadow-sm hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
             title="Reset conversation"
           >
             <RotateCcw className="h-4 w-4" />
@@ -375,18 +375,18 @@ export function ChatValueDiscovery({ section }) {
 
       {/* Chat Interface */}
       {expanded && (
-        <div className="mt-3 rounded-2xl bg-card border border-border overflow-hidden">
+        <div className="mt-3 rounded-2xl bg-card border border-border overflow-hidden shadow-sm">
           {/* Mode Toggle + Topics Bar */}
-          <div className="px-4 py-2 border-b border-border bg-muted/50">
+          <div className="px-4 py-2 border-b border-border bg-secondary/50">
             {/* Mode Toggle */}
             <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-1 p-0.5 bg-background rounded-lg">
+              <div className="flex items-center gap-1 p-0.5 bg-background border border-border rounded-lg">
                 <button
                   onClick={() => setMode('guided')}
                   className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-medium transition-colors ${
                     mode === 'guided' 
-                      ? 'bg-[#5e5ce6] text-white' 
-                      : 'text-muted-foreground hover:text-foreground'
+                      ? 'bg-[#7c3aed] text-white shadow-sm' 
+                      : 'text-secondary-foreground hover:text-foreground hover:bg-muted'
                   }`}
                 >
                   <Compass className="h-3 w-3" />
@@ -396,8 +396,8 @@ export function ChatValueDiscovery({ section }) {
                   onClick={() => setMode('free')}
                   className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-medium transition-colors ${
                     mode === 'free' 
-                      ? 'bg-[#5e5ce6] text-white' 
-                      : 'text-muted-foreground hover:text-foreground'
+                      ? 'bg-[#7c3aed] text-white shadow-sm' 
+                      : 'text-secondary-foreground hover:text-foreground hover:bg-muted'
                   }`}
                 >
                   <MessageCircleQuestion className="h-3 w-3" />
