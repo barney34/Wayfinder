@@ -1107,13 +1107,13 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
               <div 
                 className={`px-4 flex items-center justify-between transition-all border-l-4 ${sectionAccent}
                   ${isActive && isSectionEnabled ? 'py-4' : 'py-3'}
-                  ${isSectionEnabled ? 'bg-muted/30 hover:bg-muted/50' : 'bg-muted/60'}
+                  ${isSectionEnabled ? 'bg-card hover:bg-secondary/50' : 'bg-muted/60'}
                   ${isActive && isSectionEnabled ? 'border-l-[6px]' : ''}
                 `}
               >
                 <div className="flex items-center gap-3 cursor-pointer flex-1" onClick={() => toggleCollapse(section)}>
-                  <ChevronRight className={`transition-transform duration-200 ${!isCollapsed && isSectionEnabled ? 'rotate-90' : ''} h-5 w-5 text-[#8e8e93]`} />
-                  <h3 className={`font-semibold text-white ${isActive && isSectionEnabled ? 'text-xl' : 'text-base'}`}>{section}</h3>
+                  <ChevronRight className={`transition-transform duration-200 ${!isCollapsed && isSectionEnabled ? 'rotate-90' : ''} h-5 w-5 text-muted-foreground`} />
+                  <h3 className={`font-semibold text-foreground ${isActive && isSectionEnabled ? 'text-xl' : 'text-base'}`}>{section}</h3>
                   {!isSectionEnabled && (
                     <Badge variant="secondary" className="text-[10px] px-1.5 py-0 bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
                       Out of Scope
