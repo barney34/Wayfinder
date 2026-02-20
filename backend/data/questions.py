@@ -23,7 +23,6 @@ DISCOVERY_QUESTIONS = [
     {"id": "ipam-6", "section": "IPAM", "question": "What is your strategy to identify and eliminate unused IP addresses and orphaned assets?", "technicalOnly": False},
     {"id": "ipam-7", "section": "IPAM", "question": "Will you leverage a single, unified management platform (like a portal) for all DDI across hybrid, multi-cloud?", "technicalOnly": False},
     {"id": "ipam-8", "section": "IPAM", "question": "Will DNS be managed in Portal? Native or Hybrid", "technicalOnly": True},
-    {"id": "ipam-9", "section": "IPAM", "question": "What cloud providers do you use today or in the future?", "technicalOnly": True, "fieldType": "multiselect", "options": ["AWS", "Azure", "GCP", "OCI", "Alibaba", "IBM"], "allowFreeform": True},
     {"id": "ipam-10", "section": "IPAM", "question": "What specific IT/Security systems (e.g., SIEM/SOAR/ITSM) do you need seamless, automated DDI/Security integration with?", "technicalOnly": False},
     {"id": "ipam-11", "section": "IPAM", "question": "What 3rd parties would you like to integrate?", "technicalOnly": False},
     {"id": "ipam-12", "section": "IPAM", "question": "What tools and processes do you use for continuous, real-time asset discovery (including cloud and IoT devices) across your entire network?", "technicalOnly": False},
