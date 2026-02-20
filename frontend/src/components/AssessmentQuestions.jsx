@@ -608,6 +608,27 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
     const inputClass = compact ? "h-8 text-sm" : "";
     const selectClass = compact ? "h-8 text-sm" : "";
 
+    // Special cases for specific question IDs
+    // Platform Vendor (ipam-0) - 2-row grid layout
+    if (q.id === 'ipam-0' && q.options) {
+      return <GridMultiSelect questionId={q.id} options={q.options} value={currentValue} onChange={v => handleAnswerChange(q.id, v)} allowFreeform={q.allowFreeform} columns={2} />;
+    }
+
+    // Cloud Providers (ipam-9) - 3-column grid layout  
+    if (q.id === 'ipam-9' && q.options) {
+      return <GridMultiSelect questionId={q.id} options={q.options} value={currentValue} onChange={v => handleAnswerChange(q.id, v)} allowFreeform={q.allowFreeform} columns={3} />;
+    }
+
+    // # of Data Centers (ud-5) - synced with TopBar
+    if (q.id === 'ud-5') {
+      return <SyncedNumberField questionId={q.id} value={currentValue} onChange={v => handleAnswerChange(q.id, v)} syncValue={dataCenters?.length} syncLabel="Data Centers" />;
+    }
+
+    // # of Sites (ud-7) - synced with TopBar
+    if (q.id === 'ud-7') {
+      return <SyncedNumberField questionId={q.id} value={currentValue} onChange={v => handleAnswerChange(q.id, v)} syncValue={sites?.length} syncLabel="Sites" />;
+    }
+
     switch (fieldType) {
       case 'yesno':
         // In compact mode, use small pill buttons [Yes] [No]
