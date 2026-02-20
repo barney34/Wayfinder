@@ -172,13 +172,20 @@ export function TopBar({ customerName, opportunity }) {
 
   return (
     <div className="flex-shrink-0 bg-[#1c1c1e] border-b border-[#2c2c2e]" data-testid="topbar">
-      {/* Row 1: Customer Name + Stats */}
-      <div className="px-4 py-2 flex items-center justify-between">
+      {/* Row 1: Customer Name + Opportunity - Clear identification */}
+      <div className="px-4 py-2 flex items-center justify-between border-b border-[#2c2c2e]">
         <div className="flex items-center gap-3">
-          <h1 className="text-base font-semibold text-white">{customerName}</h1>
-          {opportunity && (
-            <span className="text-[10px] text-[#8e8e93] px-2 py-0.5 rounded-full bg-[#2c2c2e]">{opportunity}</span>
-          )}
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-[#0a84ff]/20 flex items-center justify-center">
+              <span className="text-sm font-bold text-[#0a84ff]">{customerName?.charAt(0) || 'C'}</span>
+            </div>
+            <div>
+              <h1 className="text-sm font-semibold text-white leading-tight">{customerName}</h1>
+              {opportunity && (
+                <span className="text-[10px] text-[#ff9f0a]">{opportunity}</span>
+              )}
+            </div>
+          </div>
         </div>
         
         <div className="flex items-center gap-3">
@@ -215,33 +222,38 @@ export function TopBar({ customerName, opportunity }) {
         </div>
       </div>
 
-      {/* Row 2: Compact Inputs - visible borders */}
+      {/* Row 2: Compact Inputs */}
       {!collapsed && (
-      <div className="px-4 pb-3 grid grid-cols-4 gap-3">
+      <div className="px-4 py-3 grid grid-cols-4 gap-3">
         
-        {/* Data Centers - compact */}
+        {/* Data Centers - with editable tags */}
         <div className="bg-[#2c2c2e] rounded-xl p-3">
           <div className="flex items-center gap-2 mb-2">
             <Building2 className="h-4 w-4 text-[#30d158]" />
             <span className="text-xs font-medium text-white">Data Centers</span>
           </div>
           
-          {/* DC Tags */}
+          {/* DC Tags - Editable */}
           {dataCenters.length > 0 && (
             <div className="flex flex-wrap gap-1 mb-2">
               {dataCenters.map((dc, idx) => (
-                <div key={idx} className="flex items-center gap-1 px-2 py-0.5 rounded bg-[#3c3c3e] group text-[11px]">
-                  <span className="text-white">{dc.name}</span>
+                <div key={idx} className="flex items-center gap-1 px-2 py-1 rounded-lg bg-[#3c3c3e] group text-[11px] cursor-pointer hover:bg-[#4c4c4e]"
+                  onClick={() => {
+                    setDcName(dc.name);
+                    setDcKW(dc.knowledgeWorkers || '');
+                    deleteDataCenter(idx);
+                  }}
+                  title="Click to edit"
+                >
+                  <span className="text-white font-medium">{dc.name}</span>
                   <span className="text-[#30d158]">{dc.knowledgeWorkers || 0}</span>
-                  <button onClick={() => deleteDataCenter(idx)} className="opacity-0 group-hover:opacity-100">
-                    <X className="h-2.5 w-2.5 text-[#ff453a]" />
-                  </button>
+                  <X className="h-2.5 w-2.5 text-[#8e8e93] opacity-0 group-hover:opacity-100" />
                 </div>
               ))}
             </div>
           )}
           
-          {/* Inputs with visible borders */}
+          {/* Inputs */}
           <div className="flex gap-1.5">
             <input
               value={dcName}
@@ -268,29 +280,34 @@ export function TopBar({ customerName, opportunity }) {
           </div>
         </div>
 
-        {/* Sites - compact */}
+        {/* Sites - with editable tags */}
         <div className="bg-[#2c2c2e] rounded-xl p-3">
           <div className="flex items-center gap-2 mb-2">
             <MapPin className="h-4 w-4 text-[#5e5ce6]" />
             <span className="text-xs font-medium text-white">Sites</span>
           </div>
           
-          {/* Site Tags */}
+          {/* Site Tags - Editable */}
           {sites.length > 0 && (
             <div className="flex flex-wrap gap-1 mb-2">
               {sites.map((site, idx) => (
-                <div key={idx} className="flex items-center gap-1 px-2 py-0.5 rounded bg-[#3c3c3e] group text-[11px]">
-                  <span className="text-white">{site.name}</span>
+                <div key={idx} className="flex items-center gap-1 px-2 py-1 rounded-lg bg-[#3c3c3e] group text-[11px] cursor-pointer hover:bg-[#4c4c4e]"
+                  onClick={() => {
+                    setSiteName(site.name);
+                    setSiteKW(site.knowledgeWorkers || '');
+                    deleteSite(idx);
+                  }}
+                  title="Click to edit"
+                >
+                  <span className="text-white font-medium">{site.name}</span>
                   <span className="text-[#5e5ce6]">{site.knowledgeWorkers || 0}</span>
-                  <button onClick={() => deleteSite(idx)} className="opacity-0 group-hover:opacity-100">
-                    <X className="h-2.5 w-2.5 text-[#ff453a]" />
-                  </button>
+                  <X className="h-2.5 w-2.5 text-[#8e8e93] opacity-0 group-hover:opacity-100" />
                 </div>
               ))}
             </div>
           )}
           
-          {/* Inputs with visible borders */}
+          {/* Inputs */}
           <div className="flex gap-1.5">
             <input
               value={siteName}
@@ -317,37 +334,118 @@ export function TopBar({ customerName, opportunity }) {
           </div>
         </div>
 
-        {/* Target Solutions - compact toggles */}
+        {/* Target Solutions - New Layout */}
         <div className="bg-[#2c2c2e] rounded-xl p-3">
           <div className="flex items-center gap-2 mb-2">
             <Target className="h-4 w-4 text-[#ff9f0a]" />
-            <span className="text-xs font-medium text-white">Solutions</span>
-            <span className="text-[10px] text-[#8e8e93]">{enabledSolutions.length}/{TARGET_SOLUTIONS.length}</span>
+            <span className="text-xs font-medium text-white">Deployment</span>
           </div>
           
-          {/* Compact toggle grid */}
-          <div className="grid grid-cols-2 gap-1.5">
-            {TARGET_SOLUTIONS.map(sol => {
-              const isOn = answers[sol.key] === 'Yes';
-              return (
+          {(() => {
+            const isNIOS = answers['target-nios'] === 'Yes';
+            const isUDDI = answers['target-uddi'] === 'Yes';
+            const isSecurity = answers['target-security'] === 'Yes';
+            const isAsset = answers['target-asset'] === 'Yes';
+            const isHybrid = isNIOS && isUDDI;
+            
+            const handleHybridToggle = () => {
+              if (isHybrid) {
+                // Turn off both
+                setAnswer('target-nios', 'No');
+                setAnswer('target-uddi', 'No');
+              } else {
+                // Turn on both
+                setAnswer('target-nios', 'Yes');
+                setAnswer('target-uddi', 'Yes');
+              }
+            };
+            
+            return (
+              <div className="space-y-1.5">
+                {/* Row 1: NIOS + UDDI */}
+                <div className="grid grid-cols-2 gap-1.5">
+                  <button
+                    onClick={() => setAnswer('target-nios', isNIOS ? 'No' : 'Yes')}
+                    className={`flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg text-xs font-semibold transition-all ${
+                      isNIOS 
+                        ? 'bg-[#30d158] text-black' 
+                        : 'bg-[#3c3c3e] text-[#8e8e93] hover:bg-[#4c4c4e]'
+                    }`}
+                    data-testid="toggle-target-nios"
+                  >
+                    NIOS
+                    {isNIOS && isAsset && (
+                      <div className="relative group">
+                        <Info className="h-3 w-3" />
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-black text-white text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-10">
+                          +Mgmt Tokens Added
+                        </div>
+                      </div>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => setAnswer('target-uddi', isUDDI ? 'No' : 'Yes')}
+                    className={`flex items-center justify-center px-2 py-2 rounded-lg text-xs font-semibold transition-all ${
+                      isUDDI 
+                        ? 'bg-[#0a84ff] text-white' 
+                        : 'bg-[#3c3c3e] text-[#8e8e93] hover:bg-[#4c4c4e]'
+                    }`}
+                    data-testid="toggle-target-uddi"
+                  >
+                    UDDI
+                  </button>
+                </div>
+                
+                {/* Row 2: Security + Asset Insight */}
+                <div className="grid grid-cols-2 gap-1.5">
+                  <button
+                    onClick={() => setAnswer('target-security', isSecurity ? 'No' : 'Yes')}
+                    className={`flex items-center justify-center px-2 py-2 rounded-lg text-xs font-semibold transition-all ${
+                      isSecurity 
+                        ? 'bg-[#ff453a] text-white' 
+                        : 'bg-[#3c3c3e] text-[#8e8e93] hover:bg-[#4c4c4e]'
+                    }`}
+                    data-testid="toggle-target-security"
+                  >
+                    Security
+                  </button>
+                  <button
+                    onClick={() => setAnswer('target-asset', isAsset ? 'No' : 'Yes')}
+                    className={`flex items-center justify-center gap-1 px-2 py-2 rounded-lg text-xs font-semibold transition-all ${
+                      isAsset 
+                        ? 'bg-[#bf5af2] text-white' 
+                        : 'bg-[#3c3c3e] text-[#8e8e93] hover:bg-[#4c4c4e]'
+                    }`}
+                    data-testid="toggle-target-asset"
+                  >
+                    Asset Insight
+                    {isAsset && isNIOS && (
+                      <div className="relative group">
+                        <Info className="h-3 w-3" />
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-black text-white text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-10">
+                          +Mgmt Tokens Added
+                        </div>
+                      </div>
+                    )}
+                  </button>
+                </div>
+                
+                {/* Hybrid Button - Center */}
                 <button
-                  key={sol.key}
-                  onClick={() => setAnswer(sol.key, isOn ? 'No' : 'Yes')}
-                  className={`flex items-center justify-between px-2 py-1.5 rounded-lg text-[11px] transition-all ${
-                    isOn 
-                      ? 'bg-[#ff9f0a]/20 border border-[#ff9f0a]/40 text-[#ff9f0a]' 
-                      : 'bg-[#3c3c3e] text-[#8e8e93] hover:bg-[#4c4c4e]'
+                  onClick={handleHybridToggle}
+                  className={`w-full flex items-center justify-center gap-2 px-2 py-2 rounded-lg text-xs font-bold transition-all ${
+                    isHybrid 
+                      ? 'bg-gradient-to-r from-[#30d158] to-[#0a84ff] text-white shadow-lg' 
+                      : 'bg-[#3c3c3e] text-[#8e8e93] hover:bg-[#4c4c4e] border border-dashed border-[#5c5c5e]'
                   }`}
-                  data-testid={`toggle-${sol.key}`}
+                  data-testid="toggle-hybrid"
                 >
-                  <span className="font-medium">{sol.label}</span>
-                  <div className={`w-6 h-3.5 rounded-full p-0.5 ${isOn ? 'bg-[#ff9f0a]' : 'bg-[#636366]'}`}>
-                    <div className={`w-2.5 h-2.5 rounded-full bg-white transition-transform ${isOn ? 'translate-x-2.5' : 'translate-x-0'}`} />
-                  </div>
+                  <span>Hybrid</span>
+                  {isHybrid && <Check className="h-3.5 w-3.5" />}
                 </button>
-              );
-            })}
-          </div>
+              </div>
+            );
+          })()}
         </div>
 
         {/* IP Calculator - compact */}
@@ -360,7 +458,7 @@ export function TopBar({ customerName, opportunity }) {
             <span className="text-lg font-bold text-[#32d74b]">{formatKW(activeIPs)}</span>
           </div>
           
-          {/* Inputs with visible borders */}
+          {/* Inputs */}
           <div className="space-y-1.5">
             <div>
               <label className="text-[10px] text-[#8e8e93] mb-0.5 block">Knowledge Workers</label>
