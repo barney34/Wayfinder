@@ -777,25 +777,25 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
             const hasAnswer = answers[q.id]?.trim();
             // For text-only questions, make entire cell clickable
             const isClickableRow = !hasInput;
-            // Zebra striping for better scanability
+            // Zebra striping removed for cleaner look
             const isEvenRow = rowIndex % 2 === 0;
             
             return (
-              <div key={q.id} className={`border-b border-border/20 last:border-b-0 ${isEvenRow ? '' : 'bg-muted/5'}`}>
-                {/* Main question cell - VERTICAL LAYOUT: label above input */}
+              <div key={q.id} className="border-b border-border/40 last:border-b-0">
+                {/* Main question cell - MINIMAL: high contrast, no color */}
                 <div 
-                  className={`${compactMode ? 'px-3 py-2' : 'px-4 py-3'} transition-all hover:bg-muted/10 ${isClickableRow ? 'cursor-pointer' : ''} ${isNoteExpanded && isClickableRow ? 'bg-muted/15' : ''}`}
+                  className={`${compactMode ? 'px-3 py-2' : 'px-4 py-3'} transition-all hover:bg-muted/5 ${isClickableRow ? 'cursor-pointer' : ''} ${isNoteExpanded && isClickableRow ? 'bg-muted/10' : ''}`}
                   onClick={isClickableRow ? () => setExpandedNotes(p => ({ ...p, [q.id]: !p[q.id] })) : undefined}
                   data-testid={`question-${q.id}`}
                 >
-                  {/* Question Label - always on top, BOLDER for dark mode */}
+                  {/* Question Label - BOLD black/white, maximum contrast */}
                   <div className={`flex items-start justify-between gap-2 ${compactMode ? 'mb-1.5' : 'mb-2'}`}>
-                    <label className={`${compactMode ? 'text-[12px]' : 'text-[13px]'} font-semibold text-slate-800 dark:text-white leading-snug flex-1 min-w-0`} style={{wordBreak: 'break-word'}}>
+                    <label className={`${compactMode ? 'text-[12px]' : 'text-[13px]'} font-semibold text-black dark:text-white leading-snug flex-1 min-w-0`} style={{wordBreak: 'break-word'}}>
                       {q.question}
                     </label>
-                    {/* Note toggle button */}
+                    {/* Note toggle - minimal gray icon */}
                     <button 
-                      className={`${compactMode ? 'p-1' : 'p-1.5'} rounded-md transition-all flex-shrink-0 ${hasNote ? 'text-blue-600 bg-blue-100 dark:bg-blue-900/40' : 'text-muted-foreground/40 hover:text-muted-foreground hover:bg-muted/50'}`}
+                      className={`${compactMode ? 'p-1' : 'p-1.5'} rounded transition-all flex-shrink-0 ${hasNote ? 'text-black dark:text-white' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
                       onClick={(e) => { e.stopPropagation(); setExpandedNotes(p => ({ ...p, [q.id]: !p[q.id] })); }}
                       title={hasNote ? "View note" : "Add note"}
                       data-testid={`toggle-note-${q.id}`}
@@ -810,38 +810,38 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                       {renderField(q)}
                     </div>
                   ) : (
-                    /* Text-only: show click hint */
-                    <div className={`${compactMode ? 'text-[10px]' : 'text-xs'} text-muted-foreground/50 ${hasNote ? 'text-blue-500' : ''}`}>
-                      {hasNote ? 'Click to edit response' : 'Click to add response'}
+                    /* Text-only: minimal hint */}
+                    <div className={`${compactMode ? 'text-[10px]' : 'text-xs'} text-gray-400 ${hasNote ? 'text-gray-600 dark:text-gray-300' : ''}`}>
+                      {hasNote ? 'Click to edit' : 'Click to respond'}
                     </div>
                   )}
                   
-                  {/* Note textarea - expands BELOW input smoothly */}
+                  {/* Note textarea - simple expansion */}
                   <div className={`overflow-hidden transition-all duration-200 ${isNoteExpanded ? 'max-h-[200px] opacity-100 mt-3' : 'max-h-0 opacity-0'}`}>
                     <Textarea
                       value={notes[q.id] || ''}
                       onChange={e => setNote(q.id, e.target.value)}
                       placeholder={hasInput ? "Add a note..." : "Enter your response..."}
-                      className={`${compactMode ? 'min-h-[50px]' : 'min-h-[70px]'} text-sm resize-y bg-muted/20 border-muted-foreground/15`}
+                      className={`${compactMode ? 'min-h-[50px]' : 'min-h-[70px]'} text-sm resize-y bg-transparent border-gray-300 dark:border-gray-600`}
                       data-testid={`note-${q.id}`}
                       onClick={e => e.stopPropagation()}
                     />
                   </div>
                 </div>
                 
-                {/* Conditional sub-questions - smooth expansion below parent */}
+                {/* Conditional sub-questions - minimal gray indent */}
                 {conditionals.length > 0 && (
                   <div className={`${compactMode ? 'mx-2 mb-2' : 'mx-3 mb-3'} overflow-hidden transition-all duration-200`}>
                     {conditionals.map(cq => (
                       <div 
                         key={cq.id} 
-                        className={`ml-2 ${compactMode ? 'pl-2 py-2' : 'pl-3 py-2.5'} border-l-3 border-blue-400 dark:border-blue-500 bg-blue-50/30 dark:bg-blue-950/15 rounded-r-md`}
+                        className={`ml-4 ${compactMode ? 'pl-3 py-2' : 'pl-4 py-2.5'} border-l-2 border-gray-300 dark:border-gray-600`}
                         data-testid={`question-${cq.id}`}
                       >
-                        <div className="text-[10px] text-blue-500 dark:text-blue-400 font-medium mb-1.5 uppercase tracking-wide">
+                        <div className="text-[10px] text-gray-500 dark:text-gray-400 font-medium mb-1.5 uppercase tracking-wide">
                           If {cq.conditionalOn.value}
                         </div>
-                        <label className={`${compactMode ? 'text-[11px]' : 'text-[12px]'} text-muted-foreground leading-snug block mb-2`}>
+                        <label className={`${compactMode ? 'text-[11px]' : 'text-[12px]'} text-gray-700 dark:text-gray-200 leading-snug block mb-2`}>
                           {cq.question}
                         </label>
                         <div>{renderField(cq)}</div>
