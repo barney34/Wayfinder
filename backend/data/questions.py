@@ -8,7 +8,7 @@ DISCOVERY_QUESTIONS = [
     {"id": "ud-1", "section": "Users - Devices - Sites", "question": "Estimated number of knowledge workers", "technicalOnly": True},
     {"id": "ud-site-config", "section": "Sizing Data", "question": "Site Configuration", "technicalOnly": True, "fieldType": "siteConfiguration", "tooltip": "Configure sites with their IP allocations and roles (GM/GMC/DNS/DHCP/Discovery). GM and GMC are sized for total grid objects and listed first."},
     {"id": "ipam-0", "section": "IPAM", "question": "Current DNS Platform", "technicalOnly": False, "fieldType": "multiselect", "options": ["Spreadsheets", "Microsoft", "Bluecat", "EIP"], "allowFreeform": True},
-    {"id": "ipam-9", "section": "IPAM", "question": "Current or Planned Cloud Platform", "technicalOnly": True, "fieldType": "multiselect", "options": ["AWS", "Azure", "GCP", "OCI", "Alibaba", "IBM"], "allowFreeform": True},
+    {"id": "ipam-9", "section": "IPAM", "question": "Current or Planned Cloud Platform", "technicalOnly": False, "fieldType": "multiselect", "options": ["AWS", "Azure", "GCP", "OCI", "Alibaba", "IBM"], "allowFreeform": True},
     {"id": "ud-5", "section": "IPAM", "subsection": "Sites & Locations", "question": "# of Data Centers", "technicalOnly": False, "fieldType": "number"},
     {"id": "ud-7", "section": "IPAM", "subsection": "Sites & Locations", "question": "# of Sites", "technicalOnly": False, "fieldType": "number"},
     {"id": "ipam-multiplier", "section": "IPAM", "question": "IP Addr Multiplier / Devices per User", "technicalOnly": True, "fieldType": "select", "options": ["2.5", "3.5"], "allowFreeform": True, "defaultValue": "2.5"},
