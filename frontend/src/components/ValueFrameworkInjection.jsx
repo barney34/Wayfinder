@@ -156,83 +156,60 @@ export function ValueFrameworkInjection({ section }) {
   });
 
   return (
-    <div className="mb-4" data-testid={`vf-injection-${section.replace(/\s/g, '-')}`}>
-      {/* Header toggle - MINIMAL: gray, no gradient */}
+    <div className="mb-6" data-testid={`vf-injection-${section.replace(/\s/g, '-')}`}>
+      {/* Header - just text, no box */}
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all"
+        className="flex items-center gap-2 text-gray-500 hover:text-black dark:hover:text-white mb-3"
       >
-        <Sparkles className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-        <span className="text-sm font-semibold text-black dark:text-white">Value Discovery</span>
-        <span className="text-[10px] px-1.5 py-0.5 text-gray-500 dark:text-gray-400">
-          {answeredSeeds.length}/{seeds.length}
-        </span>
-        {triggeredFollowUps.length > 0 && (
-          <span className="text-[10px] px-1.5 py-0.5 text-gray-600 dark:text-gray-300 font-medium">
-            +{triggeredFollowUps.length} follow-up{triggeredFollowUps.length > 1 ? 's' : ''}
-          </span>
-        )}
-        <div className="flex-1" />
-        {expanded ? <ChevronDown className="h-4 w-4 text-gray-400" /> : <ChevronRight className="h-4 w-4 text-gray-400" />}
+        <span className="text-sm font-medium">Value Discovery</span>
+        <span className="text-xs">({answeredSeeds.length}/{seeds.length})</span>
+        {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
       </button>
 
-      {/* Expanded content - MINIMAL: no colors, just indentation */}
-      <div className={`overflow-hidden transition-all duration-300 ${expanded ? 'max-h-[2000px] opacity-100 mt-3' : 'max-h-0 opacity-0'}`}>
-        <div className="space-y-4 pl-4 border-l-2 border-gray-200 dark:border-gray-700">
-          {/* Seed Questions */}
+      {/* Questions - plain list */}
+      {expanded && (
+        <div className="space-y-6 pl-4 border-l border-gray-200 dark:border-gray-800">
           {seeds.map(seed => {
-            const catStyle = CATEGORY_STYLES[seed.categoryId] || CATEGORY_STYLES.optimize;
             const currentAnswer = answers[seed.id] || '';
             const hasAnswer = currentAnswer.trim().length > 0;
             const followUps = FOLLOW_UPS[seed.id] || [];
             const showFollowUps = hasAnswer && followUps.length > 0;
 
             return (
-              <div key={seed.id} className="space-y-3" data-testid={`vf-seed-${seed.id}`}>
-                {/* Seed Question - minimal card */}
-                <div className={`rounded-lg px-4 py-3 border ${hasAnswer ? 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800/50' : 'border-gray-200 dark:border-gray-700'}`}>
-                  {/* Question label */}
-                  <div className="flex items-start gap-2 mb-2.5">
-                    <span className="text-sm leading-relaxed flex-1 text-black dark:text-white font-medium">{seed.question}</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-600">
-                      {seed.categoryName.split(' ')[0]}
-                    </span>
-                  </div>
-                  {/* Input */}
+              <div key={seed.id} className="space-y-4" data-testid={`vf-seed-${seed.id}`}>
+                {/* Seed Question */}
+                <div>
+                  <label className="text-[15px] font-bold text-black dark:text-white block mb-2">
+                    {seed.question}
+                  </label>
                   <Input
                     value={currentAnswer}
                     onChange={e => setAnswer(seed.id, e.target.value)}
-                    placeholder="Customer's response..."
-                    className="h-9 text-sm bg-transparent border-gray-300 dark:border-gray-600"
+                    placeholder="Response..."
+                    className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700"
                     data-testid={`vf-seed-input-${seed.id}`}
                   />
                 </div>
 
-                {/* Triggered Follow-ups - minimal gray indent */}
+                {/* Follow-ups */}
                 {showFollowUps && (
-                  <div className="ml-4 space-y-3 pl-4 border-l-2 border-gray-200 dark:border-gray-600 py-2">
+                  <div className="pl-4 border-l border-gray-200 dark:border-gray-800 space-y-4">
                     {followUps.map(fu => {
                       const fuAnswer = answers[fu.id] || '';
                       return (
-                        <div key={fu.id} className="space-y-2" data-testid={`vf-followup-${fu.id}`}>
-                          {/* Framing - italic gray */}
-                          <div className="flex items-start gap-2">
-                            <Lightbulb className="h-3.5 w-3.5 text-gray-400 mt-0.5 shrink-0" />
-                            <span className="text-[11px] text-gray-500 dark:text-gray-400 italic leading-relaxed">{fu.framing}</span>
-                          </div>
-                          {/* Follow-up question + input */}
-                          <div className="pl-5">
-                            <div className="flex items-start gap-2 mb-2">
-                              <span className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">{fu.question}</span>
-                            </div>
-                            <Input
-                              value={fuAnswer}
-                              onChange={e => setAnswer(fu.id, e.target.value)}
-                              placeholder="Response..."
-                              className="h-8 text-sm bg-transparent border-gray-300 dark:border-gray-600"
-                              data-testid={`vf-fu-input-${fu.id}`}
-                            />
-                          </div>
+                        <div key={fu.id} data-testid={`vf-followup-${fu.id}`}>
+                          <p className="text-xs text-gray-400 italic mb-2">{fu.framing}</p>
+                          <label className="text-sm font-semibold text-black dark:text-white block mb-2">
+                            {fu.question}
+                          </label>
+                          <Input
+                            value={fuAnswer}
+                            onChange={e => setAnswer(fu.id, e.target.value)}
+                            placeholder="Response..."
+                            className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700"
+                            data-testid={`vf-fu-input-${fu.id}`}
+                          />
                         </div>
                       );
                     })}
@@ -242,7 +219,7 @@ export function ValueFrameworkInjection({ section }) {
             );
           })}
         </div>
-      </div>
+      )}
     </div>
   );
 }
