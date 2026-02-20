@@ -208,9 +208,14 @@ export function SiteTableRow({
       {/* Server Count */}
       <TableCell className="p-2 lg:p-4">
         <Input
-          type="number" min="1" max="10"
-          value={site.serverCount || 1}
-          onChange={e => onUpdateSite(site.id, 'serverCount', Math.max(1, parseInt(e.target.value) || 1))}
+          type="number" min="1" max="99"
+          value={site.serverCount ?? 1}
+          onChange={e => {
+            const val = parseInt(e.target.value);
+            if (!isNaN(val) && val >= 1) {
+              onUpdateSite(site.id, 'serverCount', val);
+            }
+          }}
           className="h-8 lg:h-10 text-sm w-14 lg:w-16 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           disabled={site.isDisabledInUddi}
           data-testid={`site-server-count-${site.id}`}
