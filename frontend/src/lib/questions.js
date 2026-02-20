@@ -45,7 +45,7 @@ export const discoveryQuestions = [
   {
     "id": "ipam-9",
     "section": "IPAM",
-    "question": "Current or Planned Cloud Platform",
+    "question": "Cloud Platform",
     "technicalOnly": false,
     "fieldType": "multiselect",
     "options": [
@@ -55,6 +55,38 @@ export const discoveryQuestions = [
       "OCI",
       "Alibaba",
       "IBM"
+    ],
+    "allowFreeform": true
+  },
+  {
+    "id": "ipam-11",
+    "section": "IPAM",
+    "question": "3rd Party Integrations",
+    "technicalOnly": false,
+    "fieldType": "multiselect",
+    "options": [
+      "Qradar",
+      "Splunk",
+      "SNOW",
+      "Tenable",
+      "Crowdstrike",
+      "Cisco ISE",
+      "Qualys",
+      "Rapid7",
+      "VMWare",
+      "ZScaler"
+    ],
+    "allowFreeform": true
+  },
+  {
+    "id": "ipam-13",
+    "section": "IPAM",
+    "question": "Orchestration Tools",
+    "technicalOnly": false,
+    "fieldType": "multiselect",
+    "options": [
+      "Ansible",
+      "Terraform"
     ],
     "allowFreeform": true
   },
