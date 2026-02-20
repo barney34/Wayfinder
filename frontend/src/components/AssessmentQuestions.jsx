@@ -599,18 +599,18 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
     'Professional Services': 'PS',
   };
 
-  // Nav pill colors - Home Assistant style: dark cards, teal accent
+  // Nav pill colors - Theme-aware: uses CSS variables for proper light/dark mode
   const sectionPillStyles = {
-    'IPAM':                  { normal: 'bg-[#2c2c2e] text-[#8e8e93] border-transparent hover:bg-[#3c3c3e] hover:text-white', active: 'bg-[#0a84ff] text-white border-transparent shadow-lg shadow-[#0a84ff]/20' },
-    'Internal DNS':          { normal: 'bg-[#2c2c2e] text-[#8e8e93] border-transparent hover:bg-[#3c3c3e] hover:text-white', active: 'bg-[#0a84ff] text-white border-transparent shadow-lg shadow-[#0a84ff]/20' },
-    'External DNS':          { normal: 'bg-[#2c2c2e] text-[#8e8e93] border-transparent hover:bg-[#3c3c3e] hover:text-white', active: 'bg-[#0a84ff] text-white border-transparent shadow-lg shadow-[#0a84ff]/20' },
-    'DHCP':                  { normal: 'bg-[#2c2c2e] text-[#8e8e93] border-transparent hover:bg-[#3c3c3e] hover:text-white', active: 'bg-[#0a84ff] text-white border-transparent shadow-lg shadow-[#0a84ff]/20' },
-    'Cloud Management':      { normal: 'bg-[#2c2c2e] text-[#8e8e93] border-transparent hover:bg-[#3c3c3e] hover:text-white', active: 'bg-[#0a84ff] text-white border-transparent shadow-lg shadow-[#0a84ff]/20' },
-    'Services':              { normal: 'bg-[#2c2c2e] text-[#8e8e93] border-transparent hover:bg-[#3c3c3e] hover:text-white', active: 'bg-[#0a84ff] text-white border-transparent shadow-lg shadow-[#0a84ff]/20' },
-    'Microsoft Management':  { normal: 'bg-[#2c2c2e] text-[#8e8e93] border-transparent hover:bg-[#3c3c3e] hover:text-white', active: 'bg-[#0a84ff] text-white border-transparent shadow-lg shadow-[#0a84ff]/20' },
-    'Asset/ Network Insight': { normal: 'bg-[#2c2c2e] text-[#8e8e93] border-transparent hover:bg-[#3c3c3e] hover:text-white', active: 'bg-[#0a84ff] text-white border-transparent shadow-lg shadow-[#0a84ff]/20' },
-    'Security':              { normal: 'bg-[#2c2c2e] text-[#8e8e93] border-transparent hover:bg-[#3c3c3e] hover:text-white', active: 'bg-[#0a84ff] text-white border-transparent shadow-lg shadow-[#0a84ff]/20' },
-    'Professional Services': { normal: 'bg-[#2c2c2e] text-[#8e8e93] border-transparent hover:bg-[#3c3c3e] hover:text-white', active: 'bg-[#0a84ff] text-white border-transparent shadow-lg shadow-[#0a84ff]/20' },
+    'IPAM':                  { normal: 'bg-muted text-muted-foreground border-transparent hover:bg-secondary hover:text-foreground', active: 'bg-[#0a84ff] text-white border-transparent shadow-lg shadow-[#0a84ff]/20' },
+    'Internal DNS':          { normal: 'bg-muted text-muted-foreground border-transparent hover:bg-secondary hover:text-foreground', active: 'bg-[#0a84ff] text-white border-transparent shadow-lg shadow-[#0a84ff]/20' },
+    'External DNS':          { normal: 'bg-muted text-muted-foreground border-transparent hover:bg-secondary hover:text-foreground', active: 'bg-[#0a84ff] text-white border-transparent shadow-lg shadow-[#0a84ff]/20' },
+    'DHCP':                  { normal: 'bg-muted text-muted-foreground border-transparent hover:bg-secondary hover:text-foreground', active: 'bg-[#0a84ff] text-white border-transparent shadow-lg shadow-[#0a84ff]/20' },
+    'Cloud Management':      { normal: 'bg-muted text-muted-foreground border-transparent hover:bg-secondary hover:text-foreground', active: 'bg-[#0a84ff] text-white border-transparent shadow-lg shadow-[#0a84ff]/20' },
+    'Services':              { normal: 'bg-muted text-muted-foreground border-transparent hover:bg-secondary hover:text-foreground', active: 'bg-[#0a84ff] text-white border-transparent shadow-lg shadow-[#0a84ff]/20' },
+    'Microsoft Management':  { normal: 'bg-muted text-muted-foreground border-transparent hover:bg-secondary hover:text-foreground', active: 'bg-[#0a84ff] text-white border-transparent shadow-lg shadow-[#0a84ff]/20' },
+    'Asset/ Network Insight': { normal: 'bg-muted text-muted-foreground border-transparent hover:bg-secondary hover:text-foreground', active: 'bg-[#0a84ff] text-white border-transparent shadow-lg shadow-[#0a84ff]/20' },
+    'Security':              { normal: 'bg-muted text-muted-foreground border-transparent hover:bg-secondary hover:text-foreground', active: 'bg-[#0a84ff] text-white border-transparent shadow-lg shadow-[#0a84ff]/20' },
+    'Professional Services': { normal: 'bg-muted text-muted-foreground border-transparent hover:bg-secondary hover:text-foreground', active: 'bg-[#0a84ff] text-white border-transparent shadow-lg shadow-[#0a84ff]/20' },
   };
 
   // Active section background - NONE, just rely on header styling
