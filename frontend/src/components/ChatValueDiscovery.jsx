@@ -252,39 +252,41 @@ export function ChatValueDiscovery({ section }) {
   return (
     <div className="mb-6" data-testid={`chat-vd-${section.replace(/\s/g, '-')}`}>
       {/* Header */}
-      <button
-        onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between px-4 py-3 rounded-2xl bg-[#2c2c2e] hover:bg-[#3c3c3e] transition-colors"
-      >
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-[#5e5ce6]/20 flex items-center justify-center">
-            <MessageSquare className="h-4 w-4 text-[#5e5ce6]" />
-          </div>
-          <span className="text-sm font-semibold text-white">Value Discovery</span>
-          {/* Progress indicator */}
-          <div className="flex items-center gap-2 ml-2">
-            <div className="w-16 h-1.5 bg-[#3c3c3e] rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-[#30d158] transition-all duration-300" 
-                style={{ width: `${progressPercent}%` }}
-              />
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="flex-1 flex items-center justify-between px-4 py-3 rounded-2xl bg-[#2c2c2e] hover:bg-[#3c3c3e] transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-[#5e5ce6]/20 flex items-center justify-center">
+              <MessageSquare className="h-4 w-4 text-[#5e5ce6]" />
             </div>
-            <span className="text-[10px] text-[#8e8e93]">{progressPercent}%</span>
+            <span className="text-sm font-semibold text-white">Value Discovery</span>
+            {/* Progress indicator */}
+            <div className="flex items-center gap-2 ml-2">
+              <div className="w-16 h-1.5 bg-[#3c3c3e] rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-[#30d158] transition-all duration-300" 
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+              <span className="text-[10px] text-[#8e8e93]">{progressPercent}%</span>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          {expanded && (
-            <button
-              onClick={(e) => { e.stopPropagation(); resetConversation(); }}
-              className="p-1.5 rounded-lg hover:bg-[#48484a] text-[#8e8e93] hover:text-white transition-colors"
-              title="Reset conversation"
-            >
-              <RotateCcw className="h-3.5 w-3.5" />
-            </button>
-          )}
-          {expanded ? <ChevronDown className="h-4 w-4 text-[#8e8e93]" /> : <ChevronRight className="h-4 w-4 text-[#8e8e93]" />}
-        </div>
-      </button>
+          <div className="flex items-center gap-2">
+            {expanded ? <ChevronDown className="h-4 w-4 text-[#8e8e93]" /> : <ChevronRight className="h-4 w-4 text-[#8e8e93]" />}
+          </div>
+        </button>
+        {expanded && (
+          <button
+            onClick={resetConversation}
+            className="p-2 rounded-xl bg-[#2c2c2e] hover:bg-[#3c3c3e] text-[#8e8e93] hover:text-white transition-colors"
+            title="Reset conversation"
+          >
+            <RotateCcw className="h-4 w-4" />
+          </button>
+        )}
+      </div>
 
       {/* Chat Interface */}
       {expanded && (
