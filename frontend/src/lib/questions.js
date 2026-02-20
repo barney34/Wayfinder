@@ -218,38 +218,6 @@ export const discoveryQuestions = [
     "technicalOnly": false
   },
   {
-    "id": "ipam-11",
-    "section": "IPAM",
-    "question": "3rd Party Integrations",
-    "technicalOnly": false,
-    "fieldType": "multiselect",
-    "options": [
-      "Qradar",
-      "Splunk",
-      "SNOW",
-      "Tenable",
-      "Crowdstrike",
-      "Cisco (ISE)",
-      "Qualys",
-      "Rapid 7",
-      "VMWare",
-      "ZScaler"
-    ],
-    "allowFreeform": true
-  },
-  {
-    "id": "ipam-13",
-    "section": "IPAM",
-    "question": "Orchestration Tools",
-    "technicalOnly": false,
-    "fieldType": "multiselect",
-    "options": [
-      "Ansible",
-      "Terraform"
-    ],
-    "allowFreeform": true
-  },
-  {
     "id": "ipam-12",
     "section": "IPAM",
     "question": "What tools and processes do you use for continuous, real-time asset discovery (including cloud and IoT devices) across your entire network?",
