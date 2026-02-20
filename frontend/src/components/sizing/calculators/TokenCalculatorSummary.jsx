@@ -333,9 +333,9 @@ export function TokenCalculatorSummary() {
       contextAddDC(newDCName, 0); // name, knowledgeWorkers
     }
     
-    // Update IPAM "# of Data Centers" answer (ipam-2) to match the new count
+    // Update "# of Data Centers" answer (ud-5) to match the new count
     // Use currentDCCount + 1 since we just added a DC
-    setAnswer('ipam-2', String(currentDCCount + 1));
+    setAnswer('ud-5', String(currentDCCount + 1));
     
   }, [dataCenters.length, contextAddDC, setAnswer]);
 
