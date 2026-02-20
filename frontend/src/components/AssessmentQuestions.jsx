@@ -882,11 +882,11 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                 `}
               >
                 <div className="flex items-center gap-3 cursor-pointer flex-1" onClick={() => toggleCollapse(section)}>
-                  <ChevronRight className={`transition-transform duration-200 ${!isCollapsed && isSectionEnabled ? 'rotate-90' : ''} ${isActive ? 'h-5 w-5 text-slate-800 dark:text-white' : 'h-4 w-4 text-muted-foreground'}`} />
-                  <h3 className={`font-bold tracking-tight transition-all duration-200 text-slate-800 dark:text-white ${isActive && isSectionEnabled ? 'text-lg' : 'text-sm font-semibold'}`}>{section}</h3>
-                  <Badge variant="outline" className={`text-[10px] px-1.5 py-0 font-normal ${isActive ? 'border-foreground/30' : ''}`}>
+                  <ChevronRight className={`transition-transform duration-200 ${!isCollapsed && isSectionEnabled ? 'rotate-90' : ''} ${isActive ? 'h-5 w-5 text-black dark:text-white' : 'h-4 w-4 text-gray-400'}`} />
+                  <h3 className={`font-bold tracking-tight transition-all duration-200 text-black dark:text-white ${isActive && isSectionEnabled ? 'text-lg' : 'text-sm'}`}>{section}</h3>
+                  <span className="text-[10px] text-gray-500 dark:text-gray-400">
                     {gridQuestions.length} questions
-                  </Badge>
+                  </span>
                   {!isSectionEnabled && (
                     <Badge variant="secondary" className="text-[10px] px-1.5 py-0 bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
                       Out of Scope
