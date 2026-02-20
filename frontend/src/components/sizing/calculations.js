@@ -357,6 +357,26 @@ export function getSiteWorkloadDetails(numIPs, role, platform, dhcpPercent, site
     adjustedLPS = Math.ceil(lps * niosGridConstants.multiRoleCapacityMultiplier);
   }
   
+  // Handle GM/GMC with DNS/DHCP (additive load)
+  const isGMWithServices = role.startsWith('GM+') || role.startsWith('GMC+');
+  if (isGMWithServices) {
+    const hasDNS = role.includes('DNS');
+    const hasDHCP = role.includes('DHCP') && !role.includes('DNS/DHCP') || role.includes('DNS/DHCP');
+    const hasBoth = role.includes('DNS/DHCP');
+    
+    penalties.push('⚠️ GM/GMC + Services: ADDITIVE sizing');
+    
+    if (hasBoth) {
+      penalties.push('Multi-protocol: 130% capacity');
+      adjustedQPS = Math.ceil(qps * niosGridConstants.multiRoleCapacityMultiplier);
+      adjustedLPS = Math.ceil(lps * niosGridConstants.multiRoleCapacityMultiplier);
+    } else if (hasDNS) {
+      adjustedQPS = qps;
+    } else if (hasDHCP) {
+      adjustedLPS = lps;
+    }
+  }
+  
   // Calculate objects based on role
   let objects = 0;
   if (role === 'GM' || role === 'GMC') {
