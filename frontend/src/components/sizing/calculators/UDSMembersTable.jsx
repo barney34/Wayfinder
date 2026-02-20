@@ -20,9 +20,10 @@ import { hardwareSkuMapping } from "../constants";
 const PLATFORM_OPTIONS = [
   { value: 'NIOS', label: 'NIOS Physical' },
   { value: 'NIOS-V', label: 'NIOS Virtual' },
-  { value: 'NIOS-HA', label: 'NIOS HA Pair' },
-  { value: 'NXVS', label: 'NIOS-X Virtual Server' },
-  { value: 'NXaaS', label: 'NIOS-X as a Service' },
+  { value: 'NIOS-PHA', label: 'NIOS Physical HA' },
+  { value: 'NIOS-VHA', label: 'NIOS Virtual HA' },
+  { value: 'NXVS', label: 'NIOS-X VS' },
+  { value: 'NXaaS', label: 'NXaaS' },
 ];
 
 // Role options
