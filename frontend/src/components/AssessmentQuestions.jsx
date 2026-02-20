@@ -788,9 +788,9 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                   onClick={isClickableRow ? () => setExpandedNotes(p => ({ ...p, [q.id]: !p[q.id] })) : undefined}
                   data-testid={`question-${q.id}`}
                 >
-                  {/* Question Label - always on top */}
+                  {/* Question Label - always on top, BOLDER for dark mode */}
                   <div className={`flex items-start justify-between gap-2 ${compactMode ? 'mb-1.5' : 'mb-2'}`}>
-                    <label className={`${compactMode ? 'text-[12px]' : 'text-[13px]'} font-medium text-foreground leading-snug flex-1 min-w-0`} style={{wordBreak: 'break-word'}}>
+                    <label className={`${compactMode ? 'text-[12px]' : 'text-[13px]'} font-semibold text-slate-800 dark:text-white leading-snug flex-1 min-w-0`} style={{wordBreak: 'break-word'}}>
                       {q.question}
                     </label>
                     {/* Note toggle button */}
