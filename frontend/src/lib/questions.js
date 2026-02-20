@@ -572,14 +572,14 @@ export const discoveryQuestions = [
   },
   {
     "id": "ms-1",
-    "section": "Microsoft Management",
+    "section": "Overlay",
     "question": "Are services enabled for Microsoft Management?",
     "technicalOnly": true,
     "fieldType": "yesno"
   },
   {
     "id": "ms-2",
-    "section": "Microsoft Management",
+    "section": "Overlay",
     "question": "What specific Microsoft components are you syncing/integrating with?",
     "technicalOnly": true,
     "fieldType": "multiselect",
@@ -603,7 +603,7 @@ export const discoveryQuestions = [
   },
   {
     "id": "ms-7",
-    "section": "Microsoft Management",
+    "section": "Overlay",
     "question": "How many domain controllers are there?",
     "technicalOnly": true,
     "conditionalOn": {
@@ -613,7 +613,7 @@ export const discoveryQuestions = [
   },
   {
     "id": "ms-8",
-    "section": "Microsoft Management",
+    "section": "Overlay",
     "question": "How many forests do you have?",
     "technicalOnly": false,
     "conditionalOn": {
