@@ -108,52 +108,47 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
           </div>
         </div>
 
-        {/* Summary items - each centered over its section below */}
-        <div className="flex-1 grid gap-x-3" style={{ gridTemplateColumns: '5fr 5fr 3fr 3fr' }}>
-          {/* DC Summary - centered over DC card */}
-          <div className="flex items-center justify-center gap-1.5">
-            <Building2 className="h-3 w-3 text-[#30d158]" />
-            <span className="text-[10px] font-medium text-[#30d158]">DC</span>
-            <span className="text-[11px] font-semibold text-white">{dataCenters.length}</span>
+        {/* Summary items - simple clean layout */}
+        <div className="flex-1 flex items-center justify-between">
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-1.5">
+              <Building2 className="h-3 w-3 text-[#30d158]" />
+              <span className="text-[10px] font-medium text-[#30d158]">DC</span>
+              <span className="text-[11px] font-semibold text-white">{dataCenters.length}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <MapPin className="h-3 w-3 text-[#5e5ce6]" />
+              <span className="text-[10px] font-medium text-[#5e5ce6]">Sites</span>
+              <span className="text-[11px] font-semibold text-white">{sites.length}</span>
+            </div>
           </div>
 
-          {/* Sites Summary - centered over Sites card */}
-          <div className="flex items-center justify-center gap-1.5">
-            <MapPin className="h-3 w-3 text-[#5e5ce6]" />
-            <span className="text-[10px] font-medium text-[#5e5ce6]">Sites</span>
-            <span className="text-[11px] font-semibold text-white">{sites.length}</span>
-          </div>
-
-          {/* TS Summary - centered over TS card */}
-          <div className="flex flex-col items-center justify-center gap-0.5">
-            <div className="flex items-center gap-1">
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
               <Target className="h-3 w-3 text-[#ff9f0a]" />
               <span className="text-[10px] font-medium text-[#ff9f0a]">TS</span>
+              {activeSolutions.length > 0 ? (
+                <div className="flex items-center gap-1">
+                  {activeSolutions.map(s => (
+                    <span key={s.key} className="px-1.5 py-0.5 rounded text-[9px] font-semibold" style={{ backgroundColor: s.color + '25', color: s.color }}>
+                      {s.label}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <span className="text-[9px] text-[#6e6e73]">--</span>
+              )}
+              {isHybrid && (
+                <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-gradient-to-r from-[#30d158]/25 to-[#0a84ff]/25 text-[#64d2ff]">Hybrid</span>
+              )}
             </div>
-            {activeSolutions.length > 0 ? (
-              <div className="grid grid-cols-2 gap-x-1 gap-y-0.5">
-                {activeSolutions.map(s => (
-                  <span key={s.key} className="px-1 rounded text-[8px] font-semibold leading-tight text-center" style={{ backgroundColor: s.color + '25', color: s.color }}>
-                    {s.label}
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <span className="text-[9px] text-[#6e6e73]">--</span>
-            )}
-            {isHybrid && (
-              <span className="px-1.5 rounded text-[8px] font-bold leading-tight bg-gradient-to-r from-[#30d158]/25 to-[#0a84ff]/25 text-[#64d2ff]">Hybrid</span>
-            )}
-          </div>
 
-          {/* KW + IPs Summary - centered over Active IPs card */}
-          <div className="flex items-center justify-center gap-2">
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-2">
               <Calculator className="h-3 w-3 text-[#32d74b]" />
               <span className="text-[10px] text-[#8e8e93]">KW</span>
               <span className="text-[11px] font-semibold text-white">{formatKW(totalKW)}</span>
+              <span className="text-[11px] font-bold text-[#32d74b]">{formatKW(activeIPs)} IPs</span>
             </div>
-            <span className="text-[11px] font-bold text-[#32d74b]">{formatKW(activeIPs)} IPs</span>
           </div>
         </div>
 
