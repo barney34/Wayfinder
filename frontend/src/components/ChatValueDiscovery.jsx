@@ -340,13 +340,13 @@ export function ChatValueDiscovery({ section }) {
       <div className="flex items-center gap-2">
         <button
           onClick={() => setExpanded(!expanded)}
-          className="flex-1 flex items-center justify-between px-4 py-3 rounded-2xl bg-[#2c2c2e] hover:bg-[#3c3c3e] transition-colors"
+          className="flex-1 flex items-center justify-between px-4 py-3 rounded-2xl bg-muted hover:bg-secondary transition-colors"
         >
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl bg-[#5e5ce6]/20 flex items-center justify-center">
               <MessageSquare className="h-4 w-4 text-[#5e5ce6]" />
             </div>
-            <span className="text-sm font-semibold text-white">Value Discovery</span>
+            <span className="text-sm font-semibold text-foreground">Value Discovery</span>
             {/* Progress indicator */}
             <div className="flex items-center gap-2 ml-2">
               <div className="w-16 h-1.5 bg-[#3c3c3e] rounded-full overflow-hidden">
