@@ -108,21 +108,24 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
           </div>
         </div>
 
-        {/* Summary items - DC/Sites left-justified, more space for TS and Active IPs */}
-        <div className="flex-1 grid gap-x-3" style={{ gridTemplateColumns: '3fr 3fr 4fr 4fr' }}>
-          {/* DC Summary - left justified */}
-          <div className="flex items-center justify-end gap-1.5 pr-2">
-            <Building2 className="h-3 w-3 text-[#30d158]" />
-            <span className="text-[10px] font-medium text-[#30d158]">DC</span>
-            <span className="text-[11px] font-semibold text-white">{dataCenters.length}</span>
+        {/* Summary items - DC/Sites grouped over gap, then Sites/TS/IPs in grid */}
+        <div className="flex-1 flex items-center">
+          {/* DC + Sites summary - centered over gap between DC card and Sites card */}
+          <div className="flex items-center justify-center gap-4" style={{ width: pillWidth > 0 ? `${pillWidth + 100}px` : '300px' }}>
+            <div className="flex items-center gap-1.5">
+              <Building2 className="h-3 w-3 text-[#30d158]" />
+              <span className="text-[10px] font-medium text-[#30d158]">DC</span>
+              <span className="text-[11px] font-semibold text-white">{dataCenters.length}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <MapPin className="h-3 w-3 text-[#5e5ce6]" />
+              <span className="text-[10px] font-medium text-[#5e5ce6]">Sites</span>
+              <span className="text-[11px] font-semibold text-white">{sites.length}</span>
+            </div>
           </div>
 
-          {/* Sites Summary - left justified */}
-          <div className="flex items-center justify-start gap-1.5 pl-2">
-            <MapPin className="h-3 w-3 text-[#5e5ce6]" />
-            <span className="text-[10px] font-medium text-[#5e5ce6]">Sites</span>
-            <span className="text-[11px] font-semibold text-white">{sites.length}</span>
-          </div>
+          {/* TS and IPs summaries - in grid matching cards below */}
+          <div className="flex-1 grid gap-x-3" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
 
           {/* TS Summary - centered in column */}
           <div className="flex flex-col items-center justify-center gap-0.5">
