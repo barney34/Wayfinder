@@ -72,7 +72,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
   const oppLen = Math.max((opportunity || '').length, 8);
 
   return (
-    <div className="flex-shrink-0 bg-card border-b border-border" data-testid="topbar">
+    <div className="flex-shrink-0 bg-card border-b border-border shadow-sm" data-testid="topbar">
       {/* Header row with customer pill on left, summary items aligned with cards */}
       <div 
         className="px-4 py-1.5 flex items-center border-b border-border cursor-pointer"
@@ -80,9 +80,9 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
       >
         {/* Customer Pill - Fixed width, not part of the grid alignment */}
         <div ref={pillRef} onClick={e => e.stopPropagation()} className="shrink-0 mr-4">
-          <div className="flex flex-col gap-0 px-2.5 py-1 rounded-lg bg-muted border border-border">
+          <div className="flex flex-col gap-0 px-2.5 py-1 rounded-lg bg-secondary border border-border shadow-sm">
             <div className="flex items-center gap-1.5">
-              <span className="text-[8px] text-muted-foreground uppercase tracking-wide shrink-0">Customer:</span>
+              <span className="text-[8px] text-muted-foreground uppercase tracking-wide shrink-0 font-medium">Customer:</span>
               <input
                 value={customerName}
                 onChange={e => onNameChange?.(e.target.value)}
@@ -95,14 +95,14 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
               />
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="text-[8px] text-[#ff9f0a]/70 uppercase tracking-wide shrink-0">Opportunity:</span>
+              <span className="text-[8px] text-[#ea580c] uppercase tracking-wide shrink-0 font-medium">Opportunity:</span>
               <input
                 value={opportunity || ''}
                 onChange={e => onOpportunityChange?.(e.target.value)}
                 onBlur={() => onOpportunityBlur?.()}
                 onKeyDown={e => e.key === 'Enter' && e.target.blur()}
                 style={{ width: `${Math.min(Math.max(oppLen * 7 + 20, 60), 300)}px` }}
-                className="text-[11px] text-[#ff9f0a] bg-transparent border-0 focus:outline-none placeholder:text-muted-foreground"
+                className="text-[11px] text-[#ea580c] font-medium bg-transparent border-0 focus:outline-none placeholder:text-muted-foreground"
                 placeholder="Opportunity..."
                 data-testid="topbar-opportunity"
               />
@@ -113,11 +113,11 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
         {/* Summary items - stacked and equally spaced */}
         <div className="flex-1 flex items-center justify-around">
           {/* DC / Sites stacked */}
-          <div className="flex flex-col items-center gap-0.5">
+          <div className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg bg-secondary/50">
             <div className="flex items-center gap-1.5">
-              <Building2 className="h-3 w-3 text-[#30d158]" />
-              <span className="text-[10px] font-medium text-[#30d158]">DC</span>
-              <span className="text-[11px] font-semibold text-foreground">{dataCenters.length}</span>
+              <Building2 className="h-3 w-3 text-[#16a34a]" />
+              <span className="text-[10px] font-semibold text-[#16a34a]">DC</span>
+              <span className="text-[11px] font-bold text-foreground">{dataCenters.length}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <MapPin className="h-3 w-3 text-[#5e5ce6]" />
