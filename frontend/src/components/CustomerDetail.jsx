@@ -21,7 +21,6 @@ import { TokenCalculatorSummary, UDSMembersTable } from "./sizing";
 import { FloatingSaveButton } from "./FloatingSaveButton";
 import { AppSidebar } from "./AppSidebar";
 import { TopBar } from "./TopBar";
-import { SizingMathHelp } from "./PlatformSelection";
 import { SizingMathHelp } from "./SizingMathHelp";
 import { VersionControl } from "./VersionControl";
 import { ImportExportSection } from "./ImportExportSection";
