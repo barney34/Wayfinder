@@ -72,24 +72,24 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
   const oppLen = Math.max((opportunity || '').length, 8);
 
   return (
-    <div className="flex-shrink-0 bg-[#1c1c1e] border-b border-[#2c2c2e]" data-testid="topbar">
+    <div className="flex-shrink-0 bg-card border-b border-border" data-testid="topbar">
       {/* Header row with customer pill on left, summary items aligned with cards */}
       <div 
-        className="px-4 py-1.5 flex items-center border-b border-[#2c2c2e] cursor-pointer"
+        className="px-4 py-1.5 flex items-center border-b border-border cursor-pointer"
         onClick={() => setCollapsed(!collapsed)}
       >
         {/* Customer Pill - Fixed width, not part of the grid alignment */}
         <div ref={pillRef} onClick={e => e.stopPropagation()} className="shrink-0 mr-4">
-          <div className="flex flex-col gap-0 px-2.5 py-1 rounded-lg bg-[#2c2c2e] border border-[#3c3c3e]">
+          <div className="flex flex-col gap-0 px-2.5 py-1 rounded-lg bg-muted border border-border">
             <div className="flex items-center gap-1.5">
-              <span className="text-[8px] text-[#8e8e93] uppercase tracking-wide shrink-0">Customer:</span>
+              <span className="text-[8px] text-muted-foreground uppercase tracking-wide shrink-0">Customer:</span>
               <input
                 value={customerName}
                 onChange={e => onNameChange?.(e.target.value)}
                 onBlur={() => onNameBlur?.()}
                 onKeyDown={e => e.key === 'Enter' && e.target.blur()}
                 style={{ width: `${Math.min(Math.max(nameLen * 7.5 + 20, 60), 300)}px` }}
-                className="text-xs font-semibold text-white bg-transparent border-0 focus:outline-none placeholder:text-[#6e6e73]"
+                className="text-xs font-semibold text-foreground bg-transparent border-0 focus:outline-none placeholder:text-muted-foreground"
                 placeholder="Name..."
                 data-testid="topbar-customer-name"
               />
@@ -102,7 +102,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
                 onBlur={() => onOpportunityBlur?.()}
                 onKeyDown={e => e.key === 'Enter' && e.target.blur()}
                 style={{ width: `${Math.min(Math.max(oppLen * 7 + 20, 60), 300)}px` }}
-                className="text-[11px] text-[#ff9f0a] bg-transparent border-0 focus:outline-none placeholder:text-[#6e6e73]"
+                className="text-[11px] text-[#ff9f0a] bg-transparent border-0 focus:outline-none placeholder:text-muted-foreground"
                 placeholder="Opportunity..."
                 data-testid="topbar-opportunity"
               />
