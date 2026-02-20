@@ -27,11 +27,13 @@ function AppContent() {
           onClick={() => setLocation('/')}
           className="flex items-center gap-2 hover:opacity-80 transition-opacity"
         >
-          <div className="w-8 h-8 rounded-md bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
-            <span className="text-white font-bold text-sm">IB</span>
-          </div>
+          <img 
+            src="https://customer-assets.emergentagent.com/job_dca12792-ec8f-4624-9d37-b020080620e2/artifacts/hvzy2pw5_image.png" 
+            alt="Wayfinder Logo" 
+            className="h-8 w-8 object-contain"
+          />
           <div className="flex items-center gap-2">
-            <span className="text-lg font-bold text-foreground">Sizing Planner</span>
+            <span className="text-lg font-bold text-[#22c55e]">WAYFINDER</span>
           </div>
         </button>
         <ThemeToggle />
