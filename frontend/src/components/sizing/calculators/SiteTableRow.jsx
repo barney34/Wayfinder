@@ -283,22 +283,19 @@ export function SiteTableRow({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger className="cursor-help">
-                  <div className="flex flex-col items-end">
+                  <div className="flex items-center justify-end gap-1">
                     <span className="font-bold">{calculateTokenPacks(site.tokens)}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {formatNumber(site.tokens || 0)} tkns
-                    </span>
+                    <Info className="h-3 w-3 text-muted-foreground" />
                   </div>
                 </TooltipTrigger>
                 <TooltipContent className="max-w-xs">
                   <div className="space-y-1 text-xs">
+                    <div><strong>Tokens:</strong> {formatNumber(site.tokens || 0)}</div>
                     <div><strong>Token packs:</strong> {calculateTokenPacks(site.tokens)} (500K per pack)</div>
-                    <div><strong>Raw tokens:</strong> {formatNumber(site.tokens || 0)}</div>
-                    <div><strong>Base tokens:</strong> {formatNumber(site.tokensPerServer || 0)}</div>
                     {site.serverCount > 1 && <div><strong>Servers:</strong> x{site.serverCount}</div>}
                     {(site.serviceImpact || 0) > 0 && <div><strong>Service overhead:</strong> +{site.serviceImpact}%</div>}
-                    {site.isSpoke && <div className="text-amber-600"><strong>Spoke penalty:</strong> 50% LPS (sized up)</div>}
-                    {site.isHub && <div className="text-blue-600"><strong>Hub load:</strong> +{site.hubLPS} LPS from spokes</div>}
+                    {site.isSpoke && <div className="text-amber-600"><strong>Spoke penalty:</strong> 50% LPS</div>}
+                    {site.isHub && <div className="text-blue-600"><strong>Hub load:</strong> +{site.hubLPS} LPS</div>}
                   </div>
                 </TooltipContent>
               </Tooltip>
