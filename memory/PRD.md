@@ -50,6 +50,11 @@ Migration and enhancement of a "Sizing" calculator application for infrastructur
 ## What's Been Implemented
 
 ### December 2025 (Latest Session)
+- **Light Mode Fix** - Fixed black/dark windows appearing in light mode. Replaced hard-coded dark hex colors (#1c1c1e, #2c2c2e, #3c3c3e) with theme-aware CSS variables (bg-card, bg-muted, bg-background, text-foreground, etc.) in:
+  - TopBar.jsx - All cards, inputs, and buttons
+  - ChatValueDiscovery.jsx - Chat container, messages, and inputs
+  - AssessmentQuestions.jsx - Section tabs and form elements
+
 - **P0 Bug Fix: DC Count Sync** - Adding Data Center from Sizing page now correctly updates the "# of Data Centers" field (ud-5) in Discovery IPAM section. Fixed by making `saveToServer()` call synchronous in `addManualDataCenter()`.
   
 - **P1 Bug Fix: Site/DC Persistence** - Manually added Sites and Data Centers now persist across navigation. Fixed by removing local state and using context functions (`addSite`, `addDataCenter`) for all entries.
