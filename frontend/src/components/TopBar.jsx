@@ -106,7 +106,7 @@ function EditableTag({ item, color, onUpdate, onDelete }) {
   );
 }
 
-export function TopBar({ customerName, opportunity }) {
+export function TopBar({ customerName, opportunity, onNameChange, onOpportunityChange }) {
   const { answers, setAnswer, dataCenters, sites, addDataCenter, addSite, deleteDataCenter, deleteSite, updateDataCenter, updateSite, setPlatformMode } = useDiscovery();
   const [collapsed, setCollapsed] = useState(false);
   
@@ -178,19 +178,31 @@ export function TopBar({ customerName, opportunity }) {
         onClick={() => setCollapsed(!collapsed)}
       >
         <div className="flex items-center gap-4" onClick={e => e.stopPropagation()}>
-          {/* Customer Name - Display only (not editable in TopBar) */}
+          {/* Customer Name - Editable inline */}
           <div>
             <label className="text-[9px] text-[#8e8e93] uppercase tracking-wide block mb-0.5">Customer</label>
-            <div className="text-sm font-semibold text-white">{customerName}</div>
+            <input
+              value={customerName}
+              onChange={e => onNameChange?.(e.target.value)}
+              onBlur={e => onNameChange?.(e.target.value.trim())}
+              className="text-sm font-semibold text-white bg-transparent border-0 border-b border-transparent hover:border-[#4c4c4e] focus:border-[#0a84ff] focus:outline-none px-0 py-0.5 min-w-[80px] max-w-[200px]"
+              placeholder="Customer Name"
+              data-testid="topbar-customer-name"
+            />
           </div>
           
-          {/* Opportunity - Display only (not editable in TopBar) */}
-          {opportunity && (
-            <div>
-              <label className="text-[9px] text-[#8e8e93] uppercase tracking-wide block mb-0.5">Opportunity</label>
-              <div className="text-xs text-[#ff9f0a]">{opportunity}</div>
-            </div>
-          )}
+          {/* Opportunity - Editable inline */}
+          <div>
+            <label className="text-[9px] text-[#8e8e93] uppercase tracking-wide block mb-0.5">Opportunity</label>
+            <input
+              value={opportunity || ''}
+              onChange={e => onOpportunityChange?.(e.target.value)}
+              onBlur={e => onOpportunityChange?.(e.target.value.trim())}
+              className="text-xs text-[#ff9f0a] bg-transparent border-0 border-b border-transparent hover:border-[#4c4c4e] focus:border-[#ff9f0a] focus:outline-none px-0 py-0.5 min-w-[80px] max-w-[200px] placeholder:text-[#6e6e73]"
+              placeholder="Opportunity..."
+              data-testid="topbar-opportunity"
+            />
+          </div>
         </div>
         
         <div className="flex items-center gap-3">
