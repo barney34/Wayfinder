@@ -440,6 +440,7 @@ export function TokenCalculatorSummary() {
                     roleOptions={roleOptions}
                     platformOptions={platformOptions}
                     showHardware={showHardware}
+                    showKW={showKW}
                     onUpdateSite={updateSite}
                     onToggleService={toggleService}
                     onDeleteSite={deleteSite}
@@ -450,7 +451,9 @@ export function TokenCalculatorSummary() {
                 <TableRow className="bg-muted/30 font-medium">
                   <TableCell className="p-2 lg:p-4" colSpan={2}>Total</TableCell>
                   <TableCell className="p-2 lg:p-4 tabular-nums text-sm lg:text-base">{formatNumber(totals.totalIPs)}</TableCell>
-                  <TableCell className="p-2 lg:p-4 tabular-nums text-sm lg:text-base">{formatNumber(totals.totalKW)}</TableCell>
+                  {showKW && (
+                    <TableCell className="p-2 lg:p-4 tabular-nums text-sm lg:text-base">{formatNumber(totals.totalKW)}</TableCell>
+                  )}
                   <TableCell className="p-2 lg:p-4" colSpan={showHardware ? 6 : 5}></TableCell>
                   {platformMode !== 'NIOS' && (
                     <TableCell className="p-2 lg:p-4 text-right tabular-nums text-sm lg:text-base">
