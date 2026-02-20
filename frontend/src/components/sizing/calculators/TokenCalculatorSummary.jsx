@@ -207,7 +207,7 @@ export function TokenCalculatorSummary() {
         serviceImpact, isHub, isSpoke, hubLPS,
       };
     });
-  }, [dataCenterIds, contextSiteIds, dataCenters, contextSites, siteOverrides, manualSites, ipMultiplier, dhcpPercent, platformMode, leaseTimeSeconds, ipCalcValue]);
+  }, [dataCenterIds, contextSiteIds, dataCenters, contextSites, siteOverrides, ipMultiplier, dhcpPercent, platformMode, leaseTimeSeconds, ipCalcValue]);
 
   // Calculate totals
   const totals = useMemo(() => {
@@ -305,19 +305,16 @@ export function TokenCalculatorSummary() {
     }
   }, [sites, contextUpdateSite, contextUpdateDC]);
 
-  // Add manual site
+  // Add manual site - uses context to persist across navigation
   const addManualSite = useCallback(() => {
-    const newSite = {
-      id: `manual-${Date.now()}`, name: `Site ${sites.length + 1}`,
-      numIPs: 1000, numIPsAuto: 0, knowledgeWorkers: 0,
-      role: 'DNS/DHCP', services: [],
-      platform: platformMode === 'UDDI' ? 'NXVS' : 'NIOS',
-      dhcpPercent, recommendedModel: 'TE-926',
-      hardwareSku: 'TE-906-HW-2AC', hardwareOptions: ['TE-906-HW-2AC', 'TE-906-HW-AC'],
-      tokens: 880, serviceImpact: 0,
-    };
-    setManualSites(prev => [...prev, newSite]);
-  }, [sites.length, dhcpPercent, platformMode]);
+    const newSiteName = `Site ${sites.length + 1}`;
+    // Use context addSite function - sites are persisted in context and saved to server
+    if (contextAddSite) {
+      // Add to the first data center if one exists, otherwise create without parent
+      const parentDcId = dataCenters.length > 0 ? dataCenters[0].id : null;
+      contextAddSite(newSiteName, parentDcId, 0); // name, dataCenterId, knowledgeWorkers
+    }
+  }, [sites.length, dataCenters, contextAddSite]);
 
   // Add manual data center - syncs to TopBar and updates Discovery # of Data Centers
   const addManualDataCenter = useCallback(() => {
