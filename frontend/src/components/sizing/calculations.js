@@ -338,7 +338,7 @@ export function getSiteWorkloadDetails(numIPs, role, platform, dhcpPercent, site
   
   // Hub LPS addition
   if (hubLPS > 0) {
-    penalties.push(`Hub: +${hubLPS} LPS from spokes`);
+    penalties.push(`Hub: +${hubLPS} LPS (50% of spoke capacity for failover)`);
     lps += hubLPS;
   }
   
