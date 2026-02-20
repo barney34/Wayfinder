@@ -413,18 +413,18 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
     'Professional Services': { normal: 'bg-transparent text-slate-600 border-slate-300 dark:text-slate-400 dark:border-slate-600', active: 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/25 dark:bg-blue-500 dark:border-blue-500' },
   };
 
-  // Active section background - subtle neutral with accent border
+  // Active section background - minimal, just slightly elevated
   const sectionActiveBg = {
-    'IPAM': 'bg-slate-50/60 dark:bg-slate-800/40 ring-blue-500/40 shadow-slate-200/30',
-    'Internal DNS': 'bg-slate-50/60 dark:bg-slate-800/40 ring-blue-500/40 shadow-slate-200/30',
-    'External DNS': 'bg-slate-50/60 dark:bg-slate-800/40 ring-blue-500/40 shadow-slate-200/30',
-    'DHCP': 'bg-slate-50/60 dark:bg-slate-800/40 ring-blue-500/40 shadow-slate-200/30',
-    'Cloud Management': 'bg-slate-50/60 dark:bg-slate-800/40 ring-blue-500/40 shadow-slate-200/30',
-    'Services': 'bg-slate-50/60 dark:bg-slate-800/40 ring-blue-500/40 shadow-slate-200/30',
-    'Microsoft Management': 'bg-slate-50/60 dark:bg-slate-800/40 ring-blue-500/40 shadow-slate-200/30',
-    'Asset/ Network Insight': 'bg-slate-50/60 dark:bg-slate-800/40 ring-blue-500/40 shadow-slate-200/30',
-    'Security': 'bg-slate-50/60 dark:bg-slate-800/40 ring-blue-500/40 shadow-slate-200/30',
-    'Professional Services': 'bg-slate-50/60 dark:bg-slate-800/40 ring-blue-500/40 shadow-slate-200/30',
+    'IPAM': 'bg-white dark:bg-gray-800/50 ring-gray-300/50 dark:ring-gray-600/50',
+    'Internal DNS': 'bg-white dark:bg-gray-800/50 ring-gray-300/50 dark:ring-gray-600/50',
+    'External DNS': 'bg-white dark:bg-gray-800/50 ring-gray-300/50 dark:ring-gray-600/50',
+    'DHCP': 'bg-white dark:bg-gray-800/50 ring-gray-300/50 dark:ring-gray-600/50',
+    'Cloud Management': 'bg-white dark:bg-gray-800/50 ring-gray-300/50 dark:ring-gray-600/50',
+    'Services': 'bg-white dark:bg-gray-800/50 ring-gray-300/50 dark:ring-gray-600/50',
+    'Microsoft Management': 'bg-white dark:bg-gray-800/50 ring-gray-300/50 dark:ring-gray-600/50',
+    'Asset/ Network Insight': 'bg-white dark:bg-gray-800/50 ring-gray-300/50 dark:ring-gray-600/50',
+    'Security': 'bg-white dark:bg-gray-800/50 ring-gray-300/50 dark:ring-gray-600/50',
+    'Professional Services': 'bg-white dark:bg-gray-800/50 ring-gray-300/50 dark:ring-gray-600/50',
   };
 
   // Render a single question's field (compact mode adjusts sizing)
