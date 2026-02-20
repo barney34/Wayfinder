@@ -652,35 +652,56 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
     return (
       <div className="space-y-3">
         {/* Sticky Section Navigation Bar */}
-        <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b py-2 -mx-1 px-1" data-testid="section-nav-bar">
-          <div ref={navRef} className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-            {sections.map(section => {
-              const isSectionEnabled = enabledSections[section] !== false;
-              const isActive = activeSection === section;
-              const answeredCount = grouped[section].filter(q => answers[q.id]?.trim()).length;
-              const abbrev = sectionAbbreviations[section] || section;
-              const styles = sectionPillStyles[section] || { normal: 'bg-muted/50 border-border/50 text-foreground', active: 'bg-primary text-white border-primary' };
-              return (
-                <button
-                  key={section}
-                  onClick={() => scrollToSection(section)}
-                  data-nav-section={section}
-                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold whitespace-nowrap transition-all duration-200 border
-                    ${isActive 
-                      ? `${styles.active} shadow-lg scale-110 ring-1 ring-white/30` 
-                      : isSectionEnabled 
-                        ? `${styles.normal} hover:scale-105` 
-                        : 'bg-muted/20 border-border/30 text-muted-foreground line-through opacity-40'
-                    }`}
-                  data-testid={`nav-${section.replace(/\s/g, '-')}`}
-                >
-                  <span>{abbrev}</span>
-                  <span className={`text-[9px] font-normal ${isActive ? 'opacity-80' : 'opacity-60'}`}>
-                    {answeredCount}/{grouped[section].length}
-                  </span>
-                </button>
-              );
-            })}
+        <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b py-2.5 -mx-1 px-1" data-testid="section-nav-bar">
+          <div className="flex items-center gap-2">
+            {/* Compact mode toggle */}
+            <button
+              onClick={() => setCompactMode(!compactMode)}
+              className={`p-1.5 rounded-md border transition-colors ${compactMode ? 'bg-primary/10 border-primary/30 text-primary' : 'bg-muted/30 border-border/50 text-muted-foreground hover:bg-muted/50'}`}
+              title={compactMode ? "Comfortable spacing" : "Compact spacing"}
+            >
+              {compactMode ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
+            </button>
+            
+            {/* Nav pills with progress bars */}
+            <div ref={navRef} className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none flex-1">
+              {sections.map(section => {
+                const isSectionEnabled = enabledSections[section] !== false;
+                const isActive = activeSection === section;
+                const answeredCount = grouped[section].filter(q => answers[q.id]?.trim()).length;
+                const totalCount = grouped[section].length;
+                const progress = totalCount > 0 ? (answeredCount / totalCount) * 100 : 0;
+                const abbrev = sectionAbbreviations[section] || section;
+                const styles = sectionPillStyles[section] || { normal: 'bg-transparent text-foreground border-border', active: 'bg-primary text-white border-primary' };
+                return (
+                  <button
+                    key={section}
+                    onClick={() => scrollToSection(section)}
+                    data-nav-section={section}
+                    className={`relative flex flex-col items-center px-3 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-all duration-200 border-2 overflow-hidden
+                      ${isActive 
+                        ? `${styles.active} scale-105` 
+                        : isSectionEnabled 
+                          ? `${styles.normal} hover:scale-102 hover:bg-muted/20` 
+                          : 'bg-transparent border-border/30 text-muted-foreground/50 line-through'
+                      }`}
+                    data-testid={`nav-${section.replace(/\s/g, '-')}`}
+                  >
+                    {/* Progress bar background */}
+                    {!isActive && isSectionEnabled && progress > 0 && (
+                      <div 
+                        className="absolute bottom-0 left-0 h-0.5 bg-current opacity-30 transition-all"
+                        style={{ width: `${progress}%` }}
+                      />
+                    )}
+                    <span>{abbrev}</span>
+                    <span className={`text-[9px] font-normal ${isActive ? 'opacity-90' : 'opacity-50'}`}>
+                      {answeredCount}/{totalCount}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 
