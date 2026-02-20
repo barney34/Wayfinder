@@ -175,15 +175,9 @@ export function ChatValueDiscovery({ section }) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [conversation]);
 
-  const initConversation = useCallback(() => {
-    setConversation([
-      { role: 'system', content: sectionConfig.opener, timestamp: Date.now() }
-    ]);
-    setCoveredTopics([]);
-  }, [sectionConfig]);
-
   const resetConversation = () => {
-    initConversation();
+    setConversation(getInitialConversation());
+    setCoveredTopics([]);
     toast({
       title: "Conversation reset",
       description: "Starting fresh with Value Discovery",
