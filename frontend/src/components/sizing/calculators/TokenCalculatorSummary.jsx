@@ -39,12 +39,12 @@ export { getServiceImpact, getTokensForModel, getPartnerSkuFromTokens, getSkuDes
 export function TokenCalculatorSummary() {
   const {
     dataCenters = [], sites: contextSites = [], answers = {}, setAnswer, platformMode, setPlatformMode, setSizingSummary,
-    updateSite: contextUpdateSite, updateDataCenter: contextUpdateDC, addDataCenter: contextAddDC
+    updateSite: contextUpdateSite, updateDataCenter: contextUpdateDC, addDataCenter: contextAddDC, addSite: contextAddSite,
+    saveToServer
   } = useDiscovery();
 
-  // Site overrides and manual sites state
+  // Site overrides state (manual sites now use context via addSite)
   const [siteOverrides, setSiteOverrides] = useState({});
-  const [manualSites, setManualSites] = useState([]);
 
   // Drawing # for export
   const [drawingNumber, setDrawingNumber] = useState('');
@@ -170,11 +170,7 @@ export function TokenCalculatorSummary() {
 
     const dcSites = dataCenters.map((dc, i) => buildBasicSite(dc, i, 'dataCenter'));
     const branchSites = contextSites.map((site, i) => buildBasicSite(site, i, 'site'));
-    const allBasicSites = [...dcSites, ...branchSites, ...manualSites.map((s) => ({
-      ...s,
-      dhcpPartner: siteOverrides[s.id]?.dhcpPartner || s.dhcpPartner || null,
-      serverCount: siteOverrides[s.id]?.serverCount || s.serverCount || 1,
-    }))];
+    const allBasicSites = [...dcSites, ...branchSites];
 
     // Calculate Hub LPS
     const hubLPSMap = {};
