@@ -149,26 +149,8 @@ export function AppSidebar({
 
   return (
     <div className={`flex flex-col h-full bg-card border-r shadow-lg transition-all duration-300 ${collapsed ? 'w-16' : 'w-56'}`}>
-      {/* Header with Logo */}
-      <div className="flex items-center justify-center p-3 border-b">
-        {!collapsed && (
-          <img 
-            src="https://customer-assets.emergentagent.com/job_dca12792-ec8f-4624-9d37-b020080620e2/artifacts/pcj1uvm7_image.png" 
-            alt="Wayfinder Logo" 
-            className="h-10 object-contain"
-          />
-        )}
-        {collapsed && (
-          <img 
-            src="https://customer-assets.emergentagent.com/job_dca12792-ec8f-4624-9d37-b020080620e2/artifacts/pcj1uvm7_image.png" 
-            alt="Wayfinder Logo" 
-            className="h-8 object-contain"
-          />
-        )}
-      </div>
-      
-      {/* Collapse button - separate row */}
-      <div className="flex justify-end px-2 py-1 border-b">
+      {/* Collapse button */}
+      <div className={`flex ${collapsed ? 'justify-center' : 'justify-end'} px-2 py-2 border-b`}>
         <Button
           variant="ghost"
           size="icon"
