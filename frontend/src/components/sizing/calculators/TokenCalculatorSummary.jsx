@@ -322,6 +322,23 @@ export function TokenCalculatorSummary() {
     setManualSites(prev => [...prev, newSite]);
   }, [sites.length, dhcpPercent, platformMode]);
 
+  // Add manual data center
+  const addManualDataCenter = useCallback(() => {
+    const dcCount = sites.filter(s => s.role === 'GM' || s.role === 'GMC' || s.role?.startsWith('GM+') || s.role?.startsWith('GMC+')).length;
+    const newDC = {
+      id: `manual-dc-${Date.now()}`, name: `Data Center ${dcCount + 1}`,
+      numIPs: 1000, numIPsAuto: 0, knowledgeWorkers: 0,
+      role: platformMode === 'UDDI' ? 'DNS/DHCP' : (dcCount === 0 ? 'GM' : 'GMC'),
+      services: [],
+      platform: 'NIOS',
+      dhcpPercent, recommendedModel: 'TE-1126',
+      hardwareSku: 'TE-1106-HW-2AC', hardwareOptions: ['TE-1106-HW-2AC', 'TE-1106-HW-AC'],
+      tokens: 880, serviceImpact: 0,
+      sourceType: null, // Manual DC, not from context
+    };
+    setManualSites(prev => [...prev, newDC]);
+  }, [sites, dhcpPercent, platformMode]);
+
   // Delete site
   const deleteSite = useCallback((siteId) => {
     setManualSites(prev => prev.filter(s => s.id !== siteId));
