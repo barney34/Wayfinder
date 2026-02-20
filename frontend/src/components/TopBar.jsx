@@ -165,7 +165,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
 
       {/* Input cards row */}
       {!collapsed && (
-        <div className="px-4 py-3 grid gap-3" style={{ gridTemplateColumns: '1fr 1fr 1fr 1fr' }}>
+        <div className="px-4 py-3 grid gap-3" style={{ gridTemplateColumns: '1.3fr 1.3fr 0.7fr 0.7fr' }}>
           {/* Data Centers */}
           <div className="bg-[#2c2c2e] rounded-xl p-3 flex flex-col">
             <div className="flex items-center gap-2 mb-2">
