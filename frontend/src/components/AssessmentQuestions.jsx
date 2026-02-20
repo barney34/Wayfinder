@@ -1058,17 +1058,17 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                 
                 {/* Conditional sub-questions */}
                 {conditionals.length > 0 && (
-                  <div className="ml-6 border-l-2 border-[#3c3c3e]">
+                  <div className="ml-6 border-l-2 border-border">
                     {conditionals.map(cq => (
                       <div 
                         key={cq.id} 
-                        className="px-5 py-4"
+                        className="px-5 py-4 bg-secondary/30"
                         data-testid={`question-${cq.id}`}
                       >
-                        <div className="text-xs text-[#ff9f0a] mb-2 uppercase tracking-wide">
+                        <div className="text-xs text-[#2563eb] mb-2 uppercase tracking-wide font-medium">
                           If {cq.conditionalOn.value}
                         </div>
-                        <label className="text-sm font-semibold text-white block mb-2">
+                        <label className="text-sm font-semibold text-foreground block mb-2">
                           {cq.question}
                         </label>
                         {renderField(cq)}
