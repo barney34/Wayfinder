@@ -208,7 +208,6 @@ function MultiSelectField({ questionId, options, optionsWithPermission = [], opt
         </PopoverContent>
       </Popover>
     </div>
-    </div>
   );
 }
 
