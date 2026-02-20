@@ -1011,16 +1011,16 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
             const isEvenRow = rowIndex % 2 === 0;
             
             return (
-              <div key={q.id} className="border-b border-[#2c2c2e] last:border-b-0">
+              <div key={q.id} className="border-b border-border last:border-b-0">
                 {/* Question cell - Home Assistant style */}
                 <div 
-                  className={`${compactMode ? 'px-4 py-3' : 'px-5 py-4'} ${isClickableRow ? 'cursor-pointer hover:bg-[#2c2c2e]/50' : ''}`}
+                  className={`${compactMode ? 'px-4 py-3' : 'px-5 py-4'} ${isClickableRow ? 'cursor-pointer hover:bg-muted/50' : ''}`}
                   onClick={isClickableRow ? () => setExpandedNotes(p => ({ ...p, [q.id]: !p[q.id] })) : undefined}
                   data-testid={`question-${q.id}`}
                 >
                   {/* Question Label */}
                   <div className={`flex items-start justify-between gap-3 ${compactMode ? 'mb-2' : 'mb-3'}`}>
-                    <label className={`${compactMode ? 'text-sm' : 'text-[15px]'} font-semibold text-white leading-relaxed flex-1`}>
+                    <label className={`${compactMode ? 'text-sm' : 'text-[15px]'} font-semibold text-foreground leading-relaxed flex-1`}>
                       {q.question}
                     </label>
                     {hasNote && (
@@ -1049,7 +1049,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                         value={notes[q.id] || ''}
                         onChange={e => setNote(q.id, e.target.value)}
                         placeholder="Type here..."
-                        className="min-h-[80px] text-sm bg-[#1c1c1e] border-[#3c3c3e] text-white placeholder:text-[#8e8e93] rounded-xl focus:ring-[#0a84ff] focus:border-[#0a84ff]"
+                        className="min-h-[80px] text-sm bg-background border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:ring-[#0a84ff] focus:border-[#0a84ff]"
                         data-testid={`note-${q.id}`}
                         onClick={e => e.stopPropagation()}
                         autoFocus
