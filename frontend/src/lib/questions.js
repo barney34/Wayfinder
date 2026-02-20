@@ -314,25 +314,29 @@ export const discoveryQuestions = [
     "id": "edns-5",
     "section": "External DNS",
     "question": "Total number of records in all zones combined",
-    "technicalOnly": true
+    "technicalOnly": true,
+    "fieldType": "number"
   },
   {
     "id": "edns-1",
     "section": "External DNS",
     "question": "Queries per second rate, per server",
-    "technicalOnly": true
+    "technicalOnly": true,
+    "fieldType": "dnsPerServerCalculated"
   },
   {
     "id": "edns-2",
     "section": "External DNS",
     "question": "Queries per second rate, aggregate",
-    "technicalOnly": true
+    "technicalOnly": true,
+    "fieldType": "dnsAggregateCalculated"
   },
   {
     "id": "edns-3",
     "section": "External DNS",
     "question": "Will DNSSEC signing be enabled for authoritative zones?",
-    "technicalOnly": true
+    "technicalOnly": true,
+    "fieldType": "yesno"
   },
   {
     "id": "dhcp-0",
