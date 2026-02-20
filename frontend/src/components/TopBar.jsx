@@ -100,6 +100,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
                 value={opportunity || ''}
                 onChange={e => onOpportunityChange?.(e.target.value)}
                 onBlur={() => onOpportunityBlur?.()}
+                onKeyDown={e => e.key === 'Enter' && e.target.blur()}
                 style={{ width: `${Math.min(Math.max(oppLen * 7 + 20, 60), 300)}px` }}
                 className="text-[11px] text-[#ff9f0a] bg-transparent border-0 focus:outline-none placeholder:text-[#6e6e73]"
                 placeholder="Opportunity..."
