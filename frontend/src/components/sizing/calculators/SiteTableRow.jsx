@@ -255,36 +255,38 @@ export function SiteTableRow({
         </TableCell>
       )}
 
-      {/* Tokens */}
-      <TableCell className="p-2 lg:p-4 text-right tabular-nums font-medium text-sm lg:text-base">
-        {site.isDisabledInUddi ? (
-          <span className="text-muted-foreground">&mdash;</span>
-        ) : (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger className="cursor-help">
-                <div className="flex flex-col items-end">
-                  <span>{formatNumber(site.tokens || 0)}</span>
-                  {site.serverCount > 1 && (
+      {/* Token Packs - only show for non-NIOS modes */}
+      {showTokens && (
+        <TableCell className="p-2 lg:p-4 text-right tabular-nums font-medium text-sm lg:text-base">
+          {site.isDisabledInUddi ? (
+            <span className="text-muted-foreground">&mdash;</span>
+          ) : (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger className="cursor-help">
+                  <div className="flex flex-col items-end">
+                    <span className="font-bold">{calculateTokenPacks(site.tokens)}</span>
                     <span className="text-xs text-muted-foreground">
-                      {site.serverCount} x {formatNumber(site.tokensPerServer || 0)}
+                      {formatNumber(site.tokens || 0)} tkns
                     </span>
-                  )}
-                </div>
-              </TooltipTrigger>
-              <TooltipContent className="max-w-xs">
-                <div className="space-y-1 text-xs">
-                  <div><strong>Base tokens:</strong> {formatNumber(site.tokensPerServer || 0)}</div>
-                  {site.serverCount > 1 && <div><strong>Servers:</strong> x{site.serverCount}</div>}
-                  {(site.serviceImpact || 0) > 0 && <div><strong>Service overhead:</strong> +{site.serviceImpact}%</div>}
-                  {site.isSpoke && <div className="text-amber-600"><strong>Spoke penalty:</strong> 50% LPS (sized up)</div>}
-                  {site.isHub && <div className="text-blue-600"><strong>Hub load:</strong> +{site.hubLPS} LPS from spokes</div>}
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )}
-      </TableCell>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <div className="space-y-1 text-xs">
+                    <div><strong>Token packs:</strong> {calculateTokenPacks(site.tokens)} (500K per pack)</div>
+                    <div><strong>Raw tokens:</strong> {formatNumber(site.tokens || 0)}</div>
+                    <div><strong>Base tokens:</strong> {formatNumber(site.tokensPerServer || 0)}</div>
+                    {site.serverCount > 1 && <div><strong>Servers:</strong> x{site.serverCount}</div>}
+                    {(site.serviceImpact || 0) > 0 && <div><strong>Service overhead:</strong> +{site.serviceImpact}%</div>}
+                    {site.isSpoke && <div className="text-amber-600"><strong>Spoke penalty:</strong> 50% LPS (sized up)</div>}
+                    {site.isHub && <div className="text-blue-600"><strong>Hub load:</strong> +{site.hubLPS} LPS from spokes</div>}
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </TableCell>
+      )}
 
       {/* Add to Report */}
       <TableCell className="p-2 lg:p-4 text-center">
