@@ -21,7 +21,7 @@ import { TokenCalculatorSummary, UDSMembersTable } from "./sizing";
 import { FloatingSaveButton } from "./FloatingSaveButton";
 import { AppSidebar } from "./AppSidebar";
 import { TopBar } from "./TopBar";
-import { DeploymentModel } from "./PlatformSelection";
+import { } from "./PlatformSelection";
 import { SizingMathHelp } from "./SizingMathHelp";
 import { VersionControl } from "./VersionControl";
 import { ImportExportSection } from "./ImportExportSection";
@@ -569,7 +569,6 @@ function CustomerDetailContent({
             {/* Sizing Tab */}
             {activeTab === 'sizing' && (
               <div className="space-y-4" data-testid="tab-content-sizing">
-                <DeploymentModel />
                 <SizingMathHelp />
                 <TokenCalculatorSummary />
               </div>
