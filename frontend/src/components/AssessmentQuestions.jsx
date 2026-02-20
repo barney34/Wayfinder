@@ -809,7 +809,6 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                       {renderField(q)}
                     </div>
                   ) : (
-                    /* Text-only: minimal hint */}
                     <div className={`${compactMode ? 'text-[10px]' : 'text-xs'} text-gray-400 ${hasNote ? 'text-gray-600 dark:text-gray-300' : ''}`}>
                       {hasNote ? 'Click to edit' : 'Click to respond'}
                     </div>
