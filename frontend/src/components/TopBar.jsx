@@ -96,14 +96,13 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
 
   return (
     <div className="flex-shrink-0 bg-[#1c1c1e] border-b border-[#2c2c2e]" data-testid="topbar">
-      {/* Header Row — single grid so summary aligns perfectly over sections below */}
+      {/* Header Row — customer pill + chevron absolute, summary grid matches input columns */}
       <div 
-        className="px-4 py-1.5 grid items-center gap-3 border-b border-[#2c2c2e] cursor-pointer hover:bg-[#2c2c2e]/30"
-        style={{ gridTemplateColumns: 'auto 5fr 5fr 3fr 3fr auto' }}
+        className="relative px-4 py-1.5 border-b border-[#2c2c2e] cursor-pointer hover:bg-[#2c2c2e]/30"
         onClick={() => setCollapsed(!collapsed)}
       >
-        {/* Col 1: Customer/Opp pill */}
-        <div className="shrink-0" onClick={e => e.stopPropagation()}>
+        {/* Customer/Opp pill — absolutely positioned left */}
+        <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10" onClick={e => e.stopPropagation()}>
           <div className="flex flex-col gap-0 px-2.5 py-1 rounded-lg bg-[#2c2c2e] border border-[#3c3c3e]">
             <div className="flex items-center gap-1.5">
               <span className="text-[8px] text-[#8e8e93] uppercase tracking-wide shrink-0">Customer:</span>
@@ -132,57 +131,62 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
           </div>
         </div>
 
-        {/* Col 2: DC summary — centered over Data Centers */}
-        <div className="flex items-center justify-center gap-1.5">
-          <Building2 className="h-3 w-3 text-[#30d158]" />
-          <span className="text-[10px] font-medium text-[#30d158]">DC</span>
-          <span className="text-[11px] font-semibold text-white">{dataCenters.length}</span>
-        </div>
-
-        {/* Col 3: Sites summary — centered over Sites */}
-        <div className="flex items-center justify-center gap-1.5">
-          <MapPin className="h-3 w-3 text-[#5e5ce6]" />
-          <span className="text-[10px] font-medium text-[#5e5ce6]">Sites</span>
-          <span className="text-[11px] font-semibold text-white">{sites.length}</span>
-        </div>
-
-        {/* Col 4: TS summary — stacked 2x2, centered over Target Solutions */}
-        <div className="flex flex-col items-center gap-0.5">
-          <div className="flex items-center gap-1">
-            <Target className="h-3 w-3 text-[#ff9f0a]" />
-            <span className="text-[10px] font-medium text-[#ff9f0a]">TS</span>
+        {/* Chevron — absolutely positioned right */}
+        <div className="absolute right-4 top-1/2 -translate-y-1/2">
+          <div className="p-1 rounded-lg bg-[#2c2c2e]">
+            {collapsed ? <ChevronDown className="h-3.5 w-3.5 text-[#8e8e93]" /> : <ChevronUp className="h-3.5 w-3.5 text-[#8e8e93]" />}
           </div>
-          {activeSolutions.length > 0 ? (
-            <div className="grid grid-cols-2 gap-x-1 gap-y-0.5">
-              {activeSolutions.map(s => (
-                <span key={s.key} className="px-1 rounded text-[8px] font-semibold leading-tight text-center" style={{ backgroundColor: s.color + '25', color: s.color }}>
-                  {s.label}
-                </span>
-              ))}
+        </div>
+
+        {/* Summary grid — SAME columns as input row so items center perfectly */}
+        <div className="grid gap-3 items-center" style={{ gridTemplateColumns: '5fr 5fr 3fr 3fr' }}>
+          {/* DC — centered over Data Centers */}
+          <div className="flex items-center justify-center gap-1.5 py-1">
+            <Building2 className="h-3 w-3 text-[#30d158]" />
+            <span className="text-[10px] font-medium text-[#30d158]">DC</span>
+            <span className="text-[11px] font-semibold text-white">{dataCenters.length}</span>
+          </div>
+
+          {/* Sites — centered over Sites */}
+          <div className="flex items-center justify-center gap-1.5 py-1">
+            <MapPin className="h-3 w-3 text-[#5e5ce6]" />
+            <span className="text-[10px] font-medium text-[#5e5ce6]">Sites</span>
+            <span className="text-[11px] font-semibold text-white">{sites.length}</span>
+          </div>
+
+          {/* TS — stacked 2x2, centered over Target Solutions */}
+          <div className="flex flex-col items-center gap-0.5 py-0.5">
+            <div className="flex items-center gap-1">
+              <Target className="h-3 w-3 text-[#ff9f0a]" />
+              <span className="text-[10px] font-medium text-[#ff9f0a]">TS</span>
             </div>
-          ) : (
-            <span className="text-[9px] text-[#6e6e73]">--</span>
-          )}
-          {isHybrid && (
-            <span className="px-1.5 rounded text-[8px] font-bold leading-tight bg-gradient-to-r from-[#30d158]/25 to-[#0a84ff]/25 text-[#64d2ff]">
-              Hybrid
-            </span>
-          )}
-        </div>
-
-        {/* Col 5: KW + IP — side by side, centered over Active IPs */}
-        <div className="flex items-center justify-center gap-2">
-          <div className="flex items-center gap-1">
-            <Calculator className="h-3 w-3 text-[#32d74b]" />
-            <span className="text-[10px] text-[#8e8e93]">KW</span>
-            <span className="text-[11px] font-semibold text-white">{formatKW(totalKW)}</span>
+            {activeSolutions.length > 0 ? (
+              <div className="grid grid-cols-2 gap-x-1 gap-y-0.5">
+                {activeSolutions.map(s => (
+                  <span key={s.key} className="px-1 rounded text-[8px] font-semibold leading-tight text-center" style={{ backgroundColor: s.color + '25', color: s.color }}>
+                    {s.label}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <span className="text-[9px] text-[#6e6e73]">--</span>
+            )}
+            {isHybrid && (
+              <span className="px-1.5 rounded text-[8px] font-bold leading-tight bg-gradient-to-r from-[#30d158]/25 to-[#0a84ff]/25 text-[#64d2ff]">
+                Hybrid
+              </span>
+            )}
           </div>
-          <span className="text-[11px] font-bold text-[#32d74b]">{formatKW(activeIPs)} IPs</span>
-        </div>
 
-        {/* Col 6: Chevron */}
-        <div className="p-1 rounded-lg bg-[#2c2c2e] justify-self-end">
-          {collapsed ? <ChevronDown className="h-3.5 w-3.5 text-[#8e8e93]" /> : <ChevronUp className="h-3.5 w-3.5 text-[#8e8e93]" />}
+          {/* KW + IP — side by side, centered over Active IPs */}
+          <div className="flex items-center justify-center gap-2 py-1">
+            <div className="flex items-center gap-1">
+              <Calculator className="h-3 w-3 text-[#32d74b]" />
+              <span className="text-[10px] text-[#8e8e93]">KW</span>
+              <span className="text-[11px] font-semibold text-white">{formatKW(totalKW)}</span>
+            </div>
+            <span className="text-[11px] font-bold text-[#32d74b]">{formatKW(activeIPs)} IPs</span>
+          </div>
         </div>
       </div>
 
