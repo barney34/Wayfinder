@@ -106,7 +106,7 @@ function EditableTag({ item, color, onUpdate, onDelete }) {
   );
 }
 
-export function TopBar({ customerName, opportunity, onNameChange, onOpportunityChange }) {
+export function TopBar({ customerName, opportunity, onNameChange, onOpportunityChange, onNameBlur, onOpportunityBlur }) {
   const { answers, setAnswer, dataCenters, sites, addDataCenter, addSite, deleteDataCenter, deleteSite, updateDataCenter, updateSite, setPlatformMode } = useDiscovery();
   const [collapsed, setCollapsed] = useState(false);
   
@@ -184,7 +184,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
             <input
               value={customerName}
               onChange={e => onNameChange?.(e.target.value)}
-              onBlur={e => onNameChange?.(e.target.value.trim())}
+              onBlur={() => onNameBlur?.()}
               className="text-sm font-semibold text-white bg-transparent border-0 border-b border-transparent hover:border-[#4c4c4e] focus:border-[#0a84ff] focus:outline-none px-0 py-0.5 min-w-[80px] max-w-[200px]"
               placeholder="Customer Name"
               data-testid="topbar-customer-name"
@@ -197,7 +197,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
             <input
               value={opportunity || ''}
               onChange={e => onOpportunityChange?.(e.target.value)}
-              onBlur={e => onOpportunityChange?.(e.target.value.trim())}
+              onBlur={() => onOpportunityBlur?.()}
               className="text-xs text-[#ff9f0a] bg-transparent border-0 border-b border-transparent hover:border-[#4c4c4e] focus:border-[#ff9f0a] focus:outline-none px-0 py-0.5 min-w-[80px] max-w-[200px] placeholder:text-[#6e6e73]"
               placeholder="Opportunity..."
               data-testid="topbar-opportunity"
