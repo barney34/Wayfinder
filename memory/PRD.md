@@ -4,19 +4,17 @@
 Infrastructure sizing calculator for planning network deployments. Full migration from TypeScript source with React frontend + FastAPI backend + MongoDB.
 
 ## TopBar Component (Latest — Dec 2025)
-- **Customer/Opp pill**: Auto-sizing stacked pill (Customer: on top, Opportunity: below), width grows with content, positioned independently on the left
-- **Rich summary bar**: Always visible in header row — shows DC count, Sites count, active Target Solution badges (color-coded), Hybrid badge, KW total + Active IPs
-- **Summary-to-Card Alignment**: Summary items (DC, Sites, TS, KW/IPs) are perfectly centered over their respective input cards using a shared grid layout (`5fr 5fr 3fr 3fr`)
-- **DC/Site pills**: `grid-cols-2` layout for legibility, expand naturally into rows (no scroll)
-- **Target Solutions**: NIOS, UDDI, Security, Asset toggles + Hybrid auto-detection (feature-* keys)
-- **Active IPs**: Same size as Target Solutions column (3fr each, DC/Sites 5fr each)
-- **Collapsible**: Click header to collapse — summary bar persists showing all data at a glance
-- **IP Calculator**: KW x Multiplier with 0.5-step arrows
-- **+ Add buttons**: Always visible, pinned bottom
-
-### TopBar Layout Fix (Dec 2025)
-- Fixed critical alignment bug where summary items were not centered over their corresponding input cards
-- Solution: Separated Customer pill from the grid layout, used shared `gridTemplateColumns: '5fr 5fr 3fr 3fr'` for both summary row and input cards row with matching spacers
+- **Customer/Opp pill**: Auto-sizing stacked pill (Customer: on top, Opportunity: below), positioned on the left
+- **Summary row**: 3 stacked sections equally spaced:
+  - DC stacked over Sites (like Customer/Opp)
+  - TS with solution badges stacked
+  - KW stacked over IPs
+- **Input cards row**: 4 cards with weighted grid (1.3fr 1.3fr 0.7fr 0.7fr):
+  - Data Centers (larger) - 2-column grid for entries
+  - Sites (larger) - 2-column grid for entries  
+  - Target Solutions (smaller) - NIOS, UDDI, Security, Asset toggles + Hybrid
+  - Active IPs (smaller, equal to TS) - KW input with multiplier
+- **Collapsible**: Click header to collapse/expand
 
 ## Core Features (Implemented)
 - Customer management CRUD
