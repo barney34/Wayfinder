@@ -22,9 +22,10 @@ import {
 } from "./sizing";
 import { sizingDefaults } from "@/lib/tokenData";
 
-// ===== GridMultiSelect (2-row grid layout, click away accepts) =====
+// ===== GridMultiSelect (dropdown with grid options, selected as bubbles below) =====
 function GridMultiSelect({ questionId, options, value, onChange, allowFreeform, columns = 2 }) {
   const [freeformInput, setFreeformInput] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
   const selectedValues = value ? value.split(',').map(v => v.trim()).filter(Boolean) : [];
 
   const toggleOption = (opt) => {
@@ -43,51 +44,76 @@ function GridMultiSelect({ questionId, options, value, onChange, allowFreeform, 
     }
   };
 
+  const removeValue = (val) => {
+    onChange(selectedValues.filter(v => v !== val).join(', '));
+  };
+
   return (
     <div className="space-y-2">
-      <div className={`grid gap-2`} style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
-        {options.map(opt => (
-          <label
-            key={opt}
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors border ${
-              selectedValues.includes(opt)
-                ? 'bg-[#0a84ff]/20 border-[#0a84ff] text-white'
-                : 'bg-[#2c2c2e] border-[#3c3c3e] text-[#8e8e93] hover:bg-[#3c3c3e] hover:text-white'
-            }`}
-            data-testid={`grid-option-${questionId}-${opt.replace(/\s/g, '-')}`}
+      {/* Dropdown trigger */}
+      <Popover open={isOpen} onOpenChange={setIsOpen}>
+        <PopoverTrigger asChild>
+          <Button 
+            variant="outline" 
+            className="h-8 text-xs px-3 min-w-[120px] justify-between font-normal bg-[#2c2c2e] border-[#3c3c3e] text-[#8e8e93] hover:bg-[#3c3c3e] hover:text-white"
+            data-testid={`grid-trigger-${questionId}`}
           >
-            <Checkbox
-              checked={selectedValues.includes(opt)}
-              onCheckedChange={() => toggleOption(opt)}
-              className="h-4 w-4"
-            />
-            <span className="text-xs font-medium">{opt}</span>
-          </label>
-        ))}
-      </div>
-      {allowFreeform && (
-        <div className="flex gap-2">
-          <Input
-            placeholder="Other..."
-            value={freeformInput}
-            onChange={e => setFreeformInput(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addFreeformValue(); } }}
-            onBlur={addFreeformValue}
-            className="flex-1 h-8 text-xs bg-[#1c1c1e] border-[#3c3c3e]"
-            data-testid={`grid-freeform-${questionId}`}
-          />
-        </div>
-      )}
-      {/* Show selected freeform values as badges */}
-      {selectedValues.filter(v => !options.includes(v)).length > 0 && (
-        <div className="flex flex-wrap gap-1">
-          {selectedValues.filter(v => !options.includes(v)).map(v => (
-            <Badge key={v} variant="secondary" className="gap-1 pr-1 text-[10px] h-5 bg-[#3c3c3e]">
-              {v}
-              <button onClick={() => onChange(selectedValues.filter(sv => sv !== v).join(', '))} className="ml-1 rounded-full hover:bg-[#4c4c4e] p-0.5">
-                <X className="h-2 w-2" />
+            <span>{selectedValues.length === 0 ? 'Select...' : `${selectedValues.length} selected`}</span>
+            <ChevronDown className="h-3 w-3 opacity-50 ml-1" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[320px] p-3 bg-[#2c2c2e] border-[#3c3c3e]" align="start">
+          <div className={`grid gap-2 mb-3`} style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
+            {options.map(opt => (
+              <label
+                key={opt}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors border ${
+                  selectedValues.includes(opt)
+                    ? 'bg-[#0a84ff]/20 border-[#0a84ff] text-white'
+                    : 'bg-[#1c1c1e] border-[#3c3c3e] text-[#8e8e93] hover:bg-[#3c3c3e] hover:text-white'
+                }`}
+                data-testid={`grid-option-${questionId}-${opt.replace(/\s/g, '-')}`}
+              >
+                <Checkbox
+                  checked={selectedValues.includes(opt)}
+                  onCheckedChange={() => toggleOption(opt)}
+                  className="h-4 w-4"
+                />
+                <span className="text-xs font-medium">{opt}</span>
+              </label>
+            ))}
+          </div>
+          {allowFreeform && (
+            <div className="flex gap-2 pt-2 border-t border-[#3c3c3e]">
+              <Input
+                placeholder="Other..."
+                value={freeformInput}
+                onChange={e => setFreeformInput(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addFreeformValue(); } }}
+                className="flex-1 h-7 text-xs bg-[#1c1c1e] border-[#3c3c3e] text-white"
+                data-testid={`grid-freeform-${questionId}`}
+              />
+              <Button size="icon" variant="outline" className="h-7 w-7 bg-[#1c1c1e] border-[#3c3c3e]" onClick={addFreeformValue} disabled={!freeformInput.trim()}>
+                <Plus className="h-3 w-3" />
+              </Button>
+            </div>
+          )}
+        </PopoverContent>
+      </Popover>
+
+      {/* Selected items as bubbles below */}
+      {selectedValues.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {selectedValues.map(val => (
+            <span 
+              key={val} 
+              className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] text-white bg-[#0a84ff]/20 border border-[#0a84ff]/50 rounded-full"
+            >
+              {val}
+              <button onClick={() => removeValue(val)} className="ml-0.5 text-[#8e8e93] hover:text-white">
+                <X className="h-2.5 w-2.5" />
               </button>
-            </Badge>
+            </span>
           ))}
         </div>
       )}
