@@ -247,11 +247,15 @@ function QuickCaptureBarInline() {
             <Server className="h-3.5 w-3.5 text-muted-foreground" />
             <span className="font-medium">{formatKW(sizingSummary.totalIPs)} IPs</span>
           </div>
-          <div className="flex items-center gap-1">
-            <Cpu className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="font-medium">{formatKW(sizingSummary.totalTokens)} Tokens</span>
-          </div>
-          <Badge variant="outline" className="text-xs py-0 px-2">{sizingSummary.tokenPack}</Badge>
+          {sizingSummary.platformMode !== 'NIOS' && (
+            <>
+              <div className="flex items-center gap-1">
+                <Cpu className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="font-medium">{formatKW(sizingSummary.totalTokens)} Tokens</span>
+              </div>
+              <Badge variant="outline" className="text-xs py-0 px-2">{sizingSummary.tokenPack} packs</Badge>
+            </>
+          )}
         </div>
       )}
     </div>
