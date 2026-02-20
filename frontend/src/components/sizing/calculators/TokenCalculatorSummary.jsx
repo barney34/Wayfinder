@@ -449,7 +449,10 @@ export function TokenCalculatorSummary() {
                 ))}
                 {/* Total Row */}
                 <TableRow className="bg-muted/30 font-medium">
-                  <TableCell className="p-2 lg:p-4" colSpan={2}>Total</TableCell>
+                  <TableCell className="p-2 lg:p-4 text-sm">
+                    <span className="font-semibold">Total</span>
+                    <span className="text-xs text-muted-foreground ml-2">({sites.length} sites)</span>
+                  </TableCell>
                   <TableCell className="p-2 lg:p-4 tabular-nums text-sm lg:text-base">{formatNumber(totals.totalIPs)}</TableCell>
                   {showKW && (
                     <TableCell className="p-2 lg:p-4 tabular-nums text-sm lg:text-base">{formatNumber(totals.totalKW)}</TableCell>
@@ -457,10 +460,22 @@ export function TokenCalculatorSummary() {
                   <TableCell className="p-2 lg:p-4" colSpan={showHardware ? 6 : 5}></TableCell>
                   {platformMode !== 'NIOS' && (
                     <TableCell className="p-2 lg:p-4 text-right tabular-nums text-sm lg:text-base">
-                      <div className="flex flex-col items-end">
-                        <span className="font-bold">{Math.ceil(totals.infraTokens / 500000)}</span>
-                        <span className="text-xs text-muted-foreground">{formatNumber(totals.infraTokens)} tkns</span>
-                      </div>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger className="cursor-help">
+                            <div className="flex items-center justify-end gap-1">
+                              <span className="font-bold">{Math.ceil(totals.infraTokens / 500000)}</span>
+                              <Info className="h-3 w-3 text-muted-foreground" />
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <div className="text-xs">
+                              <div><strong>Total tokens:</strong> {formatNumber(totals.infraTokens)}</div>
+                              <div><strong>Token packs:</strong> {Math.ceil(totals.infraTokens / 500000)} (500K per pack)</div>
+                            </div>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </TableCell>
                   )}
                   <TableCell className="p-2 lg:p-4" colSpan={2}></TableCell>
@@ -469,11 +484,16 @@ export function TokenCalculatorSummary() {
             </Table>
           </div>
 
-          {/* Add Site Button */}
+          {/* Add Site / Add Data Center Buttons */}
           <div className="flex items-center justify-between mt-4 lg:mt-6">
-            <Button variant="outline" size="sm" className="text-xs lg:text-sm" onClick={addManualSite} data-testid="add-site-button">
-              <Plus className="h-4 w-4 mr-1" /> Add Site
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" className="text-xs lg:text-sm" onClick={addManualSite} data-testid="add-site-button">
+                <Plus className="h-4 w-4 mr-1" /> Add Site
+              </Button>
+              <Button variant="outline" size="sm" className="text-xs lg:text-sm" onClick={addManualDataCenter} data-testid="add-dc-button">
+                <Plus className="h-4 w-4 mr-1" /> Add Data Center
+              </Button>
+            </div>
             <p className="text-xs lg:text-sm text-muted-foreground">
               <Info className="h-3 w-3 lg:h-4 lg:w-4 inline mr-1" />
               Sites auto-sync from Quick Capture. All fields are editable.
