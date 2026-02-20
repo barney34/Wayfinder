@@ -203,8 +203,7 @@ export function exportDrawing(sites, drawingNum) {
   });
 
   sortedSites.forEach((site) => {
-    if (!site.addToReport) return;
-
+    // Include all sites by default (removed addToReport check)
     const unitGroup = getUnitGroup(site.role, site.sourceType);
     unitCounter[unitGroup] = (unitCounter[unitGroup] || 0) + 1;
 
@@ -239,10 +238,15 @@ export function exportDrawing(sites, drawingNum) {
       'HW License SKU': hwInfo.hwSku,
       'HW Add-ons': '',
       'HW Count': hwInfo.hwSku === 'VM' || hwInfo.hwSku === 'Cloud' ? 0 : site.serverCount || 1,
-      'Add to Report': site.addToReport ? 'Yes' : 'No',
-      'Add to BOM': site.addToBom ? 'Yes' : 'No',
+      'Add to Report': 'Yes',
+      'Add to BOM': 'Yes',
     });
   });
+
+  if (rows.length === 0) {
+    alert('No sites to export. Please add sites to the sizing table first.');
+    return;
+  }
 
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.json_to_sheet(rows);
@@ -252,5 +256,5 @@ export function exportDrawing(sites, drawingNum) {
     { wch: 18 }, { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 12 },
   ];
   XLSX.utils.book_append_sheet(wb, ws, 'Drawing');
-  XLSX.writeFile(wb, `${drawingNum || 'sizing'}-drawing-export.xlsx`);
+  XLSX.writeFile(wb, `${drawingNum || 'sizing'}-lucid-export.xlsx`);
 }
