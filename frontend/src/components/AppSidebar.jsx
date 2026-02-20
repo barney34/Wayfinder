@@ -153,10 +153,12 @@ export function AppSidebar({
       <div className="flex items-center justify-between p-3 border-b">
         {!collapsed && (
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-md">
-              <span className="text-white font-bold text-sm">IB</span>
-            </div>
-            <span className="font-semibold text-sm">Sizing Planner</span>
+            <img 
+              src="https://customer-assets.emergentagent.com/job_dca12792-ec8f-4624-9d37-b020080620e2/artifacts/hvzy2pw5_image.png" 
+              alt="Wayfinder Logo" 
+              className="h-8 w-8 object-contain"
+            />
+            <span className="font-semibold text-sm text-[#22c55e]">WAYFINDER</span>
           </div>
         )}
         <Button
