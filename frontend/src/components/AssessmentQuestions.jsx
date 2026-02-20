@@ -62,12 +62,12 @@ function GridMultiSelect({ questionId, options, value, onChange, allowFreeform, 
             <ChevronDown className="h-3 w-3 opacity-50 ml-1" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[320px] p-3 bg-[#2c2c2e] border-[#3c3c3e]" align="start">
-          <div className={`grid gap-2 mb-3`} style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
+        <PopoverContent className="w-auto min-w-[320px] p-3 bg-[#2c2c2e] border-[#3c3c3e]" align="start">
+          <div className={`grid gap-2 mb-3`} style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, auto))` }}>
             {options.map(opt => (
               <label
                 key={opt}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors border ${
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors border whitespace-nowrap ${
                   selectedValues.includes(opt)
                     ? 'bg-[#0a84ff]/20 border-[#0a84ff] text-white'
                     : 'bg-[#1c1c1e] border-[#3c3c3e] text-[#8e8e93] hover:bg-[#3c3c3e] hover:text-white'
@@ -77,7 +77,7 @@ function GridMultiSelect({ questionId, options, value, onChange, allowFreeform, 
                 <Checkbox
                   checked={selectedValues.includes(opt)}
                   onCheckedChange={() => toggleOption(opt)}
-                  className="h-4 w-4"
+                  className="h-4 w-4 shrink-0"
                 />
                 <span className="text-xs font-medium">{opt}</span>
               </label>
@@ -107,7 +107,7 @@ function GridMultiSelect({ questionId, options, value, onChange, allowFreeform, 
           {selectedValues.map(val => (
             <span 
               key={val} 
-              className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] text-white bg-[#0a84ff]/20 border border-[#0a84ff]/50 rounded-full"
+              className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] text-white bg-[#0a84ff]/20 border border-[#0a84ff]/50 rounded-full whitespace-nowrap"
             >
               {val}
               <button onClick={() => removeValue(val)} className="ml-0.5 text-[#8e8e93] hover:text-white">
