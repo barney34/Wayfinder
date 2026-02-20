@@ -879,24 +879,24 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                 </div>
               </div>
 
-              {/* 3-Column Grid for ALL Questions - with collapse animation */}
+              {/* 3-Column Grid for ALL Questions - REFACTORED: softer dividers, better spacing */}
               <div className={`transition-all duration-300 overflow-hidden ${!isCollapsed && isSectionEnabled ? 'max-h-[5000px] opacity-100' : 'max-h-0 opacity-0'}`}>
                 {/* Value Framework seed questions injected at top of section */}
-                <div className="px-4 pt-3">
+                <div className="px-5 pt-4 pb-2">
                   <ValueFrameworkInjection section={section} />
                 </div>
                 {gridQuestions.length > 0 && (
-                  <div className="grid grid-cols-1 lg:grid-cols-3 border-t">
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-px bg-border/20">
                     {/* Column 1 */}
-                    <div className="lg:border-r border-border/40">
+                    <div className="bg-background">
                       {col1.map((q, i) => renderQuestionCell(q, 0, i))}
                     </div>
-                    {/* Column 2 (shaded) */}
-                    <div className="lg:border-r border-border/40">
+                    {/* Column 2 */}
+                    <div className="bg-background">
                       {col2.map((q, i) => renderQuestionCell(q, 1, i))}
                     </div>
                     {/* Column 3 */}
-                    <div>
+                    <div className="bg-background">
                       {col3.map((q, i) => renderQuestionCell(q, 2, i))}
                     </div>
                   </div>
