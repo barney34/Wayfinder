@@ -217,6 +217,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
   const [expandedSubsections, setExpandedSubsections] = useState({});
   const [collapsedSections, setCollapsedSections] = useState({});
   const [activeSection, setActiveSection] = useState(null);
+  const [compactMode, setCompactMode] = useState(false); // Compact mode toggle
   const { toast } = useToast();
   const navRef = useRef(null);
   const isScrolling = useRef(false);
