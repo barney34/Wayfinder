@@ -57,6 +57,28 @@ Infrastructure sizing calculator for planning network deployments. Full migratio
     └── lib/ (questions.js, tokenData.js, revisionHelpers.js)
 ```
 
+## Visual Improvements (Completed Dec 2025)
+
+**1. Nav Pills - Outline Style**
+- Inactive pills: Transparent background with colored borders (blue, green, teal, orange, etc.)
+- Active pill: Filled with solid color + shadow
+- Progress bars: Subtle bar at bottom showing completion percentage
+
+**2. Multiselect Badge Display**
+- Selected items shown as horizontal row of badges above dropdown
+- Each badge has X button for removal
+- Dropdown text changes to "+ Add more" when items selected
+
+**3. QPS Auto-Calculation**
+- External DNS QPS fields now use auto-calculation from Active IPs
+- Shows formula tooltip explaining the calculation
+
+**4. Density Controls**
+- Compact mode toggle button in nav bar
+- Reduces padding, font sizes when enabled
+- Zebra striping on alternating rows
+- Subtle hover states on question cells
+
 ## UI/UX Refactor (Completed Dec 2025)
 Major overhaul of the Discovery section layout:
 
