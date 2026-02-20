@@ -395,7 +395,7 @@ export function TokenCalculatorSummary() {
 
           <div className="border rounded-lg overflow-hidden">
             <Table className="table-auto w-full">
-              <SizingTableHeader showHardware={showHardware} />
+              <SizingTableHeader showHardware={showHardware} platformMode={platformMode} />
               <TableBody>
                 {sites.map(site => (
                   <SiteTableRow
@@ -419,8 +419,15 @@ export function TokenCalculatorSummary() {
                   <TableCell className="p-2 lg:p-4 tabular-nums text-sm lg:text-base">{formatNumber(totals.totalIPs)}</TableCell>
                   <TableCell className="p-2 lg:p-4 tabular-nums text-sm lg:text-base">{formatNumber(totals.totalKW)}</TableCell>
                   <TableCell className="p-2 lg:p-4" colSpan={showHardware ? 6 : 5}></TableCell>
-                  <TableCell className="p-2 lg:p-4 text-right tabular-nums text-sm lg:text-base">{formatNumber(totals.infraTokens)}</TableCell>
-                  <TableCell className="p-2 lg:p-4"></TableCell>
+                  {platformMode !== 'NIOS' && (
+                    <TableCell className="p-2 lg:p-4 text-right tabular-nums text-sm lg:text-base">
+                      <div className="flex flex-col items-end">
+                        <span className="font-bold">{Math.ceil(totals.infraTokens / 500000)}</span>
+                        <span className="text-xs text-muted-foreground">{formatNumber(totals.infraTokens)} tkns</span>
+                      </div>
+                    </TableCell>
+                  )}
+                  <TableCell className="p-2 lg:p-4" colSpan={2}></TableCell>
                 </TableRow>
               </TableBody>
             </Table>
