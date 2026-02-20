@@ -37,7 +37,8 @@ export { getServiceImpact, getTokensForModel, getPartnerSkuFromTokens, getSkuDes
  */
 export function TokenCalculatorSummary() {
   const {
-    dataCenters = [], sites: contextSites = [], answers = {}, setAnswer, platformMode, setPlatformMode, setSizingSummary
+    dataCenters = [], sites: contextSites = [], answers = {}, setAnswer, platformMode, setPlatformMode, setSizingSummary,
+    updateSite: contextUpdateSite
   } = useDiscovery();
 
   // Site overrides and manual sites state
