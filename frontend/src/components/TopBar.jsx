@@ -131,48 +131,48 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
           </div>
         </div>
 
-        {/* Summary — same grid as input row, centered over each section */}
+        {/* Summary — aligned over sections */}
         <div className="flex-1 min-w-0 grid gap-3 items-center" style={{ gridTemplateColumns: '5fr 5fr 3fr 3fr' }}>
-          {/* DC summary — centered over Data Centers */}
-          <div className="flex items-center justify-center gap-1.5">
-            <Building2 className="h-3 w-3 text-[#30d158]" />
-            <span className="text-[10px] font-medium text-[#30d158]">DC</span>
-            <span className="text-[11px] font-semibold text-white">{dataCenters.length}</span>
+          {/* DC + Sites together — centered over the gap between DC and Sites columns */}
+          <div className="col-span-2 flex items-center justify-center gap-4">
+            <div className="flex items-center gap-1.5">
+              <Building2 className="h-3 w-3 text-[#30d158]" />
+              <span className="text-[10px] font-medium text-[#30d158]">DC</span>
+              <span className="text-[11px] font-semibold text-white">{dataCenters.length}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <MapPin className="h-3 w-3 text-[#5e5ce6]" />
+              <span className="text-[10px] font-medium text-[#5e5ce6]">Sites</span>
+              <span className="text-[11px] font-semibold text-white">{sites.length}</span>
+            </div>
           </div>
 
-          {/* Sites summary — centered over Sites */}
-          <div className="flex items-center justify-center gap-1.5">
-            <MapPin className="h-3 w-3 text-[#5e5ce6]" />
-            <span className="text-[10px] font-medium text-[#5e5ce6]">Sites</span>
-            <span className="text-[11px] font-semibold text-white">{sites.length}</span>
-          </div>
-
-          {/* TS summary — stacked like the toggle grid, centered over Target Solutions */}
+          {/* TS — stacked 2x2 like Target Solutions toggles, centered */}
           <div className="flex flex-col items-center gap-0.5">
             <div className="flex items-center gap-1">
               <Target className="h-3 w-3 text-[#ff9f0a]" />
               <span className="text-[10px] font-medium text-[#ff9f0a]">TS</span>
             </div>
             {activeSolutions.length > 0 ? (
-              <div className="flex flex-wrap items-center justify-center gap-0.5">
+              <div className="grid grid-cols-2 gap-x-1 gap-y-0.5">
                 {activeSolutions.map(s => (
-                  <span key={s.key} className="px-1 rounded text-[8px] font-semibold leading-tight" style={{ backgroundColor: s.color + '25', color: s.color }}>
+                  <span key={s.key} className="px-1 rounded text-[8px] font-semibold leading-tight text-center" style={{ backgroundColor: s.color + '25', color: s.color }}>
                     {s.label}
                   </span>
                 ))}
-                {isHybrid && (
-                  <span className="px-1 rounded text-[8px] font-bold leading-tight bg-gradient-to-r from-[#30d158]/25 to-[#0a84ff]/25 text-[#64d2ff]">
-                    Hybrid
-                  </span>
-                )}
               </div>
             ) : (
               <span className="text-[9px] text-[#6e6e73]">--</span>
             )}
+            {isHybrid && (
+              <span className="px-1.5 rounded text-[8px] font-bold leading-tight bg-gradient-to-r from-[#30d158]/25 to-[#0a84ff]/25 text-[#64d2ff]">
+                Hybrid
+              </span>
+            )}
           </div>
 
-          {/* KW + IP summary — centered over Active IPs */}
-          <div className="flex flex-col items-center gap-0.5">
+          {/* KW + IP — side by side, centered */}
+          <div className="flex items-center justify-center gap-2">
             <div className="flex items-center gap-1">
               <Calculator className="h-3 w-3 text-[#32d74b]" />
               <span className="text-[10px] text-[#8e8e93]">KW</span>
