@@ -55,22 +55,22 @@ function GridMultiSelect({ questionId, options, value, onChange, allowFreeform, 
         <PopoverTrigger asChild>
           <Button 
             variant="outline" 
-            className="h-8 text-xs px-3 min-w-[120px] justify-between font-normal bg-[#2c2c2e] border-[#3c3c3e] text-[#8e8e93] hover:bg-[#3c3c3e] hover:text-white"
+            className="h-8 text-xs px-3 min-w-[120px] justify-between font-normal bg-muted border-border text-muted-foreground hover:bg-secondary hover:text-foreground"
             data-testid={`grid-trigger-${questionId}`}
           >
             <span>{selectedValues.length === 0 ? 'Select...' : `${selectedValues.length} selected`}</span>
             <ChevronDown className="h-3 w-3 opacity-50 ml-1" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto min-w-[320px] p-3 bg-[#2c2c2e] border-[#3c3c3e]" align="start">
+        <PopoverContent className="w-auto min-w-[320px] p-3 bg-card border-border" align="start">
           <div className={`grid gap-2 mb-3`} style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, auto))` }}>
             {options.map(opt => (
               <label
                 key={opt}
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors border whitespace-nowrap ${
                   selectedValues.includes(opt)
-                    ? 'bg-[#0a84ff]/20 border-[#0a84ff] text-white'
-                    : 'bg-[#1c1c1e] border-[#3c3c3e] text-[#8e8e93] hover:bg-[#3c3c3e] hover:text-white'
+                    ? 'bg-[#0a84ff]/20 border-[#0a84ff] text-foreground'
+                    : 'bg-background border-border text-muted-foreground hover:bg-muted hover:text-foreground'
                 }`}
                 data-testid={`grid-option-${questionId}-${opt.replace(/\s/g, '-')}`}
               >
@@ -84,16 +84,16 @@ function GridMultiSelect({ questionId, options, value, onChange, allowFreeform, 
             ))}
           </div>
           {allowFreeform && (
-            <div className="flex gap-2 pt-2 border-t border-[#3c3c3e]">
+            <div className="flex gap-2 pt-2 border-t border-border">
               <Input
                 placeholder="Other..."
                 value={freeformInput}
                 onChange={e => setFreeformInput(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addFreeformValue(); } }}
-                className="flex-1 h-7 text-xs bg-[#1c1c1e] border-[#3c3c3e] text-white"
+                className="flex-1 h-7 text-xs bg-background border-border text-foreground"
                 data-testid={`grid-freeform-${questionId}`}
               />
-              <Button size="icon" variant="outline" className="h-7 w-7 bg-[#1c1c1e] border-[#3c3c3e]" onClick={addFreeformValue} disabled={!freeformInput.trim()}>
+              <Button size="icon" variant="outline" className="h-7 w-7 bg-background border-border" onClick={addFreeformValue} disabled={!freeformInput.trim()}>
                 <Plus className="h-3 w-3" />
               </Button>
             </div>
@@ -107,10 +107,10 @@ function GridMultiSelect({ questionId, options, value, onChange, allowFreeform, 
           {selectedValues.map(val => (
             <span 
               key={val} 
-              className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] text-white bg-[#0a84ff]/20 border border-[#0a84ff]/50 rounded-full whitespace-nowrap"
+              className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] text-foreground bg-[#0a84ff]/20 border border-[#0a84ff]/50 rounded-full whitespace-nowrap"
             >
               {val}
-              <button onClick={() => removeValue(val)} className="ml-0.5 text-[#8e8e93] hover:text-white">
+              <button onClick={() => removeValue(val)} className="ml-0.5 text-muted-foreground hover:text-foreground">
                 <X className="h-2.5 w-2.5" />
               </button>
             </span>
