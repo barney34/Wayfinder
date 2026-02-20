@@ -82,9 +82,18 @@ export function SiteTableRow({
         </div>
       </TableCell>
 
-      {/* KW */}
-      <TableCell className="p-2 lg:p-4 text-sm lg:text-base text-muted-foreground tabular-nums">
-        {formatNumber(site.knowledgeWorkers || 0)}
+      {/* KW - Editable and synced with TopBar */}
+      <TableCell className="p-2 lg:p-4">
+        <Input
+          type="number"
+          min="0"
+          value={site.knowledgeWorkers || ''}
+          onChange={e => onUpdateSite(site.id, 'knowledgeWorkers', parseInt(e.target.value) || 0)}
+          className="h-8 lg:h-10 text-sm w-16 lg:w-20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          disabled={site.isDisabledInUddi}
+          data-testid={`site-kw-${site.id}`}
+          placeholder="0"
+        />
       </TableCell>
 
       {/* Role */}
