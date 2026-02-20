@@ -79,7 +79,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
         onClick={() => setCollapsed(!collapsed)}
       >
         {/* Customer Pill - Fixed width, not part of the grid alignment */}
-        <div onClick={e => e.stopPropagation()} className="shrink-0 mr-4">
+        <div ref={pillRef} onClick={e => e.stopPropagation()} className="shrink-0 mr-4">
           <div className="flex flex-col gap-0 px-2.5 py-1 rounded-lg bg-[#2c2c2e] border border-[#3c3c3e]">
             <div className="flex items-center gap-1.5">
               <span className="text-[8px] text-[#8e8e93] uppercase tracking-wide shrink-0">Customer:</span>
