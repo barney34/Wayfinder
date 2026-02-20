@@ -78,6 +78,7 @@ class ChatMessage(BaseModel):
     role: str  # 'system' or 'user'
     content: str
     timestamp: Optional[int] = None
+    topic: Optional[str] = None
 
 
 class TopicConfig(BaseModel):
@@ -89,14 +90,18 @@ class TopicConfig(BaseModel):
 class ValueDiscoveryChatRequest(BaseModel):
     section: str
     conversation: List[ChatMessage]
-    coveredTopics: List[str] = []
+    currentTopic: str = 'current-state'
+    topicQuestionCounts: Dict[str, int] = {}
+    maxQuestionsPerTopic: int = 3
     requiredTopics: List[TopicConfig] = []
     contextHints: List[str] = []
+    mode: str = 'guided'  # 'guided' or 'free'
 
 
 class ValueDiscoveryChatResponse(BaseModel):
     response: str
-    newTopicsCovered: List[str] = []
+    topic: str = ''
+    suggestedNextTopic: Optional[str] = None
 
 
 # ========== Discovery Data Models ==========
