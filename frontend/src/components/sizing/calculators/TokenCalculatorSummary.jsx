@@ -286,12 +286,17 @@ export function TokenCalculatorSummary() {
     let updates = { [field]: value };
     if (field === 'role' && value !== 'DHCP' && value !== 'DNS/DHCP') updates.dhcpPartner = null;
 
+    // If updating KW, also sync to context (which updates TopBar)
+    if (field === 'knowledgeWorkers' && site.sourceType === 'site' && contextUpdateSite) {
+      contextUpdateSite(siteId, { knowledgeWorkers: value });
+    }
+
     if (site.sourceType) {
       setSiteOverrides(prev => ({ ...prev, [siteId]: { ...prev[siteId], ...updates } }));
     } else {
       setManualSites(prev => prev.map(s => s.id === siteId ? { ...s, ...updates } : s));
     }
-  }, [sites]);
+  }, [sites, contextUpdateSite]);
 
   // Add manual site
   const addManualSite = useCallback(() => {
