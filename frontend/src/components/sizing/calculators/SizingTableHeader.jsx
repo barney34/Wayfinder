@@ -20,14 +20,16 @@ function HeaderWithTooltip({ children, tooltip, className = "" }) {
   );
 }
 
-export function SizingTableHeader({ showHardware }) {
+export function SizingTableHeader({ showHardware, platformMode }) {
+  const showTokens = platformMode !== 'NIOS'; // Hide tokens for NIOS-only mode
+  
   return (
     <TableHeader>
       <TableRow className="bg-muted/50">
-        <TableHead className="w-20 lg:w-24 text-xs lg:text-sm">Location</TableHead>
+        <TableHead className="w-32 lg:w-40 text-xs lg:text-sm">Location</TableHead>
         <TableHead className="w-20 lg:w-24 text-xs lg:text-sm"># IPs</TableHead>
         <TableHead className="w-16 lg:w-20 text-xs lg:text-sm">KW</TableHead>
-        <TableHead className="w-24 lg:w-28 text-xs lg:text-sm">Role</TableHead>
+        <TableHead className="w-28 lg:w-32 text-xs lg:text-sm">Role</TableHead>
         <HeaderWithTooltip className="w-20 lg:w-24" tooltip="Co-located services that can run on the same host. Each service adds performance overhead.">
           Services
         </HeaderWithTooltip>
@@ -42,7 +44,11 @@ export function SizingTableHeader({ showHardware }) {
           Model
         </HeaderWithTooltip>
         {showHardware && <TableHead className="text-xs lg:text-sm">Hardware SKU</TableHead>}
-        <TableHead className="w-16 lg:w-20 text-right text-xs lg:text-sm">Tokens</TableHead>
+        {showTokens && (
+          <HeaderWithTooltip className="w-20 lg:w-24 text-right" tooltip="Token packs required. Each pack = 500K tokens.">
+            Token Packs
+          </HeaderWithTooltip>
+        )}
         <HeaderWithTooltip className="w-12 text-center" tooltip="Include in exported report/drawing">
           Rpt
         </HeaderWithTooltip>
