@@ -847,11 +847,6 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                     ))}
                   </div>
                 )}
-                        <div>{renderField(cq)}</div>
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
             );
           };
