@@ -57,6 +57,29 @@ Infrastructure sizing calculator for planning network deployments. Full migratio
     └── lib/ (questions.js, tokenData.js, revisionHelpers.js)
 ```
 
+## UI/UX Refactor (Completed Dec 2025)
+Major overhaul of the Discovery section layout:
+
+**1. Vertical Label-Above-Input Layout**
+- Questions now display labels above input controls (not side-by-side)
+- Creates consistent alignment across all 3 columns
+- Better visual hierarchy with font-weight differentiation
+
+**2. Dynamic Element Expansion**
+- Sub-questions expand smoothly below parent with blockquote-style left border
+- Notes textarea expands below input field (not above)
+- Smooth CSS transitions for all expansions
+
+**3. Value Framework Blockquote Style**
+- Removed heavy borders from nested follow-ups
+- Uses thick colored left-border + subtle gradient background
+- Framing messages display with lightbulb icon in amber/gold
+
+**4. Visual Polish**
+- Increased padding (16px internal padding)
+- Softer grid dividers (gap-px with bg-border/20)
+- Muted text colors for helper text and hints
+
 ## Backlog
 - P2: AI Discovery Assistant enhancements
 - P3: AssessmentQuestions.jsx refactoring (extract scroll-spy logic to custom hook)
