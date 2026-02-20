@@ -1033,8 +1033,11 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                     </div>
                   ) : (
                     <button 
-                      className="text-sm text-[#0a84ff] hover:text-[#0a84ff]/80"
-                      onClick={() => setExpandedNotes(p => ({ ...p, [q.id]: !p[q.id] }))}
+                      className="text-sm text-[#2563eb] hover:text-[#2563eb]/80 font-medium"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setExpandedNotes(p => ({ ...p, [q.id]: !p[q.id] }));
+                      }}
                     >
                       {hasNote ? 'Edit response →' : 'Add response →'}
                     </button>
