@@ -50,12 +50,13 @@ Migration and enhancement of a "Sizing" calculator application for infrastructur
 ## What's Been Implemented
 
 ### December 2025
-- **Conversational Value Discovery** (ChatValueDiscovery.jsx)
-  - Chat-style interface for discovery questions
+- **Conversational Value Discovery v2** (ChatValueDiscovery.jsx)
+  - Mode toggle: Guided (3Q per topic) vs Free Ask
+  - Clickable topic pills to pivot conversation
+  - Question counters showing X/3 progress per topic
+  - Visual indicators: orange (incomplete), purple ring (active), green ✓ (complete)
   - AI-powered follow-ups using Gemini 3 Flash
-  - Topic tracking with visual progress bar
   - Conversation persistence across sessions
-  - Section-specific openers and context hints
 
 - **3rd Party Integrations Dropdown** - Fixed to 2-column layout
 
