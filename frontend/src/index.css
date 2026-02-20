@@ -46,29 +46,29 @@ code {
         --sidebar-width: 16rem;
     }
     html.dark, .dark {
-        --background: 220 15% 8%;
-        --foreground: 0 0% 100%;
-        --card: 220 15% 10%;
-        --card-foreground: 0 0% 100%;
-        --popover: 220 15% 10%;
-        --popover-foreground: 0 0% 100%;
-        --primary: 210 100% 50%;
-        --primary-foreground: 0 0% 100%;
-        --secondary: 220 15% 16%;
-        --secondary-foreground: 0 0% 100%;
-        --muted: 220 15% 16%;
-        --muted-foreground: 0 0% 70%;
-        --accent: 210 100% 50%;
-        --accent-foreground: 0 0% 100%;
-        --destructive: 0 62.8% 30.6%;
-        --destructive-foreground: 0 0% 100%;
-        --border: 220 15% 20%;
-        --input: 220 15% 16%;
-        --ring: 210 100% 50%;
-        --chart-1: 220 70% 50%;
-        --chart-2: 160 60% 45%;
-        --chart-3: 30 80% 55%;
-        --chart-4: 280 65% 60%;
+        --background: 220 20% 10%;
+        --foreground: 220 10% 90%;
+        --card: 220 20% 14%;
+        --card-foreground: 220 10% 90%;
+        --popover: 220 20% 14%;
+        --popover-foreground: 220 10% 90%;
+        --primary: 187 75% 45%;
+        --primary-foreground: 220 20% 10%;
+        --secondary: 220 20% 18%;
+        --secondary-foreground: 220 10% 90%;
+        --muted: 220 20% 18%;
+        --muted-foreground: 220 10% 55%;
+        --accent: 40 90% 55%;
+        --accent-foreground: 220 20% 10%;
+        --destructive: 0 62.8% 45%;
+        --destructive-foreground: 220 10% 90%;
+        --border: 220 20% 20%;
+        --input: 220 20% 18%;
+        --ring: 187 75% 45%;
+        --chart-1: 187 75% 45%;
+        --chart-2: 40 90% 55%;
+        --chart-3: 280 65% 60%;
+        --chart-4: 160 60% 45%;
         --chart-5: 340 75% 55%;
     }
 }
