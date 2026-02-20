@@ -7,7 +7,7 @@ import json
 import uuid
 from fastapi import APIRouter, HTTPException
 
-from models.schemas import AnalyzeNotesRequest, GenerateContextRequest
+from models.schemas import AnalyzeNotesRequest, GenerateContextRequest, ValueDiscoveryChatRequest
 from data.questions import DISCOVERY_QUESTIONS
 from data.valueFramework import VALUE_FRAMEWORK
 from emergentintegrations.llm.chat import LlmChat, UserMessage
