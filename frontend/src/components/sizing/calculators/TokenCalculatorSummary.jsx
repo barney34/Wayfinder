@@ -54,6 +54,8 @@ export function TokenCalculatorSummary() {
 
   // UI toggle for Hardware SKU column
   const [showHardware, setShowHardware] = useState(false);
+  // UI toggle for KW column (hidden by default like Hardware SKU)
+  const [showKW, setShowKW] = useState(false);
 
   // "Why this model?" dialog state
   const [showModelDialog, setShowModelDialog] = useState(false);
