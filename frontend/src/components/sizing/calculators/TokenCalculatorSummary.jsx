@@ -119,7 +119,8 @@ export function TokenCalculatorSummary() {
     const buildBasicSite = (source, index, type) => {
       const key = type === 'dataCenter' ? `dc-${source.id}` : `site-${source.id}`;
       const override = siteOverrides[key] || {};
-      const kw = override.knowledgeWorkers !== undefined ? override.knowledgeWorkers : (source.knowledgeWorkers || 0);
+      // KW comes directly from source (context) - not from override
+      const kw = source.knowledgeWorkers || 0;
 
       let defaultRole = 'DNS/DHCP';
       if (type === 'dataCenter' && platformMode !== 'UDDI') {
