@@ -1129,6 +1129,21 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                     </div>
                   </div>
                 )}
+                
+                {/* Section-level Add Response for SmartFill */}
+                <div className="px-5 py-4 border-t border-[#2c2c2e]">
+                  <AddResponseField
+                    questionId={`section-response-${section.replace(/\s/g, '-')}`}
+                    value={sectionResponses[section] || ''}
+                    onChange={v => setSectionResponses(p => ({ ...p, [section]: v }))}
+                    onExamine={async (text, ctx) => {
+                      // SmartFill: examine text and fill answers
+                      toast({ title: "Examining content...", description: `Analyzing response for ${section}` });
+                      // This would integrate with the AI SmartFill feature
+                    }}
+                    sectionContext={section}
+                  />
+                </div>
               </div>
             </div>
           );
