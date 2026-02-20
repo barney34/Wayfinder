@@ -28,9 +28,9 @@ function AppContent() {
           className="flex items-center gap-2 hover:opacity-80 transition-opacity"
         >
           <img 
-            src="https://customer-assets.emergentagent.com/job_dca12792-ec8f-4624-9d37-b020080620e2/artifacts/pcj1uvm7_image.png" 
+            src="https://customer-assets.emergentagent.com/job_dca12792-ec8f-4624-9d37-b020080620e2/artifacts/n7195zuv_Gemini_Generated_Image_lts0yllts0yllts0.png" 
             alt="Wayfinder Logo" 
-            className="h-8 object-contain"
+            className="h-10 object-contain"
           />
         </button>
         <ThemeToggle />
