@@ -317,7 +317,8 @@ export function TokenCalculatorSummary() {
   }, [sites.length, dataCenters, contextAddSite]);
 
   // Add manual data center - syncs to TopBar and updates Discovery # of Data Centers
-  const addManualDataCenter = useCallback(() => {
+  // Uses async/await to ensure state is persisted before any navigation
+  const addManualDataCenter = useCallback(async () => {
     const currentDCCount = dataCenters.length;
     const newDCName = `Data Center ${currentDCCount + 1}`;
     
@@ -327,16 +328,25 @@ export function TokenCalculatorSummary() {
     }
     
     // Update "# of Data Centers" answer (ud-5) to match the new count
-    // Use currentDCCount + 1 since we just added a DC
     const newCount = String(currentDCCount + 1);
     console.log(`[addManualDataCenter] Setting ud-5 to ${newCount}`);
     setAnswer('ud-5', newCount);
     
-  }, [dataCenters.length, contextAddDC, setAnswer]);
+    // Force immediate save to server to persist changes before any navigation
+    // This prevents the race condition where debounced auto-save loses the change
+    if (saveToServer) {
+      try {
+        await saveToServer();
+        console.log(`[addManualDataCenter] Saved to server successfully`);
+      } catch (err) {
+        console.error(`[addManualDataCenter] Save failed:`, err);
+      }
+    }
+    
+  }, [dataCenters.length, contextAddDC, setAnswer, saveToServer]);
 
-  // Delete site
+  // Delete site (only removes local overrides - context sites are managed via context)
   const deleteSite = useCallback((siteId) => {
-    setManualSites(prev => prev.filter(s => s.id !== siteId));
     setSiteOverrides(prev => { const next = { ...prev }; delete next[siteId]; return next; });
   }, []);
 
