@@ -166,8 +166,8 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
       {/* Input cards row - uses the same grid template for alignment */}
       {!collapsed && (
         <div className="px-4 flex">
-          {/* Spacer to match customer pill width */}
-          <div className="shrink-0 mr-4" style={{ width: `${Math.min(Math.max(Math.max(nameLen, oppLen) * 7.5 + 80, 140), 380)}px` }} />
+          {/* Spacer to match customer pill width exactly */}
+          <div className="shrink-0 mr-4" style={{ width: pillWidth > 0 ? `${pillWidth}px` : 'auto' }} />
           
           {/* Input cards grid - matches summary grid exactly */}
           <div className="flex-1 grid gap-x-3 py-3" style={{ gridTemplateColumns: '5fr 5fr 3fr 3fr' }}>
