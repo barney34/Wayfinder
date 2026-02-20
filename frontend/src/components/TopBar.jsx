@@ -126,37 +126,40 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
 
           {/* TS and IPs summaries - in grid matching cards below */}
           <div className="flex-1 grid gap-x-3" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
+            {/* Empty space for Sites card alignment */}
+            <div></div>
 
-          {/* TS Summary - centered in column */}
-          <div className="flex flex-col items-center justify-center gap-0.5">
-            <div className="flex items-center gap-1">
-              <Target className="h-3 w-3 text-[#ff9f0a]" />
-              <span className="text-[10px] font-medium text-[#ff9f0a]">TS</span>
-            </div>
-            {activeSolutions.length > 0 ? (
-              <div className="grid grid-cols-2 gap-x-1 gap-y-0.5">
-                {activeSolutions.map(s => (
-                  <span key={s.key} className="px-1 rounded text-[8px] font-semibold leading-tight text-center" style={{ backgroundColor: s.color + '25', color: s.color }}>
-                    {s.label}
-                  </span>
-                ))}
+            {/* TS Summary - centered in column */}
+            <div className="flex flex-col items-center justify-center gap-0.5">
+              <div className="flex items-center gap-1">
+                <Target className="h-3 w-3 text-[#ff9f0a]" />
+                <span className="text-[10px] font-medium text-[#ff9f0a]">TS</span>
               </div>
-            ) : (
-              <span className="text-[9px] text-[#6e6e73]">--</span>
-            )}
-            {isHybrid && (
-              <span className="px-1.5 rounded text-[8px] font-bold leading-tight bg-gradient-to-r from-[#30d158]/25 to-[#0a84ff]/25 text-[#64d2ff]">Hybrid</span>
-            )}
-          </div>
-
-          {/* KW + IPs Summary - centered in column */}
-          <div className="flex items-center justify-center gap-2">
-            <div className="flex items-center gap-1">
-              <Calculator className="h-3 w-3 text-[#32d74b]" />
-              <span className="text-[10px] text-[#8e8e93]">KW</span>
-              <span className="text-[11px] font-semibold text-white">{formatKW(totalKW)}</span>
+              {activeSolutions.length > 0 ? (
+                <div className="grid grid-cols-2 gap-x-1 gap-y-0.5">
+                  {activeSolutions.map(s => (
+                    <span key={s.key} className="px-1 rounded text-[8px] font-semibold leading-tight text-center" style={{ backgroundColor: s.color + '25', color: s.color }}>
+                      {s.label}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <span className="text-[9px] text-[#6e6e73]">--</span>
+              )}
+              {isHybrid && (
+                <span className="px-1.5 rounded text-[8px] font-bold leading-tight bg-gradient-to-r from-[#30d158]/25 to-[#0a84ff]/25 text-[#64d2ff]">Hybrid</span>
+              )}
             </div>
-            <span className="text-[11px] font-bold text-[#32d74b]">{formatKW(activeIPs)} IPs</span>
+
+            {/* KW + IPs Summary - centered in column */}
+            <div className="flex items-center justify-center gap-2">
+              <div className="flex items-center gap-1">
+                <Calculator className="h-3 w-3 text-[#32d74b]" />
+                <span className="text-[10px] text-[#8e8e93]">KW</span>
+                <span className="text-[11px] font-semibold text-white">{formatKW(totalKW)}</span>
+              </div>
+              <span className="text-[11px] font-bold text-[#32d74b]">{formatKW(activeIPs)} IPs</span>
+            </div>
           </div>
         </div>
 
