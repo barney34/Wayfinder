@@ -645,9 +645,9 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
       return <GridMultiSelect questionId={q.id} options={q.options} value={currentValue} onChange={v => handleAnswerChange(q.id, v)} allowFreeform={q.allowFreeform} columns={3} />;
     }
 
-    // 3rd Party Integrations (ipam-11) - 5-column grid layout for many options
+    // 3rd Party Integrations (ipam-11) - 2-column grid layout
     if (q.id === 'ipam-11' && q.options) {
-      return <GridMultiSelect questionId={q.id} options={q.options} value={currentValue} onChange={v => handleAnswerChange(q.id, v)} allowFreeform={q.allowFreeform} columns={5} />;
+      return <GridMultiSelect questionId={q.id} options={q.options} value={currentValue} onChange={v => handleAnswerChange(q.id, v)} allowFreeform={q.allowFreeform} columns={2} />;
     }
 
     // Orchestration Tools (ipam-13) - 2-column grid layout
