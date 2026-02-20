@@ -333,11 +333,11 @@ export function TokenCalculatorSummary() {
       contextAddDC(newDCName, 0); // name, knowledgeWorkers
     }
     
-    // Update IPAM "# of Data Centers" answer (ipam-2)
-    const currentIPAMDCCount = parseInt(answers['ipam-2']) || 0;
-    setAnswer('ipam-2', String(currentIPAMDCCount + 1));
+    // Update IPAM "# of Data Centers" answer (ipam-2) to match the new count
+    // Use currentDCCount + 1 since we just added a DC
+    setAnswer('ipam-2', String(currentDCCount + 1));
     
-  }, [dataCenters.length, contextAddDC, answers, setAnswer]);
+  }, [dataCenters.length, contextAddDC, setAnswer]);
 
   // Delete site
   const deleteSite = useCallback((siteId) => {
