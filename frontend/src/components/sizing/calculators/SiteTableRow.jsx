@@ -43,7 +43,7 @@ export function SiteTableRow({
           <Input
             value={site.name}
             onChange={e => onUpdateSite(site.id, 'name', e.target.value)}
-            className="h-8 lg:h-10 text-sm lg:text-base"
+            className="h-8 lg:h-10 text-sm lg:text-base min-w-[120px]"
             disabled={site.isDisabledInUddi}
             data-testid={`site-name-${site.id}`}
           />
