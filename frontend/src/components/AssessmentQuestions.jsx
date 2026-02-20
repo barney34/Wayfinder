@@ -397,13 +397,14 @@ function detectFieldType(question) {
 
 // ===== Main AssessmentQuestions =====
 export function AssessmentQuestions({ questions, onAnswerChange, compact = false }) {
-  const { answers, notes, defaultAnswers, setAnswer, setNote, enabledSections, toggleSection, enableAllSections, disableAllSections, clearSection, leaseTimeUnits, setLeaseTimeUnit, platformMode } = useDiscovery();
+  const { answers, notes, defaultAnswers, setAnswer, setNote, enabledSections, toggleSection, enableAllSections, disableAllSections, clearSection, leaseTimeUnits, setLeaseTimeUnit, platformMode, dataCenters, sites } = useDiscovery();
   const [expandedNotes, setExpandedNotes] = useState({});
   const [sectionToDisable, setSectionToDisable] = useState(null);
   const [expandedSubsections, setExpandedSubsections] = useState({});
   const [collapsedSections, setCollapsedSections] = useState({});
   const [activeSection, setActiveSection] = useState(null);
   const [compactMode, setCompactMode] = useState(false); // Compact mode toggle
+  const [sectionResponses, setSectionResponses] = useState({}); // For Add Response at section end
   const { toast } = useToast();
   const navRef = useRef(null);
   const isScrolling = useRef(false);
