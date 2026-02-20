@@ -110,18 +110,18 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
 
         {/* Summary items - uses same grid as input cards for perfect alignment */}
         <div className="flex-1 grid gap-x-3" style={{ gridTemplateColumns: '5fr 5fr 3fr 3fr' }}>
-          {/* DC + Sites Summary - spans both columns, centered over the gap */}
-          <div className="col-span-2 flex items-center justify-center gap-4">
-            <div className="flex items-center gap-1.5">
-              <Building2 className="h-3 w-3 text-[#30d158]" />
-              <span className="text-[10px] font-medium text-[#30d158]">DC</span>
-              <span className="text-[11px] font-semibold text-white">{dataCenters.length}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <MapPin className="h-3 w-3 text-[#5e5ce6]" />
-              <span className="text-[10px] font-medium text-[#5e5ce6]">Sites</span>
-              <span className="text-[11px] font-semibold text-white">{sites.length}</span>
-            </div>
+          {/* DC Summary - shifted right to center over gap */}
+          <div className="flex items-center justify-end gap-1.5 pr-2">
+            <Building2 className="h-3 w-3 text-[#30d158]" />
+            <span className="text-[10px] font-medium text-[#30d158]">DC</span>
+            <span className="text-[11px] font-semibold text-white">{dataCenters.length}</span>
+          </div>
+
+          {/* Sites Summary - shifted left to center over gap */}
+          <div className="flex items-center justify-start gap-1.5 pl-2">
+            <MapPin className="h-3 w-3 text-[#5e5ce6]" />
+            <span className="text-[10px] font-medium text-[#5e5ce6]">Sites</span>
+            <span className="text-[11px] font-semibold text-white">{sites.length}</span>
           </div>
 
           {/* TS Summary - centered in column */}
