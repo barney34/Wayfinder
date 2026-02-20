@@ -15,93 +15,51 @@ Infrastructure sizing calculator for planning network deployments. Full migratio
 - Sizing table with editable fields (IPs, Role, Services, Platform, Model, Tokens)
 - Token calculations with service impact, Hub/Spoke topology
 - SmartFill AI + Value Framework (3 Infoblox value categories)
-- **Value Framework Injection** — seed questions injected into discovery sections with contextual follow-ups (Dec 2025)
+- **Value Framework Injection** — seed questions injected into discovery sections with contextual follow-ups
 - History/Versioning: Auto-save + named revisions
 - Export: CSV, YAML, Excel, PDF, Drawing export
 - Deployment mode switching (NIOS/UDDI/Hybrid)
 - QPS auto-calculation, DDNS prefix field, dynamic DHCP redundancy
 - External DNS vendor multiselect (13 providers + freeform)
 
-## Value Framework Integration (Completed Dec 2025)
-- **Seed Questions**: 1-2 VF questions per discovery section based on section-specific tags
-  - IPAM tag → IPAM section (IP tracking, conflicts, asset visibility)
-  - IDNS tag → Internal DNS section (AD-integrated, BIND, zone management)
-  - EDNS tag → External DNS section (public DNS, availability, lookalike domains)
-  - DHCP tag → DHCP section (scopes, leases, redundancy)
-  - CLOUD tag → Cloud Management section (multi-cloud, automation)
-  - SECURITY tag → Security section (threats, incidents, DNS security)
-- **Follow-up Questions**: Triggered when seed questions are answered
-- **Framing Messages**: Contextual insights explaining why follow-ups are relevant
-- **Category Badges**: Optimize (blue), Accelerate (emerald), Protect (amber)
-- **Persistence**: VF answers stored with vf- prefix and saved with customer data
+## TopBar Component (Completed Feb 2026)
+- **Deployment Toggles**: Use correct `feature-*` keys (feature-nios, feature-uddi, feature-security, feature-asset insights)
+- **Auto Deployment Model**: NIOS+UDDI=Hybrid, NIOS-only=NIOS, UDDI-only=UDDI (via useEffect + setPlatformMode)
+- **Hybrid Toggle**: Activates/deactivates both NIOS and UDDI together
+- **Editable Customer Name/Opportunity**: Inline editable inputs in TopBar header row, saved on blur
+- **DC/Site Management**: Add/edit/delete Data Centers and Sites as inline pills
+- **IP Calculator**: Knowledge Workers × Multiplier with up/down arrows (0.5 increments)
+- **Collapsible**: Click header row to collapse/expand the input section
+- **Asset Insight Tooltip**: Shows "+Mgmt Tokens Added" when NIOS + Asset are both active
+
+## External DNS QPS Fix (Verified Feb 2026)
+- edns-1 and edns-2 correctly use dnsPerServerCalculated/dnsAggregateCalculated field types
+- Auto badge shows calculated values matching Internal DNS behavior
 
 ## Architecture
 ```
 /app
 ├── backend/
 │   ├── data/
-│   │   ├── questions.py (Cloud Management section)
-│   │   └── valueFramework.py (3 VF categories with discovery questions)
+│   │   ├── questions.py
+│   │   └── valueFramework.py
 │   ├── models/schemas.py
 │   ├── routes/ (ai.py, customers.py, discovery.py)
 │   └── server.py
 └── frontend/src/
     ├── components/
-    │   ├── TopBar.jsx (collapsible, auto-UDDI, auto-deployment model)
+    │   ├── TopBar.jsx (collapsible, editable name/opp, deployment toggles)
     │   ├── AssessmentQuestions.jsx (nav pills, collapsible sections, QPS auto-fill, VF injection)
-    │   ├── ValueFramework.jsx (standalone VF tab)
-    │   ├── ValueFrameworkInjection.jsx (VF seed questions in discovery sections)
-    │   ├── CustomerDetail.jsx
-    │   └── sizing/calculators/ (TokenCalculatorSummary + extracted modules)
+    │   ├── CustomerDetail.jsx (passes editing props to TopBar)
+    │   ├── ValueFramework.jsx
+    │   ├── ValueFrameworkInjection.jsx
+    │   └── sizing/calculators/
     ├── contexts/DiscoveryContext.jsx
     └── lib/ (questions.js, tokenData.js, revisionHelpers.js)
 ```
 
-## Visual Improvements (Completed Dec 2025)
-
-**1. Nav Pills - Outline Style**
-- Inactive pills: Transparent background with colored borders (blue, green, teal, orange, etc.)
-- Active pill: Filled with solid color + shadow
-- Progress bars: Subtle bar at bottom showing completion percentage
-
-**2. Multiselect Badge Display**
-- Selected items shown as horizontal row of badges above dropdown
-- Each badge has X button for removal
-- Dropdown text changes to "+ Add more" when items selected
-
-**3. QPS Auto-Calculation**
-- External DNS QPS fields now use auto-calculation from Active IPs
-- Shows formula tooltip explaining the calculation
-
-**4. Density Controls**
-- Compact mode toggle button in nav bar
-- Reduces padding, font sizes when enabled
-- Zebra striping on alternating rows
-- Subtle hover states on question cells
-
-## UI/UX Refactor (Completed Dec 2025)
-Major overhaul of the Discovery section layout:
-
-**1. Vertical Label-Above-Input Layout**
-- Questions now display labels above input controls (not side-by-side)
-- Creates consistent alignment across all 3 columns
-- Better visual hierarchy with font-weight differentiation
-
-**2. Dynamic Element Expansion**
-- Sub-questions expand smoothly below parent with blockquote-style left border
-- Notes textarea expands below input field (not above)
-- Smooth CSS transitions for all expansions
-
-**3. Value Framework Blockquote Style**
-- Removed heavy borders from nested follow-ups
-- Uses thick colored left-border + subtle gradient background
-- Framing messages display with lightbulb icon in amber/gold
-
-**4. Visual Polish**
-- Increased padding (16px internal padding)
-- Softer grid dividers (gap-px with bg-border/20)
-- Muted text colors for helper text and hints
-
 ## Backlog
+- P1: Full Home Assistant UI consistency review across all components
+- P2: Keyboard shortcuts (Tab navigation, Ctrl+S save)
 - P2: AI Discovery Assistant enhancements
-- P3: AssessmentQuestions.jsx refactoring (extract scroll-spy logic to custom hook)
+- P3: AssessmentQuestions.jsx decomposition (800+ lines)
