@@ -538,18 +538,10 @@ function CustomerDetailContent({
         <TopBar 
           customerName={editName} 
           opportunity={editOpportunity}
-          onNameChange={(val) => {
-            setEditName(val);
-            if (val.trim() && val.trim() !== currentName) {
-              updateCustomerMutation.mutate({ name: val.trim() });
-            }
-          }}
-          onOpportunityChange={(val) => {
-            setEditOpportunity(val);
-            if (val !== currentOpportunity) {
-              updateCustomerMutation.mutate({ opportunity: val.trim() });
-            }
-          }}
+          onNameChange={setEditName}
+          onOpportunityChange={setEditOpportunity}
+          onNameBlur={() => { if (editName.trim() && editName.trim() !== currentName) handleSaveName(); }}
+          onOpportunityBlur={() => { if (editOpportunity !== currentOpportunity) handleSaveOpportunity(); }}
         />
 
         {/* Scrollable Content */}
