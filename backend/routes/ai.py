@@ -398,14 +398,3 @@ OUTPUT FORMAT (JSON):
             "topic": request.currentTopic,
             "suggestedNextTopic": None
         }
-                "response": response_text if len(response_text) < 200 else "That's helpful. Can you tell me more about the business impact?",
-                "newTopicsCovered": []
-            }
-
-    except Exception as e:
-        print(f"Error in value discovery chat: {e}")
-        # Return a fallback response instead of erroring
-        return {
-            "response": "Thanks for sharing that. Can you tell me more about how this impacts your day-to-day operations?",
-            "newTopicsCovered": []
-        }
