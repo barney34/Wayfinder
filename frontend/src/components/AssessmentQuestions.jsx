@@ -11,7 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { ChevronDown, ChevronUp, ChevronRight, X, Plus, Info, MessageSquare, Check, Zap, Minimize2, Maximize2 } from "lucide-react";
+import { ChevronDown, ChevronUp, ChevronRight, X, Plus, Info, MessageSquare, Check, Zap, Minimize2, Maximize2, AlertTriangle, Sparkles } from "lucide-react";
 import { useDiscovery } from "@/contexts/DiscoveryContext";
 import { useToast } from "@/hooks/use-toast";
 import { ValueFrameworkInjection } from "./ValueFrameworkInjection";
@@ -21,6 +21,179 @@ import {
   SiteConfiguration,
 } from "./sizing";
 import { sizingDefaults } from "@/lib/tokenData";
+
+// ===== GridMultiSelect (2-row grid layout, click away accepts) =====
+function GridMultiSelect({ questionId, options, value, onChange, allowFreeform, columns = 2 }) {
+  const [freeformInput, setFreeformInput] = useState('');
+  const selectedValues = value ? value.split(',').map(v => v.trim()).filter(Boolean) : [];
+
+  const toggleOption = (opt) => {
+    if (selectedValues.includes(opt)) {
+      onChange(selectedValues.filter(v => v !== opt).join(', '));
+    } else {
+      onChange([...selectedValues, opt].join(', '));
+    }
+  };
+
+  const addFreeformValue = () => {
+    const t = freeformInput.trim();
+    if (t && !selectedValues.includes(t)) {
+      onChange([...selectedValues, t].join(', '));
+      setFreeformInput('');
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      <div className={`grid gap-2`} style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
+        {options.map(opt => (
+          <label
+            key={opt}
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors border ${
+              selectedValues.includes(opt)
+                ? 'bg-[#0a84ff]/20 border-[#0a84ff] text-white'
+                : 'bg-[#2c2c2e] border-[#3c3c3e] text-[#8e8e93] hover:bg-[#3c3c3e] hover:text-white'
+            }`}
+            data-testid={`grid-option-${questionId}-${opt.replace(/\s/g, '-')}`}
+          >
+            <Checkbox
+              checked={selectedValues.includes(opt)}
+              onCheckedChange={() => toggleOption(opt)}
+              className="h-4 w-4"
+            />
+            <span className="text-xs font-medium">{opt}</span>
+          </label>
+        ))}
+      </div>
+      {allowFreeform && (
+        <div className="flex gap-2">
+          <Input
+            placeholder="Other..."
+            value={freeformInput}
+            onChange={e => setFreeformInput(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addFreeformValue(); } }}
+            onBlur={addFreeformValue}
+            className="flex-1 h-8 text-xs bg-[#1c1c1e] border-[#3c3c3e]"
+            data-testid={`grid-freeform-${questionId}`}
+          />
+        </div>
+      )}
+      {/* Show selected freeform values as badges */}
+      {selectedValues.filter(v => !options.includes(v)).length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {selectedValues.filter(v => !options.includes(v)).map(v => (
+            <Badge key={v} variant="secondary" className="gap-1 pr-1 text-[10px] h-5 bg-[#3c3c3e]">
+              {v}
+              <button onClick={() => onChange(selectedValues.filter(sv => sv !== v).join(', '))} className="ml-1 rounded-full hover:bg-[#4c4c4e] p-0.5">
+                <X className="h-2 w-2" />
+              </button>
+            </Badge>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ===== SyncedNumberField (syncs with TopBar DC/Sites count, shows mismatch) =====
+function SyncedNumberField({ questionId, value, onChange, syncValue, syncLabel }) {
+  const numValue = parseInt(value) || 0;
+  const hasMismatch = syncValue !== undefined && numValue !== syncValue;
+
+  return (
+    <div className="flex items-center gap-2">
+      <Input
+        type="number"
+        value={value || ''}
+        onChange={e => onChange(e.target.value)}
+        onBlur={e => onChange(e.target.value)}
+        onKeyDown={e => e.key === 'Enter' && e.target.blur()}
+        className={`w-20 h-8 text-xs ${hasMismatch ? 'border-[#ff9f0a] bg-[#ff9f0a]/10' : 'bg-[#1c1c1e] border-[#3c3c3e]'}`}
+        placeholder="0"
+        data-testid={`input-answer-${questionId}`}
+      />
+      {hasMismatch && (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <Badge variant="outline" className="text-[10px] py-0 px-1.5 bg-[#ff9f0a]/10 text-[#ff9f0a] border-[#ff9f0a]/50">
+                <AlertTriangle className="h-2.5 w-2.5 mr-0.5" />
+                {syncValue} in TopBar
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="text-xs">TopBar shows {syncValue} {syncLabel}, but this field says {numValue}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
+    </div>
+  );
+}
+
+// ===== AddResponseField (expandable text input for SmartFill) =====
+function AddResponseField({ questionId, value, onChange, onExamine, sectionContext }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExamining, setIsExamining] = useState(false);
+
+  const handleExamine = async () => {
+    if (!value?.trim()) return;
+    setIsExamining(true);
+    try {
+      await onExamine?.(value, sectionContext);
+    } finally {
+      setIsExamining(false);
+    }
+  };
+
+  if (!isExpanded) {
+    return (
+      <button
+        onClick={() => setIsExpanded(true)}
+        className="text-sm text-[#0a84ff] hover:text-[#0a84ff]/80 flex items-center gap-1"
+        data-testid={`add-response-btn-${questionId}`}
+      >
+        <Plus className="h-3 w-3" />
+        Add response
+      </button>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      <Textarea
+        value={value || ''}
+        onChange={e => onChange(e.target.value)}
+        onBlur={e => onChange(e.target.value)}
+        placeholder="Enter additional context or notes..."
+        className="min-h-[80px] text-sm bg-[#1c1c1e] border-[#3c3c3e] text-white placeholder:text-[#8e8e93] rounded-xl focus:ring-[#0a84ff] focus:border-[#0a84ff]"
+        data-testid={`response-textarea-${questionId}`}
+        autoFocus
+      />
+      <div className="flex items-center gap-2">
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handleExamine}
+          disabled={!value?.trim() || isExamining}
+          className="h-7 text-xs bg-[#2c2c2e] border-[#3c3c3e] hover:bg-[#3c3c3e] text-white"
+          data-testid={`examine-btn-${questionId}`}
+        >
+          <Sparkles className="h-3 w-3 mr-1" />
+          {isExamining ? 'Examining...' : 'Examine for answers'}
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => setIsExpanded(false)}
+          className="h-7 text-xs text-[#8e8e93] hover:text-white"
+        >
+          Done
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 // Constants for auto-calculation
 const AUTO_CALC_DEFAULTS = {
