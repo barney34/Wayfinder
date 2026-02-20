@@ -298,7 +298,7 @@ export function SiteTableRow({
                     {site.serverCount > 1 && <div><strong>Servers:</strong> x{site.serverCount}</div>}
                     {(site.serviceImpact || 0) > 0 && <div><strong>Service overhead:</strong> +{site.serviceImpact}%</div>}
                     {site.isSpoke && <div className="text-amber-600"><strong>Spoke penalty:</strong> 50% LPS</div>}
-                    {site.isHub && <div className="text-blue-600"><strong>Hub load:</strong> +{site.hubLPS} LPS</div>}
+                    {site.isHub && <div className="text-blue-600"><strong>Hub failover:</strong> +{site.hubLPS} LPS (50% of spokes)</div>}
                   </div>
                 </TooltipContent>
               </Tooltip>
