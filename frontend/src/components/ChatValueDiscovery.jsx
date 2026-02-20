@@ -170,9 +170,11 @@ export function ChatValueDiscovery({ section }) {
     }
   }, [conversation, coveredTopics, storageKey, setAnswer]);
 
-  // Scroll to bottom on new messages
+  // Scroll to bottom on new messages (within chat container only)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
   }, [conversation]);
 
   const resetConversation = () => {
