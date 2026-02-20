@@ -25,6 +25,8 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
   const [dcKW, setDcKW] = useState('');
   const [siteName, setSiteName] = useState('');
   const [siteKW, setSiteKW] = useState('');
+  const [pillWidth, setPillWidth] = useState(0);
+  const pillRef = useRef(null);
 
   const kw = parseInt(answers['ud-1']) || 0;
   const mult = parseFloat(answers['ipam-multiplier']) || 2.5;
@@ -47,6 +49,14 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
     else if (uddiEnabled && !niosEnabled) setPlatformMode('UDDI');
     else if (niosEnabled && !uddiEnabled && !assetEnabled) setPlatformMode('NIOS');
   }, [niosEnabled, uddiEnabled, assetEnabled, setPlatformMode]);
+
+  // Measure pill width for spacer alignment
+  useEffect(() => {
+    if (pillRef.current) {
+      const width = pillRef.current.offsetWidth;
+      setPillWidth(width);
+    }
+  }, [customerName, opportunity]);
 
   const handleAddDC = () => { if (!dcName.trim()) return; addDataCenter(dcName.trim(), parseInt(dcKW) || 0); setDcName(''); setDcKW(''); };
   const handleAddSite = () => { if (!siteName.trim()) return; addSite(siteName.trim(), '', parseInt(siteKW) || 0); setSiteName(''); setSiteKW(''); };
