@@ -298,11 +298,8 @@ export function TokenCalculatorSummary() {
       }
     }
 
-    if (site.sourceType) {
-      setSiteOverrides(prev => ({ ...prev, [siteId]: { ...prev[siteId], ...updates } }));
-    } else {
-      setManualSites(prev => prev.map(s => s.id === siteId ? { ...s, ...updates } : s));
-    }
+    // All sites (from context) use overrides for non-KW fields
+    setSiteOverrides(prev => ({ ...prev, [siteId]: { ...prev[siteId], ...updates } }));
   }, [sites, contextUpdateSite, contextUpdateDC]);
 
   // Add manual site - uses context to persist across navigation
