@@ -349,23 +349,23 @@ export function ChatValueDiscovery({ section }) {
             <span className="text-sm font-semibold text-foreground">Value Discovery</span>
             {/* Progress indicator */}
             <div className="flex items-center gap-2 ml-2">
-              <div className="w-16 h-1.5 bg-[#3c3c3e] rounded-full overflow-hidden">
+              <div className="w-16 h-1.5 bg-secondary rounded-full overflow-hidden">
                 <div 
                   className="h-full bg-[#30d158] transition-all duration-300" 
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
-              <span className="text-[10px] text-[#8e8e93]">{progressPercent}%</span>
+              <span className="text-[10px] text-muted-foreground">{progressPercent}%</span>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {expanded ? <ChevronDown className="h-4 w-4 text-[#8e8e93]" /> : <ChevronRight className="h-4 w-4 text-[#8e8e93]" />}
+            {expanded ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
           </div>
         </button>
         {expanded && (
           <button
             onClick={resetConversation}
-            className="p-2 rounded-xl bg-[#2c2c2e] hover:bg-[#3c3c3e] text-[#8e8e93] hover:text-white transition-colors"
+            className="p-2 rounded-xl bg-muted hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
             title="Reset conversation"
           >
             <RotateCcw className="h-4 w-4" />
@@ -375,18 +375,18 @@ export function ChatValueDiscovery({ section }) {
 
       {/* Chat Interface */}
       {expanded && (
-        <div className="mt-3 rounded-2xl bg-[#1c1c1e] border border-[#3c3c3e] overflow-hidden">
+        <div className="mt-3 rounded-2xl bg-card border border-border overflow-hidden">
           {/* Mode Toggle + Topics Bar */}
-          <div className="px-4 py-2 border-b border-[#3c3c3e] bg-[#2c2c2e]/50">
+          <div className="px-4 py-2 border-b border-border bg-muted/50">
             {/* Mode Toggle */}
             <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-1 p-0.5 bg-[#1c1c1e] rounded-lg">
+              <div className="flex items-center gap-1 p-0.5 bg-background rounded-lg">
                 <button
                   onClick={() => setMode('guided')}
                   className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-medium transition-colors ${
                     mode === 'guided' 
                       ? 'bg-[#5e5ce6] text-white' 
-                      : 'text-[#8e8e93] hover:text-white'
+                      : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   <Compass className="h-3 w-3" />
@@ -397,21 +397,21 @@ export function ChatValueDiscovery({ section }) {
                   className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-medium transition-colors ${
                     mode === 'free' 
                       ? 'bg-[#5e5ce6] text-white' 
-                      : 'text-[#8e8e93] hover:text-white'
+                      : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   <MessageCircleQuestion className="h-3 w-3" />
                   Free Ask
                 </button>
               </div>
-              <span className="text-[10px] text-[#8e8e93]">
+              <span className="text-[10px] text-muted-foreground">
                 {mode === 'guided' ? '3 questions per topic' : 'Ask anything'}
               </span>
             </div>
             
             {/* Clickable Topic Pills */}
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[10px] text-[#8e8e93] uppercase tracking-wider mr-1">Topics:</span>
+              <span className="text-[10px] text-muted-foreground uppercase tracking-wider mr-1">Topics:</span>
               {sectionConfig.topics.map(topic => {
                 const count = getTopicQuestionCount(topic.id);
                 const isComplete = count >= MAX_QUESTIONS_PER_TOPIC;
@@ -429,7 +429,7 @@ export function ChatValueDiscovery({ section }) {
                           ? 'bg-[#5e5ce6]/30 text-[#5e5ce6] ring-1 ring-[#5e5ce6]'
                           : topic.required
                             ? 'bg-[#ff9f0a]/10 text-[#ff9f0a]/80 hover:bg-[#ff9f0a]/20 hover:text-[#ff9f0a] cursor-pointer'
-                            : 'bg-[#3c3c3e] text-[#8e8e93] hover:bg-[#48484a] hover:text-white cursor-pointer'
+                            : 'bg-secondary text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer'
                     }`}
                     data-testid={`topic-pill-${topic.id}`}
                   >
@@ -458,7 +458,7 @@ export function ChatValueDiscovery({ section }) {
                   className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
                     msg.role === 'user'
                       ? 'bg-[#0a84ff] text-white rounded-br-md'
-                      : 'bg-[#2c2c2e] text-white rounded-bl-md'
+                      : 'bg-muted text-foreground rounded-bl-md'
                   }`}
                 >
                   {msg.content}
@@ -467,7 +467,7 @@ export function ChatValueDiscovery({ section }) {
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-[#2c2c2e] text-[#8e8e93] px-4 py-2.5 rounded-2xl rounded-bl-md flex items-center gap-2">
+                <div className="bg-muted text-muted-foreground px-4 py-2.5 rounded-2xl rounded-bl-md flex items-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin" />
                   <span className="text-sm">Thinking...</span>
                 </div>
@@ -477,7 +477,7 @@ export function ChatValueDiscovery({ section }) {
           </div>
 
           {/* Input */}
-          <div className="p-3 border-t border-[#3c3c3e] bg-[#2c2c2e]/30">
+          <div className="p-3 border-t border-border bg-muted/30">
             <div className="flex items-center gap-2">
               <input
                 ref={inputRef}
@@ -487,7 +487,7 @@ export function ChatValueDiscovery({ section }) {
                 onKeyDown={handleKeyDown}
                 placeholder={mode === 'guided' ? "Type your response..." : "Ask any question..."}
                 disabled={isLoading}
-                className="flex-1 h-10 px-4 rounded-xl bg-[#1c1c1e] border border-[#3c3c3e] text-white placeholder:text-[#8e8e93] focus:outline-none focus:border-[#0a84ff] disabled:opacity-50 text-sm"
+                className="flex-1 h-10 px-4 rounded-xl bg-background border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#0a84ff] disabled:opacity-50 text-sm"
                 data-testid={`chat-input-${section.replace(/\s/g, '-')}`}
               />
               <Button
