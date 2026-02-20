@@ -134,7 +134,7 @@ const DEFAULT_SECTION = {
 export function ChatValueDiscovery({ section }) {
   const { answers, setAnswer } = useDiscovery();
   const { toast } = useToast();
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [conversation, setConversation] = useState([]);
