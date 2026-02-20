@@ -108,9 +108,10 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
           </div>
         </div>
 
-        {/* Summary items - simple clean layout */}
-        <div className="flex-1 flex items-center justify-between">
-          <div className="flex items-center gap-6">
+        {/* Summary items - stacked and equally spaced */}
+        <div className="flex-1 flex items-center justify-around">
+          {/* DC / Sites stacked */}
+          <div className="flex flex-col items-center gap-0.5">
             <div className="flex items-center gap-1.5">
               <Building2 className="h-3 w-3 text-[#30d158]" />
               <span className="text-[10px] font-medium text-[#30d158]">DC</span>
@@ -123,32 +124,36 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
             </div>
           </div>
 
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2">
+          {/* TS stacked */}
+          <div className="flex flex-col items-center gap-0.5">
+            <div className="flex items-center gap-1">
               <Target className="h-3 w-3 text-[#ff9f0a]" />
               <span className="text-[10px] font-medium text-[#ff9f0a]">TS</span>
-              {activeSolutions.length > 0 ? (
-                <div className="flex items-center gap-1">
-                  {activeSolutions.map(s => (
-                    <span key={s.key} className="px-1.5 py-0.5 rounded text-[9px] font-semibold" style={{ backgroundColor: s.color + '25', color: s.color }}>
-                      {s.label}
-                    </span>
-                  ))}
-                </div>
-              ) : (
-                <span className="text-[9px] text-[#6e6e73]">--</span>
-              )}
-              {isHybrid && (
-                <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-gradient-to-r from-[#30d158]/25 to-[#0a84ff]/25 text-[#64d2ff]">Hybrid</span>
-              )}
             </div>
+            {activeSolutions.length > 0 ? (
+              <div className="flex items-center gap-1">
+                {activeSolutions.map(s => (
+                  <span key={s.key} className="px-1.5 py-0.5 rounded text-[9px] font-semibold" style={{ backgroundColor: s.color + '25', color: s.color }}>
+                    {s.label}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <span className="text-[9px] text-[#6e6e73]">--</span>
+            )}
+            {isHybrid && (
+              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-gradient-to-r from-[#30d158]/25 to-[#0a84ff]/25 text-[#64d2ff]">Hybrid</span>
+            )}
+          </div>
 
-            <div className="flex items-center gap-2">
+          {/* KW / IPs stacked */}
+          <div className="flex flex-col items-center gap-0.5">
+            <div className="flex items-center gap-1">
               <Calculator className="h-3 w-3 text-[#32d74b]" />
               <span className="text-[10px] text-[#8e8e93]">KW</span>
               <span className="text-[11px] font-semibold text-white">{formatKW(totalKW)}</span>
-              <span className="text-[11px] font-bold text-[#32d74b]">{formatKW(activeIPs)} IPs</span>
             </div>
+            <span className="text-[11px] font-bold text-[#32d74b]">{formatKW(activeIPs)} IPs</span>
           </div>
         </div>
 
