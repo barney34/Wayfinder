@@ -169,50 +169,50 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
       {!collapsed && (
         <div className="px-4 py-3 grid gap-3" style={{ gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr) minmax(150px, 0.7fr) minmax(150px, 0.7fr)' }}>
           {/* Data Centers */}
-          <div className="bg-muted rounded-xl p-3 flex flex-col">
+          <div className="bg-card rounded-xl p-3 flex flex-col border border-border shadow-sm">
             <div className="flex items-center gap-2 mb-2">
-              <Building2 className="h-3.5 w-3.5 text-[#30d158]" />
-              <span className="text-xs font-medium text-foreground">Data Centers</span>
+              <Building2 className="h-3.5 w-3.5 text-[#16a34a]" />
+              <span className="text-xs font-semibold text-foreground">Data Centers</span>
             </div>
             {dataCenters.length > 0 && (
               <div className="grid grid-cols-2 gap-1.5 mb-2">
                 {dataCenters.map((dc) => (
-                  <div key={dc.id} className="flex items-center bg-secondary rounded-lg overflow-hidden">
+                  <div key={dc.id} className="flex items-center bg-secondary border border-border rounded-lg overflow-hidden">
                     <input value={dc.name} onChange={e => updateDataCenter(dc.id, { name: e.target.value })} className="flex-1 min-w-0 px-1.5 py-1 text-[11px] text-foreground bg-transparent border-0 focus:outline-none focus:bg-muted" />
-                    <input type="number" value={dc.knowledgeWorkers || ''} onChange={e => updateDataCenter(dc.id, { knowledgeWorkers: e.target.value })} className="w-12 px-1 py-1 text-[11px] text-[#30d158] bg-transparent border-0 focus:outline-none focus:bg-muted text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
-                    <button onClick={() => deleteDataCenter(dc.id)} className="px-1 py-1 hover:bg-[#ff453a]/20 shrink-0" data-testid={`delete-dc-${dc.id}`}><X className="h-3 w-3 text-[#ff453a]" /></button>
+                    <input type="number" value={dc.knowledgeWorkers || ''} onChange={e => updateDataCenter(dc.id, { knowledgeWorkers: e.target.value })} className="w-12 px-1 py-1 text-[11px] text-[#16a34a] font-semibold bg-transparent border-0 focus:outline-none focus:bg-muted text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+                    <button onClick={() => deleteDataCenter(dc.id)} className="px-1 py-1 hover:bg-red-500/20 shrink-0" data-testid={`delete-dc-${dc.id}`}><X className="h-3 w-3 text-red-500" /></button>
                   </div>
                 ))}
               </div>
             )}
             <div className="flex gap-1.5 mt-auto">
-              <input value={dcName} onChange={e => setDcName(e.target.value)} placeholder="Name" className="flex-1 min-w-0 h-7 px-2 text-xs rounded-lg bg-background border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#30d158]" onKeyDown={e => e.key === 'Enter' && handleAddDC()} data-testid="dc-name-input" />
-              <input type="number" value={dcKW} onChange={e => setDcKW(e.target.value)} placeholder="KW" className="w-14 h-7 px-2 text-xs rounded-lg bg-background border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#30d158] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" onKeyDown={e => e.key === 'Enter' && handleAddDC()} data-testid="dc-kw-input" />
-              <button onClick={handleAddDC} disabled={!dcName.trim()} className="shrink-0 h-7 w-7 rounded-lg bg-[#30d158] hover:bg-[#30d158]/80 disabled:bg-muted flex items-center justify-center text-black disabled:text-muted-foreground" data-testid="dc-add-btn"><Plus className="h-3.5 w-3.5" /></button>
+              <input value={dcName} onChange={e => setDcName(e.target.value)} placeholder="Name" className="flex-1 min-w-0 h-7 px-2 text-xs rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]/20" onKeyDown={e => e.key === 'Enter' && handleAddDC()} data-testid="dc-name-input" />
+              <input type="number" value={dcKW} onChange={e => setDcKW(e.target.value)} placeholder="KW" className="w-14 h-7 px-2 text-xs rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" onKeyDown={e => e.key === 'Enter' && handleAddDC()} data-testid="dc-kw-input" />
+              <button onClick={handleAddDC} disabled={!dcName.trim()} className="shrink-0 h-7 w-7 rounded-lg bg-[#16a34a] hover:bg-[#16a34a]/90 disabled:bg-muted flex items-center justify-center text-white disabled:text-muted-foreground shadow-sm" data-testid="dc-add-btn"><Plus className="h-3.5 w-3.5" /></button>
             </div>
           </div>
 
           {/* Sites */}
-          <div className="bg-muted rounded-xl p-3 flex flex-col">
+          <div className="bg-card rounded-xl p-3 flex flex-col border border-border shadow-sm">
             <div className="flex items-center gap-2 mb-2">
-              <MapPin className="h-3.5 w-3.5 text-[#5e5ce6]" />
-              <span className="text-xs font-medium text-foreground">Sites</span>
+              <MapPin className="h-3.5 w-3.5 text-[#7c3aed]" />
+              <span className="text-xs font-semibold text-foreground">Sites</span>
             </div>
             {sites.length > 0 && (
               <div className="grid grid-cols-2 gap-1.5 mb-2">
                 {sites.map((site) => (
-                  <div key={site.id} className="flex items-center bg-secondary rounded-lg overflow-hidden">
+                  <div key={site.id} className="flex items-center bg-secondary border border-border rounded-lg overflow-hidden">
                     <input value={site.name} onChange={e => updateSite(site.id, { name: e.target.value })} className="flex-1 min-w-0 px-1.5 py-1 text-[11px] text-foreground bg-transparent border-0 focus:outline-none focus:bg-muted" />
-                    <input type="number" value={site.knowledgeWorkers || ''} onChange={e => updateSite(site.id, { knowledgeWorkers: e.target.value })} className="w-12 px-1 py-1 text-[11px] text-[#5e5ce6] bg-transparent border-0 focus:outline-none focus:bg-muted text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
-                    <button onClick={() => deleteSite(site.id)} className="px-1 py-1 hover:bg-[#ff453a]/20 shrink-0" data-testid={`delete-site-${site.id}`}><X className="h-3 w-3 text-[#ff453a]" /></button>
+                    <input type="number" value={site.knowledgeWorkers || ''} onChange={e => updateSite(site.id, { knowledgeWorkers: e.target.value })} className="w-12 px-1 py-1 text-[11px] text-[#7c3aed] font-semibold bg-transparent border-0 focus:outline-none focus:bg-muted text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+                    <button onClick={() => deleteSite(site.id)} className="px-1 py-1 hover:bg-red-500/20 shrink-0" data-testid={`delete-site-${site.id}`}><X className="h-3 w-3 text-red-500" /></button>
                   </div>
                 ))}
               </div>
             )}
             <div className="flex gap-1.5 mt-auto">
-              <input value={siteName} onChange={e => setSiteName(e.target.value)} placeholder="Name" className="flex-1 min-w-0 h-7 px-2 text-xs rounded-lg bg-background border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#5e5ce6]" onKeyDown={e => e.key === 'Enter' && handleAddSite()} data-testid="site-name-input" />
-              <input type="number" value={siteKW} onChange={e => setSiteKW(e.target.value)} placeholder="KW" className="w-14 h-7 px-2 text-xs rounded-lg bg-background border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#5e5ce6] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" onKeyDown={e => e.key === 'Enter' && handleAddSite()} data-testid="site-kw-input" />
-              <button onClick={handleAddSite} disabled={!siteName.trim()} className="shrink-0 h-7 w-7 rounded-lg bg-[#5e5ce6] hover:bg-[#5e5ce6]/80 disabled:bg-muted flex items-center justify-center text-white disabled:text-muted-foreground" data-testid="site-add-btn"><Plus className="h-3.5 w-3.5" /></button>
+              <input value={siteName} onChange={e => setSiteName(e.target.value)} placeholder="Name" className="flex-1 min-w-0 h-7 px-2 text-xs rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#7c3aed] focus:ring-1 focus:ring-[#7c3aed]/20" onKeyDown={e => e.key === 'Enter' && handleAddSite()} data-testid="site-name-input" />
+              <input type="number" value={siteKW} onChange={e => setSiteKW(e.target.value)} placeholder="KW" className="w-14 h-7 px-2 text-xs rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#7c3aed] focus:ring-1 focus:ring-[#7c3aed]/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" onKeyDown={e => e.key === 'Enter' && handleAddSite()} data-testid="site-kw-input" />
+              <button onClick={handleAddSite} disabled={!siteName.trim()} className="shrink-0 h-7 w-7 rounded-lg bg-[#7c3aed] hover:bg-[#7c3aed]/90 disabled:bg-muted flex items-center justify-center text-white disabled:text-muted-foreground shadow-sm" data-testid="site-add-btn"><Plus className="h-3.5 w-3.5" /></button>
             </div>
           </div>
 
