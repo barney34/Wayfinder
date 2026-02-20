@@ -398,6 +398,15 @@ export function TokenCalculatorSummary() {
             <div className="flex items-center gap-4">
               <label className="flex items-center gap-2 text-sm cursor-pointer">
                 <Checkbox
+                  checked={showKW}
+                  onCheckedChange={setShowKW}
+                  data-testid="show-kw-toggle"
+                />
+                <span className="text-muted-foreground">Show KW</span>
+              </label>
+
+              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <Checkbox
                   checked={showHardware}
                   onCheckedChange={setShowHardware}
                   data-testid="show-hardware-toggle"
