@@ -149,22 +149,30 @@ export function AppSidebar({
 
   return (
     <div className={`flex flex-col h-full bg-card border-r shadow-lg transition-all duration-300 ${collapsed ? 'w-16' : 'w-56'}`}>
-      {/* Header with Logo & Collapse */}
-      <div className="flex items-center justify-between p-3 border-b">
+      {/* Header with Logo */}
+      <div className="flex items-center justify-center p-3 border-b">
         {!collapsed && (
-          <div className="flex items-center gap-2">
-            <img 
-              src="https://customer-assets.emergentagent.com/job_dca12792-ec8f-4624-9d37-b020080620e2/artifacts/hvzy2pw5_image.png" 
-              alt="Wayfinder Logo" 
-              className="h-8 w-8 object-contain"
-            />
-            <span className="font-semibold text-sm text-[#22c55e]">WAYFINDER</span>
-          </div>
+          <img 
+            src="https://customer-assets.emergentagent.com/job_dca12792-ec8f-4624-9d37-b020080620e2/artifacts/pcj1uvm7_image.png" 
+            alt="Wayfinder Logo" 
+            className="h-10 object-contain"
+          />
         )}
+        {collapsed && (
+          <img 
+            src="https://customer-assets.emergentagent.com/job_dca12792-ec8f-4624-9d37-b020080620e2/artifacts/pcj1uvm7_image.png" 
+            alt="Wayfinder Logo" 
+            className="h-8 object-contain"
+          />
+        )}
+      </div>
+      
+      {/* Collapse button - separate row */}
+      <div className="flex justify-end px-2 py-1 border-b">
         <Button
           variant="ghost"
           size="icon"
-          className={`h-7 w-7 shrink-0 ${collapsed ? 'mx-auto' : ''}`}
+          className="h-6 w-6"
           onClick={() => setCollapsed(!collapsed)}
         >
           {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
