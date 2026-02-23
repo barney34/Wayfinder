@@ -227,11 +227,11 @@ export function TokenCalculatorSummary() {
       const swInstances = site.serverCount * haMultiplier;
       const adjustedTokens = singleServerTokens * swInstances;
       
-      // HW count: user can override, otherwise defaults to swInstances for physical, 0 for virtual/cloud
+      // HW count: if includeHW is false, always 0. Otherwise user can override, or defaults based on platform
       const isVirtualOrCloud = site.platform?.includes('NXVS') || site.platform?.includes('NXaaS') || 
-                               site.platform === 'NIOS-V' || site.platform === 'NIOS-VHA';
+                               site.platform === 'NIOS-V';
       const defaultHwCount = isVirtualOrCloud ? 0 : swInstances;
-      const hwCount = site.hwCount !== undefined ? site.hwCount : defaultHwCount;
+      const hwCount = site.includeHW === false ? 0 : (site.hwCount !== undefined ? site.hwCount : defaultHwCount);
 
       return {
         ...site, recommendedModel,
@@ -239,7 +239,7 @@ export function TokenCalculatorSummary() {
         hardwareOptions, tokens: adjustedTokens, tokensPerServer: singleServerTokens,
         serviceImpact, isHub, isSpoke, hubLPS,
         swInstances, // Calculated: serverCount * (HA ? 2 : 1)
-        hwCount, // User-editable or auto-calculated
+        hwCount, // User-editable or auto-calculated, 0 if includeHW=false
       };
     });
   }, [dataCenterIds, contextSiteIds, dataCenters, contextSites, siteOverrides, ipMultiplier, dhcpPercent, platformMode, leaseTimeSeconds, ipCalcValue]);
