@@ -116,10 +116,10 @@ export function QuickSiteEntry() {
 
         {/* Summary Badges */}
         <div className="flex items-center gap-2 ml-auto">
-          <Badge variant="outline" className="text-xs bg-blue-50 dark:bg-blue-900/20 text-accent border-blue-200">
+          <Badge variant="outline" className="text-xs bg-accent/10 text-accent border-accent/30">
             <Building2 className="h-3 w-3 mr-1" /> {dataCenters.length} DC
           </Badge>
-          <Badge variant="outline" className="text-xs bg-green-50 dark:bg-green-900/20 text-primary border-green-200">
+          <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/30">
             <MapPin className="h-3 w-3 mr-1" /> {sites.length} Sites
           </Badge>
         </div>

@@ -180,7 +180,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
                   <div key={dc.id} className="flex items-center bg-secondary border border-border rounded-lg overflow-hidden">
                     <input value={dc.name} onChange={e => updateDataCenter(dc.id, { name: e.target.value })} className="flex-1 min-w-0 px-1.5 py-1 text-[11px] text-foreground bg-transparent border-0 focus:outline-none focus:bg-muted" />
                     <input type="number" value={dc.knowledgeWorkers || ''} onChange={e => updateDataCenter(dc.id, { knowledgeWorkers: e.target.value })} className="w-12 px-1 py-1 text-[11px] text-[#00BD4D] font-semibold bg-transparent border-0 focus:outline-none focus:bg-muted text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
-                    <button onClick={() => deleteDataCenter(dc.id)} className="px-1 py-1 hover:bg-red-500/20 shrink-0" data-testid={`delete-dc-${dc.id}`}><X className="h-3 w-3 text-red-500" /></button>
+                    <button onClick={() => deleteDataCenter(dc.id)} className="px-1 py-1 hover:bg-destructive/20 shrink-0" data-testid={`delete-dc-${dc.id}`}><X className="h-3 w-3 text-destructive" /></button>
                   </div>
                 ))}
               </div>
@@ -204,7 +204,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
                   <div key={site.id} className="flex items-center bg-secondary border border-border rounded-lg overflow-hidden">
                     <input value={site.name} onChange={e => updateSite(site.id, { name: e.target.value })} className="flex-1 min-w-0 px-1.5 py-1 text-[11px] text-foreground bg-transparent border-0 focus:outline-none focus:bg-muted" />
                     <input type="number" value={site.knowledgeWorkers || ''} onChange={e => updateSite(site.id, { knowledgeWorkers: e.target.value })} className="w-12 px-1 py-1 text-[11px] text-[#00594C] dark:text-[#12C2D3] font-semibold bg-transparent border-0 focus:outline-none focus:bg-muted text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
-                    <button onClick={() => deleteSite(site.id)} className="px-1 py-1 hover:bg-red-500/20 shrink-0" data-testid={`delete-site-${site.id}`}><X className="h-3 w-3 text-red-500" /></button>
+                    <button onClick={() => deleteSite(site.id)} className="px-1 py-1 hover:bg-destructive/20 shrink-0" data-testid={`delete-site-${site.id}`}><X className="h-3 w-3 text-destructive" /></button>
                   </div>
                 ))}
               </div>

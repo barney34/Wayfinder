@@ -16,11 +16,11 @@ export function SizingMathHelp() {
   }, []);
 
   return (
-    <Card className="border-dashed border-blue-200 dark:border-blue-800 bg-blue-50/30 dark:bg-blue-950/20">
+    <Card className="border-dashed border-accent/30 bg-accent/5">
       <CardHeader className="py-3 cursor-pointer" onClick={() => setIsOpen(!isOpen)}>
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm flex items-center gap-2">
-            <HelpCircle className="h-4 w-4 text-blue-500" />
+            <HelpCircle className="h-4 w-4 text-accent" />
             Sizing Math Explained
           </CardTitle>
           <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${isOpen ? '' : '-rotate-90'}`} />
@@ -34,7 +34,7 @@ export function SizingMathHelp() {
             {/* Step 1: IPs */}
             <div className="p-3 rounded-lg bg-card border">
               <div className="flex items-center gap-2 mb-2">
-                <Calculator className="h-4 w-4 text-green-500" />
+                <Calculator className="h-4 w-4 text-primary" />
                 <span className="text-xs font-semibold">Step 1: Active IPs</span>
               </div>
               <div className="text-xs text-muted-foreground space-y-1">
@@ -67,7 +67,7 @@ export function SizingMathHelp() {
             {/* Step 3: Model */}
             <div className="p-3 rounded-lg bg-card border">
               <div className="flex items-center gap-2 mb-2">
-                <Server className="h-4 w-4 text-blue-500" />
+                <Server className="h-4 w-4 text-accent" />
                 <span className="text-xs font-semibold">Step 3: Select Model</span>
               </div>
               <div className="text-xs text-muted-foreground space-y-1">

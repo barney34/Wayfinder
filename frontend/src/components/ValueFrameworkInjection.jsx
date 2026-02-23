@@ -119,7 +119,7 @@ function getSeedQuestionsForSection(section, allVfQuestions) {
 
 // Category colors
 const CATEGORY_STYLES = {
-  optimize: { badge: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300', border: 'border-blue-300 dark:border-blue-700', icon: '🔍' },
+  optimize: { badge: 'bg-accent/15 text-accent', border: 'border-accent/30', icon: '🔍' },
   accelerate: { badge: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300', border: 'border-emerald-300 dark:border-emerald-700', icon: '🚀' },
   protect: { badge: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300', border: 'border-amber-300 dark:border-amber-700', icon: '🛡️' },
 };

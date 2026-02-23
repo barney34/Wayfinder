@@ -189,7 +189,7 @@ export function MeetingNotesAI() {
                 <div key={match.questionId} className="border rounded-lg p-2 space-y-1.5 text-sm" data-testid={`match-${match.questionId}`}>
                   <div className="flex items-start justify-between gap-2">
                     <Badge variant="outline" className="text-xs">{match.section}</Badge>
-                    <Badge variant="outline" className={`text-xs ${match.confidence > 0.8 ? 'border-green-500 text-green-600' : 'border-yellow-500 text-yellow-600'}`}>
+                    <Badge variant="outline" className={`text-xs ${match.confidence > 0.8 ? 'border-primary text-primary' : 'border-accent text-accent'}`}>
                       {Math.round(match.confidence * 100)}%
                     </Badge>
                   </div>

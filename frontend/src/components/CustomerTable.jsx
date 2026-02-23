@@ -18,12 +18,12 @@ import { Eye, Download, Copy, Trash2, Check, Info } from "lucide-react";
 // Color mappings for different statuses
 const statusColors = {
   "not-submitted": "bg-secondary text-muted-foreground dark:bg-secondary dark:text-muted-foreground",
-  "submitted": "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+  "submitted": "bg-primary/15 text-primary",
   "not-started": "bg-secondary text-muted-foreground dark:bg-secondary dark:text-muted-foreground",
-  "started": "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
-  "reviewed": "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+  "started": "bg-accent/15 text-accent",
+  "reviewed": "bg-primary/15 text-primary",
   "not-relevant": "bg-secondary text-muted-foreground/60 dark:bg-secondary dark:text-muted-foreground/60",
-  "completed": "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+  "completed": "bg-primary/15 text-primary",
 };
 
 const psarArbLabels = {

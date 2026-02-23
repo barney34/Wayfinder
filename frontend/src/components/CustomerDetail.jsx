@@ -35,8 +35,8 @@ function DynamicIslandTag({ id, name, kw, color, onUpdate, onDelete }) {
   const [editKW, setEditKW] = useState(kw?.toString() || '');
   
   const colorClasses = color === 'blue' 
-    ? 'bg-blue-500/10 border-blue-500/30 hover:bg-blue-500/20' 
-    : 'bg-green-500/10 border-green-500/30 hover:bg-green-500/20';
+    ? 'bg-accent/10 border-accent/30 hover:bg-accent/20' 
+    : 'bg-primary/10 border-primary/30 hover:bg-primary/20';
   
   const handleNameSave = () => {
     if (editName.trim()) onUpdate({ name: editName.trim() });
@@ -231,11 +231,11 @@ function QuickCaptureBarInline() {
       {/* DC/Site Tags - Compact */}
       <div className="flex items-center gap-2">
         <div className="flex items-center gap-1">
-          <Building2 className="h-3.5 w-3.5 text-blue-500" />
+          <Building2 className="h-3.5 w-3.5 text-foreground" />
           <span className="text-xs font-medium">{dataCenters.length} DC</span>
         </div>
         <div className="flex items-center gap-1">
-          <MapPin className="h-3.5 w-3.5 text-green-500" />
+          <MapPin className="h-3.5 w-3.5 text-primary" />
           <span className="text-xs font-medium">{sites.length} Sites</span>
         </div>
       </div>
@@ -359,7 +359,7 @@ function HeaderSaveButton({ customerName, customerId }) {
 
   return (
     <Button variant="outline" size="sm" onClick={handleSave} disabled={saving}
-      className="border-green-600 text-green-600 hover:bg-green-600/10 dark:border-green-500 dark:text-green-500"
+      className="border-green-600 text-green-600 hover:bg-green-600/10 dark:border-green-500 dark:text-primary"
       data-testid="save-button">
       <Save className="h-4 w-4 mr-1" />
       {saving ? 'Saving...' : 'Save'}

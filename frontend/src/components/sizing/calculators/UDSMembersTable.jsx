@@ -185,7 +185,7 @@ export function UDSMembersTable() {
   return (
     <div className="space-y-4" data-testid="uds-members-table">
       {/* Header */}
-      <Card className="bg-gradient-to-r from-blue-500/5 to-purple-500/5 border-blue-500/20">
+      <Card className="bg-gradient-to-r from-accent/5 to-primary/5 border-accent/20">
         <CardContent className="py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-6">

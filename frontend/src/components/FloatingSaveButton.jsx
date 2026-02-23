@@ -61,7 +61,7 @@ export function FloatingSaveButton({ onSave, className }) {
     <div 
       className={cn(
         "fixed bottom-6 right-6 z-50 flex items-center gap-3 p-3 bg-background/95 backdrop-blur-sm border rounded-lg shadow-lg transition-all duration-300",
-        isDirty ? "border-amber-500/50" : "border-green-500/50",
+        isDirty ? "border-amber-500/50" : "border-primary/50",
         className
       )}
       data-testid="floating-save-button"
