@@ -53,20 +53,27 @@ Migration and enhancement of a "Sizing" calculator application for infrastructur
 
 #### Multiple Drawings System (COMPLETED)
 A major new feature enabling management of multiple sizing scenarios within a single session:
-- **Drawing Tabs**: Tabbed interface at top of Sizing table (#1, #2, etc.) with add/copy/delete/rename
+- **Drawing Tabs**: Tabbed interface at top of Sizing table (#10, #20, etc.) with add/copy/delete/rename
+- **Drawing # Increments of 10**: New drawings auto-increment by 10 (10, 20, 30...)
+- **Drawing Header**: Shows "Drawing #10 (X sites)" above table
 - **New Drawing**: Creates blank drawing with incrementing number
 - **Duplicate Drawing**: Copies existing drawing with "-copy" suffix
 - **Compare Drawings**: Side-by-side comparison when 2+ drawings exist
 - **Copy Site to Drawing**: Copy individual sites between drawings via action menu
+- **Delete Any Row**: All rows can be deleted via trash icon (not just manual sites)
 
 #### Enhanced HA & Server Count Logic (COMPLETED)
 - **HA Checkbox**: Per-row toggle that doubles software instances (SW#)
 - **SW# Column**: Auto-calculated: `Srv# × (HA ? 2 : 1)`
-- **HW# Column**: Editable hardware count (defaults auto-calculated, user can override)
+- **HW# Column**: Editable hardware count with "Include HW" checkbox
+- **Include HW Checkbox**: Uncheck to set HW#=0 for VM deployments
+- **Platform Simplified**: Only 2 options: `NIOS Physical` / `NIOS Virtual` (HA versions removed)
 - **Column Toggles**: Hide/show KW, Services, and HW SKU columns
 
 #### Export for Lucid (COMPLETED)
 Updated export with columns: `Drawing #`, `Unit Group`, `Unit #/Range`, `Solution`, `Model Info`, `SW Instances`, `Description`, `SW Base SKU`, `SW Package`, `SW Add-ons`, `HW License SKU`, `HW Add-ons`, `HW Count`, `Add to Report`, `Add to BOM`
+- **Unit Range Format**: 1-4 units shows as "1,2,3,4", 5+ units shows as "1-5"
+- **VM Detection**: Shows "VM" for virtual platforms in HW License SKU
 
 - **Light Mode Fix** - Fixed black/dark windows appearing in light mode. Replaced hard-coded dark hex colors (#1c1c1e, #2c2c2e, #3c3c3e) with theme-aware CSS variables (bg-card, bg-muted, bg-background, text-foreground, etc.) in:
   - TopBar.jsx - All cards, inputs, and buttons
