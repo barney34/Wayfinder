@@ -70,13 +70,13 @@ export function FloatingSaveButton({ onSave, className }) {
       <div className="flex items-center gap-2 text-sm">
         {isSaving ? (
           <>
-            <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
+            <Loader2 className="h-4 w-4 animate-spin text-primary" />
             <span className="text-muted-foreground">Saving...</span>
           </>
         ) : showSaved ? (
           <>
-            <Check className="h-4 w-4 text-green-500" />
-            <span className="text-green-600 dark:text-green-400">Saved</span>
+            <Check className="h-4 w-4 text-primary" />
+            <span className="text-primary">Saved</span>
           </>
         ) : isDirty ? (
           <>
