@@ -189,7 +189,7 @@ export function SiteTableRow({
     <TableRow
       data-testid={`site-row-${site.id}`}
       className={`
-        ${site.isDisabledInUddi ? 'opacity-40 bg-gray-100 dark:bg-gray-800/50' : ''}
+        ${site.isDisabledInUddi ? 'opacity-40 bg-muted/50' : ''}
         ${!site.isDisabledInUddi && site.isHub ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}
         ${!site.isDisabledInUddi && site.isSpoke ? 'bg-amber-50/50 dark:bg-amber-900/10' : ''}
       `}
@@ -208,7 +208,7 @@ export function SiteTableRow({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
-                  <Badge variant="outline" className="text-[10px] px-1 bg-gray-200 dark:bg-gray-700">N/A</Badge>
+                  <Badge variant="outline" className="text-[10px] px-1 bg-muted">N/A</Badge>
                 </TooltipTrigger>
                 <TooltipContent>GM/GMC not available in UDDI mode. Switch to NIOS or Hybrid to edit.</TooltipContent>
               </Tooltip>
