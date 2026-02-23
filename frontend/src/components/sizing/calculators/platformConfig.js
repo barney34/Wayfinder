@@ -134,19 +134,19 @@ export const RPT_QUANTITIES = [
 ];
 
 // HW Add-ons (only for physical platforms)
-// PSU = Only for TE-1516, SFP = Model-dependent
+// PSU = Only for TE-1506, SFP = Model-dependent
 export const HW_ADDONS = [
   { 
     value: 'PSU', 
     label: '2nd PSU', 
     description: 'Second Power Supply Unit',
-    allowedModels: ['TE-1516', 'TE-1525', 'TE-1526'], // Models that support 2nd PSU
+    allowedModels: ['TE-1506'], // Only 1506 supports 2nd PSU
   },
   { 
     value: 'SFP', 
     label: 'SFP', 
     description: 'SFP Module',
-    allowedModels: ['TE-1516', 'TE-1525', 'TE-1526', 'TE-2225', 'TE-2226'],
+    allowedModels: ['TE-1506', 'TE-1516', 'TE-1525', 'TE-1526', 'TE-2225', 'TE-2226'],
   },
 ];
 
