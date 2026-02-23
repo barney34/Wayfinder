@@ -17,12 +17,12 @@ import { Eye, Download, Copy, Trash2, Check, Info } from "lucide-react";
 
 // Color mappings for different statuses
 const statusColors = {
-  "not-submitted": "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400",
+  "not-submitted": "bg-secondary text-muted-foreground dark:bg-secondary dark:text-muted-foreground",
   "submitted": "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-  "not-started": "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400",
+  "not-started": "bg-secondary text-muted-foreground dark:bg-secondary dark:text-muted-foreground",
   "started": "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
   "reviewed": "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-  "not-relevant": "bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-500",
+  "not-relevant": "bg-secondary text-muted-foreground/60 dark:bg-secondary dark:text-muted-foreground/60",
   "completed": "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
 };
 
