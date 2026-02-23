@@ -376,10 +376,25 @@ export function TokenCalculatorSummary() {
     
   }, [dataCenters.length, contextAddDC, setAnswer, saveToServer]);
 
-  // Delete site (only removes local overrides - context sites are managed via context)
+  // Delete site - removes from context and local overrides
   const deleteSite = useCallback((siteId) => {
-    setSiteOverrides(prev => { const next = { ...prev }; delete next[siteId]; return next; });
-  }, []);
+    // Remove local overrides
+    setSiteOverrides(prev => { 
+      const next = { ...prev }; 
+      delete next[siteId]; 
+      return next; 
+    });
+    
+    // Find the site to determine if it's a DC or site
+    const site = sites.find(s => s.id === siteId);
+    if (site) {
+      if (site.sourceType === 'dataCenter' && contextDeleteDC) {
+        contextDeleteDC(site.sourceId);
+      } else if (site.sourceType === 'site' && contextDeleteSite) {
+        contextDeleteSite(site.sourceId);
+      }
+    }
+  }, [sites, contextDeleteDC, contextDeleteSite]);
 
   // Toggle service
   const toggleService = useCallback((siteId, serviceValue) => {
