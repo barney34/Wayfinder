@@ -119,7 +119,7 @@ export function WhyThisModelDialog({ open, onOpenChange, site, platformMode, dhc
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <HelpCircle className="h-5 w-5 text-blue-500" />
+            <HelpCircle className="h-5 w-5 text-accent dark:text-accent" />
             Why {site.recommendedModel} for {site.name}?
           </DialogTitle>
           <DialogDescription>
@@ -151,12 +151,12 @@ export function WhyThisModelDialog({ open, onOpenChange, site, platformMode, dhc
           {/* Driver Explanation */}
           <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
             <div className="flex items-center gap-2 mb-2">
-              <Star className="h-5 w-5 text-blue-500 fill-blue-500" />
-              <span className="font-medium text-blue-900 dark:text-blue-100">
+              <Star className="h-5 w-5 text-accent dark:text-accent fill-accent" />
+              <span className="font-medium text-foreground">
                 Model selected based on: {driverLabels[workload.driver]}
               </span>
             </div>
-            <p className="text-sm text-blue-800 dark:text-blue-200">
+            <p className="text-sm text-muted-foreground">
               {workload.driver === 'qps' && `This site requires ${formatNumber(workload.adjustedQPS)} QPS capacity, which is the limiting factor.`}
               {workload.driver === 'lps' && `This site requires ${formatNumber(workload.adjustedLPS)} LPS capacity for DHCP operations, which is the limiting factor.`}
               {workload.driver === 'objects' && `This site requires ${formatNumber(workload.objects)} database objects, which is the limiting factor.`}
@@ -238,11 +238,11 @@ export function WhyThisModelDialog({ open, onOpenChange, site, platformMode, dhc
           )}
 
           {/* Tokens */}
-          <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+          <div className="p-4 bg-primary/10 rounded-lg border border-primary/30">
             <div className="flex items-center justify-between">
               <div>
-                <div className="font-medium text-green-900 dark:text-green-100">Token Cost</div>
-                <div className="text-sm text-green-800 dark:text-green-200">
+                <div className="font-medium text-foreground">Token Cost</div>
+                <div className="text-sm text-muted-foreground">
                   {site.serverCount > 1 ? `${site.serverCount} servers x ${formatNumber(site.tokensPerServer || 0)} tokens` : 'Per server'}
                 </div>
               </div>
