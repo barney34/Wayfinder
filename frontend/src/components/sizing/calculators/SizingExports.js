@@ -325,7 +325,7 @@ export function exportForLucid(sites, drawingNum, unitRangeFormat = 'auto') {
       'SW Base SKU': swBaseSku,
       'SW Package': swPackage,
       'SW Add-ons': swAddons.join(', ') || '',
-      'HW License SKU': isVirtual ? 'VM' : hwInfo.hwSku,
+      'HW License SKU': hwLicenseSku,
       'HW Add-ons': '',
       'HW Count': hwCount,
       'Add to Report': site.addToReport !== false ? 'Yes' : 'No',
