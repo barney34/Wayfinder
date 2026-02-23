@@ -10,9 +10,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Trash2, Info, Settings2, HelpCircle, Server, Copy } from "lucide-react";
+import { Trash2, Info, Settings2, HelpCircle, Server, Copy, Plus } from "lucide-react";
 import { formatNumber } from "@/lib/utils";
-import { ADDITIONAL_SERVICES } from "./platformConfig";
+import { ADDITIONAL_SERVICES, SW_ADDONS, HW_ADDONS, RPT_QUANTITIES, getAvailableSwAddons, getAvailableHwAddons } from "./platformConfig";
 import { getSiteWorkloadDetails } from "../calculations";
 import { CopySiteToDrawingMenu } from "./DrawingManager";
 
