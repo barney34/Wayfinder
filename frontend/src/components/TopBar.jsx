@@ -120,7 +120,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
               <span className="text-[11px] font-bold text-foreground">{dataCenters.length}</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <MapPin className="h-3 w-3 text-[#00594C] dark:text-[#12C2D3]" />
+              <MapPin className="h-3 w-3 text-foreground" />
               <span className="text-[10px] font-semibold text-[#00594C] dark:text-[#12C2D3]">Sites</span>
               <span className="text-[11px] font-bold text-foreground">{sites.length}</span>
             </div>
