@@ -434,19 +434,27 @@ export function TokenCalculatorSummary() {
       {/* Site Sizing Table */}
       <Card>
         <CardContent className="pt-4 lg:pt-6">
-          {/* Table Controls */}
-          <div className="flex items-center justify-between mb-3 gap-4">
-            <div className="flex items-center gap-2">
-              <label className="text-sm text-muted-foreground whitespace-nowrap">Drawing #:</label>
-              <Input
-                value={drawingNumber}
-                onChange={e => setDrawingNumber(e.target.value)}
-                placeholder="Enter drawing number..."
-                className="h-8 w-48 text-sm"
-                data-testid="drawing-number-input"
-              />
-            </div>
+          {/* Drawing Tabs */}
+          <DrawingTabs
+            drawings={drawings}
+            activeDrawingId={activeDrawingId}
+            onSelectDrawing={setActiveDrawingId}
+            onAddDrawing={addDrawing}
+            onCopyDrawing={copyDrawing}
+            onDeleteDrawing={deleteDrawing}
+            onRenameDrawing={renameDrawing}
+            onCompare={() => setShowCompareDialog(true)}
+          />
 
+          {/* Compare Dialog */}
+          <CompareDrawingsDialog
+            open={showCompareDialog}
+            onOpenChange={setShowCompareDialog}
+            drawings={drawings}
+          />
+
+          {/* Table Controls */}
+          <div className="flex items-center justify-between mb-3 gap-4 flex-wrap">
             <div className="flex items-center gap-4">
               <label className="flex items-center gap-2 text-sm cursor-pointer">
                 <Checkbox
@@ -454,7 +462,16 @@ export function TokenCalculatorSummary() {
                   onCheckedChange={setShowKW}
                   data-testid="show-kw-toggle"
                 />
-                <span className="text-muted-foreground">Show KW</span>
+                <span className="text-muted-foreground">KW</span>
+              </label>
+
+              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <Checkbox
+                  checked={showServices}
+                  onCheckedChange={setShowServices}
+                  data-testid="show-services-toggle"
+                />
+                <span className="text-muted-foreground">Services</span>
               </label>
 
               <label className="flex items-center gap-2 text-sm cursor-pointer">
@@ -463,40 +480,49 @@ export function TokenCalculatorSummary() {
                   onCheckedChange={setShowHardware}
                   data-testid="show-hardware-toggle"
                 />
-                <span className="text-muted-foreground">Show Hardware SKU</span>
+                <span className="text-muted-foreground">HW SKU</span>
               </label>
-
-              <Button
-                variant="outline" size="sm"
-                onClick={() => exportDrawing(sites, drawingNumber)}
-                className="text-xs"
-                data-testid="export-drawing-button"
-              >
-                <FileSpreadsheet className="h-4 w-4 mr-1" />
-                Export for Lucid
-              </Button>
             </div>
+
+            <Button
+              variant="outline" size="sm"
+              onClick={() => exportForLucid(sites, activeDrawing?.name || '1')}
+              className="text-xs"
+              data-testid="export-drawing-button"
+            >
+              <FileSpreadsheet className="h-4 w-4 mr-1" />
+              Export for Lucid
+            </Button>
           </div>
 
-          <div className="border rounded-lg overflow-hidden">
+          <div className="border rounded-lg overflow-hidden overflow-x-auto">
             <Table className="table-auto w-full">
-              <SizingTableHeader showHardware={showHardware} showKW={showKW} platformMode={platformMode} />
+              <SizingTableHeader 
+                showHardware={showHardware} 
+                showKW={showKW} 
+                showServices={showServices}
+                platformMode={platformMode} 
+              />
               <TableBody>
                 {sites.map(site => (
                   <SiteTableRow
                     key={site.id}
                     site={site}
                     sites={sites}
+                    drawings={drawings}
+                    activeDrawingId={activeDrawingId}
                     platformMode={platformMode}
                     dhcpPercent={dhcpPercent}
                     roleOptions={roleOptions}
                     platformOptions={platformOptions}
                     showHardware={showHardware}
                     showKW={showKW}
+                    showServices={showServices}
                     onUpdateSite={updateSite}
                     onToggleService={toggleService}
                     onDeleteSite={deleteSite}
                     onOpenModelDialog={openModelDialog}
+                    onCopySiteToDrawing={copySiteToDrawing}
                   />
                 ))}
                 {/* Total Row */}
@@ -509,7 +535,19 @@ export function TokenCalculatorSummary() {
                   {showKW && (
                     <TableCell className="p-2 lg:p-4 tabular-nums text-sm lg:text-base">{formatNumber(totals.totalKW)}</TableCell>
                   )}
-                  <TableCell className="p-2 lg:p-4" colSpan={showHardware ? 6 : 5}></TableCell>
+                  <TableCell className="p-2 lg:p-4" colSpan={showServices ? 2 : 1}></TableCell>
+                  <TableCell className="p-2 lg:p-4"></TableCell>
+                  <TableCell className="p-2 lg:p-4"></TableCell>
+                  <TableCell className="p-2 lg:p-4"></TableCell>
+                  <TableCell className="p-2 lg:p-4"></TableCell>
+                  <TableCell className="p-2 lg:p-4"></TableCell>
+                  {showHardware && <TableCell className="p-2 lg:p-4"></TableCell>}
+                  <TableCell className="p-2 lg:p-4 text-center tabular-nums">
+                    {sites.reduce((sum, s) => sum + (s.swInstances || 0), 0)}
+                  </TableCell>
+                  <TableCell className="p-2 lg:p-4 text-center tabular-nums">
+                    {sites.reduce((sum, s) => sum + (s.hwCount || 0), 0)}
+                  </TableCell>
                   {platformMode !== 'NIOS' && (
                     <TableCell className="p-2 lg:p-4 text-right tabular-nums text-sm lg:text-base">
                       <TooltipProvider>
@@ -530,7 +568,7 @@ export function TokenCalculatorSummary() {
                       </TooltipProvider>
                     </TableCell>
                   )}
-                  <TableCell className="p-2 lg:p-4" colSpan={2}></TableCell>
+                  <TableCell className="p-2 lg:p-4" colSpan={3}></TableCell>
                 </TableRow>
               </TableBody>
             </Table>
