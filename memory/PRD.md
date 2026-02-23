@@ -102,12 +102,15 @@ Updated export with columns: `Drawing #`, `Unit Group`, `Unit #/Range`, `Solutio
 ## Backlog (Prioritized)
 
 ### P0 - Critical
+- ✅ COMPLETED: Multiple Drawings System (tabbed interface, add/copy/delete drawings)
+- ✅ COMPLETED: HA checkbox with SW#/HW# logic
+- ✅ COMPLETED: Export for Lucid with correct column format
 - ✅ COMPLETED: DC count sync between Sizing and Discovery tabs
 - ✅ COMPLETED: Manual Site/DC persistence across navigation
 
 ### P1 - High Priority  
-- [ ] Implement AI logic for "Examine for answers" button
 - [ ] Verify External DNS QPS auto-calculation
+- [ ] Implement AI logic for "Examine for answers" button
 - [ ] Full Home Assistant UI consistency review
 
 ### P2 - Medium Priority
