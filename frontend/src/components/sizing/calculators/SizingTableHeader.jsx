@@ -25,20 +25,27 @@ function HeaderWithTooltip({ children, tooltip, className = "" }) {
 export function SizingTableHeader({ showHardware, showKW, showServices, platformMode, exportView }) {
   const showTokens = platformMode !== 'NIOS'; // Hide tokens for NIOS-only mode
   
-  // Export view - show columns matching export format
+  // Export view - show all columns matching Lucidchart export format
+  // Drawing # is shown in header above table, so we skip it here
+  // Columns: Unit Group, Solution, Model Info, SW Instances, Description, SW Base SKU, SW Package, SW Add-ons, HW License SKU, HW Add-ons, HW Count, Add to Report, Add to BOM
   if (exportView) {
     return (
       <TableHeader>
-        <TableRow className="bg-muted/50">
-          <TableHead className="w-28 text-xs lg:text-sm">Location</TableHead>
-          <TableHead className="w-16 text-xs lg:text-sm">Unit Grp</TableHead>
-          <TableHead className="w-20 text-xs lg:text-sm">Solution</TableHead>
-          <TableHead className="w-24 text-xs lg:text-sm">Model</TableHead>
-          <TableHead className="w-14 text-xs lg:text-sm text-center">SW#</TableHead>
-          <TableHead className="w-20 text-xs lg:text-sm text-center">HW#</TableHead>
-          <TableHead className="w-12 text-xs lg:text-sm text-center">Rpt</TableHead>
-          <TableHead className="w-12 text-xs lg:text-sm text-center">BOM</TableHead>
-          <TableHead className="w-12 text-xs lg:text-sm"></TableHead>
+        <TableRow className="bg-muted/50 text-xs">
+          <TableHead className="w-14 p-1.5">Unit Grp</TableHead>
+          <TableHead className="w-16 p-1.5">Solution</TableHead>
+          <TableHead className="w-20 p-1.5">Model Info</TableHead>
+          <TableHead className="w-12 p-1.5 text-center">SW#</TableHead>
+          <TableHead className="w-32 p-1.5">Description</TableHead>
+          <TableHead className="w-28 p-1.5">SW Base SKU</TableHead>
+          <TableHead className="w-16 p-1.5">SW Pkg</TableHead>
+          <TableHead className="w-20 p-1.5">SW Add-ons</TableHead>
+          <TableHead className="w-28 p-1.5">HW License SKU</TableHead>
+          <TableHead className="w-20 p-1.5">HW Add-ons</TableHead>
+          <TableHead className="w-12 p-1.5 text-center">HW#</TableHead>
+          <TableHead className="w-10 p-1.5 text-center">Rpt</TableHead>
+          <TableHead className="w-10 p-1.5 text-center">BOM</TableHead>
+          <TableHead className="w-10 p-1.5"></TableHead>
         </TableRow>
       </TableHeader>
     );
