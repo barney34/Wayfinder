@@ -112,6 +112,20 @@ export function SizingTableHeader({ showHardware, showKW, showServices, platform
         <HeaderWithTooltip className="w-20 lg:w-24 text-center" tooltip="Hardware unit count for export. Check box to include HW, uncheck for VM (0 HW).">
           HW#
         </HeaderWithTooltip>
+
+        {/* SW Add-ons (NIOS only) */}
+        {platformMode === 'NIOS' && (
+          <HeaderWithTooltip className="w-24" tooltip="Software add-ons: CNA (GM/GMC), ADNS, DCA, SECECO (GM), FIPS (Physical), TA">
+            SW Add-ons
+          </HeaderWithTooltip>
+        )}
+
+        {/* HW Add-ons (NIOS Physical only) */}
+        {platformMode === 'NIOS' && (
+          <HeaderWithTooltip className="w-20" tooltip="Hardware add-ons: 2nd PSU (1516+), SFP modules">
+            HW Add-ons
+          </HeaderWithTooltip>
+        )}
         
         {/* Tokens (conditional) */}
         {showTokens && (
