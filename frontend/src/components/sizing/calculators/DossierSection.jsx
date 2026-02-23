@@ -89,14 +89,14 @@ export function DossierInput({ value, onChange, questionId }) {
       
       {/* Free Upsize Opportunity */}
       {data.enabled && canUpsize && (
-        <Card className="bg-green-500/10 border-green-500/30">
+        <Card className="bg-primary/10 border-primary/30">
           <CardContent className="py-3">
             <div className="flex items-start gap-3">
-              <Gift className="h-5 w-5 text-green-500 mt-0.5" />
+              <Gift className="h-5 w-5 text-primary mt-0.5" />
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="font-medium text-green-700 dark:text-green-400">Free Upsize Available!</span>
-                  <TrendingUp className="h-4 w-4 text-green-500" />
+                  <span className="font-medium text-primary">Free Upsize Available!</span>
+                  <TrendingUp className="h-4 w-4 text-primary" />
                 </div>
                 <p className="text-sm text-muted-foreground">
                   Add <strong>{unitsToNext} more unit{unitsToNext > 1 ? 's' : ''}</strong> to reach the <strong>{nextTier.tier}</strong> tier 
@@ -104,7 +104,7 @@ export function DossierInput({ value, onChange, questionId }) {
                 </p>
                 <div className="flex items-center gap-4 mt-2 text-xs">
                   <span>Current: {data.quantity} units → {tokens.toLocaleString()} tokens</span>
-                  <span className="text-green-600 dark:text-green-400">
+                  <span className="text-primary">
                     Upsize to {nextTier.minQty} units → Still {tokens.toLocaleString()} tokens (save {upsizeTokensSaved.toLocaleString()} tokens!)
                   </span>
                 </div>
