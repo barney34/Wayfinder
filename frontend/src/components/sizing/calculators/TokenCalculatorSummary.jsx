@@ -379,6 +379,8 @@ export function TokenCalculatorSummary() {
 
   // Delete site - removes from context and local overrides
   const deleteSite = useCallback((siteId) => {
+    console.log('[deleteSite] Deleting site:', siteId);
+    
     // Remove local overrides
     setSiteOverrides(prev => { 
       const next = { ...prev }; 
@@ -388,10 +390,14 @@ export function TokenCalculatorSummary() {
     
     // Find the site to determine if it's a DC or site
     const site = sites.find(s => s.id === siteId);
+    console.log('[deleteSite] Found site:', site);
+    
     if (site) {
       if (site.sourceType === 'dataCenter' && contextDeleteDC) {
+        console.log('[deleteSite] Deleting DC with sourceId:', site.sourceId);
         contextDeleteDC(site.sourceId);
       } else if (site.sourceType === 'site' && contextDeleteSite) {
+        console.log('[deleteSite] Deleting Site with sourceId:', site.sourceId);
         contextDeleteSite(site.sourceId);
       }
     }
