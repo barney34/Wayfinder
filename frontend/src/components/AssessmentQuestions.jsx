@@ -801,7 +801,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger>
-                    <Badge variant="outline" className="text-[10px] py-0 px-1.5 bg-blue-50 text-blue-600 border-blue-200">
+                    <Badge variant="outline" className="text-[10px] py-0 px-1.5 bg-accent/10 text-accent border-accent/30">
                       <Zap className="h-2.5 w-2.5 mr-0.5" />Auto
                     </Badge>
                   </TooltipTrigger>
@@ -1132,7 +1132,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                   >
                     Clear
                   </Button>
-                  <span className={`text-xs font-medium transition-colors ${isSectionEnabled ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'}`}>
+                  <span className={`text-xs font-medium transition-colors ${isSectionEnabled ? 'text-primary' : 'text-muted-foreground'}`}>
                     {isSectionEnabled ? 'On' : 'Off'}
                   </span>
                   <Checkbox 

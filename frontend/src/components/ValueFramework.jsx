@@ -24,7 +24,7 @@ const CATEGORY_ICONS = {
 };
 
 const CATEGORY_COLORS = {
-  optimize: { bg: "bg-blue-500/10", border: "border-blue-500/30", text: "text-blue-600", badge: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300" },
+  optimize: { bg: "bg-accent/10", border: "border-accent/30", text: "text-accent", badge: "bg-accent/15 text-accent" },
   accelerate: { bg: "bg-emerald-500/10", border: "border-emerald-500/30", text: "text-emerald-600", badge: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" },
   protect: { bg: "bg-amber-500/10", border: "border-amber-500/30", text: "text-amber-600", badge: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300" },
 };
@@ -172,10 +172,10 @@ export function ValueFramework() {
                 <CollapsibleContent>
                   <div className="mt-4 space-y-4">
                     {/* Before Scenarios (Pain Points) */}
-                    <div className="bg-red-50/50 dark:bg-red-900/10 rounded-lg p-3 border border-red-200/50 dark:border-red-800/30">
+                    <div className="bg-destructive/10 rounded-lg p-3 border border-destructive/30">
                       <div className="flex items-center gap-2 mb-2">
-                        <AlertTriangle className="h-3.5 w-3.5 text-red-500" />
-                        <span className="text-xs font-semibold text-red-700 dark:text-red-300 uppercase tracking-wide">Common Pain Points</span>
+                        <AlertTriangle className="h-3.5 w-3.5 text-destructive" />
+                        <span className="text-xs font-semibold text-destructive uppercase tracking-wide">Common Pain Points</span>
                       </div>
                       <ul className="space-y-1">
                         {category.before_scenarios.map((scenario, i) => (
