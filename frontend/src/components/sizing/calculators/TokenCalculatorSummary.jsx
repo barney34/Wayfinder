@@ -179,6 +179,8 @@ export function TokenCalculatorSummary() {
         dhcpPercent: override.dhcpPercent ?? dhcpPercent,
         dhcpPartner: override.dhcpPartner || null,
         serverCount: override.serverCount || 1,
+        haEnabled: override.haEnabled || false, // HA checkbox - doubles SW instances
+        hwCount: override.hwCount, // User-editable HW count (undefined = auto)
         addToReport: override.addToReport !== undefined ? override.addToReport : true,
         addToBom: override.addToBom !== undefined ? override.addToBom : true,
         isDisabledInUddi, originalRole: role,
