@@ -72,6 +72,8 @@ export function TokenCalculatorSummary() {
   const [showHardware, setShowHardware] = useState(false);
   // UI toggle for KW column (hidden by default like Hardware SKU)
   const [showKW, setShowKW] = useState(false);
+  // UI toggle for Services column (hidden by default)
+  const [showServices, setShowServices] = useState(true);
 
   // "Why this model?" dialog state
   const [showModelDialog, setShowModelDialog] = useState(false);
