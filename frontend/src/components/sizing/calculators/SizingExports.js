@@ -193,8 +193,8 @@ export function exportPDF(sites, totals, bom, partnerSku, platformMode, security
   doc.save('site-sizing-export.pdf');
 }
 
-export function exportDrawing(sites, drawingNum) {
-  console.log('[exportDrawing] Called with', sites?.length, 'sites');
+export function exportForLucid(sites, drawingNum) {
+  console.log('[exportForLucid] Called with', sites?.length, 'sites, drawing:', drawingNum);
   
   if (!sites || sites.length === 0) {
     alert('No sites to export. Please add sites to the sizing table first.');
@@ -209,10 +209,16 @@ export function exportDrawing(sites, drawingNum) {
     return (roleOrder[a.role] || 5) - (roleOrder[b.role] || 5);
   });
 
-  console.log('[exportDrawing] Processing', sortedSites.length, 'sorted sites');
+  console.log('[exportForLucid] Processing', sortedSites.length, 'sorted sites');
 
   sortedSites.forEach((site, idx) => {
-    console.log('[exportDrawing] Site', idx, site.name, site.role);
+    // Skip sites not marked for report
+    if (site.addToReport === false) {
+      console.log('[exportForLucid] Skipping site (not in report):', site.name);
+      return;
+    }
+    
+    console.log('[exportForLucid] Site', idx, site.name, site.role, 'HA:', site.haEnabled, 'Srv#:', site.serverCount);
     
     const unitGroup = getUnitGroup(site.role, site.sourceType);
     unitCounter[unitGroup] = (unitCounter[unitGroup] || 0) + 1;
@@ -226,50 +232,80 @@ export function exportDrawing(sites, drawingNum) {
     const swPackage = getSwPackage(site.role, (site.services || []).includes('Discovery'));
     const hwInfo = getHwSkuInfo(model);
 
+    // Description: siteName - role + services
     let description = site.role || 'DNS/DHCP';
     if (site.services && site.services.length > 0) description += ` + ${site.services.join(', ')}`;
     if (site.name) description = `${site.name} - ${description}`;
 
+    // SW Add-ons based on services
     const swAddons = [];
     if ((site.services || []).includes('DFP')) swAddons.push('ADP');
     if ((site.services || []).includes('NTP')) swAddons.push('NTP');
 
+    // SW Instances: serverCount * (HA ? 2 : 1)
+    const swInstances = site.swInstances || (site.serverCount || 1) * (site.haEnabled ? 2 : 1);
+    
+    // HW Count: use site.hwCount if defined, otherwise auto-calculate
+    const isVirtual = site.platform?.includes('NXVS') || site.platform?.includes('NXaaS') || 
+                      site.platform === 'NIOS-V' || site.platform === 'NIOS-VHA';
+    const hwCount = site.hwCount !== undefined ? site.hwCount : (isVirtual ? 0 : swInstances);
+
+    // Unit # or Range
+    let unitRange = unitCounter[unitGroup].toString();
+    if (site.serverCount > 1 || swInstances > 1) {
+      const startNum = unitCounter[unitGroup];
+      unitRange = `${startNum}-${startNum + swInstances - 1}`;
+      unitCounter[unitGroup] += swInstances - 1; // Account for multiple units
+    }
+
     rows.push({
       'Drawing #': drawingNum || '',
       'Unit Group': unitGroup,
-      'Unit #/Range': site.serverCount > 1 ? `1-${site.serverCount}` : unitCounter[unitGroup].toString(),
+      'Unit #/Range': unitRange,
       'Solution': solution,
       'Model Info': model,
-      'SW Instances': site.serverCount || 1,
+      'SW Instances': swInstances,
       'Description': description,
       'SW Base SKU': swBaseSku,
       'SW Package': swPackage,
       'SW Add-ons': swAddons.join(', ') || '',
       'HW License SKU': hwInfo.hwSku,
       'HW Add-ons': '',
-      'HW Count': hwInfo.hwSku === 'VM' || hwInfo.hwSku === 'Cloud' ? 0 : site.serverCount || 1,
-      'Add to Report': 'Yes',
-      'Add to BOM': 'Yes',
+      'HW Count': hwCount,
+      'Add to Report': site.addToReport !== false ? 'Yes' : 'No',
+      'Add to BOM': site.addToBom !== false ? 'Yes' : 'No',
     });
   });
 
-  console.log('[exportDrawing] Created', rows.length, 'rows');
+  console.log('[exportForLucid] Created', rows.length, 'rows');
 
   try {
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(rows);
     ws['!cols'] = [
-      { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 15 },
-      { wch: 12 }, { wch: 35 }, { wch: 18 }, { wch: 12 }, { wch: 15 },
-      { wch: 18 }, { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 12 },
+      { wch: 12 }, // Drawing #
+      { wch: 10 }, // Unit Group
+      { wch: 12 }, // Unit #/Range
+      { wch: 10 }, // Solution
+      { wch: 15 }, // Model Info
+      { wch: 12 }, // SW Instances
+      { wch: 35 }, // Description
+      { wch: 18 }, // SW Base SKU
+      { wch: 12 }, // SW Package
+      { wch: 15 }, // SW Add-ons
+      { wch: 18 }, // HW License SKU
+      { wch: 12 }, // HW Add-ons
+      { wch: 10 }, // HW Count
+      { wch: 12 }, // Add to Report
+      { wch: 12 }, // Add to BOM
     ];
     XLSX.utils.book_append_sheet(wb, ws, 'Drawing');
-    const filename = `${drawingNum || 'sizing'}-lucid-export.xlsx`;
-    console.log('[exportDrawing] Writing file:', filename);
+    const filename = `drawing-${drawingNum || '1'}-lucid-export.xlsx`;
+    console.log('[exportForLucid] Writing file:', filename);
     XLSX.writeFile(wb, filename);
-    console.log('[exportDrawing] Export complete');
+    console.log('[exportForLucid] Export complete');
   } catch (err) {
-    console.error('[exportDrawing] Error:', err);
+    console.error('[exportForLucid] Error:', err);
     alert('Export failed: ' + err.message);
   }
 }
