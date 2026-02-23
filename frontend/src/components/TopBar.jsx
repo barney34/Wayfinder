@@ -186,9 +186,9 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
               </div>
             )}
             <div className="flex gap-1.5 mt-auto">
-              <input value={dcName} onChange={e => setDcName(e.target.value)} placeholder="Name" className="flex-1 min-w-0 h-7 px-2 text-xs rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]/20" onKeyDown={e => e.key === 'Enter' && handleAddDC()} data-testid="dc-name-input" />
-              <input type="number" value={dcKW} onChange={e => setDcKW(e.target.value)} placeholder="KW" className="w-14 h-7 px-2 text-xs rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" onKeyDown={e => e.key === 'Enter' && handleAddDC()} data-testid="dc-kw-input" />
-              <button onClick={handleAddDC} disabled={!dcName.trim()} className="shrink-0 h-7 w-7 rounded-lg bg-[#16a34a] hover:bg-[#16a34a]/90 disabled:bg-muted flex items-center justify-center text-white disabled:text-muted-foreground shadow-sm" data-testid="dc-add-btn"><Plus className="h-3.5 w-3.5" /></button>
+              <input value={dcName} onChange={e => setDcName(e.target.value)} placeholder="Name" className="flex-1 min-w-0 h-7 px-2 text-xs rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20" onKeyDown={e => e.key === 'Enter' && handleAddDC()} data-testid="dc-name-input" />
+              <input type="number" value={dcKW} onChange={e => setDcKW(e.target.value)} placeholder="KW" className="w-14 h-7 px-2 text-xs rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" onKeyDown={e => e.key === 'Enter' && handleAddDC()} data-testid="dc-kw-input" />
+              <button onClick={handleAddDC} disabled={!dcName.trim()} className="shrink-0 h-7 w-7 rounded-lg bg-primary hover:bg-primary/90 disabled:bg-muted flex items-center justify-center text-white disabled:text-muted-foreground shadow-sm" data-testid="dc-add-btn"><Plus className="h-3.5 w-3.5" /></button>
             </div>
           </div>
 
@@ -210,9 +210,9 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
               </div>
             )}
             <div className="flex gap-1.5 mt-auto">
-              <input value={siteName} onChange={e => setSiteName(e.target.value)} placeholder="Name" className="flex-1 min-w-0 h-7 px-2 text-xs rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#7c3aed] focus:ring-1 focus:ring-[#7c3aed]/20" onKeyDown={e => e.key === 'Enter' && handleAddSite()} data-testid="site-name-input" />
-              <input type="number" value={siteKW} onChange={e => setSiteKW(e.target.value)} placeholder="KW" className="w-14 h-7 px-2 text-xs rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#7c3aed] focus:ring-1 focus:ring-[#7c3aed]/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" onKeyDown={e => e.key === 'Enter' && handleAddSite()} data-testid="site-kw-input" />
-              <button onClick={handleAddSite} disabled={!siteName.trim()} className="shrink-0 h-7 w-7 rounded-lg bg-[#7c3aed] hover:bg-[#7c3aed]/90 disabled:bg-muted flex items-center justify-center text-white disabled:text-muted-foreground shadow-sm" data-testid="site-add-btn"><Plus className="h-3.5 w-3.5" /></button>
+              <input value={siteName} onChange={e => setSiteName(e.target.value)} placeholder="Name" className="flex-1 min-w-0 h-7 px-2 text-xs rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20" onKeyDown={e => e.key === 'Enter' && handleAddSite()} data-testid="site-name-input" />
+              <input type="number" value={siteKW} onChange={e => setSiteKW(e.target.value)} placeholder="KW" className="w-14 h-7 px-2 text-xs rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" onKeyDown={e => e.key === 'Enter' && handleAddSite()} data-testid="site-kw-input" />
+              <button onClick={handleAddSite} disabled={!siteName.trim()} className="shrink-0 h-7 w-7 rounded-lg bg-primary hover:bg-primary/90 disabled:bg-muted flex items-center justify-center text-white disabled:text-muted-foreground shadow-sm" data-testid="site-add-btn"><Plus className="h-3.5 w-3.5" /></button>
             </div>
           </div>
 
@@ -224,7 +224,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
             </div>
             <div className="space-y-1">
               <div className="grid grid-cols-2 gap-1">
-                <button onClick={() => setAnswer('feature-nios', !isNIOS ? 'Yes' : 'No')} className={`flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all border ${isNIOS ? 'bg-[#16a34a] text-white border-[#16a34a] shadow-sm' : 'bg-secondary text-secondary-foreground hover:bg-muted border-border'}`} data-testid="toggle-feature-nios">
+                <button onClick={() => setAnswer('feature-nios', !isNIOS ? 'Yes' : 'No')} className={`flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all border ${isNIOS ? 'bg-primary text-white border-primary shadow-sm' : 'bg-secondary text-secondary-foreground hover:bg-muted border-border'}`} data-testid="toggle-feature-nios">
                   NIOS
                   {isNIOS && isAsset && (<div className="relative group"><Info className="h-2.5 w-2.5" /><div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-popover text-popover-foreground text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-10 shadow-lg border border-border">+Mgmt Tokens Added</div></div>)}
                 </button>
@@ -255,13 +255,13 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
             <div className="space-y-1.5">
               <div>
                 <label className="text-[10px] text-muted-foreground font-medium mb-0.5 block">Knowledge Workers</label>
-                <input type="number" value={answers['ud-1'] || ''} onChange={e => setAnswer('ud-1', e.target.value)} placeholder="0" className="w-full h-7 px-2 text-xs rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" data-testid="kw-input" />
+                <input type="number" value={answers['ud-1'] || ''} onChange={e => setAnswer('ud-1', e.target.value)} placeholder="0" className="w-full h-7 px-2 text-xs rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" data-testid="kw-input" />
               </div>
               <div>
                 <label className="text-[10px] text-muted-foreground font-medium mb-0.5 block">Multiplier</label>
                 <div className="flex items-center gap-1">
                   <button onClick={() => { const c = parseFloat(answers['ipam-multiplier'] || '2.5'); setAnswer('ipam-multiplier', Math.max(0.5, c - 0.5).toString()); }} className="h-7 w-7 shrink-0 rounded-lg bg-secondary border border-border hover:bg-muted flex items-center justify-center text-foreground" data-testid="multiplier-down"><ChevronDown className="h-3.5 w-3.5" /></button>
-                  <input type="number" step="0.5" value={answers['ipam-multiplier'] || '2.5'} onChange={e => setAnswer('ipam-multiplier', e.target.value)} className="flex-1 min-w-0 h-7 px-1 text-xs text-center rounded-lg bg-secondary border border-border text-foreground focus:outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" data-testid="multiplier-input" />
+                  <input type="number" step="0.5" value={answers['ipam-multiplier'] || '2.5'} onChange={e => setAnswer('ipam-multiplier', e.target.value)} className="flex-1 min-w-0 h-7 px-1 text-xs text-center rounded-lg bg-secondary border border-border text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" data-testid="multiplier-input" />
                   <button onClick={() => { const c = parseFloat(answers['ipam-multiplier'] || '2.5'); setAnswer('ipam-multiplier', (c + 0.5).toString()); }} className="h-7 w-7 shrink-0 rounded-lg bg-secondary border border-border hover:bg-muted flex items-center justify-center text-foreground" data-testid="multiplier-up"><ChevronUp className="h-3.5 w-3.5" /></button>
                 </div>
               </div>
