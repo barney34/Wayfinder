@@ -202,7 +202,7 @@ export function TokenCalculatorSummary() {
       }
     });
 
-    // Second pass: Calculate model/tokens
+    // Second pass: Calculate model/tokens with HA logic
     return allBasicSites.map(site => {
       const isSpoke = !!site.dhcpPartner;
       const hubLPS = hubLPSMap[site.id] || 0;
@@ -219,13 +219,25 @@ export function TokenCalculatorSummary() {
       const baseTokens = getTokensForModel(recommendedModel);
       const serviceImpact = getServiceImpact(site.services);
       const singleServerTokens = Math.ceil(baseTokens * (1 + serviceImpact / 100));
-      const adjustedTokens = singleServerTokens * site.serverCount;
+      
+      // HA doubles the SW instances (serverCount * 2 if HA enabled)
+      const haMultiplier = site.haEnabled ? 2 : 1;
+      const swInstances = site.serverCount * haMultiplier;
+      const adjustedTokens = singleServerTokens * swInstances;
+      
+      // HW count: user can override, otherwise defaults to swInstances for physical, 0 for virtual/cloud
+      const isVirtualOrCloud = site.platform?.includes('NXVS') || site.platform?.includes('NXaaS') || 
+                               site.platform === 'NIOS-V' || site.platform === 'NIOS-VHA';
+      const defaultHwCount = isVirtualOrCloud ? 0 : swInstances;
+      const hwCount = site.hwCount !== undefined ? site.hwCount : defaultHwCount;
 
       return {
         ...site, recommendedModel,
         hardwareSku: siteOverrides[site.id]?.hardwareSku || defaultHardware,
         hardwareOptions, tokens: adjustedTokens, tokensPerServer: singleServerTokens,
         serviceImpact, isHub, isSpoke, hubLPS,
+        swInstances, // Calculated: serverCount * (HA ? 2 : 1)
+        hwCount, // User-editable or auto-calculated
       };
     });
   }, [dataCenterIds, contextSiteIds, dataCenters, contextSites, siteOverrides, ipMultiplier, dhcpPercent, platformMode, leaseTimeSeconds, ipCalcValue]);
