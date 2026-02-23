@@ -142,7 +142,7 @@ function SyncedNumberField({ questionId, value, onChange, syncValue, syncLabel }
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger>
-              <Badge variant="outline" className="text-[10px] py-0 px-1.5 bg-[#FEDD00]/10 text-[#FEDD00] border-[#FEDD00]/50">
+              <Badge variant="outline" className="text-[10px] py-0 px-1.5 bg-[#FEDD00]/10 text-[#9A7600] dark:text-[#FEDD00] border-[#FEDD00]/50">
                 <AlertTriangle className="h-2.5 w-2.5 mr-0.5" />
                 {syncValue} in TopBar
               </Badge>
@@ -176,7 +176,7 @@ function AddResponseField({ questionId, value, onChange, onExamine, sectionConte
     return (
       <button
         onClick={() => setIsExpanded(true)}
-        className="text-sm text-[#12C2D3] hover:text-[#12C2D3]/80 flex items-center gap-1"
+        className="text-sm text-[#00594C] dark:text-[#12C2D3] hover:text-[#00594C] dark:text-[#12C2D3]/80 flex items-center gap-1"
         data-testid={`add-response-btn-${questionId}`}
       >
         <Plus className="h-3 w-3" />
