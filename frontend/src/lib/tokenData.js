@@ -354,10 +354,28 @@ export function getHwSkuInfo(model) {
   return hwSkuMap[model] || { hwSku: 'VM', description: 'Virtual Machine' };
 }
 
-// Helper to get Unit Group letter
-export function getUnitGroup(role, sourceType) {
+// Unit Group mapping based on Lucidchart alphabet chart
+// A = GM/GMC, B = Internal DNS, C = DHCP, D = Edge/Remote, E = External DNS
+// F = Cache/DMZ, G = Guest, M = MSFT Sync, N = Network Insight, RPT = Reporting
+export function getUnitGroup(role, sourceType, services = []) {
+  // GM and GMC are always A
   if (role === 'GM') return 'A';
-  if (role === 'GMC') return 'B';
-  if (sourceType === 'dataCenter') return 'F';
-  return unitGroupMap[role] || 'G';
+  if (role === 'GMC') return 'A';
+  
+  // Check for special services
+  if (services?.includes('NI') || services?.includes('Network Insight')) return 'N';
+  if (services?.includes('Reporting')) return 'RPT';
+  if (services?.includes('MSFT') || services?.includes('Microsoft')) return 'M';
+  
+  // Role-based mapping
+  if (role === 'DNS' || role === 'DNS/DHCP' || role?.includes('Internal DNS')) return 'B';
+  if (role === 'DHCP') return 'C';
+  if (role?.toLowerCase()?.includes('edge') || role?.toLowerCase()?.includes('remote')) return 'D';
+  if (role?.toLowerCase()?.includes('external') || role?.toLowerCase()?.includes('authoritative')) return 'E';
+  if (role?.toLowerCase()?.includes('cache') || role?.toLowerCase()?.includes('forward') || role?.toLowerCase()?.includes('dmz')) return 'F';
+  if (role?.toLowerCase()?.includes('guest')) return 'G';
+  
+  // Default based on source type
+  if (sourceType === 'dataCenter') return 'B'; // DCs are typically internal DNS
+  return 'B'; // Default to internal DNS
 }
