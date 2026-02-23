@@ -85,14 +85,27 @@ export function SiteTableRow({
     return desc;
   };
 
-  // SW Add-ons from services
-  const getSwAddons = () => {
-    const addons = [];
-    if ((site.services || []).includes('DFP')) addons.push('ADP');
-    if ((site.services || []).includes('NTP')) addons.push('NTP');
-    if ((site.services || []).includes('Discovery')) addons.push('DIS');
+  // SW Add-ons from site.swAddons array (selected by user)
+  const getSwAddonsDisplay = () => {
+    const addons = site.swAddons || [];
+    // Also include legacy services as add-ons
+    if ((site.services || []).includes('DFP') && !addons.includes('ADP')) addons.push('ADP');
+    // Add RPT with quantity if Reporting role
+    if (site.role === 'Reporting' && site.rptQuantity) {
+      addons.push(`RPT-${site.rptQuantity}`);
+    }
     return addons.join(', ');
   };
+
+  // HW Add-ons from site.hwAddons array
+  const getHwAddonsDisplay = () => {
+    return (site.hwAddons || []).join(', ');
+  };
+
+  // Get available SW Add-ons for this row
+  const availableSwAddons = getAvailableSwAddons(site.role, site.platform);
+  const availableHwAddons = getAvailableHwAddons(site.recommendedModel, site.platform);
+  const isReportingRole = site.role === 'Reporting';
 
   // Export view - full export columns matching Lucidchart format
   if (exportView) {
@@ -101,7 +114,8 @@ export function SiteTableRow({
     const swBaseSku = getSwBaseSku(site.recommendedModel);
     const swPackage = getSwPackage(site.role, (site.services || []).includes('Discovery'));
     const hwLicenseSku = getHwLicenseSku(site.recommendedModel, site.platform);
-    const swAddons = getSwAddons();
+    const swAddons = getSwAddonsDisplay();
+    const hwAddons = getHwAddonsDisplay();
     const description = getDescription();
     const swInstances = site.swInstances || 1;
     const hwCount = site.hwCount ?? 0;
