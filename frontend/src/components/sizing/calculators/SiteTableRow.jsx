@@ -152,7 +152,7 @@ export function SiteTableRow({
         <TableCell className="p-1.5 font-mono text-[11px]">{hwLicenseSku}</TableCell>
         
         {/* HW Add-ons */}
-        <TableCell className="p-1.5 text-muted-foreground">—</TableCell>
+        <TableCell className="p-1.5 text-muted-foreground">{hwAddons || '—'}</TableCell>
         
         {/* HW Count */}
         <TableCell className="p-1.5 text-center">{hwCount}</TableCell>
