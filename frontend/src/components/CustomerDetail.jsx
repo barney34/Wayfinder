@@ -359,7 +359,7 @@ function HeaderSaveButton({ customerName, customerId }) {
 
   return (
     <Button variant="outline" size="sm" onClick={handleSave} disabled={saving}
-      className="border-green-600 text-green-600 hover:bg-green-600/10 dark:border-green-500 dark:text-primary"
+      className="border-primary text-primary hover:bg-primary/10"
       data-testid="save-button">
       <Save className="h-4 w-4 mr-1" />
       {saving ? 'Saving...' : 'Save'}
