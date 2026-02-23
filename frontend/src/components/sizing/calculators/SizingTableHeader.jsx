@@ -1,6 +1,7 @@
 /**
  * SizingTableHeader - Column headers for the sizing table with tooltips
- * Column order matches export format: Location, IPs, KW?, Role, Services?, DHCP Partner, Srv#, HA, Platform, Model, HW SKU?, SW#, HW#, Tokens?, Rpt, BOM, Actions
+ * Export columns: Drawing #, Unit Group, Unit #/Range, Solution, Model Info, SW Instances, Description, SW Base SKU, SW Package, SW Add-ons, HW License SKU, HW Add-ons, HW Count, Add to Report, Add to BOM
+ * Normal columns: Location, IPs, KW?, Role, Services?, DHCP Partner, Srv#, HA, Platform, Model, HW SKU?, SW#, HW#, Tokens?, Rpt, BOM, Actions
  */
 import { TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -21,8 +22,27 @@ function HeaderWithTooltip({ children, tooltip, className = "" }) {
   );
 }
 
-export function SizingTableHeader({ showHardware, showKW, showServices, platformMode }) {
+export function SizingTableHeader({ showHardware, showKW, showServices, platformMode, exportView }) {
   const showTokens = platformMode !== 'NIOS'; // Hide tokens for NIOS-only mode
+  
+  // Export view - show columns matching export format
+  if (exportView) {
+    return (
+      <TableHeader>
+        <TableRow className="bg-muted/50">
+          <TableHead className="w-28 text-xs lg:text-sm">Location</TableHead>
+          <TableHead className="w-16 text-xs lg:text-sm">Unit Grp</TableHead>
+          <TableHead className="w-20 text-xs lg:text-sm">Solution</TableHead>
+          <TableHead className="w-24 text-xs lg:text-sm">Model</TableHead>
+          <TableHead className="w-14 text-xs lg:text-sm text-center">SW#</TableHead>
+          <TableHead className="w-20 text-xs lg:text-sm text-center">HW#</TableHead>
+          <TableHead className="w-12 text-xs lg:text-sm text-center">Rpt</TableHead>
+          <TableHead className="w-12 text-xs lg:text-sm text-center">BOM</TableHead>
+          <TableHead className="w-12 text-xs lg:text-sm"></TableHead>
+        </TableRow>
+      </TableHeader>
+    );
+  }
   
   return (
     <TableHeader>
