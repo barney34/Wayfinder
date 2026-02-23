@@ -129,7 +129,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
           {/* TS stacked */}
           <div className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg bg-secondary/50">
             <div className="flex items-center gap-1">
-              <Target className="h-3 w-3 text-[#00594C] dark:text-[#FEDD00]" />
+              <Target className="h-3 w-3 text-foreground" />
               <span className="text-[10px] font-semibold text-[#00594C] dark:text-[#FEDD00]">TS</span>
             </div>
             {activeSolutions.length > 0 ? (
