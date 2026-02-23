@@ -72,7 +72,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
   const oppLen = Math.max((opportunity || '').length, 8);
 
   return (
-    <div className="flex-shrink-0 bg-card border-b border-border shadow-sm" data-testid="topbar">
+    <div className="flex-shrink-0 bg-card border-b border-border" data-testid="topbar">
       {/* Header row with customer pill on left, summary items aligned with cards */}
       <div 
         className="px-4 py-1.5 flex items-center border-b border-border cursor-pointer"
@@ -80,7 +80,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
       >
         {/* Customer Pill - Fixed width, not part of the grid alignment */}
         <div ref={pillRef} onClick={e => e.stopPropagation()} className="shrink-0 mr-4">
-          <div className="flex flex-col gap-0 px-2.5 py-1 rounded-lg bg-secondary border border-border shadow-sm">
+          <div className="flex flex-col gap-0 px-2.5 py-1 rounded-lg bg-secondary border border-border">
             <div className="flex items-center gap-1.5">
               <span className="text-[8px] text-muted-foreground uppercase tracking-wide shrink-0 font-medium">Customer:</span>
               <input
@@ -169,7 +169,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
       {!collapsed && (
         <div className="px-4 py-3 grid gap-3" style={{ gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr) minmax(150px, 0.7fr) minmax(150px, 0.7fr)' }}>
           {/* Data Centers */}
-          <div className="bg-card rounded-xl p-3 flex flex-col border border-border shadow-sm">
+          <div className="bg-card rounded-xl p-3 flex flex-col border border-border">
             <div className="flex items-center gap-2 mb-2">
               <Building2 className="h-3.5 w-3.5 text-[#00BD4D]" />
               <span className="text-xs font-semibold text-foreground">Data Centers</span>
@@ -188,12 +188,12 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
             <div className="flex gap-1.5 mt-auto">
               <input value={dcName} onChange={e => setDcName(e.target.value)} placeholder="Name" className="flex-1 min-w-0 h-7 px-2 text-xs rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20" onKeyDown={e => e.key === 'Enter' && handleAddDC()} data-testid="dc-name-input" />
               <input type="number" value={dcKW} onChange={e => setDcKW(e.target.value)} placeholder="KW" className="w-14 h-7 px-2 text-xs rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" onKeyDown={e => e.key === 'Enter' && handleAddDC()} data-testid="dc-kw-input" />
-              <button onClick={handleAddDC} disabled={!dcName.trim()} className="shrink-0 h-7 w-7 rounded-lg bg-primary hover:bg-primary/90 disabled:bg-muted flex items-center justify-center text-white disabled:text-muted-foreground shadow-sm" data-testid="dc-add-btn"><Plus className="h-3.5 w-3.5" /></button>
+              <button onClick={handleAddDC} disabled={!dcName.trim()} className="shrink-0 h-7 w-7 rounded-lg bg-primary hover:bg-primary/90 disabled:bg-muted flex items-center justify-center text-white disabled:text-muted-foreground" data-testid="dc-add-btn"><Plus className="h-3.5 w-3.5" /></button>
             </div>
           </div>
 
           {/* Sites */}
-          <div className="bg-card rounded-xl p-3 flex flex-col border border-border shadow-sm">
+          <div className="bg-card rounded-xl p-3 flex flex-col border border-border">
             <div className="flex items-center gap-2 mb-2">
               <MapPin className="h-3.5 w-3.5 text-foreground" />
               <span className="text-xs font-semibold text-foreground">Sites</span>
@@ -212,27 +212,27 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
             <div className="flex gap-1.5 mt-auto">
               <input value={siteName} onChange={e => setSiteName(e.target.value)} placeholder="Name" className="flex-1 min-w-0 h-7 px-2 text-xs rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20" onKeyDown={e => e.key === 'Enter' && handleAddSite()} data-testid="site-name-input" />
               <input type="number" value={siteKW} onChange={e => setSiteKW(e.target.value)} placeholder="KW" className="w-14 h-7 px-2 text-xs rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" onKeyDown={e => e.key === 'Enter' && handleAddSite()} data-testid="site-kw-input" />
-              <button onClick={handleAddSite} disabled={!siteName.trim()} className="shrink-0 h-7 w-7 rounded-lg bg-primary hover:bg-primary/90 disabled:bg-muted flex items-center justify-center text-white disabled:text-muted-foreground shadow-sm" data-testid="site-add-btn"><Plus className="h-3.5 w-3.5" /></button>
+              <button onClick={handleAddSite} disabled={!siteName.trim()} className="shrink-0 h-7 w-7 rounded-lg bg-primary hover:bg-primary/90 disabled:bg-muted flex items-center justify-center text-white disabled:text-muted-foreground" data-testid="site-add-btn"><Plus className="h-3.5 w-3.5" /></button>
             </div>
           </div>
 
           {/* Target Solutions */}
-          <div className="bg-card rounded-xl p-2.5 border border-border shadow-sm">
+          <div className="bg-card rounded-xl p-2.5 border border-border">
             <div className="flex items-center gap-1.5 mb-1.5">
               <Target className="h-3.5 w-3.5 text-foreground" />
               <span className="text-[11px] font-semibold text-foreground">Target Solutions</span>
             </div>
             <div className="space-y-1">
               <div className="grid grid-cols-2 gap-1">
-                <button onClick={() => setAnswer('feature-nios', !isNIOS ? 'Yes' : 'No')} className={`flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all border ${isNIOS ? 'bg-primary text-white border-primary shadow-sm' : 'bg-secondary text-secondary-foreground hover:bg-muted border-border'}`} data-testid="toggle-feature-nios">
+                <button onClick={() => setAnswer('feature-nios', !isNIOS ? 'Yes' : 'No')} className={`flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all border ${isNIOS ? 'bg-primary text-white border-primary' : 'bg-secondary text-secondary-foreground hover:bg-muted border-border'}`} data-testid="toggle-feature-nios">
                   NIOS
                   {isNIOS && isAsset && (<div className="relative group"><Info className="h-2.5 w-2.5" /><div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-popover text-popover-foreground text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-10 shadow-lg border border-border">+Mgmt Tokens Added</div></div>)}
                 </button>
-                <button onClick={() => setAnswer('feature-uddi', !isUDDI ? 'Yes' : 'No')} className={`flex items-center justify-center px-1.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all border ${isUDDI ? 'bg-[#2563eb] text-white border-[#2563eb] shadow-sm' : 'bg-secondary text-secondary-foreground hover:bg-muted border-border'}`} data-testid="toggle-feature-uddi">UDDI</button>
+                <button onClick={() => setAnswer('feature-uddi', !isUDDI ? 'Yes' : 'No')} className={`flex items-center justify-center px-1.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all border ${isUDDI ? 'bg-[#2563eb] text-white border-[#2563eb]' : 'bg-secondary text-secondary-foreground hover:bg-muted border-border'}`} data-testid="toggle-feature-uddi">UDDI</button>
               </div>
               <div className="grid grid-cols-2 gap-1">
-                <button onClick={() => setAnswer('feature-security', !isSecurity ? 'Yes' : 'No')} className={`flex items-center justify-center px-1.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all border ${isSecurity ? 'bg-[#dc2626] text-white border-[#dc2626] shadow-sm' : 'bg-secondary text-secondary-foreground hover:bg-muted border-border'}`} data-testid="toggle-feature-security">Security</button>
-                <button onClick={() => setAnswer('feature-asset insights', !isAsset ? 'Yes' : 'No')} className={`flex items-center justify-center gap-0.5 px-1.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all border ${isAsset ? 'bg-[#9333ea] text-white border-[#9333ea] shadow-sm' : 'bg-secondary text-secondary-foreground hover:bg-muted border-border'}`} data-testid="toggle-feature-asset">
+                <button onClick={() => setAnswer('feature-security', !isSecurity ? 'Yes' : 'No')} className={`flex items-center justify-center px-1.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all border ${isSecurity ? 'bg-[#dc2626] text-white border-[#dc2626]' : 'bg-secondary text-secondary-foreground hover:bg-muted border-border'}`} data-testid="toggle-feature-security">Security</button>
+                <button onClick={() => setAnswer('feature-asset insights', !isAsset ? 'Yes' : 'No')} className={`flex items-center justify-center gap-0.5 px-1.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all border ${isAsset ? 'bg-[#9333ea] text-white border-[#9333ea]' : 'bg-secondary text-secondary-foreground hover:bg-muted border-border'}`} data-testid="toggle-feature-asset">
                   Asset
                   {isAsset && isNIOS && (<div className="relative group"><Info className="h-2.5 w-2.5" /><div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-popover text-popover-foreground text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-10 shadow-lg border border-border">+Mgmt Tokens Added</div></div>)}
                 </button>
@@ -244,7 +244,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
           </div>
 
           {/* Active IPs */}
-          <div className="bg-card rounded-xl p-2.5 border border-border shadow-sm">
+          <div className="bg-card rounded-xl p-2.5 border border-border">
             <div className="flex items-center justify-between mb-1.5">
               <div className="flex items-center gap-1.5">
                 <Calculator className="h-3.5 w-3.5 text-[#00BD4D]" />

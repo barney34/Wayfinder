@@ -340,7 +340,7 @@ export function ChatValueDiscovery({ section }) {
       <div className="flex items-center gap-2">
         <button
           onClick={() => setExpanded(!expanded)}
-          className="flex-1 flex items-center justify-between px-4 py-3 rounded-2xl bg-card border border-border shadow-sm hover:shadow-md transition-all"
+          className="flex-1 flex items-center justify-between px-4 py-3 rounded-2xl bg-card border border-border transition-all"
         >
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl bg-[#12C2D3]/15 flex items-center justify-center">
@@ -375,7 +375,7 @@ export function ChatValueDiscovery({ section }) {
 
       {/* Chat Interface */}
       {expanded && (
-        <div className="mt-3 rounded-2xl bg-card border border-border overflow-hidden shadow-sm">
+        <div className="mt-3 rounded-2xl bg-card border border-border overflow-hidden">
           {/* Mode Toggle + Topics Bar */}
           <div className="px-4 py-2 border-b border-border bg-secondary/50">
             {/* Mode Toggle */}
@@ -385,7 +385,7 @@ export function ChatValueDiscovery({ section }) {
                   onClick={() => setMode('guided')}
                   className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-medium transition-colors ${
                     mode === 'guided' 
-                      ? 'bg-[#12C2D3] text-white shadow-sm' 
+                      ? 'bg-[#12C2D3] text-white' 
                       : 'text-secondary-foreground hover:text-foreground hover:bg-muted'
                   }`}
                 >
@@ -396,7 +396,7 @@ export function ChatValueDiscovery({ section }) {
                   onClick={() => setMode('free')}
                   className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-medium transition-colors ${
                     mode === 'free' 
-                      ? 'bg-[#12C2D3] text-white shadow-sm' 
+                      ? 'bg-[#12C2D3] text-white' 
                       : 'text-secondary-foreground hover:text-foreground hover:bg-muted'
                   }`}
                 >
@@ -487,14 +487,14 @@ export function ChatValueDiscovery({ section }) {
                 onKeyDown={handleKeyDown}
                 placeholder={mode === 'guided' ? "Type your response..." : "Ask any question..."}
                 disabled={isLoading}
-                className="flex-1 h-10 px-4 rounded-xl bg-background border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:opacity-50 text-sm shadow-sm"
+                className="flex-1 h-10 px-4 rounded-xl bg-background border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:opacity-50 text-sm"
                 data-testid={`chat-input-${section.replace(/\s/g, '-')}`}
               />
               <Button
                 onClick={sendMessage}
                 disabled={!inputValue.trim() || isLoading}
                 size="icon"
-                className="h-10 w-10 rounded-xl bg-[#00BD4D] hover:bg-[#00BD4D]/90 disabled:opacity-50 shadow-sm"
+                className="h-10 w-10 rounded-xl bg-[#00BD4D] hover:bg-[#00BD4D]/90 disabled:opacity-50"
                 data-testid={`chat-send-${section.replace(/\s/g, '-')}`}
               >
                 <Send className="h-4 w-4" />

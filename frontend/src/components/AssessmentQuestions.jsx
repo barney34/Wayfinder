@@ -600,15 +600,15 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
 
   // Nav pill colors - Theme-aware with improved light mode contrast
   const sectionPillStyles = {
-    'IPAM':                  { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#00BD4D] text-white border-[#00BD4D] shadow-md' },
-    'Internal DNS':          { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#00BD4D] text-white border-[#00BD4D] shadow-md' },
-    'External DNS':          { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#00BD4D] text-white border-[#00BD4D] shadow-md' },
-    'DHCP':                  { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#00BD4D] text-white border-[#00BD4D] shadow-md' },
-    'Overlay':               { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#00BD4D] text-white border-[#00BD4D] shadow-md' },
-    'Services':              { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#00BD4D] text-white border-[#00BD4D] shadow-md' },
-    'Asset/ Network Insight': { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#00BD4D] text-white border-[#00BD4D] shadow-md' },
-    'Security':              { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#00BD4D] text-white border-[#00BD4D] shadow-md' },
-    'Professional Services': { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#00BD4D] text-white border-[#00BD4D] shadow-md' },
+    'IPAM':                  { normal: 'bg-card text-foreground border-border ', active: 'bg-[#00BD4D] text-white border-[#00BD4D] ' },
+    'Internal DNS':          { normal: 'bg-card text-foreground border-border ', active: 'bg-[#00BD4D] text-white border-[#00BD4D] ' },
+    'External DNS':          { normal: 'bg-card text-foreground border-border ', active: 'bg-[#00BD4D] text-white border-[#00BD4D] ' },
+    'DHCP':                  { normal: 'bg-card text-foreground border-border ', active: 'bg-[#00BD4D] text-white border-[#00BD4D] ' },
+    'Overlay':               { normal: 'bg-card text-foreground border-border ', active: 'bg-[#00BD4D] text-white border-[#00BD4D] ' },
+    'Services':              { normal: 'bg-card text-foreground border-border ', active: 'bg-[#00BD4D] text-white border-[#00BD4D] ' },
+    'Asset/ Network Insight': { normal: 'bg-card text-foreground border-border ', active: 'bg-[#00BD4D] text-white border-[#00BD4D] ' },
+    'Security':              { normal: 'bg-card text-foreground border-border ', active: 'bg-[#00BD4D] text-white border-[#00BD4D] ' },
+    'Professional Services': { normal: 'bg-card text-foreground border-border ', active: 'bg-[#00BD4D] text-white border-[#00BD4D] ' },
   };
 
   // Active section background - NONE, just rely on header styling

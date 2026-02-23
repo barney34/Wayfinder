@@ -148,7 +148,7 @@ export function AppSidebar({
   });
 
   return (
-    <div className={`flex flex-col h-full bg-card border-r shadow-lg transition-all duration-300 ${collapsed ? 'w-16' : 'w-56'}`}>
+    <div className={`flex flex-col h-full bg-card border-r transition-all duration-300 ${collapsed ? 'w-16' : 'w-56'}`}>
       {/* Header with WAYFINDER text and collapse button */}
       <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-between'} px-3 py-2 border-b`}>
         {!collapsed && (
