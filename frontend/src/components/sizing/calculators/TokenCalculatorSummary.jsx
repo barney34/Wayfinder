@@ -185,7 +185,9 @@ export function TokenCalculatorSummary() {
         serverCount: override.serverCount || 1,
         haEnabled: override.haEnabled || false, // HA checkbox - doubles SW instances
         hwCount: override.hwCount, // User-editable HW count (undefined = auto)
-        includeHW: override.includeHW !== undefined ? override.includeHW : true, // Include HW checkbox
+        swAddons: override.swAddons || [], // SW Add-ons array
+        hwAddons: override.hwAddons || [], // HW Add-ons array
+        rptQuantity: override.rptQuantity || null, // RPT quantity for Reporting role
         addToReport: override.addToReport !== undefined ? override.addToReport : true,
         addToBom: override.addToBom !== undefined ? override.addToBom : true,
         isDisabledInUddi, originalRole: role,
