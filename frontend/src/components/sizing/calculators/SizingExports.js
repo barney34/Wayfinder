@@ -253,8 +253,6 @@ export function exportForLucid(sites, drawingNum) {
     const hwLicenseSku = isVirtual ? 'VM' : (hwInfo.hwSku || `${model}-HW-AC`);
     const hwCount = site.hwCount !== undefined ? site.hwCount : (isVirtual ? 0 : swInstances);
 
-    // Format unit range based on user preference
-    const unitRange = formatUnitRange(startUnit, swInstances, unitRangeFormat);
     const endUnit = startUnit + swInstances - 1;
     
     // Update counter for next site
