@@ -195,7 +195,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
           {/* Sites */}
           <div className="bg-card rounded-xl p-3 flex flex-col border border-border shadow-sm">
             <div className="flex items-center gap-2 mb-2">
-              <MapPin className="h-3.5 w-3.5 text-[#00594C] dark:text-[#12C2D3]" />
+              <MapPin className="h-3.5 w-3.5 text-foreground" />
               <span className="text-xs font-semibold text-foreground">Sites</span>
             </div>
             {sites.length > 0 && (
