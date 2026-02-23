@@ -192,7 +192,7 @@ function AddResponseField({ questionId, value, onChange, onExamine, sectionConte
         onChange={e => onChange(e.target.value)}
         onBlur={e => onChange(e.target.value)}
         placeholder="Enter additional context or notes..."
-        className="min-h-[80px] text-sm bg-background border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:ring-[#12C2D3] focus:border-[#12C2D3]"
+        className="min-h-[80px] text-sm bg-background border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:ring-primary focus:border-primary"
         data-testid={`response-textarea-${questionId}`}
         autoFocus
       />
@@ -1050,7 +1050,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                         value={notes[q.id] || ''}
                         onChange={e => setNote(q.id, e.target.value)}
                         placeholder="Type here..."
-                        className="min-h-[80px] text-sm bg-background border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:ring-[#12C2D3] focus:border-[#12C2D3]"
+                        className="min-h-[80px] text-sm bg-background border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:ring-primary focus:border-primary"
                         data-testid={`note-${q.id}`}
                         onClick={e => e.stopPropagation()}
                         autoFocus

@@ -487,7 +487,7 @@ export function ChatValueDiscovery({ section }) {
                 onKeyDown={handleKeyDown}
                 placeholder={mode === 'guided' ? "Type your response..." : "Ask any question..."}
                 disabled={isLoading}
-                className="flex-1 h-10 px-4 rounded-xl bg-background border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#00BD4D] focus:ring-2 focus:ring-[#00BD4D]/20 disabled:opacity-50 text-sm shadow-sm"
+                className="flex-1 h-10 px-4 rounded-xl bg-background border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:opacity-50 text-sm shadow-sm"
                 data-testid={`chat-input-${section.replace(/\s/g, '-')}`}
               />
               <Button
