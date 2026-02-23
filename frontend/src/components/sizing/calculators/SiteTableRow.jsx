@@ -478,31 +478,19 @@ export function SiteTableRow({
 
       {/* HW Count (editable) */}
       <TableCell className="p-2 lg:p-4 text-center">
-        <div className="flex items-center gap-1">
-          <Input
-            type="number" min="0" max="999"
-            value={site.hwCount ?? 0}
-            onChange={e => {
-              const val = parseInt(e.target.value);
-              if (!isNaN(val) && val >= 0) {
-                onUpdateSite(site.id, 'hwCount', val);
-              }
-            }}
-            className="h-8 lg:h-10 text-sm w-12 lg:w-14 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-            disabled={site.isDisabledInUddi || site.includeHW === false}
-            data-testid={`site-hw-count-${site.id}`}
-          />
-          <Checkbox
-            checked={site.includeHW !== false}
-            onCheckedChange={v => {
-              onUpdateSite(site.id, 'includeHW', v);
-              if (!v) onUpdateSite(site.id, 'hwCount', 0);
-            }}
-            disabled={site.isDisabledInUddi}
-            title="Include hardware in export"
-            data-testid={`site-include-hw-${site.id}`}
-          />
-        </div>
+        <Input
+          type="number" min="0" max="999"
+          value={site.hwCount ?? 0}
+          onChange={e => {
+            const val = parseInt(e.target.value);
+            if (!isNaN(val) && val >= 0) {
+              onUpdateSite(site.id, 'hwCount', val);
+            }
+          }}
+          className="h-8 lg:h-10 text-sm w-14 lg:w-16 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          disabled={site.isDisabledInUddi}
+          data-testid={`site-hw-count-${site.id}`}
+        />
       </TableCell>
 
       {/* SW Add-ons (NIOS only) */}
