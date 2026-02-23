@@ -182,6 +182,7 @@ export function TokenCalculatorSummary() {
         serverCount: override.serverCount || 1,
         haEnabled: override.haEnabled || false, // HA checkbox - doubles SW instances
         hwCount: override.hwCount, // User-editable HW count (undefined = auto)
+        includeHW: override.includeHW !== undefined ? override.includeHW : true, // Include HW checkbox
         addToReport: override.addToReport !== undefined ? override.addToReport : true,
         addToBom: override.addToBom !== undefined ? override.addToBom : true,
         isDisabledInUddi, originalRole: role,
