@@ -160,16 +160,16 @@ export function ValueFrameworkInjection({ section }) {
       {/* Header - HA style card */}
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between px-4 py-3 rounded-2xl bg-[#2c2c2e] hover:bg-[#3c3c3e] transition-colors"
+        className="w-full flex items-center justify-between px-4 py-3 rounded-2xl bg-secondary hover:bg-muted transition-colors"
       >
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-[#5e5ce6]/20 flex items-center justify-center">
-            <Sparkles className="h-4 w-4 text-[#5e5ce6]" />
+          <div className="w-8 h-8 rounded-xl bg-accent/15 flex items-center justify-center">
+            <Sparkles className="h-4 w-4 text-accent" />
           </div>
-          <span className="text-sm font-semibold text-white">Value Discovery</span>
-          <span className="text-xs text-[#8e8e93]">{answeredSeeds.length}/{seeds.length}</span>
+          <span className="text-sm font-semibold text-foreground">Value Discovery</span>
+          <span className="text-xs text-muted-foreground">{answeredSeeds.length}/{seeds.length}</span>
         </div>
-        {expanded ? <ChevronDown className="h-4 w-4 text-[#8e8e93]" /> : <ChevronRight className="h-4 w-4 text-[#8e8e93]" />}
+        {expanded ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
       </button>
 
       {/* Questions - HA card style */}
@@ -184,15 +184,15 @@ export function ValueFrameworkInjection({ section }) {
             return (
               <div key={seed.id} className="space-y-3" data-testid={`vf-seed-${seed.id}`}>
                 {/* Seed Question Card */}
-                <div className={`rounded-2xl p-4 transition-all ${hasAnswer ? 'bg-[#2c2c2e] ring-1 ring-[#32d74b]/30' : 'bg-[#2c2c2e]'}`}>
-                  <label className="text-[15px] font-semibold text-white block mb-3">
+                <div className={`rounded-2xl p-4 transition-all ${hasAnswer ? 'bg-secondary ring-1 ring-primary/30' : 'bg-secondary'}`}>
+                  <label className="text-[15px] font-semibold text-foreground block mb-3">
                     {seed.question}
                   </label>
                   <input
                     value={currentAnswer}
                     onChange={e => setAnswer(seed.id, e.target.value)}
                     placeholder="Response..."
-                    className="w-full h-11 px-4 rounded-xl bg-[#1c1c1e] border-0 text-white placeholder:text-[#8e8e93] focus:outline-none focus:ring-2 focus:ring-[#0a84ff]/50"
+                    className="w-full h-11 px-4 rounded-xl bg-background border-0 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
                     data-testid={`vf-seed-input-${seed.id}`}
                   />
                 </div>
@@ -203,16 +203,16 @@ export function ValueFrameworkInjection({ section }) {
                     {followUps.map(fu => {
                       const fuAnswer = answers[fu.id] || '';
                       return (
-                        <div key={fu.id} className="rounded-2xl p-4 bg-[#2c2c2e] border-l-4 border-[#ff9f0a]" data-testid={`vf-followup-${fu.id}`}>
-                          <p className="text-xs text-[#ff9f0a] mb-2 italic">{fu.framing}</p>
-                          <label className="text-sm font-semibold text-white block mb-2">
+                        <div key={fu.id} className="rounded-2xl p-4 bg-secondary border-l-4 border-accent" data-testid={`vf-followup-${fu.id}`}>
+                          <p className="text-xs text-accent mb-2 italic">{fu.framing}</p>
+                          <label className="text-sm font-semibold text-foreground block mb-2">
                             {fu.question}
                           </label>
                           <input
                             value={fuAnswer}
                             onChange={e => setAnswer(fu.id, e.target.value)}
                             placeholder="Response..."
-                            className="w-full h-10 px-3 rounded-xl bg-[#1c1c1e] border-0 text-white placeholder:text-[#8e8e93] focus:outline-none focus:ring-2 focus:ring-[#0a84ff]/50"
+                            className="w-full h-10 px-3 rounded-xl bg-background border-0 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
                             data-testid={`vf-fu-input-${fu.id}`}
                           />
                         </div>
