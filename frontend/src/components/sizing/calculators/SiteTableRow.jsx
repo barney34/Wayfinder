@@ -30,10 +30,20 @@ export function SiteTableRow({
 }) {
   const showTokens = platformMode !== 'NIOS'; // Hide tokens for NIOS-only mode
   
-  // Helper to get unit group from role
-  const getUnitGroup = (role) => {
-    const unitGroupMap = { 'GM': 'A', 'GMC': 'A', 'DNS': 'B', 'DHCP': 'C', 'DNS/DHCP': 'B' };
-    return unitGroupMap[role] || 'B';
+  // Unit Group mapping based on alphabet chart
+  // A = GM/GMC, B = Internal DNS, C = DHCP, D = Edge/Remote, E = External DNS, F = Cache/DMZ, G = Guest, M = MSFT Sync, N = Network Insight
+  const getUnitGroup = (role, services = []) => {
+    if (role === 'GM') return 'A';
+    if (role === 'GMC') return 'A';
+    if (role === 'DNS' || role === 'DNS/DHCP' || role?.includes('DNS')) return 'B';
+    if (role === 'DHCP') return 'C';
+    if (role?.toLowerCase()?.includes('edge') || role?.toLowerCase()?.includes('remote')) return 'D';
+    if (role?.toLowerCase()?.includes('external') || role?.toLowerCase()?.includes('auth')) return 'E';
+    if (role?.toLowerCase()?.includes('cache') || role?.toLowerCase()?.includes('forward')) return 'F';
+    if (role?.toLowerCase()?.includes('guest')) return 'G';
+    if (services?.includes('NI') || services?.includes('Network Insight')) return 'N';
+    if (services?.includes('Reporting')) return 'RPT';
+    return 'B'; // Default to Internal DNS
   };
   
   // Helper to get solution from platform
@@ -42,42 +52,119 @@ export function SiteTableRow({
     return 'NIOS';
   };
 
-  // Export view - simplified row with export-relevant columns only
+  // Helper to get SW Base SKU from model
+  const getSwBaseSku = (model) => {
+    if (!model) return '';
+    return `${model}-SWSUB`;
+  };
+
+  // Helper to get SW Package from role
+  const getSwPackage = (role, hasDiscovery) => {
+    if (role === 'GM' || role === 'GMC') return 'GM';
+    if (hasDiscovery) return 'DD/GD'; // DNS/DHCP with Discovery
+    if (role === 'DNS/DHCP') return 'DD/GD';
+    if (role === 'DNS') return 'DNS';
+    if (role === 'DHCP') return 'DHCP';
+    return 'DD/GD';
+  };
+
+  // Helper to get HW License SKU
+  const getHwLicenseSku = (model, platform) => {
+    if (platform?.includes('NXVS') || platform?.includes('NXaaS') || platform === 'NIOS-V') return 'VM';
+    if (!model) return '';
+    // Map model to HW SKU (TE-XXXX -> TE-XXXX-HW-AC)
+    return `${model.replace('-SWSUB', '')}-HW-AC`;
+  };
+
+  // Build description from name, role, and services
+  const getDescription = () => {
+    let desc = site.role || 'DNS/DHCP';
+    if (site.services && site.services.length > 0) {
+      desc += ` + ${site.services.join(', ')}`;
+    }
+    return desc;
+  };
+
+  // SW Add-ons from services
+  const getSwAddons = () => {
+    const addons = [];
+    if ((site.services || []).includes('DFP')) addons.push('ADP');
+    if ((site.services || []).includes('NTP')) addons.push('NTP');
+    if ((site.services || []).includes('Discovery')) addons.push('DIS');
+    return addons.join(', ');
+  };
+
+  // Export view - full export columns matching Lucidchart format
   if (exportView) {
+    const unitGroup = getUnitGroup(site.role, site.services);
+    const solution = getSolution(site.platform);
+    const swBaseSku = getSwBaseSku(site.recommendedModel);
+    const swPackage = getSwPackage(site.role, (site.services || []).includes('Discovery'));
+    const hwLicenseSku = getHwLicenseSku(site.recommendedModel, site.platform);
+    const swAddons = getSwAddons();
+    const description = getDescription();
+    const swInstances = site.swInstances || 1;
+    const hwCount = site.hwCount ?? 0;
+
     return (
-      <TableRow data-testid={`site-row-${site.id}`} className="hover:bg-muted/30">
-        {/* Location */}
-        <TableCell className="p-2 text-sm font-medium">{site.name}</TableCell>
-        
+      <TableRow data-testid={`site-row-${site.id}`} className="hover:bg-muted/30 text-xs">
         {/* Unit Group */}
-        <TableCell className="p-2 text-sm text-center">{getUnitGroup(site.role)}</TableCell>
+        <TableCell className="p-1.5 text-center font-medium">{unitGroup}</TableCell>
         
         {/* Solution */}
-        <TableCell className="p-2 text-sm">{getSolution(site.platform)}</TableCell>
+        <TableCell className="p-1.5">{solution}</TableCell>
         
-        {/* Model */}
-        <TableCell className="p-2 text-sm font-mono">{site.recommendedModel}</TableCell>
+        {/* Model Info */}
+        <TableCell className="p-1.5 font-mono">{site.recommendedModel}</TableCell>
         
-        {/* SW# */}
-        <TableCell className="p-2 text-sm text-center font-medium">{site.swInstances || 1}</TableCell>
+        {/* SW Instances */}
+        <TableCell className="p-1.5 text-center font-medium">{swInstances}</TableCell>
         
-        {/* HW# */}
-        <TableCell className="p-2 text-sm text-center">{site.hwCount || 0}</TableCell>
-        
-        {/* Rpt */}
-        <TableCell className="p-2 text-center">
-          <Checkbox checked={site.addToReport} onCheckedChange={v => onUpdateSite(site.id, 'addToReport', v)} />
+        {/* Description */}
+        <TableCell className="p-1.5 max-w-[150px] truncate" title={`${site.name} - ${description}`}>
+          {site.name}
         </TableCell>
         
-        {/* BOM */}
-        <TableCell className="p-2 text-center">
-          <Checkbox checked={site.addToBom} onCheckedChange={v => onUpdateSite(site.id, 'addToBom', v)} />
+        {/* SW Base SKU */}
+        <TableCell className="p-1.5 font-mono text-[11px]">{swBaseSku}</TableCell>
+        
+        {/* SW Package */}
+        <TableCell className="p-1.5">{swPackage}</TableCell>
+        
+        {/* SW Add-ons */}
+        <TableCell className="p-1.5 text-muted-foreground">{swAddons || '—'}</TableCell>
+        
+        {/* HW License SKU */}
+        <TableCell className="p-1.5 font-mono text-[11px]">{hwLicenseSku}</TableCell>
+        
+        {/* HW Add-ons */}
+        <TableCell className="p-1.5 text-muted-foreground">—</TableCell>
+        
+        {/* HW Count */}
+        <TableCell className="p-1.5 text-center">{hwCount}</TableCell>
+        
+        {/* Add to Report */}
+        <TableCell className="p-1.5 text-center">
+          <Checkbox 
+            checked={site.addToReport !== false} 
+            onCheckedChange={v => onUpdateSite(site.id, 'addToReport', v)} 
+            className="h-4 w-4"
+          />
+        </TableCell>
+        
+        {/* Add to BOM */}
+        <TableCell className="p-1.5 text-center">
+          <Checkbox 
+            checked={site.addToBom !== false} 
+            onCheckedChange={v => onUpdateSite(site.id, 'addToBom', v)} 
+            className="h-4 w-4"
+          />
         </TableCell>
         
         {/* Delete */}
-        <TableCell className="p-2">
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onDeleteSite(site.id)}>
-            <Trash2 className="h-3.5 w-3.5 text-destructive" />
+        <TableCell className="p-1.5">
+          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onDeleteSite(site.id)}>
+            <Trash2 className="h-3 w-3 text-destructive" />
           </Button>
         </TableCell>
       </TableRow>
