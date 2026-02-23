@@ -246,7 +246,8 @@ export function exportForLucid(sites, drawingNum, unitRangeFormat = 'auto') {
     
     console.log('[exportForLucid] Site', idx, site.name, site.role, 'HA:', site.haEnabled, 'Srv#:', site.serverCount);
     
-    const unitGroup = getUnitGroup(site.role, site.sourceType);
+    // Get unit group with services for special mappings (NI, Reporting, MSFT)
+    const unitGroup = getUnitGroup(site.role, site.sourceType, site.services);
     const startUnit = (unitCounter[unitGroup] || 0) + 1;
 
     let solution = 'NIOS';
@@ -258,15 +259,16 @@ export function exportForLucid(sites, drawingNum, unitRangeFormat = 'auto') {
     const swPackage = getSwPackage(site.role, (site.services || []).includes('Discovery'));
     const hwInfo = getHwSkuInfo(model);
 
-    // Description: siteName - role + services
+    // Description: role + name (matches Lucidchart format)
     let description = site.role || 'DNS/DHCP';
+    if (site.name) description = `${site.name}\n${description}`;
     if (site.services && site.services.length > 0) description += ` + ${site.services.join(', ')}`;
-    if (site.name) description = `${site.name} - ${description}`;
 
     // SW Add-ons based on services
     const swAddons = [];
     if ((site.services || []).includes('DFP')) swAddons.push('ADP');
     if ((site.services || []).includes('NTP')) swAddons.push('NTP');
+    if ((site.services || []).includes('Discovery')) swAddons.push('DIS');
 
     // SW Instances: serverCount * (HA ? 2 : 1)
     const swInstances = site.swInstances || (site.serverCount || 1) * (site.haEnabled ? 2 : 1);
@@ -274,6 +276,7 @@ export function exportForLucid(sites, drawingNum, unitRangeFormat = 'auto') {
     // HW Count: use site.hwCount if defined, otherwise auto-calculate
     const isVirtual = site.platform?.includes('NXVS') || site.platform?.includes('NXaaS') || 
                       site.platform === 'NIOS-V';
+    const hwLicenseSku = isVirtual ? 'VM' : (hwInfo.hwSku || `${model}-HW-AC`);
     const hwCount = site.hwCount !== undefined ? site.hwCount : (isVirtual ? 0 : swInstances);
 
     // Format unit range based on user preference
@@ -297,11 +300,11 @@ export function exportForLucid(sites, drawingNum, unitRangeFormat = 'auto') {
           'Solution': solution,
           'Model Info': model,
           'SW Instances': 1,
-          'Description': `${description} (Unit ${unitNum})`,
+          'Description': `${site.name || description}\n${site.role} (Unit ${unitNum})`,
           'SW Base SKU': swBaseSku,
           'SW Package': swPackage,
           'SW Add-ons': swAddons.join(', ') || '',
-          'HW License SKU': isVirtual ? 'VM' : hwInfo.hwSku,
+          'HW License SKU': hwLicenseSku,
           'HW Add-ons': '',
           'HW Count': hwCountForUnit > 0 ? 1 : 0,
           'Add to Report': site.addToReport !== false ? 'Yes' : 'No',
