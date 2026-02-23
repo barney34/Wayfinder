@@ -193,8 +193,8 @@ export function exportPDF(sites, totals, bom, partnerSku, platformMode, security
   doc.save('site-sizing-export.pdf');
 }
 
-export function exportForLucid(sites, drawingNum, unitRangeFormat = 'auto') {
-  console.log('[exportForLucid] Called with', sites?.length, 'sites, drawing:', drawingNum, 'format:', unitRangeFormat);
+export function exportForLucid(sites, drawingNum) {
+  console.log('[exportForLucid] Called with', sites?.length, 'sites, drawing:', drawingNum);
   
   if (!sites || sites.length === 0) {
     alert('No sites to export. Please add sites to the sizing table first.');
@@ -205,37 +205,11 @@ export function exportForLucid(sites, drawingNum, unitRangeFormat = 'auto') {
   let unitCounter = {};
 
   const sortedSites = [...sites].sort((a, b) => {
-    const roleOrder = { 'GM': 0, 'GMC': 1, 'DNS/DHCP': 2, 'DNS': 3, 'DHCP': 4 };
-    return (roleOrder[a.role] || 5) - (roleOrder[b.role] || 5);
+    const roleOrder = { 'GM': 0, 'GMC': 1, 'DNS/DHCP': 2, 'DNS': 3, 'DHCP': 4, 'Reporting': 5 };
+    return (roleOrder[a.role] || 6) - (roleOrder[b.role] || 6);
   });
 
   console.log('[exportForLucid] Processing', sortedSites.length, 'sorted sites');
-
-  // Helper to format unit range based on user preference
-  const formatUnitRange = (startUnit, swInstances, format) => {
-    const endUnit = startUnit + swInstances - 1;
-    
-    if (swInstances === 1) return String(startUnit);
-    
-    switch (format) {
-      case 'comma':
-        // Always use comma: 1,2,3,4,5,6
-        return Array.from({ length: swInstances }, (_, i) => startUnit + i).join(',');
-      case 'range':
-        // Always use range: 1-6
-        return `${startUnit}-${endUnit}`;
-      case 'individual':
-        // Return null - will create individual rows
-        return null;
-      case 'auto':
-      default:
-        // Auto: comma for ≤4, range for >4
-        if (swInstances <= 4) {
-          return Array.from({ length: swInstances }, (_, i) => startUnit + i).join(',');
-        }
-        return `${startUnit}-${endUnit}`;
-    }
-  };
 
   sortedSites.forEach((site, idx) => {
     // Skip sites not marked for report
