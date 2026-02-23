@@ -20,7 +20,7 @@ function HeaderWithTooltip({ children, tooltip, className = "" }) {
   );
 }
 
-export function SizingTableHeader({ showHardware, showKW, platformMode }) {
+export function SizingTableHeader({ showHardware, showKW, showServices, platformMode }) {
   const showTokens = platformMode !== 'NIOS'; // Hide tokens for NIOS-only mode
   
   return (
@@ -34,23 +34,34 @@ export function SizingTableHeader({ showHardware, showKW, platformMode }) {
           </HeaderWithTooltip>
         )}
         <TableHead className="w-28 lg:w-32 text-xs lg:text-sm">Role</TableHead>
-        <HeaderWithTooltip className="w-20 lg:w-24" tooltip="Co-located services that can run on the same host. Each service adds performance overhead.">
-          Services
-        </HeaderWithTooltip>
+        {showServices && (
+          <HeaderWithTooltip className="w-20 lg:w-24" tooltip="Co-located services that can run on the same host. Each service adds performance overhead.">
+            Services
+          </HeaderWithTooltip>
+        )}
         <HeaderWithTooltip className="w-24 lg:w-28" tooltip="Select a Hub site for DHCP failover. Hub receives 50% of combined spoke LPS for failover capacity.">
           DHCP Partner
         </HeaderWithTooltip>
-        <HeaderWithTooltip className="w-14 lg:w-16" tooltip="Number of identical servers at this location. Tokens multiply by server count.">
+        <HeaderWithTooltip className="w-14 lg:w-16" tooltip="Number of server instances. For HA pairs, use 2.">
           Srv#
+        </HeaderWithTooltip>
+        <HeaderWithTooltip className="w-12 text-center" tooltip="High Availability pair. Doubles SW count, HW count is user-configurable.">
+          HA
         </HeaderWithTooltip>
         <TableHead className="text-xs lg:text-sm">Platform</TableHead>
         <HeaderWithTooltip className="w-16 lg:w-20" tooltip={<><p>Recommended server model based on workload.</p><p className="mt-1 text-muted-foreground">Hover on model for sizing details.</p></>}>
           Model
         </HeaderWithTooltip>
         {showHardware && <TableHead className="text-xs lg:text-sm">Hardware SKU</TableHead>}
+        <HeaderWithTooltip className="w-14 lg:w-16" tooltip="Software instance count for export. Auto-calculated from Srv# × HA.">
+          SW#
+        </HeaderWithTooltip>
+        <HeaderWithTooltip className="w-14 lg:w-16" tooltip="Hardware count for export. User can override for VM or shared HW scenarios.">
+          HW#
+        </HeaderWithTooltip>
         {showTokens && (
           <HeaderWithTooltip className="w-20 lg:w-24 text-right" tooltip="Token packs required. Each pack = 500K tokens.">
-            Token Packs
+            Tokens
           </HeaderWithTooltip>
         )}
         <HeaderWithTooltip className="w-12 text-center" tooltip="Include in exported report/drawing">
