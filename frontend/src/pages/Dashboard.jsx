@@ -223,16 +223,16 @@ export default function Dashboard() {
 
               <div className="flex items-start gap-4">
                 <div className="rounded-lg bg-chart-3/10 p-3">
-                  <Layers className="h-6 w-6 text-slate-500" />
+                  <Layers className="h-6 w-6 text-muted-foreground" />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-foreground">Design</h3>
                   <p className="text-sm text-muted-foreground">Design - Solution architecture and planning</p>
                   <div className="mt-2 flex items-center gap-2">
                     <div className="h-2 flex-1 rounded-full bg-muted overflow-hidden">
-                      <div className="h-full bg-slate-500 transition-all duration-300" style={{ width: `${designRate}%` }} />
+                      <div className="h-full bg-muted-foreground transition-all duration-300" style={{ width: `${designRate}%` }} />
                     </div>
-                    <span className="text-sm font-semibold text-slate-500">{designRate}%</span>
+                    <span className="text-sm font-semibold text-muted-foreground">{designRate}%</span>
                   </div>
                 </div>
               </div>
