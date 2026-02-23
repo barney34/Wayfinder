@@ -569,9 +569,10 @@ export function TokenCalculatorSummary() {
             <Table className="table-auto w-full">
               <SizingTableHeader 
                 showHardware={showHardware} 
-                showKW={showKW} 
-                showServices={showServices}
-                platformMode={platformMode} 
+                showKW={showKW && !exportView} 
+                showServices={showServices && !exportView}
+                platformMode={platformMode}
+                exportView={exportView}
               />
               <TableBody>
                 {sites.map(site => (
@@ -586,8 +587,9 @@ export function TokenCalculatorSummary() {
                     roleOptions={roleOptions}
                     platformOptions={platformOptions}
                     showHardware={showHardware}
-                    showKW={showKW}
-                    showServices={showServices}
+                    showKW={showKW && !exportView}
+                    showServices={showServices && !exportView}
+                    exportView={exportView}
                     onUpdateSite={updateSite}
                     onToggleService={toggleService}
                     onDeleteSite={deleteSite}
