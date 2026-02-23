@@ -222,8 +222,8 @@ export function SiteConfiguration({ value, onChange, questionId }) {
 
   // Get icon for source type
   const getSourceIcon = (site) => {
-    if (site.sourceType === 'dataCenter') return <Building2 className="h-3.5 w-3.5 text-blue-500" />;
-    if (site.sourceType === 'site') return <MapPin className="h-3.5 w-3.5 text-green-500" />;
+    if (site.sourceType === 'dataCenter') return <Building2 className="h-3.5 w-3.5 text-foreground" />;
+    if (site.sourceType === 'site') return <MapPin className="h-3.5 w-3.5 text-primary" />;
     return <Settings2 className="h-3.5 w-3.5 text-muted-foreground" />;
   };
 
