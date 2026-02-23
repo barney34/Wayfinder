@@ -505,6 +505,140 @@ export function SiteTableRow({
         </div>
       </TableCell>
 
+      {/* SW Add-ons (NIOS only) */}
+      {platformMode === 'NIOS' && !exportView && (
+        <TableCell className="p-2 lg:p-4">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline" size="sm"
+                className="h-8 lg:h-10 text-xs lg:text-sm w-full justify-between"
+                disabled={site.isDisabledInUddi}
+                data-testid={`site-sw-addons-${site.id}`}
+              >
+                {(site.swAddons?.length || 0) > 0 || isReportingRole ? (
+                  <span className="truncate text-xs">
+                    {isReportingRole && site.rptQuantity ? `RPT-${site.rptQuantity}` : ''}
+                    {(site.swAddons?.length || 0) > 0 ? (isReportingRole && site.rptQuantity ? ', ' : '') + site.swAddons.join(', ') : ''}
+                    {!isReportingRole && !(site.swAddons?.length) ? '—' : ''}
+                  </span>
+                ) : (
+                  <span className="text-muted-foreground">—</span>
+                )}
+                <Plus className="h-3 w-3 ml-1 flex-shrink-0" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-64 p-3" align="start">
+              <div className="space-y-3">
+                <div className="font-medium text-sm">SW Add-ons</div>
+                <p className="text-xs text-muted-foreground">Select software add-ons for this member.</p>
+                
+                {/* RPT Quantity for Reporting role */}
+                {isReportingRole && (
+                  <div className="pb-2 border-b">
+                    <div className="text-xs font-medium mb-1">Reporting Storage</div>
+                    <Select 
+                      value={site.rptQuantity || ''} 
+                      onValueChange={v => onUpdateSite(site.id, 'rptQuantity', v)}
+                    >
+                      <SelectTrigger className="h-8 text-xs">
+                        <SelectValue placeholder="Select GB" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {RPT_QUANTITIES.map(q => (
+                          <SelectItem key={q.value} value={q.value}>{q.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+                
+                {/* Available SW Add-ons */}
+                <div className="space-y-2">
+                  {availableSwAddons.length > 0 ? (
+                    availableSwAddons.map(addon => (
+                      <div key={addon.value} className="flex items-center gap-2">
+                        <Checkbox
+                          id={`${site.id}-sw-${addon.value}`}
+                          checked={(site.swAddons || []).includes(addon.value)}
+                          onCheckedChange={(checked) => {
+                            const current = site.swAddons || [];
+                            const updated = checked 
+                              ? [...current, addon.value]
+                              : current.filter(a => a !== addon.value);
+                            onUpdateSite(site.id, 'swAddons', updated);
+                          }}
+                        />
+                        <label htmlFor={`${site.id}-sw-${addon.value}`} className="flex-1 text-sm cursor-pointer">
+                          <span className="font-medium">{addon.label}</span>
+                          <span className="text-xs text-muted-foreground block">{addon.description}</span>
+                        </label>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-xs text-muted-foreground italic">No add-ons available for this role/platform</p>
+                  )}
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </TableCell>
+      )}
+
+      {/* HW Add-ons (Physical only) */}
+      {platformMode === 'NIOS' && !exportView && site.platform === 'NIOS' && (
+        <TableCell className="p-2 lg:p-4">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline" size="sm"
+                className="h-8 lg:h-10 text-xs lg:text-sm w-full justify-between"
+                disabled={site.isDisabledInUddi || availableHwAddons.length === 0}
+                data-testid={`site-hw-addons-${site.id}`}
+              >
+                {(site.hwAddons?.length || 0) > 0 ? (
+                  <span className="truncate text-xs">{site.hwAddons.join(', ')}</span>
+                ) : (
+                  <span className="text-muted-foreground">—</span>
+                )}
+                <Plus className="h-3 w-3 ml-1 flex-shrink-0" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-56 p-3" align="start">
+              <div className="space-y-3">
+                <div className="font-medium text-sm">HW Add-ons</div>
+                <p className="text-xs text-muted-foreground">Select hardware add-ons for this appliance.</p>
+                <div className="space-y-2">
+                  {availableHwAddons.length > 0 ? (
+                    availableHwAddons.map(addon => (
+                      <div key={addon.value} className="flex items-center gap-2">
+                        <Checkbox
+                          id={`${site.id}-hw-${addon.value}`}
+                          checked={(site.hwAddons || []).includes(addon.value)}
+                          onCheckedChange={(checked) => {
+                            const current = site.hwAddons || [];
+                            const updated = checked 
+                              ? [...current, addon.value]
+                              : current.filter(a => a !== addon.value);
+                            onUpdateSite(site.id, 'hwAddons', updated);
+                          }}
+                        />
+                        <label htmlFor={`${site.id}-hw-${addon.value}`} className="flex-1 text-sm cursor-pointer">
+                          <span className="font-medium">{addon.label}</span>
+                          <span className="text-xs text-muted-foreground block">{addon.description}</span>
+                        </label>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-xs text-muted-foreground italic">No HW add-ons for this model</p>
+                  )}
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </TableCell>
+      )}
+
       {/* Token Packs - only show for non-NIOS modes */}
       {showTokens && (
         <TableCell className="p-2 lg:p-4 text-right tabular-nums font-medium text-sm lg:text-base">
