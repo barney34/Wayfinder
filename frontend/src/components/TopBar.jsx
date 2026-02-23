@@ -12,10 +12,10 @@ const formatKW = (n) => {
 };
 
 const TARGET_SOLUTIONS = [
-  { key: 'feature-nios', label: 'NIOS', color: '#30d158' },
-  { key: 'feature-uddi', label: 'UDDI', color: '#0a84ff' },
-  { key: 'feature-security', label: 'Security', color: '#ff453a' },
-  { key: 'feature-asset insights', label: 'Asset', color: '#bf5af2' },
+  { key: 'feature-nios', label: 'NIOS', color: '#00BD4D' },
+  { key: 'feature-uddi', label: 'UDDI', color: '#12C2D3' },
+  { key: 'feature-security', label: 'Security', color: '#FF585D' },
+  { key: 'feature-asset insights', label: 'Asset', color: '#7D97F8' },
 ];
 
 export function TopBar({ customerName, opportunity, onNameChange, onOpportunityChange, onNameBlur, onOpportunityBlur }) {
