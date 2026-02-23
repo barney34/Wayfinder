@@ -95,14 +95,14 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
               />
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="text-[8px] text-[#ea580c] uppercase tracking-wide shrink-0 font-medium">Opportunity:</span>
+              <span className="text-[8px] text-[#FEDD00] uppercase tracking-wide shrink-0 font-medium">Opportunity:</span>
               <input
                 value={opportunity || ''}
                 onChange={e => onOpportunityChange?.(e.target.value)}
                 onBlur={() => onOpportunityBlur?.()}
                 onKeyDown={e => e.key === 'Enter' && e.target.blur()}
                 style={{ width: `${Math.min(Math.max(oppLen * 7 + 20, 60), 300)}px` }}
-                className="text-[11px] text-[#ea580c] font-medium bg-transparent border-0 focus:outline-none placeholder:text-muted-foreground"
+                className="text-[11px] text-[#FEDD00] font-medium bg-transparent border-0 focus:outline-none placeholder:text-muted-foreground"
                 placeholder="Opportunity..."
                 data-testid="topbar-opportunity"
               />
@@ -115,13 +115,13 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
           {/* DC / Sites stacked */}
           <div className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg bg-secondary/50">
             <div className="flex items-center gap-1.5">
-              <Building2 className="h-3 w-3 text-[#16a34a]" />
-              <span className="text-[10px] font-semibold text-[#16a34a]">DC</span>
+              <Building2 className="h-3 w-3 text-[#00BD4D]" />
+              <span className="text-[10px] font-semibold text-[#00BD4D]">DC</span>
               <span className="text-[11px] font-bold text-foreground">{dataCenters.length}</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <MapPin className="h-3 w-3 text-[#7c3aed]" />
-              <span className="text-[10px] font-semibold text-[#7c3aed]">Sites</span>
+              <MapPin className="h-3 w-3 text-[#12C2D3]" />
+              <span className="text-[10px] font-semibold text-[#12C2D3]">Sites</span>
               <span className="text-[11px] font-bold text-foreground">{sites.length}</span>
             </div>
           </div>
@@ -129,8 +129,8 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
           {/* TS stacked */}
           <div className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg bg-secondary/50">
             <div className="flex items-center gap-1">
-              <Target className="h-3 w-3 text-[#ea580c]" />
-              <span className="text-[10px] font-semibold text-[#ea580c]">TS</span>
+              <Target className="h-3 w-3 text-[#FEDD00]" />
+              <span className="text-[10px] font-semibold text-[#FEDD00]">TS</span>
             </div>
             {activeSolutions.length > 0 ? (
               <div className="flex items-center gap-1">
@@ -144,18 +144,18 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
               <span className="text-[9px] text-muted-foreground font-medium">--</span>
             )}
             {isHybrid && (
-              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-gradient-to-r from-[#16a34a]/25 to-[#2563eb]/25 text-[#0891b2]">Hybrid</span>
+              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-gradient-to-r from-[#00BD4D]/25 to-[#12C2D3]/25 text-[#12C2D3]">Hybrid</span>
             )}
           </div>
 
           {/* KW / IPs stacked */}
           <div className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg bg-secondary/50">
             <div className="flex items-center gap-1">
-              <Calculator className="h-3 w-3 text-[#16a34a]" />
+              <Calculator className="h-3 w-3 text-[#00BD4D]" />
               <span className="text-[10px] text-muted-foreground font-medium">KW</span>
               <span className="text-[11px] font-bold text-foreground">{formatKW(totalKW)}</span>
             </div>
-            <span className="text-[11px] font-bold text-[#16a34a]">{formatKW(activeIPs)} IPs</span>
+            <span className="text-[11px] font-bold text-[#00BD4D]">{formatKW(activeIPs)} IPs</span>
           </div>
         </div>
 
@@ -171,7 +171,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
           {/* Data Centers */}
           <div className="bg-card rounded-xl p-3 flex flex-col border border-border shadow-sm">
             <div className="flex items-center gap-2 mb-2">
-              <Building2 className="h-3.5 w-3.5 text-[#16a34a]" />
+              <Building2 className="h-3.5 w-3.5 text-[#00BD4D]" />
               <span className="text-xs font-semibold text-foreground">Data Centers</span>
             </div>
             {dataCenters.length > 0 && (
@@ -179,7 +179,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
                 {dataCenters.map((dc) => (
                   <div key={dc.id} className="flex items-center bg-secondary border border-border rounded-lg overflow-hidden">
                     <input value={dc.name} onChange={e => updateDataCenter(dc.id, { name: e.target.value })} className="flex-1 min-w-0 px-1.5 py-1 text-[11px] text-foreground bg-transparent border-0 focus:outline-none focus:bg-muted" />
-                    <input type="number" value={dc.knowledgeWorkers || ''} onChange={e => updateDataCenter(dc.id, { knowledgeWorkers: e.target.value })} className="w-12 px-1 py-1 text-[11px] text-[#16a34a] font-semibold bg-transparent border-0 focus:outline-none focus:bg-muted text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+                    <input type="number" value={dc.knowledgeWorkers || ''} onChange={e => updateDataCenter(dc.id, { knowledgeWorkers: e.target.value })} className="w-12 px-1 py-1 text-[11px] text-[#00BD4D] font-semibold bg-transparent border-0 focus:outline-none focus:bg-muted text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
                     <button onClick={() => deleteDataCenter(dc.id)} className="px-1 py-1 hover:bg-red-500/20 shrink-0" data-testid={`delete-dc-${dc.id}`}><X className="h-3 w-3 text-red-500" /></button>
                   </div>
                 ))}
@@ -195,7 +195,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
           {/* Sites */}
           <div className="bg-card rounded-xl p-3 flex flex-col border border-border shadow-sm">
             <div className="flex items-center gap-2 mb-2">
-              <MapPin className="h-3.5 w-3.5 text-[#7c3aed]" />
+              <MapPin className="h-3.5 w-3.5 text-[#12C2D3]" />
               <span className="text-xs font-semibold text-foreground">Sites</span>
             </div>
             {sites.length > 0 && (
@@ -203,7 +203,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
                 {sites.map((site) => (
                   <div key={site.id} className="flex items-center bg-secondary border border-border rounded-lg overflow-hidden">
                     <input value={site.name} onChange={e => updateSite(site.id, { name: e.target.value })} className="flex-1 min-w-0 px-1.5 py-1 text-[11px] text-foreground bg-transparent border-0 focus:outline-none focus:bg-muted" />
-                    <input type="number" value={site.knowledgeWorkers || ''} onChange={e => updateSite(site.id, { knowledgeWorkers: e.target.value })} className="w-12 px-1 py-1 text-[11px] text-[#7c3aed] font-semibold bg-transparent border-0 focus:outline-none focus:bg-muted text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+                    <input type="number" value={site.knowledgeWorkers || ''} onChange={e => updateSite(site.id, { knowledgeWorkers: e.target.value })} className="w-12 px-1 py-1 text-[11px] text-[#12C2D3] font-semibold bg-transparent border-0 focus:outline-none focus:bg-muted text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
                     <button onClick={() => deleteSite(site.id)} className="px-1 py-1 hover:bg-red-500/20 shrink-0" data-testid={`delete-site-${site.id}`}><X className="h-3 w-3 text-red-500" /></button>
                   </div>
                 ))}
@@ -219,7 +219,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
           {/* Target Solutions */}
           <div className="bg-card rounded-xl p-2.5 border border-border shadow-sm">
             <div className="flex items-center gap-1.5 mb-1.5">
-              <Target className="h-3.5 w-3.5 text-[#ea580c]" />
+              <Target className="h-3.5 w-3.5 text-[#FEDD00]" />
               <span className="text-[11px] font-semibold text-foreground">Target Solutions</span>
             </div>
             <div className="space-y-1">
@@ -237,7 +237,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
                   {isAsset && isNIOS && (<div className="relative group"><Info className="h-2.5 w-2.5" /><div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-popover text-popover-foreground text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-10 shadow-lg border border-border">+Mgmt Tokens Added</div></div>)}
                 </button>
               </div>
-              <button onClick={() => { if (isHybrid) { setAnswer('feature-nios', 'No'); setAnswer('feature-uddi', 'No'); } else { setAnswer('feature-nios', 'Yes'); setAnswer('feature-uddi', 'Yes'); } }} className={`w-full flex items-center justify-center gap-1.5 px-1.5 py-1.5 rounded-lg text-[11px] font-bold transition-all border ${isHybrid ? 'bg-gradient-to-r from-[#16a34a] to-[#2563eb] text-white shadow-md border-transparent' : 'bg-secondary text-secondary-foreground hover:bg-muted border-dashed border-border'}`} data-testid="toggle-hybrid">
+              <button onClick={() => { if (isHybrid) { setAnswer('feature-nios', 'No'); setAnswer('feature-uddi', 'No'); } else { setAnswer('feature-nios', 'Yes'); setAnswer('feature-uddi', 'Yes'); } }} className={`w-full flex items-center justify-center gap-1.5 px-1.5 py-1.5 rounded-lg text-[11px] font-bold transition-all border ${isHybrid ? 'bg-gradient-to-r from-[#00BD4D] to-[#12C2D3] text-white shadow-md border-transparent' : 'bg-secondary text-secondary-foreground hover:bg-muted border-dashed border-border'}`} data-testid="toggle-hybrid">
                 <span>Hybrid</span>{isHybrid && <Check className="h-3 w-3" />}
               </button>
             </div>
@@ -247,10 +247,10 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
           <div className="bg-card rounded-xl p-2.5 border border-border shadow-sm">
             <div className="flex items-center justify-between mb-1.5">
               <div className="flex items-center gap-1.5">
-                <Calculator className="h-3.5 w-3.5 text-[#16a34a]" />
+                <Calculator className="h-3.5 w-3.5 text-[#00BD4D]" />
                 <span className="text-[11px] font-semibold text-foreground">Active IPs</span>
               </div>
-              <span className="text-base font-bold text-[#16a34a]">{formatKW(activeIPs)}</span>
+              <span className="text-base font-bold text-[#00BD4D]">{formatKW(activeIPs)}</span>
             </div>
             <div className="space-y-1.5">
               <div>
@@ -266,7 +266,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
                 </div>
               </div>
               <div className="text-[10px] text-muted-foreground font-medium text-center pt-0.5">
-                {formatKW(kw)} x {mult} = <span className="text-[#16a34a] font-bold">{formatKW(activeIPs)}</span>
+                {formatKW(kw)} x {mult} = <span className="text-[#00BD4D] font-bold">{formatKW(activeIPs)}</span>
               </div>
             </div>
           </div>
