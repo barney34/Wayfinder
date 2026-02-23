@@ -350,7 +350,7 @@ export function SiteTableRow({
         )}
       </TableCell>
 
-      {/* Server Count (Srv#) */}
+      {/* Server Count (Srv#) - minimum 1, can't be empty */}
       <TableCell className="p-2 lg:p-4">
         <Input
           type="number" min="1" max="99"
@@ -359,6 +359,13 @@ export function SiteTableRow({
             const val = parseInt(e.target.value);
             if (!isNaN(val) && val >= 1) {
               onUpdateSite(site.id, 'serverCount', val);
+            }
+          }}
+          onBlur={e => {
+            // Reset to 1 if empty or invalid on blur
+            const val = parseInt(e.target.value);
+            if (isNaN(val) || val < 1) {
+              onUpdateSite(site.id, 'serverCount', 1);
             }
           }}
           className="h-8 lg:h-10 text-sm w-14 lg:w-16 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
