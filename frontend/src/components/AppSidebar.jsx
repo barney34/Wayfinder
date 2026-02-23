@@ -152,7 +152,7 @@ export function AppSidebar({
       {/* Header with WAYFINDER text and collapse button */}
       <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-between'} px-3 py-2 border-b`}>
         {!collapsed && (
-          <span className="font-bold text-sm text-[#22c55e] tracking-wide">WAYFINDER</span>
+          <span className="font-bold text-sm text-[#00BD4D] tracking-wide">WAYFINDER</span>
         )}
         <Button
           variant="ghost"
