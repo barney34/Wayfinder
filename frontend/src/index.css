@@ -108,18 +108,17 @@ code {
     background: hsl(var(--muted-foreground) / 0.5);
 }
 
-/* Hover effects for cards */
+/* Hover effects for cards — clean, no drop shadows per brand */
 .hover-elevate {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: border-color 0.2s ease;
 }
 
 .hover-elevate:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: hsl(var(--primary) / 0.3);
 }
 
 .dark .hover-elevate:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border-color: hsl(var(--primary) / 0.4);
 }
 
 
