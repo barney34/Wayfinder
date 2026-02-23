@@ -219,7 +219,7 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
           {/* Target Solutions */}
           <div className="bg-card rounded-xl p-2.5 border border-border shadow-sm">
             <div className="flex items-center gap-1.5 mb-1.5">
-              <Target className="h-3.5 w-3.5 text-[#00594C] dark:text-[#FEDD00]" />
+              <Target className="h-3.5 w-3.5 text-foreground" />
               <span className="text-[11px] font-semibold text-foreground">Target Solutions</span>
             </div>
             <div className="space-y-1">
