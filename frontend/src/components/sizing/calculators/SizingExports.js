@@ -260,12 +260,20 @@ export function exportForLucid(sites, drawingNum) {
     // Update counter for next site
     unitCounter[unitGroup] = endUnit;
 
-    // If 'individual' format, create separate rows for each unit
-    if (unitRangeFormat === 'individual' && swInstances > 1) {
+    // Get HW Add-ons from site
+    const hwAddons = (site.hwAddons || []).join(', ');
+
+    // Always create separate rows when SRV > 1 (multiple servers per site)
+    // Each row represents one server instance (e.g., DC1-1, DC1-2)
+    if (swInstances > 1) {
+      // Distribute HW count across instances - typically 1 HW per SW for physical
+      const hwPerInstance = Math.floor(hwCount / swInstances);
+      const remainder = hwCount % swInstances;
+      
       for (let i = 0; i < swInstances; i++) {
         const unitNum = startUnit + i;
-        const isFirstInPair = i % 2 === 0;
-        const hwCountForUnit = isFirstInPair ? Math.min(1, hwCount - Math.floor(i / 2)) : 0;
+        // First instances get the extra HW if there's a remainder
+        const hwCountForUnit = hwPerInstance + (i < remainder ? 1 : 0);
         
         rows.push({
           'Drawing #': drawingNum || '',
@@ -274,37 +282,37 @@ export function exportForLucid(sites, drawingNum) {
           'Solution': solution,
           'Model Info': model,
           'SW Instances': 1,
-          'Description': `${site.name || description}\n${site.role} (Unit ${unitNum})`,
+          'Description': `${site.name}-${i + 1}\n${site.role}`,
           'SW Base SKU': swBaseSku,
           'SW Package': swPackage,
           'SW Add-ons': swAddons.join(', ') || '',
           'HW License SKU': hwLicenseSku,
-          'HW Add-ons': '',
-          'HW Count': hwCountForUnit > 0 ? 1 : 0,
+          'HW Add-ons': hwAddons,
+          'HW Count': hwCountForUnit,
           'Add to Report': site.addToReport !== false ? 'Yes' : 'No',
           'Add to BOM': site.addToBom !== false ? 'Yes' : 'No',
         });
       }
-      return; // Skip the combined row below
+    } else {
+      // Single server - one row
+      rows.push({
+        'Drawing #': drawingNum || '',
+        'Unit Group': unitGroup,
+        'Unit #/Range': String(startUnit),
+        'Solution': solution,
+        'Model Info': model,
+        'SW Instances': 1,
+        'Description': description,
+        'SW Base SKU': swBaseSku,
+        'SW Package': swPackage,
+        'SW Add-ons': swAddons.join(', ') || '',
+        'HW License SKU': hwLicenseSku,
+        'HW Add-ons': hwAddons,
+        'HW Count': hwCount,
+        'Add to Report': site.addToReport !== false ? 'Yes' : 'No',
+        'Add to BOM': site.addToBom !== false ? 'Yes' : 'No',
+      });
     }
-
-    rows.push({
-      'Drawing #': drawingNum || '',
-      'Unit Group': unitGroup,
-      'Unit #/Range': unitRange,
-      'Solution': solution,
-      'Model Info': model,
-      'SW Instances': swInstances,
-      'Description': description,
-      'SW Base SKU': swBaseSku,
-      'SW Package': swPackage,
-      'SW Add-ons': swAddons.join(', ') || '',
-      'HW License SKU': hwLicenseSku,
-      'HW Add-ons': '',
-      'HW Count': hwCount,
-      'Add to Report': site.addToReport !== false ? 'Yes' : 'No',
-      'Add to BOM': site.addToBom !== false ? 'Yes' : 'No',
-    });
   });
 
   console.log('[exportForLucid] Created', rows.length, 'rows');
@@ -330,7 +338,7 @@ export function exportForLucid(sites, drawingNum) {
       { wch: 12 }, // Add to BOM
     ];
     XLSX.utils.book_append_sheet(wb, ws, 'Drawing');
-    const filename = `drawing-${drawingNum || '1'}-lucid-export.xlsx`;
+    const filename = `drawing-${drawingNum || '10'}-lucid-export.xlsx`;
     console.log('[exportForLucid] Writing file:', filename);
     XLSX.writeFile(wb, filename);
     console.log('[exportForLucid] Export complete');
