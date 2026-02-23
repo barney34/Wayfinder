@@ -193,7 +193,7 @@ export function exportPDF(sites, totals, bom, partnerSku, platformMode, security
   doc.save('site-sizing-export.pdf');
 }
 
-export function exportForLucid(sites, drawingNum) {
+export function exportForLucid(sites, drawingNum, unitRangeFormat = 'auto') {
   console.log('[exportForLucid] Called with', sites?.length, 'sites, drawing:', drawingNum);
   
   if (!sites || sites.length === 0) {
@@ -221,7 +221,7 @@ export function exportForLucid(sites, drawingNum) {
     console.log('[exportForLucid] Site', idx, site.name, site.role, 'HA:', site.haEnabled, 'Srv#:', site.serverCount);
     
     const unitGroup = getUnitGroup(site.role, site.sourceType);
-    unitCounter[unitGroup] = (unitCounter[unitGroup] || 0) + 1;
+    const startUnit = (unitCounter[unitGroup] || 0) + 1;
 
     let solution = 'NIOS';
     if (site.platform?.includes('NXVS') || site.platform?.includes('NXaaS')) solution = 'UDDI';
@@ -247,16 +247,26 @@ export function exportForLucid(sites, drawingNum) {
     
     // HW Count: use site.hwCount if defined, otherwise auto-calculate
     const isVirtual = site.platform?.includes('NXVS') || site.platform?.includes('NXaaS') || 
-                      site.platform === 'NIOS-V' || site.platform === 'NIOS-VHA';
+                      site.platform === 'NIOS-V';
     const hwCount = site.hwCount !== undefined ? site.hwCount : (isVirtual ? 0 : swInstances);
 
-    // Unit # or Range
-    let unitRange = unitCounter[unitGroup].toString();
-    if (site.serverCount > 1 || swInstances > 1) {
-      const startNum = unitCounter[unitGroup];
-      unitRange = `${startNum}-${startNum + swInstances - 1}`;
-      unitCounter[unitGroup] += swInstances - 1; // Account for multiple units
+    // Unit # or Range - format based on SW instances count
+    // Auto format: 1-4 if > 4 units, otherwise 1,2,3,4
+    const endUnit = startUnit + swInstances - 1;
+    let unitRange;
+    
+    if (swInstances === 1) {
+      unitRange = String(startUnit);
+    } else if (swInstances <= 4) {
+      // Format as comma-separated: 1,2,3,4
+      unitRange = Array.from({ length: swInstances }, (_, i) => startUnit + i).join(',');
+    } else {
+      // Format as range: 1-5
+      unitRange = `${startUnit}-${endUnit}`;
     }
+    
+    // Update counter for next site
+    unitCounter[unitGroup] = endUnit;
 
     rows.push({
       'Drawing #': drawingNum || '',
@@ -269,7 +279,7 @@ export function exportForLucid(sites, drawingNum) {
       'SW Base SKU': swBaseSku,
       'SW Package': swPackage,
       'SW Add-ons': swAddons.join(', ') || '',
-      'HW License SKU': hwInfo.hwSku,
+      'HW License SKU': isVirtual ? 'VM' : hwInfo.hwSku,
       'HW Add-ons': '',
       'HW Count': hwCount,
       'Add to Report': site.addToReport !== false ? 'Yes' : 'No',
