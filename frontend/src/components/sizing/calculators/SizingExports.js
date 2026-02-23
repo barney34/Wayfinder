@@ -194,7 +194,7 @@ export function exportPDF(sites, totals, bom, partnerSku, platformMode, security
 }
 
 export function exportForLucid(sites, drawingNum, unitRangeFormat = 'auto') {
-  console.log('[exportForLucid] Called with', sites?.length, 'sites, drawing:', drawingNum);
+  console.log('[exportForLucid] Called with', sites?.length, 'sites, drawing:', drawingNum, 'format:', unitRangeFormat);
   
   if (!sites || sites.length === 0) {
     alert('No sites to export. Please add sites to the sizing table first.');
@@ -210,6 +210,32 @@ export function exportForLucid(sites, drawingNum, unitRangeFormat = 'auto') {
   });
 
   console.log('[exportForLucid] Processing', sortedSites.length, 'sorted sites');
+
+  // Helper to format unit range based on user preference
+  const formatUnitRange = (startUnit, swInstances, format) => {
+    const endUnit = startUnit + swInstances - 1;
+    
+    if (swInstances === 1) return String(startUnit);
+    
+    switch (format) {
+      case 'comma':
+        // Always use comma: 1,2,3,4,5,6
+        return Array.from({ length: swInstances }, (_, i) => startUnit + i).join(',');
+      case 'range':
+        // Always use range: 1-6
+        return `${startUnit}-${endUnit}`;
+      case 'individual':
+        // Return null - will create individual rows
+        return null;
+      case 'auto':
+      default:
+        // Auto: comma for ≤4, range for >4
+        if (swInstances <= 4) {
+          return Array.from({ length: swInstances }, (_, i) => startUnit + i).join(',');
+        }
+        return `${startUnit}-${endUnit}`;
+    }
+  };
 
   sortedSites.forEach((site, idx) => {
     // Skip sites not marked for report
@@ -250,23 +276,40 @@ export function exportForLucid(sites, drawingNum, unitRangeFormat = 'auto') {
                       site.platform === 'NIOS-V';
     const hwCount = site.hwCount !== undefined ? site.hwCount : (isVirtual ? 0 : swInstances);
 
-    // Unit # or Range - format based on SW instances count
-    // Auto format: 1-4 if > 4 units, otherwise 1,2,3,4
+    // Format unit range based on user preference
+    const unitRange = formatUnitRange(startUnit, swInstances, unitRangeFormat);
     const endUnit = startUnit + swInstances - 1;
-    let unitRange;
-    
-    if (swInstances === 1) {
-      unitRange = String(startUnit);
-    } else if (swInstances <= 4) {
-      // Format as comma-separated: 1,2,3,4
-      unitRange = Array.from({ length: swInstances }, (_, i) => startUnit + i).join(',');
-    } else {
-      // Format as range: 1-5
-      unitRange = `${startUnit}-${endUnit}`;
-    }
     
     // Update counter for next site
     unitCounter[unitGroup] = endUnit;
+
+    // If 'individual' format, create separate rows for each unit
+    if (unitRangeFormat === 'individual' && swInstances > 1) {
+      for (let i = 0; i < swInstances; i++) {
+        const unitNum = startUnit + i;
+        const isFirstInPair = i % 2 === 0;
+        const hwCountForUnit = isFirstInPair ? Math.min(1, hwCount - Math.floor(i / 2)) : 0;
+        
+        rows.push({
+          'Drawing #': drawingNum || '',
+          'Unit Group': unitGroup,
+          'Unit #/Range': String(unitNum),
+          'Solution': solution,
+          'Model Info': model,
+          'SW Instances': 1,
+          'Description': `${description} (Unit ${unitNum})`,
+          'SW Base SKU': swBaseSku,
+          'SW Package': swPackage,
+          'SW Add-ons': swAddons.join(', ') || '',
+          'HW License SKU': isVirtual ? 'VM' : hwInfo.hwSku,
+          'HW Add-ons': '',
+          'HW Count': hwCountForUnit > 0 ? 1 : 0,
+          'Add to Report': site.addToReport !== false ? 'Yes' : 'No',
+          'Add to BOM': site.addToBom !== false ? 'Yes' : 'No',
+        });
+      }
+      return; // Skip the combined row below
+    }
 
     rows.push({
       'Drawing #': drawingNum || '',
