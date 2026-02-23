@@ -7,8 +7,8 @@ import { useDiscovery } from "@/contexts/DiscoveryContext";
 
 // Editable tag for DC/Site
 function SiteTag({ name, kw, color, onRemove }) {
-  const bgColor = color === 'blue' ? 'bg-blue-100 dark:bg-blue-900/30 border-blue-300' : 'bg-green-100 dark:bg-green-900/30 border-green-300';
-  const textColor = color === 'blue' ? 'text-blue-700 dark:text-blue-300' : 'text-green-700 dark:text-green-300';
+  const bgColor = color === 'blue' ? 'bg-accent/10 border-accent/30' : 'bg-primary/10 border-primary/30';
+  const textColor = color === 'blue' ? 'text-accent' : 'text-primary';
   const displayKW = kw || '0';
   
   return (
@@ -67,14 +67,14 @@ export function QuickSiteEntry() {
           <button
             type="button"
             onClick={() => setEntryType('dc')}
-            className={`px-3 py-1 text-xs font-medium rounded-full transition-all flex items-center gap-1 ${entryType === 'dc' ? 'bg-blue-500 text-white' : 'text-muted-foreground hover:text-foreground'}`}
+            className={`px-3 py-1 text-xs font-medium rounded-full transition-all flex items-center gap-1 ${entryType === 'dc' ? 'bg-accent text-accent-foreground' : 'text-muted-foreground hover:text-foreground'}`}
           >
             <Building2 className="h-3 w-3" /> DC
           </button>
           <button
             type="button"
             onClick={() => setEntryType('site')}
-            className={`px-3 py-1 text-xs font-medium rounded-full transition-all flex items-center gap-1 ${entryType === 'site' ? 'bg-green-500 text-white' : 'text-muted-foreground hover:text-foreground'}`}
+            className={`px-3 py-1 text-xs font-medium rounded-full transition-all flex items-center gap-1 ${entryType === 'site' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
           >
             <MapPin className="h-3 w-3" /> Site
           </button>
@@ -116,10 +116,10 @@ export function QuickSiteEntry() {
 
         {/* Summary Badges */}
         <div className="flex items-center gap-2 ml-auto">
-          <Badge variant="outline" className="text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-blue-200">
+          <Badge variant="outline" className="text-xs bg-blue-50 dark:bg-blue-900/20 text-accent border-blue-200">
             <Building2 className="h-3 w-3 mr-1" /> {dataCenters.length} DC
           </Badge>
-          <Badge variant="outline" className="text-xs bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-green-200">
+          <Badge variant="outline" className="text-xs bg-green-50 dark:bg-green-900/20 text-primary border-green-200">
             <MapPin className="h-3 w-3 mr-1" /> {sites.length} Sites
           </Badge>
         </div>

@@ -266,7 +266,7 @@ function WorkloadBar({ label, isDriver, value, max, util }) {
         </span>
         <span>{formatNumber(value)} / {formatNumber(max)} ({util}%)</span>
       </div>
-      <Progress value={Math.min(util, 100)} className={`h-2 ${util > 60 ? '[&>div]:bg-amber-500' : ''} ${util > 80 ? '[&>div]:bg-red-500' : ''}`} />
+      <Progress value={Math.min(util, 100)} className={`h-2 ${util > 60 ? '[&>div]:bg-[#FEDD00]' : ''} ${util > 80 ? '[&>div]:bg-destructive' : ''}`} />
     </div>
   );
 }
