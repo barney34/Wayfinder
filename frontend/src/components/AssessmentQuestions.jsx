@@ -337,10 +337,10 @@ function MultiSelectField({ questionId, options, optionsWithPermission = [], opt
           {selectedValues.map(val => (
             <span 
               key={val} 
-              className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] text-black dark:text-white border border-gray-300 dark:border-gray-600 rounded"
+              className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] text-foreground border border-border rounded"
             >
               {val}
-              <button onClick={() => removeValue(val)} className="ml-0.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+              <button onClick={() => removeValue(val)} className="ml-0.5 text-muted-foreground hover:text-foreground">
                 <X className="h-2.5 w-2.5" />
               </button>
             </span>
@@ -351,8 +351,8 @@ function MultiSelectField({ questionId, options, optionsWithPermission = [], opt
       {/* Dropdown trigger */}
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" className={`justify-between font-normal border-gray-300 dark:border-gray-600 ${compact ? 'h-7 text-xs px-2 min-w-[100px]' : 'h-8 text-xs w-full'}`} data-testid={`multiselect-trigger-${questionId}`}>
-            <span className="text-gray-500 dark:text-gray-400 truncate">{selectedValues.length === 0 ? 'Select...' : `+ Add`}</span>
+          <Button variant="outline" className={`justify-between font-normal border-border ${compact ? 'h-7 text-xs px-2 min-w-[100px]' : 'h-8 text-xs w-full'}`} data-testid={`multiselect-trigger-${questionId}`}>
+            <span className="text-muted-foreground truncate">{selectedValues.length === 0 ? 'Select...' : `+ Add`}</span>
             <ChevronDown className="h-3 w-3 opacity-50 ml-1" />
           </Button>
         </PopoverTrigger>
