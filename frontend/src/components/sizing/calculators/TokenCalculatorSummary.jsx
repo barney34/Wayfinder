@@ -486,13 +486,19 @@ export function TokenCalculatorSummary() {
 
             <Button
               variant="outline" size="sm"
-              onClick={() => exportForLucid(sites, activeDrawing?.name || '1')}
+              onClick={() => exportForLucid(sites, activeDrawing?.name || '10')}
               className="text-xs"
               data-testid="export-drawing-button"
             >
               <FileSpreadsheet className="h-4 w-4 mr-1" />
               Export for Lucid
             </Button>
+          </div>
+
+          {/* Drawing # Header */}
+          <div className="flex items-center gap-2 mb-2 mt-4">
+            <span className="text-lg font-bold text-primary">Drawing #{activeDrawing?.name || '10'}</span>
+            <span className="text-sm text-muted-foreground">({sites.length} sites)</span>
           </div>
 
           <div className="border rounded-lg overflow-hidden overflow-x-auto">
