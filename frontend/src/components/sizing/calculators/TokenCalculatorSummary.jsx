@@ -534,22 +534,9 @@ export function TokenCalculatorSummary() {
             </div>
 
             <div className="flex items-center gap-2">
-              {/* Unit Range Format Selector */}
-              <Select value={unitRangeFormat} onValueChange={setUnitRangeFormat}>
-                <SelectTrigger className="h-8 w-32 text-xs" data-testid="unit-range-format">
-                  <SelectValue placeholder="Unit Format" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="auto">Auto (1,2,3 / 1-5)</SelectItem>
-                  <SelectItem value="comma">Comma (1,2,3,4)</SelectItem>
-                  <SelectItem value="range">Range (1-4)</SelectItem>
-                  <SelectItem value="individual">Individual rows</SelectItem>
-                </SelectContent>
-              </Select>
-
               <Button
                 variant="outline" size="sm"
-                onClick={() => exportForLucid(sites, activeDrawing?.name || '10', unitRangeFormat)}
+                onClick={() => exportForLucid(sites, activeDrawing?.name || '10')}
                 className="text-xs"
                 data-testid="export-drawing-button"
               >
