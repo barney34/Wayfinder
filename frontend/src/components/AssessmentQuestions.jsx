@@ -69,7 +69,7 @@ function GridMultiSelect({ questionId, options, value, onChange, allowFreeform, 
                 key={opt}
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors border whitespace-nowrap ${
                   selectedValues.includes(opt)
-                    ? 'bg-[#0a84ff]/20 border-[#0a84ff] text-foreground'
+                    ? 'bg-[#12C2D3]/20 border-[#12C2D3] text-foreground'
                     : 'bg-background border-border text-muted-foreground hover:bg-muted hover:text-foreground'
                 }`}
                 data-testid={`grid-option-${questionId}-${opt.replace(/\s/g, '-')}`}
@@ -107,7 +107,7 @@ function GridMultiSelect({ questionId, options, value, onChange, allowFreeform, 
           {selectedValues.map(val => (
             <span 
               key={val} 
-              className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] text-foreground bg-[#0a84ff]/20 border border-[#0a84ff]/50 rounded-full whitespace-nowrap"
+              className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] text-foreground bg-[#12C2D3]/20 border border-[#12C2D3]/50 rounded-full whitespace-nowrap"
             >
               {val}
               <button onClick={() => removeValue(val)} className="ml-0.5 text-muted-foreground hover:text-foreground">
@@ -134,7 +134,7 @@ function SyncedNumberField({ questionId, value, onChange, syncValue, syncLabel }
         onChange={e => onChange(e.target.value)}
         onBlur={e => onChange(e.target.value)}
         onKeyDown={e => e.key === 'Enter' && e.target.blur()}
-        className={`w-20 h-8 text-xs ${hasMismatch ? 'border-[#ff9f0a] bg-[#ff9f0a]/10' : 'bg-background border-border'}`}
+        className={`w-20 h-8 text-xs ${hasMismatch ? 'border-[#FEDD00] bg-[#FEDD00]/10' : 'bg-background border-border'}`}
         placeholder="0"
         data-testid={`input-answer-${questionId}`}
       />
@@ -142,7 +142,7 @@ function SyncedNumberField({ questionId, value, onChange, syncValue, syncLabel }
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger>
-              <Badge variant="outline" className="text-[10px] py-0 px-1.5 bg-[#ff9f0a]/10 text-[#ff9f0a] border-[#ff9f0a]/50">
+              <Badge variant="outline" className="text-[10px] py-0 px-1.5 bg-[#FEDD00]/10 text-[#FEDD00] border-[#FEDD00]/50">
                 <AlertTriangle className="h-2.5 w-2.5 mr-0.5" />
                 {syncValue} in TopBar
               </Badge>
@@ -176,7 +176,7 @@ function AddResponseField({ questionId, value, onChange, onExamine, sectionConte
     return (
       <button
         onClick={() => setIsExpanded(true)}
-        className="text-sm text-[#0a84ff] hover:text-[#0a84ff]/80 flex items-center gap-1"
+        className="text-sm text-[#12C2D3] hover:text-[#12C2D3]/80 flex items-center gap-1"
         data-testid={`add-response-btn-${questionId}`}
       >
         <Plus className="h-3 w-3" />
@@ -192,7 +192,7 @@ function AddResponseField({ questionId, value, onChange, onExamine, sectionConte
         onChange={e => onChange(e.target.value)}
         onBlur={e => onChange(e.target.value)}
         placeholder="Enter additional context or notes..."
-        className="min-h-[80px] text-sm bg-background border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:ring-[#0a84ff] focus:border-[#0a84ff]"
+        className="min-h-[80px] text-sm bg-background border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:ring-[#12C2D3] focus:border-[#12C2D3]"
         data-testid={`response-textarea-${questionId}`}
         autoFocus
       />
@@ -600,15 +600,15 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
 
   // Nav pill colors - Theme-aware with improved light mode contrast
   const sectionPillStyles = {
-    'IPAM':                  { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#2563eb] text-white border-[#2563eb] shadow-md' },
-    'Internal DNS':          { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#2563eb] text-white border-[#2563eb] shadow-md' },
-    'External DNS':          { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#2563eb] text-white border-[#2563eb] shadow-md' },
-    'DHCP':                  { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#2563eb] text-white border-[#2563eb] shadow-md' },
-    'Overlay':               { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#2563eb] text-white border-[#2563eb] shadow-md' },
-    'Services':              { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#2563eb] text-white border-[#2563eb] shadow-md' },
-    'Asset/ Network Insight': { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#2563eb] text-white border-[#2563eb] shadow-md' },
-    'Security':              { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#2563eb] text-white border-[#2563eb] shadow-md' },
-    'Professional Services': { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#2563eb] text-white border-[#2563eb] shadow-md' },
+    'IPAM':                  { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#00BD4D] text-white border-[#00BD4D] shadow-md' },
+    'Internal DNS':          { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#00BD4D] text-white border-[#00BD4D] shadow-md' },
+    'External DNS':          { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#00BD4D] text-white border-[#00BD4D] shadow-md' },
+    'DHCP':                  { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#00BD4D] text-white border-[#00BD4D] shadow-md' },
+    'Overlay':               { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#00BD4D] text-white border-[#00BD4D] shadow-md' },
+    'Services':              { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#00BD4D] text-white border-[#00BD4D] shadow-md' },
+    'Asset/ Network Insight': { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#00BD4D] text-white border-[#00BD4D] shadow-md' },
+    'Security':              { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#00BD4D] text-white border-[#00BD4D] shadow-md' },
+    'Professional Services': { normal: 'bg-card text-foreground border-border shadow-sm hover:shadow-md', active: 'bg-[#00BD4D] text-white border-[#00BD4D] shadow-md' },
   };
 
   // Active section background - NONE, just rely on header styling
@@ -932,7 +932,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                     {/* Progress bar background */}
                     {!isActive && isSectionEnabled && progress > 0 && (
                       <div 
-                        className="absolute bottom-0 left-0 h-0.5 bg-[#16a34a] transition-all"
+                        className="absolute bottom-0 left-0 h-0.5 bg-[#00BD4D] transition-all"
                         style={{ width: `${progress}%` }}
                       />
                     )}
@@ -1022,7 +1022,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                       {q.question}
                     </label>
                     {hasNote && (
-                      <span className="text-[10px] text-[#32d74b] uppercase tracking-wide px-2 py-0.5 rounded-full bg-[#32d74b]/10">noted</span>
+                      <span className="text-[10px] text-[#00BD4D] uppercase tracking-wide px-2 py-0.5 rounded-full bg-[#00BD4D]/10">noted</span>
                     )}
                   </div>
                   
@@ -1033,7 +1033,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                     </div>
                   ) : (
                     <button 
-                      className="text-sm text-[#2563eb] hover:text-[#2563eb]/80 font-medium"
+                      className="text-sm text-[#00BD4D] hover:text-[#00BD4D]/80 font-medium"
                       onClick={(e) => {
                         e.stopPropagation();
                         setExpandedNotes(p => ({ ...p, [q.id]: !p[q.id] }));
@@ -1050,7 +1050,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                         value={notes[q.id] || ''}
                         onChange={e => setNote(q.id, e.target.value)}
                         placeholder="Type here..."
-                        className="min-h-[80px] text-sm bg-background border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:ring-[#0a84ff] focus:border-[#0a84ff]"
+                        className="min-h-[80px] text-sm bg-background border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:ring-[#12C2D3] focus:border-[#12C2D3]"
                         data-testid={`note-${q.id}`}
                         onClick={e => e.stopPropagation()}
                         autoFocus
@@ -1068,7 +1068,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                         className="px-5 py-4 bg-secondary/30"
                         data-testid={`question-${cq.id}`}
                       >
-                        <div className="text-xs text-[#2563eb] mb-2 uppercase tracking-wide font-medium">
+                        <div className="text-xs text-[#00BD4D] mb-2 uppercase tracking-wide font-medium">
                           If {cq.conditionalOn.value}
                         </div>
                         <label className="text-sm font-semibold text-foreground block mb-2">
