@@ -133,6 +133,11 @@ export const RPT_QUANTITIES = [
   { value: '100GB', label: '100 GB' },
 ];
 
+// Default models by role
+export const DEFAULT_MODEL_BY_ROLE = {
+  'Reporting': 'TE-5005', // Reporting Server default
+};
+
 // HW Add-ons (only for physical platforms)
 // PSU = Only for TE-1506, SFP = Model-dependent
 export const HW_ADDONS = [
