@@ -23,10 +23,11 @@ import {
 // Import extracted modules
 import { PLATFORM_MODES, PLATFORM_OPTIONS_BY_MODE, ROLE_OPTIONS_BY_MODE, ADDITIONAL_SERVICES } from "./platformConfig";
 import { getServiceImpact, getTokensForModel, getPartnerSkuFromTokens, getSkuDescription, getRecommendedPlatformMode } from "./tokenUtils";
-import { exportCSV, exportYAML, exportExcel, exportPDF, exportDrawing } from "./SizingExports";
+import { exportCSV, exportYAML, exportExcel, exportPDF, exportForLucid } from "./SizingExports";
 import { PlatformChangeAlertDialog, WhyThisModelDialog } from "./SizingDialogs";
 import { SiteTableRow } from "./SiteTableRow";
 import { SizingTableHeader } from "./SizingTableHeader";
+import { DrawingTabs, useDrawings, CompareDrawingsDialog, CopySiteToDrawingMenu } from "./DrawingManager";
 
 // Re-export constants for backward compatibility
 export { PLATFORM_MODES, PLATFORM_OPTIONS_BY_MODE, ROLE_OPTIONS_BY_MODE, ADDITIONAL_SERVICES };
@@ -46,8 +47,22 @@ export function TokenCalculatorSummary() {
   // Site overrides state (manual sites now use context via addSite)
   const [siteOverrides, setSiteOverrides] = useState({});
 
-  // Drawing # for export
-  const [drawingNumber, setDrawingNumber] = useState('');
+  // Multiple drawings management
+  const {
+    drawings,
+    activeDrawing,
+    activeDrawingId,
+    setActiveDrawingId,
+    addDrawing,
+    copyDrawing,
+    deleteDrawing,
+    renameDrawing,
+    updateDrawingSites,
+    copySiteToDrawing,
+  } = useDrawings([]);
+
+  // Compare dialog state
+  const [showCompareDialog, setShowCompareDialog] = useState(false);
 
   // Alert dialog state for platform change confirmation
   const [showPlatformAlert, setShowPlatformAlert] = useState(false);
