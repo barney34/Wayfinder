@@ -1,5 +1,6 @@
 /**
  * SiteTableRow - Individual site row in the sizing table
+ * Column order matches export: Location, IPs, KW?, Role, Services?, DHCP Partner, Srv#, HA, Platform, Model, HW SKU?, SW#, HW#, Tokens?, Rpt, BOM, Actions
  */
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -9,10 +10,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Trash2, Info, Settings2, HelpCircle, Server } from "lucide-react";
+import { Trash2, Info, Settings2, HelpCircle, Server, Copy } from "lucide-react";
 import { formatNumber } from "@/lib/utils";
 import { ADDITIONAL_SERVICES } from "./platformConfig";
 import { getSiteWorkloadDetails } from "../calculations";
+import { CopySiteToDrawingMenu } from "./DrawingManager";
 
 // Calculate token packs (500K per pack, rounded up)
 const TOKENS_PER_PACK = 500000;
@@ -22,9 +24,9 @@ function calculateTokenPacks(tokens) {
 }
 
 export function SiteTableRow({
-  site, sites, platformMode, dhcpPercent,
-  roleOptions, platformOptions, showHardware, showKW,
-  onUpdateSite, onToggleService, onDeleteSite, onOpenModelDialog,
+  site, sites, drawings, activeDrawingId, platformMode, dhcpPercent,
+  roleOptions, platformOptions, showHardware, showKW, showServices,
+  onUpdateSite, onToggleService, onDeleteSite, onOpenModelDialog, onCopySiteToDrawing,
 }) {
   const showTokens = platformMode !== 'NIOS'; // Hide tokens for NIOS-only mode
   
@@ -120,54 +122,56 @@ export function SiteTableRow({
         </Select>
       </TableCell>
 
-      {/* Services */}
-      <TableCell className="p-2 lg:p-4">
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline" size="sm"
-              className="h-8 lg:h-10 text-xs lg:text-sm w-full justify-between"
-              disabled={site.isDisabledInUddi}
-              data-testid={`site-services-${site.id}`}
-            >
-              {(site.services?.length || 0) > 0 ? (
-                <span className="truncate">{site.services.length}</span>
-              ) : (
-                <span className="text-muted-foreground">&mdash;</span>
-              )}
-              <Settings2 className="h-3 w-3 lg:h-4 lg:w-4 ml-1 flex-shrink-0" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-56 p-3" align="start">
-            <div className="space-y-3">
-              <div className="font-medium text-sm">Co-located Services</div>
-              <p className="text-xs text-muted-foreground">Select additional services running on this host. Each adds performance overhead.</p>
-              <div className="space-y-2">
-                {ADDITIONAL_SERVICES.map(svc => (
-                  <div key={svc.value} className="flex items-center gap-2">
-                    <Checkbox
-                      id={`${site.id}-${svc.value}`}
-                      checked={(site.services || []).includes(svc.value)}
-                      onCheckedChange={() => onToggleService(site.id, svc.value)}
-                      data-testid={`checkbox-${site.id}-${svc.value}`}
-                    />
-                    <label htmlFor={`${site.id}-${svc.value}`} className="flex-1 text-sm cursor-pointer">
-                      {svc.label}
-                      {svc.impact > 0 && <span className="text-xs text-amber-600 ml-1">+{svc.impact}%</span>}
-                    </label>
-                  </div>
-                ))}
-              </div>
-              {(site.serviceImpact || 0) > 0 && (
-                <div className="pt-2 border-t text-xs">
-                  <span className="text-muted-foreground">Total overhead: </span>
-                  <span className="font-medium text-amber-600">+{site.serviceImpact}%</span>
+      {/* Services (conditional) */}
+      {showServices && (
+        <TableCell className="p-2 lg:p-4">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline" size="sm"
+                className="h-8 lg:h-10 text-xs lg:text-sm w-full justify-between"
+                disabled={site.isDisabledInUddi}
+                data-testid={`site-services-${site.id}`}
+              >
+                {(site.services?.length || 0) > 0 ? (
+                  <span className="truncate">{site.services.length}</span>
+                ) : (
+                  <span className="text-muted-foreground">&mdash;</span>
+                )}
+                <Settings2 className="h-3 w-3 lg:h-4 lg:w-4 ml-1 flex-shrink-0" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-56 p-3" align="start">
+              <div className="space-y-3">
+                <div className="font-medium text-sm">Co-located Services</div>
+                <p className="text-xs text-muted-foreground">Select additional services running on this host. Each adds performance overhead.</p>
+                <div className="space-y-2">
+                  {ADDITIONAL_SERVICES.map(svc => (
+                    <div key={svc.value} className="flex items-center gap-2">
+                      <Checkbox
+                        id={`${site.id}-${svc.value}`}
+                        checked={(site.services || []).includes(svc.value)}
+                        onCheckedChange={() => onToggleService(site.id, svc.value)}
+                        data-testid={`checkbox-${site.id}-${svc.value}`}
+                      />
+                      <label htmlFor={`${site.id}-${svc.value}`} className="flex-1 text-sm cursor-pointer">
+                        {svc.label}
+                        {svc.impact > 0 && <span className="text-xs text-amber-600 ml-1">+{svc.impact}%</span>}
+                      </label>
+                    </div>
+                  ))}
                 </div>
-              )}
-            </div>
-          </PopoverContent>
-        </Popover>
-      </TableCell>
+                {(site.serviceImpact || 0) > 0 && (
+                  <div className="pt-2 border-t text-xs">
+                    <span className="text-muted-foreground">Total overhead: </span>
+                    <span className="font-medium text-amber-600">+{site.serviceImpact}%</span>
+                  </div>
+                )}
+              </div>
+            </PopoverContent>
+          </Popover>
+        </TableCell>
+      )}
 
       {/* DHCP Partner */}
       <TableCell className="p-2 lg:p-4">
@@ -205,7 +209,7 @@ export function SiteTableRow({
         )}
       </TableCell>
 
-      {/* Server Count */}
+      {/* Server Count (Srv#) */}
       <TableCell className="p-2 lg:p-4">
         <Input
           type="number" min="1" max="99"
@@ -219,6 +223,16 @@ export function SiteTableRow({
           className="h-8 lg:h-10 text-sm w-14 lg:w-16 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           disabled={site.isDisabledInUddi}
           data-testid={`site-server-count-${site.id}`}
+        />
+      </TableCell>
+
+      {/* HA Checkbox */}
+      <TableCell className="p-2 lg:p-4 text-center">
+        <Checkbox
+          checked={site.haEnabled || false}
+          onCheckedChange={v => onUpdateSite(site.id, 'haEnabled', v)}
+          disabled={site.isDisabledInUddi}
+          data-testid={`site-ha-${site.id}`}
         />
       </TableCell>
 
@@ -282,6 +296,41 @@ export function SiteTableRow({
         </TableCell>
       )}
 
+      {/* SW Instances (auto-calculated: serverCount * (HA ? 2 : 1)) */}
+      <TableCell className="p-2 lg:p-4 text-center tabular-nums font-medium text-sm lg:text-base">
+        {site.isDisabledInUddi ? (
+          <span className="text-muted-foreground">&mdash;</span>
+        ) : (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger className="cursor-help">
+                <span>{site.swInstances || site.serverCount || 1}</span>
+              </TooltipTrigger>
+              <TooltipContent className="text-xs">
+                <div>Srv# ({site.serverCount || 1}) × {site.haEnabled ? '2 (HA)' : '1'} = {site.swInstances || site.serverCount || 1}</div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+      </TableCell>
+
+      {/* HW Count (editable) */}
+      <TableCell className="p-2 lg:p-4 text-center">
+        <Input
+          type="number" min="0" max="999"
+          value={site.hwCount ?? 0}
+          onChange={e => {
+            const val = parseInt(e.target.value);
+            if (!isNaN(val) && val >= 0) {
+              onUpdateSite(site.id, 'hwCount', val);
+            }
+          }}
+          className="h-8 lg:h-10 text-sm w-14 lg:w-16 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          disabled={site.isDisabledInUddi}
+          data-testid={`site-hw-count-${site.id}`}
+        />
+      </TableCell>
+
       {/* Token Packs - only show for non-NIOS modes */}
       {showTokens && (
         <TableCell className="p-2 lg:p-4 text-right tabular-nums font-medium text-sm lg:text-base">
@@ -301,6 +350,7 @@ export function SiteTableRow({
                     <div><strong>Tokens:</strong> {formatNumber(site.tokens || 0)}</div>
                     <div><strong>Token packs:</strong> {calculateTokenPacks(site.tokens)} (500K per pack)</div>
                     {site.serverCount > 1 && <div><strong>Servers:</strong> x{site.serverCount}</div>}
+                    {site.haEnabled && <div className="text-green-600"><strong>HA:</strong> Enabled (×2 SW instances)</div>}
                     {(site.serviceImpact || 0) > 0 && <div><strong>Service overhead:</strong> +{site.serviceImpact}%</div>}
                     {site.isSpoke && <div className="text-amber-600"><strong>Spoke penalty:</strong> 50% LPS</div>}
                     {site.isHub && <div className="text-blue-600"><strong>Hub failover:</strong> +{site.hubLPS} LPS (50% of spokes)</div>}
@@ -322,13 +372,26 @@ export function SiteTableRow({
         <Checkbox checked={site.addToBom} onCheckedChange={v => onUpdateSite(site.id, 'addToBom', v)} data-testid={`site-bom-${site.id}`} />
       </TableCell>
 
-      {/* Delete (manual sites only) */}
+      {/* Actions: Copy to Drawing + Delete */}
       <TableCell className="p-2 lg:p-4">
-        {!site.sourceType && (
-          <Button variant="ghost" size="icon" className="h-7 w-7 lg:h-8 lg:w-8" onClick={() => onDeleteSite(site.id)}>
-            <Trash2 className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-destructive" />
-          </Button>
-        )}
+        <div className="flex items-center gap-1">
+          {/* Copy to another drawing */}
+          {drawings && drawings.length > 1 && onCopySiteToDrawing && (
+            <CopySiteToDrawingMenu
+              site={site}
+              drawings={drawings}
+              activeDrawingId={activeDrawingId}
+              onCopy={onCopySiteToDrawing}
+            />
+          )}
+          
+          {/* Delete (manual sites only) */}
+          {!site.sourceType && (
+            <Button variant="ghost" size="icon" className="h-7 w-7 lg:h-8 lg:w-8" onClick={() => onDeleteSite(site.id)}>
+              <Trash2 className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-destructive" />
+            </Button>
+          )}
+        </div>
       </TableCell>
     </TableRow>
   );
