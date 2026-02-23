@@ -1168,7 +1168,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                 )}
                 
                 {/* Section-level Add Response for SmartFill */}
-                <div className="px-5 py-4 border-t border-[#2c2c2e]">
+                <div className="px-5 py-4 border-t border-border">
                   <AddResponseField
                     questionId={`section-response-${section.replace(/\s/g, '-')}`}
                     value={sectionResponses[section] || ''}
