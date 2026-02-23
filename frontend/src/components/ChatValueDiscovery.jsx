@@ -344,7 +344,7 @@ export function ChatValueDiscovery({ section }) {
         >
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl bg-[#12C2D3]/15 flex items-center justify-center">
-              <MessageSquare className="h-4 w-4 text-[#12C2D3]" />
+              <MessageSquare className="h-4 w-4 text-[#00594C] dark:text-[#12C2D3]" />
             </div>
             <span className="text-sm font-semibold text-foreground">Value Discovery</span>
             {/* Progress indicator */}
@@ -426,9 +426,9 @@ export function ChatValueDiscovery({ section }) {
                       isComplete
                         ? 'bg-[#00BD4D]/15 text-[#00BD4D] border-[#00BD4D]/30 cursor-default'
                         : isActive
-                          ? 'bg-[#12C2D3]/20 text-[#12C2D3] border-[#12C2D3] ring-1 ring-[#12C2D3]/30'
+                          ? 'bg-[#12C2D3]/20 text-[#00594C] dark:text-[#12C2D3] border-[#12C2D3] ring-1 ring-[#12C2D3]/30'
                           : topic.required
-                            ? 'bg-[#FEDD00]/10 text-[#FEDD00] border-[#FEDD00]/30 hover:bg-[#FEDD00]/20 cursor-pointer'
+                            ? 'bg-[#FEDD00]/10 text-[#9A7600] dark:text-[#FEDD00] border-[#FEDD00]/30 hover:bg-[#FEDD00]/20 cursor-pointer'
                             : 'bg-secondary text-secondary-foreground border-border hover:bg-muted hover:text-foreground cursor-pointer'
                     }`}
                     data-testid={`topic-pill-${topic.id}`}
