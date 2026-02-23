@@ -167,7 +167,7 @@ export function DrawingTabs({
 export function useDrawings(initialSites = []) {
   const [drawings, setDrawings] = useState(() => [{
     id: generateDrawingId(),
-    name: '1',
+    name: '10', // Start at 10
     sites: initialSites,
     createdAt: new Date().toISOString(),
   }]);
@@ -176,17 +176,29 @@ export function useDrawings(initialSites = []) {
 
   const activeDrawing = drawings.find(d => d.id === activeDrawingId) || drawings[0];
 
+  // Get next drawing number in increments of 10
+  const getNextDrawingNumber = useCallback(() => {
+    const existingNumbers = drawings
+      .map(d => parseInt(d.name))
+      .filter(n => !isNaN(n));
+    
+    if (existingNumbers.length === 0) return '10';
+    
+    const maxNumber = Math.max(...existingNumbers);
+    return String(Math.ceil((maxNumber + 1) / 10) * 10); // Round up to next 10
+  }, [drawings]);
+
   const addDrawing = useCallback(() => {
     const newDrawing = {
       id: generateDrawingId(),
-      name: String(drawings.length + 1),
+      name: getNextDrawingNumber(),
       sites: [],
       createdAt: new Date().toISOString(),
     };
     setDrawings(prev => [...prev, newDrawing]);
     setActiveDrawingId(newDrawing.id);
     return newDrawing;
-  }, [drawings.length]);
+  }, [getNextDrawingNumber]);
 
   const copyDrawing = useCallback((drawingId) => {
     const source = drawings.find(d => d.id === drawingId);
