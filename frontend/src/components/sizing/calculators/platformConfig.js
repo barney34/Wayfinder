@@ -10,13 +10,11 @@ export const PLATFORM_MODES = [
   { value: 'Hybrid', label: 'Hybrid', description: 'Mix of NIOS + UDDI' },
 ];
 
-// Platform options per mode
+// Platform options per mode - Simplified: Physical/Virtual only (HA is separate checkbox)
 export const PLATFORM_OPTIONS_BY_MODE = {
   NIOS: [
     { value: 'NIOS', label: 'NIOS Physical' },
     { value: 'NIOS-V', label: 'NIOS Virtual' },
-    { value: 'NIOS-PHA', label: 'NIOS Physical HA' },
-    { value: 'NIOS-VHA', label: 'NIOS Virtual HA' },
   ],
   UDDI: [
     { value: 'NXVS', label: 'NIOS-X Virtual Server' },
@@ -25,8 +23,6 @@ export const PLATFORM_OPTIONS_BY_MODE = {
   Hybrid: [
     { value: 'NIOS', label: 'NIOS Physical' },
     { value: 'NIOS-V', label: 'NIOS Virtual' },
-    { value: 'NIOS-PHA', label: 'NIOS Physical HA' },
-    { value: 'NIOS-VHA', label: 'NIOS Virtual HA' },
     { value: 'NXVS', label: 'NIOS-X VS' },
     { value: 'NXaaS', label: 'NXaaS' },
   ],
