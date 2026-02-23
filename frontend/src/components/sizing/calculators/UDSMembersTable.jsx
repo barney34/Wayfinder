@@ -190,7 +190,7 @@ export function UDSMembersTable() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
-                <Server className="h-5 w-5 text-blue-500" />
+                <Server className="h-5 w-5 text-foreground" />
                 <span className="font-semibold">Grid Members</span>
               </div>
               <div className="flex items-center gap-4 text-sm">
@@ -389,7 +389,7 @@ export function UDSMembersTable() {
                           {(member.role === 'DNS' || member.role === 'DNS/DHCP' || member.role === 'GM' || member.role === 'GMC') && (
                             <div>
                               <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
-                                <Wifi className="h-4 w-4 text-blue-500" />
+                                <Wifi className="h-4 w-4 text-foreground" />
                                 DNS Features
                               </h4>
                               <div className="space-y-2">
@@ -416,7 +416,7 @@ export function UDSMembersTable() {
                           {(member.role === 'DHCP' || member.role === 'DNS/DHCP' || member.role === 'GM' || member.role === 'GMC') && (
                             <div>
                               <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
-                                <Database className="h-4 w-4 text-green-500" />
+                                <Database className="h-4 w-4 text-primary" />
                                 DHCP Features
                               </h4>
                               <div className="space-y-2">
