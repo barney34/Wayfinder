@@ -50,6 +50,24 @@ Migration and enhancement of a "Sizing" calculator application for infrastructur
 ## What's Been Implemented
 
 ### December 2025 (Latest Session)
+
+#### Multiple Drawings System (COMPLETED)
+A major new feature enabling management of multiple sizing scenarios within a single session:
+- **Drawing Tabs**: Tabbed interface at top of Sizing table (#1, #2, etc.) with add/copy/delete/rename
+- **New Drawing**: Creates blank drawing with incrementing number
+- **Duplicate Drawing**: Copies existing drawing with "-copy" suffix
+- **Compare Drawings**: Side-by-side comparison when 2+ drawings exist
+- **Copy Site to Drawing**: Copy individual sites between drawings via action menu
+
+#### Enhanced HA & Server Count Logic (COMPLETED)
+- **HA Checkbox**: Per-row toggle that doubles software instances (SW#)
+- **SW# Column**: Auto-calculated: `Srv# × (HA ? 2 : 1)`
+- **HW# Column**: Editable hardware count (defaults auto-calculated, user can override)
+- **Column Toggles**: Hide/show KW, Services, and HW SKU columns
+
+#### Export for Lucid (COMPLETED)
+Updated export with columns: `Drawing #`, `Unit Group`, `Unit #/Range`, `Solution`, `Model Info`, `SW Instances`, `Description`, `SW Base SKU`, `SW Package`, `SW Add-ons`, `HW License SKU`, `HW Add-ons`, `HW Count`, `Add to Report`, `Add to BOM`
+
 - **Light Mode Fix** - Fixed black/dark windows appearing in light mode. Replaced hard-coded dark hex colors (#1c1c1e, #2c2c2e, #3c3c3e) with theme-aware CSS variables (bg-card, bg-muted, bg-background, text-foreground, etc.) in:
   - TopBar.jsx - All cards, inputs, and buttons
   - ChatValueDiscovery.jsx - Chat container, messages, and inputs
