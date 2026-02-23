@@ -114,9 +114,13 @@ Updated export with columns: `Drawing #`, `Unit Group`, `Unit #/Range`, `Solutio
 - ✅ COMPLETED: Export for Lucid with correct column format
 - ✅ COMPLETED: DC count sync between Sizing and Discovery tabs
 - ✅ COMPLETED: Manual Site/DC persistence across navigation
+- ✅ COMPLETED: Delete any row (not just manual sites)
+- ✅ COMPLETED: Include HW checkbox per row
 
 ### P1 - High Priority  
-- [ ] Verify External DNS QPS auto-calculation
+- ✅ COMPLETED: Export View toggle (simplified table showing export-relevant columns)
+- ✅ COMPLETED: Unit Range Format selector (Auto/Comma/Range/Individual)
+- ✅ VERIFIED: External DNS QPS auto-calculation (working - shows "Auto" badge)
 - [ ] Implement AI logic for "Examine for answers" button
 - [ ] Full Home Assistant UI consistency review
 
