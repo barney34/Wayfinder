@@ -482,44 +482,80 @@ export function TokenCalculatorSummary() {
 
           {/* Table Controls */}
           <div className="flex items-center justify-between mb-3 gap-4 flex-wrap">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 flex-wrap">
+              {/* Export View Toggle */}
               <label className="flex items-center gap-2 text-sm cursor-pointer">
                 <Checkbox
-                  checked={showKW}
-                  onCheckedChange={setShowKW}
-                  data-testid="show-kw-toggle"
+                  checked={exportView}
+                  onCheckedChange={(v) => {
+                    setExportView(v);
+                    if (v) {
+                      // In export view, hide non-export columns
+                      setShowKW(false);
+                      setShowServices(false);
+                    }
+                  }}
+                  data-testid="export-view-toggle"
                 />
-                <span className="text-muted-foreground">KW</span>
+                <span className="text-muted-foreground font-medium">Export View</span>
               </label>
 
-              <label className="flex items-center gap-2 text-sm cursor-pointer">
-                <Checkbox
-                  checked={showServices}
-                  onCheckedChange={setShowServices}
-                  data-testid="show-services-toggle"
-                />
-                <span className="text-muted-foreground">Services</span>
-              </label>
+              {!exportView && (
+                <>
+                  <label className="flex items-center gap-2 text-sm cursor-pointer">
+                    <Checkbox
+                      checked={showKW}
+                      onCheckedChange={setShowKW}
+                      data-testid="show-kw-toggle"
+                    />
+                    <span className="text-muted-foreground">KW</span>
+                  </label>
 
-              <label className="flex items-center gap-2 text-sm cursor-pointer">
-                <Checkbox
-                  checked={showHardware}
-                  onCheckedChange={setShowHardware}
-                  data-testid="show-hardware-toggle"
-                />
-                <span className="text-muted-foreground">HW SKU</span>
-              </label>
+                  <label className="flex items-center gap-2 text-sm cursor-pointer">
+                    <Checkbox
+                      checked={showServices}
+                      onCheckedChange={setShowServices}
+                      data-testid="show-services-toggle"
+                    />
+                    <span className="text-muted-foreground">Services</span>
+                  </label>
+
+                  <label className="flex items-center gap-2 text-sm cursor-pointer">
+                    <Checkbox
+                      checked={showHardware}
+                      onCheckedChange={setShowHardware}
+                      data-testid="show-hardware-toggle"
+                    />
+                    <span className="text-muted-foreground">HW SKU</span>
+                  </label>
+                </>
+              )}
             </div>
 
-            <Button
-              variant="outline" size="sm"
-              onClick={() => exportForLucid(sites, activeDrawing?.name || '10')}
-              className="text-xs"
-              data-testid="export-drawing-button"
-            >
-              <FileSpreadsheet className="h-4 w-4 mr-1" />
-              Export for Lucid
-            </Button>
+            <div className="flex items-center gap-2">
+              {/* Unit Range Format Selector */}
+              <Select value={unitRangeFormat} onValueChange={setUnitRangeFormat}>
+                <SelectTrigger className="h-8 w-32 text-xs" data-testid="unit-range-format">
+                  <SelectValue placeholder="Unit Format" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="auto">Auto (1,2,3 / 1-5)</SelectItem>
+                  <SelectItem value="comma">Comma (1,2,3,4)</SelectItem>
+                  <SelectItem value="range">Range (1-4)</SelectItem>
+                  <SelectItem value="individual">Individual rows</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Button
+                variant="outline" size="sm"
+                onClick={() => exportForLucid(sites, activeDrawing?.name || '10', unitRangeFormat)}
+                className="text-xs"
+                data-testid="export-drawing-button"
+              >
+                <FileSpreadsheet className="h-4 w-4 mr-1" />
+                Export for Lucid
+              </Button>
+            </div>
           </div>
 
           {/* Drawing # Header */}
