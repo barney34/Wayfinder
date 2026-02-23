@@ -78,8 +78,6 @@ export function TokenCalculatorSummary() {
   const [showServices, setShowServices] = useState(true);
   // "Export View" mode - shows only exportable columns
   const [exportView, setExportView] = useState(false);
-  // Unit range format preference
-  const [unitRangeFormat, setUnitRangeFormat] = useState('auto'); // 'auto', 'comma', 'range', 'individual'
 
   // "Why this model?" dialog state
   const [showModelDialog, setShowModelDialog] = useState(false);
