@@ -149,7 +149,7 @@ export function WhyThisModelDialog({ open, onOpenChange, site, platformMode, dhc
           </div>
 
           {/* Driver Explanation */}
-          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+          <div className="p-4 bg-accent/10 rounded-lg border border-accent/30">
             <div className="flex items-center gap-2 mb-2">
               <Star className="h-5 w-5 text-accent dark:text-accent fill-accent" />
               <span className="font-medium text-foreground">
@@ -246,7 +246,7 @@ export function WhyThisModelDialog({ open, onOpenChange, site, platformMode, dhc
                   {site.serverCount > 1 ? `${site.serverCount} servers x ${formatNumber(site.tokensPerServer || 0)} tokens` : 'Per server'}
                 </div>
               </div>
-              <div className="text-2xl font-bold text-green-700 dark:text-green-300">
+              <div className="text-2xl font-bold text-primary">
                 {formatNumber(site.tokens || 0)}
               </div>
             </div>
@@ -261,7 +261,7 @@ function WorkloadBar({ label, isDriver, value, max, util }) {
   return (
     <div className="space-y-1">
       <div className="flex justify-between text-sm">
-        <span className={isDriver ? 'font-bold text-blue-600' : ''}>
+        <span className={isDriver ? 'font-bold text-accent' : ''}>
           {label} {isDriver && '\u2605'}
         </span>
         <span>{formatNumber(value)} / {formatNumber(max)} ({util}%)</span>

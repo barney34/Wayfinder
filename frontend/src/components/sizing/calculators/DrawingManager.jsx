@@ -96,7 +96,7 @@ export function DrawingTabs({
                     <DropdownMenuItem 
                       onClick={() => onDeleteDrawing(drawing.id)}
                       disabled={drawings.length <= 1}
-                      className="text-red-600"
+                      className="text-destructive"
                     >
                       <Trash2 className="h-3 w-3 mr-2" />
                       Delete

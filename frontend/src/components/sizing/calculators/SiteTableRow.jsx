@@ -190,7 +190,7 @@ export function SiteTableRow({
       data-testid={`site-row-${site.id}`}
       className={`
         ${site.isDisabledInUddi ? 'opacity-40 bg-muted/50' : ''}
-        ${!site.isDisabledInUddi && site.isHub ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}
+        ${!site.isDisabledInUddi && site.isHub ? 'bg-accent/5' : ''}
         ${!site.isDisabledInUddi && site.isSpoke ? 'bg-amber-50/50 dark:bg-amber-900/10' : ''}
       `}
     >
@@ -339,7 +339,7 @@ export function SiteTableRow({
             <SelectTrigger className="h-8 lg:h-10 text-xs lg:text-sm" data-testid={`site-dhcp-partner-${site.id}`}>
               <SelectValue>
                 {site.isHub ? (
-                  <span className="text-blue-600 font-medium flex items-center gap-1"><Server className="h-3 w-3" /> Hub</span>
+                  <span className="text-accent font-medium flex items-center gap-1"><Server className="h-3 w-3" /> Hub</span>
                 ) : site.dhcpPartner ? (
                   <span className="text-amber-600">{sites.find(s => s.id === site.dhcpPartner)?.name || 'Spoke'}</span>
                 ) : (
@@ -437,7 +437,7 @@ export function SiteTableRow({
             disabled={site.isDisabledInUddi}
             data-testid={`why-model-${site.id}`}
           >
-            <HelpCircle className="h-3.5 w-3.5 text-muted-foreground hover:text-blue-500" />
+            <HelpCircle className="h-3.5 w-3.5 text-muted-foreground hover:text-accent" />
           </Button>
         </div>
       </TableCell>
@@ -646,10 +646,10 @@ export function SiteTableRow({
                     <div><strong>Tokens:</strong> {formatNumber(site.tokens || 0)}</div>
                     <div><strong>Token packs:</strong> {calculateTokenPacks(site.tokens)} (500K per pack)</div>
                     {site.serverCount > 1 && <div><strong>Servers:</strong> x{site.serverCount}</div>}
-                    {site.haEnabled && <div className="text-green-600"><strong>HA:</strong> Enabled (×2 SW instances)</div>}
+                    {site.haEnabled && <div className="text-primary"><strong>HA:</strong> Enabled (×2 SW instances)</div>}
                     {(site.serviceImpact || 0) > 0 && <div><strong>Service overhead:</strong> +{site.serviceImpact}%</div>}
                     {site.isSpoke && <div className="text-amber-600"><strong>Spoke penalty:</strong> 50% LPS</div>}
-                    {site.isHub && <div className="text-blue-600"><strong>Hub failover:</strong> +{site.hubLPS} LPS (50% of spokes)</div>}
+                    {site.isHub && <div className="text-accent"><strong>Hub failover:</strong> +{site.hubLPS} LPS (50% of spokes)</div>}
                   </div>
                 </TooltipContent>
               </Tooltip>
@@ -707,13 +707,13 @@ function ModelTooltipContent({ site, platformMode, dhcpPercent }) {
     <div className="space-y-2 text-xs">
       <div className="font-medium border-b pb-1">Sizing Details for {site.name}</div>
       <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-        <div className={workload.driver === 'qps' ? 'font-bold text-blue-500' : ''}>
+        <div className={workload.driver === 'qps' ? 'font-bold text-accent' : ''}>
           QPS: {formatNumber(workload.adjustedQPS)} {workload.driver === 'qps' && '\u2605'}
         </div>
-        <div className={workload.driver === 'lps' ? 'font-bold text-blue-500' : ''}>
+        <div className={workload.driver === 'lps' ? 'font-bold text-accent' : ''}>
           LPS: {formatNumber(workload.adjustedLPS)} {workload.driver === 'lps' && '\u2605'}
         </div>
-        <div className={workload.driver === 'objects' ? 'font-bold text-blue-500' : ''}>
+        <div className={workload.driver === 'objects' ? 'font-bold text-accent' : ''}>
           Objects: {formatNumber(workload.objects)} {workload.driver === 'objects' && '\u2605'}
         </div>
         <div className="text-muted-foreground">DHCP: {formatNumber(workload.dhcpClients)}</div>
@@ -725,7 +725,7 @@ function ModelTooltipContent({ site, platformMode, dhcpPercent }) {
         </div>
       )}
       <div className="border-t pt-1 text-muted-foreground">
-        <span className="text-blue-500">{'\u2605'}</span> = driver metric
+        <span className="text-accent">{'\u2605'}</span> = driver metric
       </div>
     </div>
   );
