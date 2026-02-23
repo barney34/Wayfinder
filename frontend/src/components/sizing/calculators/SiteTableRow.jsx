@@ -25,10 +25,64 @@ function calculateTokenPacks(tokens) {
 
 export function SiteTableRow({
   site, sites, drawings, activeDrawingId, platformMode, dhcpPercent,
-  roleOptions, platformOptions, showHardware, showKW, showServices,
+  roleOptions, platformOptions, showHardware, showKW, showServices, exportView,
   onUpdateSite, onToggleService, onDeleteSite, onOpenModelDialog, onCopySiteToDrawing,
 }) {
   const showTokens = platformMode !== 'NIOS'; // Hide tokens for NIOS-only mode
+  
+  // Helper to get unit group from role
+  const getUnitGroup = (role) => {
+    const unitGroupMap = { 'GM': 'A', 'GMC': 'A', 'DNS': 'B', 'DHCP': 'C', 'DNS/DHCP': 'B' };
+    return unitGroupMap[role] || 'B';
+  };
+  
+  // Helper to get solution from platform
+  const getSolution = (platform) => {
+    if (platform?.includes('NXVS') || platform?.includes('NXaaS')) return 'UDDI';
+    return 'NIOS';
+  };
+
+  // Export view - simplified row with export-relevant columns only
+  if (exportView) {
+    return (
+      <TableRow data-testid={`site-row-${site.id}`} className="hover:bg-muted/30">
+        {/* Location */}
+        <TableCell className="p-2 text-sm font-medium">{site.name}</TableCell>
+        
+        {/* Unit Group */}
+        <TableCell className="p-2 text-sm text-center">{getUnitGroup(site.role)}</TableCell>
+        
+        {/* Solution */}
+        <TableCell className="p-2 text-sm">{getSolution(site.platform)}</TableCell>
+        
+        {/* Model */}
+        <TableCell className="p-2 text-sm font-mono">{site.recommendedModel}</TableCell>
+        
+        {/* SW# */}
+        <TableCell className="p-2 text-sm text-center font-medium">{site.swInstances || 1}</TableCell>
+        
+        {/* HW# */}
+        <TableCell className="p-2 text-sm text-center">{site.hwCount || 0}</TableCell>
+        
+        {/* Rpt */}
+        <TableCell className="p-2 text-center">
+          <Checkbox checked={site.addToReport} onCheckedChange={v => onUpdateSite(site.id, 'addToReport', v)} />
+        </TableCell>
+        
+        {/* BOM */}
+        <TableCell className="p-2 text-center">
+          <Checkbox checked={site.addToBom} onCheckedChange={v => onUpdateSite(site.id, 'addToBom', v)} />
+        </TableCell>
+        
+        {/* Delete */}
+        <TableCell className="p-2">
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onDeleteSite(site.id)}>
+            <Trash2 className="h-3.5 w-3.5 text-destructive" />
+          </Button>
+        </TableCell>
+      </TableRow>
+    );
+  }
   
   return (
     <TableRow
