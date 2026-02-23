@@ -82,7 +82,7 @@ export function SizingTableHeader({ showHardware, showKW, showServices, platform
         </HeaderWithTooltip>
         
         {/* HW Count */}
-        <HeaderWithTooltip className="w-14 lg:w-16 text-center" tooltip="Hardware unit count for export. Editable for VM or shared HW scenarios (e.g., 4 SW on 2 HW).">
+        <HeaderWithTooltip className="w-20 lg:w-24 text-center" tooltip="Hardware unit count for export. Check box to include HW, uncheck for VM (0 HW).">
           HW#
         </HeaderWithTooltip>
         
