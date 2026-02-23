@@ -397,12 +397,17 @@ export function SiteTableRow({
             />
           )}
           
-          {/* Delete (manual sites only) */}
-          {!site.sourceType && (
-            <Button variant="ghost" size="icon" className="h-7 w-7 lg:h-8 lg:w-8" onClick={() => onDeleteSite(site.id)}>
-              <Trash2 className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-destructive" />
-            </Button>
-          )}
+          {/* Delete - available for all rows */}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-7 w-7 lg:h-8 lg:w-8" 
+            onClick={() => onDeleteSite(site.id)}
+            title="Delete row"
+            data-testid={`delete-site-${site.id}`}
+          >
+            <Trash2 className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-destructive" />
+          </Button>
         </div>
       </TableCell>
     </TableRow>
