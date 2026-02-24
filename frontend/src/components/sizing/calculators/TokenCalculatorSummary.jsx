@@ -898,6 +898,15 @@ export function TokenCalculatorSummary() {
                             toggleService(srvId, svcVal);
                           }
                         }}
+                        onTogglePerfFeature={(siteId, featValue) => {
+                          const s = sites.find(x => x.id === siteId);
+                          if (!s) return;
+                          const current = s.perfFeatures || [];
+                          const updated = current.includes(featValue)
+                            ? current.filter(f => f !== featValue)
+                            : [...current, featValue];
+                          updateSite(siteId, 'perfFeatures', updated);
+                        }}
                         onDeleteSite={srv._isExpanded ? () => {
                           // For expanded servers, reduce serverCount instead of deleting
                           const parentSite2 = sites.find(s => s.id === srv._parentSiteId);
