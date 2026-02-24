@@ -193,7 +193,7 @@ export function exportPDF(sites, totals, bom, partnerSku, platformMode, security
   doc.save('site-sizing-export.pdf');
 }
 
-export function exportForLucid(sites, drawingNum) {
+export function exportForLucid(sites, drawingNum, unitAssignments = {}) {
   console.log('[exportForLucid] Called with', sites?.length, 'sites, drawing:', drawingNum);
   
   if (!sites || sites.length === 0) {
@@ -202,7 +202,6 @@ export function exportForLucid(sites, drawingNum) {
   }
 
   const rows = [];
-  let unitCounter = {};
 
   // Sort: A (GM/GMC) → B (DNS) → C (DHCP) → D-G → M → N (ND) → RPT → LIC → CDC
   const roleOrder = {
@@ -224,8 +223,14 @@ export function exportForLucid(sites, drawingNum) {
 
     console.log('[exportForLucid] Site', idx, site.name, site.role, 'model:', site.recommendedModel);
 
-    const unitGroup = getUnitGroup(site.role, site.sourceType, site.services);
-    const startUnit = (unitCounter[unitGroup] || 0) + 1;
+    const unitGroup = site.unitLetterOverride || getUnitGroup(site.role, site.sourceType, site.services);
+    
+    // Use unit assignment for #/Range if available, else compute
+    const ua = unitAssignments[site.id];
+    const unitNum = site.unitNumberOverride ?? ua?.unitNumber ?? 1;
+    
+    // #/Range: Use _groupRange if it exists (combined rows), else the unit number
+    const unitRange = site._groupRange || String(unitNum);
 
     // Solution column
     let solution = 'NIOS';
@@ -234,13 +239,13 @@ export function exportForLucid(sites, drawingNum) {
     if (site.role === 'ND')               solution = 'NIOS';
     if (site.role === 'Reporting')        solution = 'NIOS';
 
-    // Model Info — for NXVS/NXaaS show full prefixed name (NXVS-S, NXaaS-M)
+    // Model
     const model = site.recommendedModel || 'TBD';
 
     // SW Base SKU
     const swBaseSku = getSwBaseSku(model);
 
-    // SW Package — pass rptStorage for Reporting rows
+    // SW Package
     const hasDiscovery = (site.services || []).includes('Discovery');
     const swPackage = getSwPackage(site.role, hasDiscovery, site.rptQuantity || null);
 
@@ -249,18 +254,81 @@ export function exportForLucid(sites, drawingNum) {
                       site.platform === 'NIOS-V' || site.role === 'Reporting';
     const hwLicenseSku = isVirtual ? 'VM' : (site.hardwareSku || `${model}-HW-AC`);
 
-    // Description
-    let description = site.name || '';
-    if (site.role) description += `\n${site.role}`;
-    if (site.services?.length) description += ` + ${site.services.join(', ')}`;
+    // --- Build rich description ---
+    const descParts = [];
+    const userDesc = site.description?.trim();
+    
+    if (userDesc) {
+      // User-provided description takes priority
+      descParts.push(userDesc);
+    } else {
+      // Auto-generate from role, features, and add-ons
+      const role = site.role || '';
+      const swAddonsArr = site.swAddons || [];
+      const perfFeats = site.effectivePerfFeatures || site.perfFeatures || [];
+      const svcCount = site._serverCount || site.serverCount || 1;
+      
+      if (role === 'GM' || role.startsWith('GM+')) {
+        descParts.push('HA Grid Manager');
+        if (swAddonsArr.includes('CNA')) descParts.push('Cloud Network Automation');
+        if (role.includes('DNS')) descParts.push('DNS Services');
+        if (role.includes('DHCP')) descParts.push('DHCP Services');
+      } else if (role === 'GMC' || role.startsWith('GMC+')) {
+        descParts.push('Grid Manager Candidate');
+        if (swAddonsArr.includes('CNA')) descParts.push('Cloud Network Automation');
+      } else if (role === 'DNS/DHCP') {
+        if (site.isHub) {
+          descParts.push('DNS and DHCP Services');
+          descParts.push('DHCP Failover Hub');
+        } else if (site.isSpoke) {
+          descParts.push('DNS and DHCP Services');
+          descParts.push('DHCP Failover');
+        } else {
+          descParts.push('Int. Auth DNS, DHCP');
+        }
+      } else if (role === 'DNS') {
+        descParts.push('Int. Auth. DNS');
+        if (perfFeats.includes('ADP')) descParts.push('Advanced DNS Protection');
+        if (perfFeats.includes('DTC')) descParts.push('Global Server Load Balancing');
+      } else if (role === 'DHCP') {
+        descParts.push('Core DHCP Services');
+        if (site.isHub || site.isSpoke) descParts.push('Failover redundancy');
+      } else if (role === 'ND') {
+        descParts.push('Network Insight');
+        descParts.push('Automated Discovery');
+        descParts.push('Authoritative IPAM');
+      } else if (role === 'Reporting') {
+        descParts.push('Reporting Virtual Server');
+        descParts.push('Scheduled Reports');
+        descParts.push('Automated Data Collection');
+      } else if (role === 'CDC') {
+        descParts.push('NIOS-X Virtual Server for Cloud Data');
+        descParts.push('Connector to export service logs');
+      } else if (role === 'LIC') {
+        descParts.push(site.name || 'License');
+      } else {
+        descParts.push(site.name || role);
+      }
+      
+      // Add MS sync note
+      if (swAddonsArr.includes('DDIMSGD') || swAddonsArr.includes('MS')) {
+        descParts.push('Microsoft Sync');
+      }
+      
+      // For multi-server combined rows
+      if (svcCount > 1 && site._groupRange) {
+        descParts.push(`${svcCount} servers`);
+      }
+    }
+    
+    const description = descParts.join('\n');
 
     // SW Add-ons
     const swAddons = [...(site.swAddons || [])];
     if ((site.services || []).includes('DFP') && !swAddons.includes('ADP')) swAddons.push('ADP');
-    // Reporting: add storage size as add-on label
     if (site.role === 'Reporting' && site.rptQuantity) swAddons.push(`${site.rptQuantity}`);
 
-    // HW Add-ons — PSU label + SFP totals
+    // HW Add-ons
     const hwSkuStr = site.hardwareSku || '';
     const serverCount = site._serverCount || site.serverCount || 1;
     const hwAddonLabels = (site.hwAddons || []).map(v => {
@@ -276,17 +344,12 @@ export function exportForLucid(sites, drawingNum) {
     const swInstances = site.swInstances || (site.serverCount || 1) * (site.haEnabled ? 2 : 1);
     const hwCount = site.hwCount !== undefined ? site.hwCount : (isVirtual ? 0 : swInstances);
 
-    const endUnit = startUnit + swInstances - 1;
-    // Reporting: always occupies 2 unit slots (main + TR-SWTL companion), regardless of SW count
-    // All other roles: occupies swInstances unit slots
-    unitCounter[unitGroup] = site.role === 'Reporting' ? startUnit + 1 : endUnit;
-
-    // Reporting: always emit as ONE combined main row (SW# = total swInstances) + companion
+    // Reporting: emit main row + companion
     if (site.role === 'Reporting') {
       rows.push({
         'Drawing #':     drawingNum || '',
         'Unit Group':    'RPT',
-        'Unit #/Range':  String(startUnit),
+        'Unit #/Range':  unitRange,
         'Solution':      'NIOS',
         'Model Info':    'TR-5005',
         'SW Instances':  swInstances,
@@ -303,7 +366,7 @@ export function exportForLucid(sites, drawingNum) {
       rows.push({
         'Drawing #':     drawingNum || '',
         'Unit Group':    'RPT',
-        'Unit #/Range':  String(startUnit + 1),
+        'Unit #/Range':  String(unitNum + 1),
         'Solution':      'NIOS',
         'Model Info':    'TR-5005',
         'SW Instances':  1,
@@ -317,52 +380,27 @@ export function exportForLucid(sites, drawingNum) {
         'Add to Report': 'Yes',
         'Add to BOM':    'Yes',
       });
-      return; // skip the generic multi/single logic below
+      return;
     }
 
-    if (swInstances > 1) {
-      const hwPerInstance = Math.floor(hwCount / swInstances);
-      const remainder = hwCount % swInstances;
-      for (let i = 0; i < swInstances; i++) {
-        const unitNum = startUnit + i;
-        const hwCountForUnit = hwPerInstance + (i < remainder ? 1 : 0);
-        rows.push({
-          'Drawing #':     drawingNum || '',
-          'Unit Group':    unitGroup,
-          'Unit #/Range':  String(unitNum),
-          'Solution':      solution,
-          'Model Info':    model,
-          'SW Instances':  1,
-          'Description':   `${site.name}-${i + 1}\n${site.role}`,
-          'SW Base SKU':   swBaseSku,
-          'SW Package':    swPackage,
-          'SW Add-ons':    swAddons.join(', ') || '',
-          'HW License SKU':hwLicenseSku,
-          'HW Add-ons':    hwAddons,
-          'HW Count':      hwCountForUnit,
-          'Add to Report': 'Yes',
-          'Add to BOM':    site.addToBom !== false ? 'Yes' : 'No',
-        });
-      }
-    } else {
-      rows.push({
-        'Drawing #':     drawingNum || '',
-        'Unit Group':    unitGroup,
-        'Unit #/Range':  String(startUnit),
-        'Solution':      solution,
-        'Model Info':    model,
-        'SW Instances':  swInstances,
-        'Description':   description,
-        'SW Base SKU':   swBaseSku,
-        'SW Package':    swPackage,
-        'SW Add-ons':    swAddons.join(', ') || '',
-        'HW License SKU':hwLicenseSku,
-        'HW Add-ons':    hwAddons,
-        'HW Count':      hwCount,
-        'Add to Report': 'Yes',
-        'Add to BOM':    site.addToBom !== false ? 'Yes' : 'No',
-      });
-    }
+    // All other rows: single row with #/Range from unit assignment
+    rows.push({
+      'Drawing #':     drawingNum || '',
+      'Unit Group':    unitGroup,
+      'Unit #/Range':  unitRange,
+      'Solution':      solution,
+      'Model Info':    model,
+      'SW Instances':  swInstances,
+      'Description':   description,
+      'SW Base SKU':   swBaseSku,
+      'SW Package':    swPackage,
+      'SW Add-ons':    swAddons.join(', ') || '',
+      'HW License SKU':hwLicenseSku,
+      'HW Add-ons':    hwAddons,
+      'HW Count':      hwCount,
+      'Add to Report': 'Yes',
+      'Add to BOM':    site.addToBom !== false ? 'Yes' : 'No',
+    });
   });
 
   console.log('[exportForLucid] Created', rows.length, 'rows');
