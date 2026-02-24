@@ -139,20 +139,38 @@ export const DEFAULT_MODEL_BY_ROLE = {
 };
 
 // HW Add-ons (only for physical platforms)
-// PSU = Only for TE-1506, SFP = Model-dependent
+// PSU = Only for TE-906/TE-1506, SFP = Model-dependent, with quantity
 export const HW_ADDONS = [
   { 
     value: 'PSU', 
     label: '2nd PSU', 
-    description: 'Second Power Supply Unit',
-    allowedModels: ['TE-1506'], // Only 1506 supports 2nd PSU
+    description: 'Second Power Supply Unit (AC/DC)',
+    allowedModels: ['TE-906', 'TE-1506'],
+    hasQuantity: false,
   },
   { 
-    value: 'SFP', 
-    label: 'SFP', 
-    description: 'SFP Module',
-    allowedModels: ['TE-1506', 'TE-1516', 'TE-1525', 'TE-1526', 'TE-2225', 'TE-2226'],
+    value: '1GE-CARD', 
+    label: '1GE/SFP Card', 
+    description: '1GE/SFP Interface Card',
+    allowedModels: ['TE-1506', 'TE-1606', 'TE-2306', 'TE-4106'],
+    hasQuantity: false,
   },
+  { 
+    value: '10GE-CARD', 
+    label: '10GE/SFP+ Card', 
+    description: '10GE/SFP+ Interface Card',
+    allowedModels: ['TE-1506', 'TE-1606', 'TE-2306', 'TE-4106'],
+    hasQuantity: false,
+  },
+];
+
+// SFP Interface options — each requires a quantity (#)
+export const SFP_OPTIONS = [
+  { value: 'IB-SFP-CO', label: 'SFP Copper 1GE', description: 'SFP Copper 1GE (CO)' },
+  { value: 'IB-1GE-LX-SFP', label: 'SFP LR 1GE (LX)', description: 'SFP Long Range 1GE' },
+  { value: 'IB-1GE-SX-SFP', label: 'SFP SR 1GE (SX)', description: 'SFP Short Range 1GE' },
+  { value: 'IB-10GE-LR-SFP', label: 'SFP+ LR 10GE', description: 'SFP+ Long Range 10GE' },
+  { value: 'IB-10GE-SR-SFP', label: 'SFP+ SR 10GE', description: 'SFP+ Short Range 10GE' },
 ];
 
 // Helper to get available SW Add-ons for a given role and platform
