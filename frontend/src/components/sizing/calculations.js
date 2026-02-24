@@ -387,12 +387,6 @@ export function getSiteWorkloadDetails(numIPs, role, platform, dhcpPercent, site
     lps += hubLPS;
   }
   
-  // Spoke penalty
-  if (isSpoke) {
-    penalties.push('Partner: 2x LPS (FO penalty)');
-    lps = Math.ceil(lps * 2);
-  }
-  
   // FO Object replication
   if (foObjects > 0) {
     penalties.push(`FO Objects: +${foObjects.toLocaleString()} replicated from partner(s)`);
