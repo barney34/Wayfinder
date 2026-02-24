@@ -822,35 +822,62 @@ export function TokenCalculatorSummary() {
                       />
                     );
 
-                    // Export view: add TR-SWTL companion row immediately after each Reporting row
-                    if (exportView && srv.role === 'Reporting') {
+                    // Add TR-SWTL companion row immediately after each Reporting row (both views)
+                    if (srv.role === 'Reporting') {
                       const ua = unitAssignments[srv.id];
-                      const mainUnit = ua?.unitNumber ?? 1;
-                      const swInstances = srv.swInstances || srv.serverCount || 1;
-                      rows.push(
-                        <TableRow key={`${srv.id}-trswtl`} className="hover:bg-muted/30 text-xs bg-muted/10">
-                          <TableCell className="p-1.5 text-center font-medium">RPT</TableCell>
-                          <TableCell className="p-1.5">NIOS</TableCell>
-                          <TableCell className="p-1.5 font-mono">TR-5005</TableCell>
-                          <TableCell className="p-1.5 text-center">1</TableCell>
-                          <TableCell className="p-1.5 text-xs text-muted-foreground">
-                            Reporting Data Volume
-                          </TableCell>
-                          <TableCell className="p-1.5 font-mono text-[11px]">TR-SWTL</TableCell>
-                          <TableCell className="p-1.5 font-mono text-[11px]">{srv.rptQuantity || '—'}</TableCell>
-                          <TableCell className="p-1.5 text-muted-foreground">—</TableCell>
-                          <TableCell className="p-1.5 font-mono text-[11px]">—</TableCell>
-                          <TableCell className="p-1.5 text-muted-foreground">—</TableCell>
-                          <TableCell className="p-1.5 text-center">0</TableCell>
-                          <TableCell className="p-1.5 text-center">
-                            <span className="text-[10px] text-primary">✓</span>
-                          </TableCell>
-                          <TableCell className="p-1.5 text-center">
-                            <span className="text-[10px] text-primary">✓</span>
-                          </TableCell>
-                          <TableCell className="p-1.5"></TableCell>
-                        </TableRow>
-                      );
+                      const companionUnit = (ua?.unitNumber ?? 1) + (srv.swInstances || srv.serverCount || 1);
+
+                      if (exportView) {
+                        // Export view: match exact export column order
+                        // Columns: Unit Grp, Solution, Model, SW#, Description, SW Base SKU, SW Pkg, SW Add-ons, HW License SKU, HW Add-ons, HW#, Rpt, BOM, (actions)
+                        rows.push(
+                          <TableRow key={`${srv.id}-trswtl`} className="hover:bg-muted/30 text-xs">
+                            <TableCell className="p-1.5 text-center font-medium">RPT</TableCell>
+                            <TableCell className="p-1.5">NIOS</TableCell>
+                            <TableCell className="p-1.5 font-mono text-[11px]">TR-5005</TableCell>
+                            <TableCell className="p-1.5 text-center">1</TableCell>
+                            <TableCell className="p-1.5 text-muted-foreground text-[11px]">
+                              Reporting Data Volume
+                            </TableCell>
+                            <TableCell className="p-1.5 font-mono text-[11px]">TR-SWTL</TableCell>
+                            <TableCell className="p-1.5 font-mono text-[11px]">{srv.rptQuantity || '—'}</TableCell>
+                            <TableCell className="p-1.5 text-muted-foreground">—</TableCell>
+                            <TableCell className="p-1.5 font-mono text-[11px]">—</TableCell>
+                            <TableCell className="p-1.5 text-muted-foreground">—</TableCell>
+                            <TableCell className="p-1.5 text-center">0</TableCell>
+                            <TableCell className="p-1.5 text-center"><span className="text-[10px] text-primary">✓</span></TableCell>
+                            <TableCell className="p-1.5 text-center"><span className="text-[10px] text-primary">✓</span></TableCell>
+                            <TableCell className="p-1.5"></TableCell>
+                          </TableRow>
+                        );
+                      } else {
+                        // Normal drawing view: show a compact sub-row with colspan
+                        // Col1=Unit(1), Col2=#(1), Col3=Location+spanning(colspanned), then key export cols at end
+                        rows.push(
+                          <TableRow key={`${srv.id}-trswtl`} className="text-[11px] text-muted-foreground border-dashed">
+                            {/* Unit group */}
+                            <TableCell className="p-1 text-center text-[10px]">RPT</TableCell>
+                            {/* Unit # */}
+                            <TableCell className="p-1 text-center font-mono text-[10px]">{companionUnit}</TableCell>
+                            {/* Span: Location, IPs, [KW], Role, Desc, [Svc], DHCP, Srv#, HA, Solution, Model, [HW SKU], SW#, HW# */}
+                            <TableCell colSpan={totalCols - 9} className="p-1">
+                              <span className="italic text-[10px]">↳ TR-SWTL companion — Reporting Data Volume</span>
+                            </TableCell>
+                            {/* SW Add-ons (storage) */}
+                            <TableCell className="p-1 font-mono text-[10px]">{srv.rptQuantity || '—'}</TableCell>
+                            {/* HW Add-ons */}
+                            <TableCell className="p-1 text-center text-[10px]">—</TableCell>
+                            {/* Tokens col if shown */}
+                            {platformMode !== 'NIOS' && <TableCell className="p-1"></TableCell>}
+                            {/* Rpt */}
+                            <TableCell className="p-1 text-center"><span className="text-[10px] text-primary">✓</span></TableCell>
+                            {/* BOM */}
+                            <TableCell className="p-1 text-center"><span className="text-[10px] text-primary">✓</span></TableCell>
+                            {/* Actions (empty) */}
+                            <TableCell className="p-1"></TableCell>
+                          </TableRow>
+                        );
+                      }
                     }
                   });
                   return rows;
