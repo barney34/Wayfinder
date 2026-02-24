@@ -180,6 +180,95 @@ export const SFP_OPTIONS = [
   { value: 'IB-SFP-CO',     label: 'IB-SFP-CO',     description: 'SFP Copper 1GE' },
 ];
 
+// Performance Features — high-impact features affecting server capacity (model sizing)
+// These are distinct from ADDITIONAL_SERVICES (low-impact co-located services)
+// Impact percentages reduce effective server QPS/LPS
+export const PERFORMANCE_FEATURES = [
+  {
+    value: 'DTC',
+    label: 'DTC',
+    description: 'DNS Traffic Control',
+    impactPercent: 20,
+    impactType: 'qps',      // Reduces DNS QPS
+    allowedRoles: ['DNS', 'DNS/DHCP', 'GM+DNS', 'GM+DNS/DHCP', 'GMC+DNS', 'GMC+DNS/DHCP'],
+    warning: null,
+  },
+  {
+    value: 'SYSLOG',
+    label: 'Syslog',
+    description: 'Q&R Logging to Syslog (−90% QPS)',
+    impactPercent: 90,
+    impactType: 'qps',
+    allowedRoles: ['DNS', 'DNS/DHCP', 'GM+DNS', 'GM+DNS/DHCP', 'GMC+DNS', 'GMC+DNS/DHCP'],
+    warning: '⚠️ Syslog logging reduces DNS capacity by 90%. Consider Data Connector instead.',
+  },
+  {
+    value: 'RPZ',
+    label: 'RPZ',
+    description: 'DNS Firewall / RPZ (−15% QPS)',
+    impactPercent: 15,
+    impactType: 'qps',
+    allowedRoles: ['DNS', 'DNS/DHCP', 'GM+DNS', 'GM+DNS/DHCP', 'GMC+DNS', 'GMC+DNS/DHCP'],
+    warning: null,
+  },
+  {
+    value: 'ADP',
+    label: 'ADP',
+    description: 'Advanced DNS Protection (−20% QPS)',
+    impactPercent: 20,
+    impactType: 'qps',
+    allowedRoles: ['DNS', 'DNS/DHCP', 'GM+DNS', 'GM+DNS/DHCP', 'GMC+DNS', 'GMC+DNS/DHCP'],
+    warning: null,
+  },
+  {
+    value: 'TI',
+    label: 'TI',
+    description: 'Threat Insight (−30% QPS)',
+    impactPercent: 30,
+    impactType: 'qps',
+    allowedRoles: ['DNS', 'DNS/DHCP', 'GM+DNS', 'GM+DNS/DHCP', 'GMC+DNS', 'GMC+DNS/DHCP'],
+    warning: null,
+  },
+  {
+    value: 'DHCP-FP',
+    label: 'FP',
+    description: 'DHCP Fingerprinting (−10% LPS)',
+    impactPercent: 10,
+    impactType: 'lps',
+    allowedRoles: ['DHCP', 'DNS/DHCP', 'GM+DHCP', 'GM+DNS/DHCP', 'GMC+DHCP', 'GMC+DNS/DHCP'],
+    warning: null,
+  },
+];
+
+// Helper: Get available Performance Features for a role
+export function getAvailablePerfFeatures(role) {
+  if (!role) return [];
+  return PERFORMANCE_FEATURES.filter(f => {
+    if (!f.allowedRoles) return true;
+    return f.allowedRoles.includes(role);
+  });
+}
+
+// Helper: Calculate the net performance multiplier from enabled perf features
+// Returns { qpsMultiplier, lpsMultiplier } — multiplicative reduction
+export function calculatePerfImpact(enabledFeatures = [], role) {
+  const available = getAvailablePerfFeatures(role);
+  let qpsMult = 1.0;
+  let lpsMult = 1.0;
+
+  for (const feat of available) {
+    if (enabledFeatures.includes(feat.value)) {
+      if (feat.impactType === 'qps') {
+        qpsMult *= (1 - feat.impactPercent / 100);
+      } else if (feat.impactType === 'lps') {
+        lpsMult *= (1 - feat.impactPercent / 100);
+      }
+    }
+  }
+
+  return { qpsMultiplier: qpsMult, lpsMultiplier: lpsMult };
+}
+
 // Helper: Check if platform is physical (has hardware)
 export function isPlatformPhysical(platform) {
   return platform === 'NIOS' || platform === 'NX-P';
