@@ -30,62 +30,66 @@ export const PLATFORM_OPTIONS_BY_MODE = {
   ],
 };
 
-// Role options by platform mode (UDDI doesn't have GM/GMC)
+// Role options by platform mode
+// GM/GMC are separated into their own group — only the dedicated Grid Manager rows use these
 export const ROLE_OPTIONS_BY_MODE = {
   NIOS: [
-    { value: 'GM', label: 'GM', description: 'Grid Master (no DNS/DHCP)' },
-    { value: 'GM+DNS', label: 'GM+DNS', description: 'Grid Master with DNS (not recommended)', notRecommended: true },
-    { value: 'GM+DHCP', label: 'GM+DHCP', description: 'Grid Master with DHCP (not recommended)', notRecommended: true },
-    { value: 'GM+DNS/DHCP', label: 'GM+DNS/DHCP', description: 'Grid Master with DNS+DHCP (not recommended)', notRecommended: true },
-    { value: 'GMC', label: 'GMC', description: 'Grid Master Candidate (no DNS/DHCP)' },
-    { value: 'GMC+DNS', label: 'GMC+DNS', description: 'GMC with DNS (not recommended)', notRecommended: true },
-    { value: 'GMC+DHCP', label: 'GMC+DHCP', description: 'GMC with DHCP (not recommended)', notRecommended: true },
-    { value: 'GMC+DNS/DHCP', label: 'GMC+DNS/DHCP', description: 'GMC with DNS+DHCP (not recommended)', notRecommended: true },
-    { value: 'DNS', label: 'DNS', description: 'DNS Only' },
-    { value: 'DHCP', label: 'DHCP', description: 'DHCP Only' },
+    // ── Member roles (most rows) ─────────────────────────
+    { value: 'DNS',      label: 'DNS',      description: 'Internal DNS' },
+    { value: 'DHCP',     label: 'DHCP',     description: 'DHCP Only' },
     { value: 'DNS/DHCP', label: 'DNS/DHCP', description: 'DNS + DHCP' },
-    { value: 'Reporting', label: 'Reporting', description: 'Reporting Server (RPT)' },
+    { value: 'ND',       label: 'ND',       description: 'Network Discovery Appliance' },
+    { value: 'Reporting',label: 'Reporting',description: 'Reporting Server (RPT)' },
+    // ── Grid Manager roles (dedicated GM/GMC servers only) ─
+    { value: 'GM',  label: 'GM',  description: 'Grid Master (no DNS/DHCP)', group: 'Grid Manager' },
+    { value: 'GMC', label: 'GMC', description: 'Grid Master Candidate',     group: 'Grid Manager' },
+    { value: 'GM+DNS',      label: 'GM+DNS',      description: 'GM with DNS (not recommended)',      notRecommended: true, group: 'Grid Manager' },
+    { value: 'GM+DHCP',     label: 'GM+DHCP',     description: 'GM with DHCP (not recommended)',     notRecommended: true, group: 'Grid Manager' },
+    { value: 'GM+DNS/DHCP', label: 'GM+DNS/DHCP', description: 'GM with DNS+DHCP (not recommended)', notRecommended: true, group: 'Grid Manager' },
+    { value: 'GMC+DNS',      label: 'GMC+DNS',      description: 'GMC with DNS (not recommended)',      notRecommended: true, group: 'Grid Manager' },
+    { value: 'GMC+DHCP',     label: 'GMC+DHCP',     description: 'GMC with DHCP (not recommended)',     notRecommended: true, group: 'Grid Manager' },
+    { value: 'GMC+DNS/DHCP', label: 'GMC+DNS/DHCP', description: 'GMC with DNS+DHCP (not recommended)', notRecommended: true, group: 'Grid Manager' },
   ],
   UDDI: [
-    { value: 'DNS', label: 'DNS', description: 'DNS Only' },
-    { value: 'DHCP', label: 'DHCP', description: 'DHCP Only' },
+    { value: 'DNS',      label: 'DNS',      description: 'DNS Only' },
+    { value: 'DHCP',     label: 'DHCP',     description: 'DHCP Only' },
     { value: 'DNS/DHCP', label: 'DNS/DHCP', description: 'DNS + DHCP' },
   ],
   Hybrid: [
-    { value: 'GM', label: 'GM', description: 'Grid Master (NIOS only, no DNS/DHCP)' },
-    { value: 'GM+DNS', label: 'GM+DNS', description: 'Grid Master with DNS (not recommended)', notRecommended: true },
-    { value: 'GM+DHCP', label: 'GM+DHCP', description: 'Grid Master with DHCP (not recommended)', notRecommended: true },
-    { value: 'GM+DNS/DHCP', label: 'GM+DNS/DHCP', description: 'Grid Master with DNS+DHCP (not recommended)', notRecommended: true },
-    { value: 'GMC', label: 'GMC', description: 'Grid Master Candidate (NIOS only, no DNS/DHCP)' },
-    { value: 'GMC+DNS', label: 'GMC+DNS', description: 'GMC with DNS (not recommended)', notRecommended: true },
-    { value: 'GMC+DHCP', label: 'GMC+DHCP', description: 'GMC with DHCP (not recommended)', notRecommended: true },
-    { value: 'GMC+DNS/DHCP', label: 'GMC+DNS/DHCP', description: 'GMC with DNS+DHCP (not recommended)', notRecommended: true },
-    { value: 'DNS', label: 'DNS', description: 'DNS Only' },
-    { value: 'DHCP', label: 'DHCP', description: 'DHCP Only' },
+    { value: 'DNS',      label: 'DNS',      description: 'Internal DNS' },
+    { value: 'DHCP',     label: 'DHCP',     description: 'DHCP Only' },
     { value: 'DNS/DHCP', label: 'DNS/DHCP', description: 'DNS + DHCP' },
-    { value: 'Reporting', label: 'Reporting', description: 'Reporting Server (RPT)' },
+    { value: 'ND',       label: 'ND',       description: 'Network Discovery Appliance' },
+    { value: 'Reporting',label: 'Reporting',description: 'Reporting Server (RPT)' },
+    { value: 'GM',  label: 'GM',  description: 'Grid Master (NIOS only)',       group: 'Grid Manager' },
+    { value: 'GMC', label: 'GMC', description: 'Grid Master Candidate (NIOS)', group: 'Grid Manager' },
+    { value: 'GM+DNS',      label: 'GM+DNS',      notRecommended: true, group: 'Grid Manager' },
+    { value: 'GM+DHCP',     label: 'GM+DHCP',     notRecommended: true, group: 'Grid Manager' },
+    { value: 'GM+DNS/DHCP', label: 'GM+DNS/DHCP', notRecommended: true, group: 'Grid Manager' },
+    { value: 'GMC+DNS',      label: 'GMC+DNS',      notRecommended: true, group: 'Grid Manager' },
+    { value: 'GMC+DHCP',     label: 'GMC+DHCP',     notRecommended: true, group: 'Grid Manager' },
+    { value: 'GMC+DNS/DHCP', label: 'GMC+DNS/DHCP', notRecommended: true, group: 'Grid Manager' },
   ],
 };
 
 // Additional services (multi-select) - can be co-located on same host
 export const ADDITIONAL_SERVICES = [
-  { value: 'NTP', label: 'NTP', description: 'Network Time Protocol', impact: 0 },
-  { value: 'DFP', label: 'DFP', description: 'DNS Firewall Policy', impact: 5 },
-  { value: 'TFTP', label: 'TFTP', description: 'Trivial File Transfer', impact: 2 },
-  { value: 'FTP', label: 'FTP', description: 'File Transfer Protocol', impact: 2 },
+  { value: 'NTP',  label: 'NTP',  description: 'Network Time Protocol', impact: 0 },
+  { value: 'DFP',  label: 'DFP',  description: 'DNS Firewall Policy',   impact: 5 },
+  { value: 'TFTP', label: 'TFTP', description: 'Trivial File Transfer',  impact: 2 },
+  { value: 'FTP',  label: 'FTP',  description: 'File Transfer Protocol', impact: 2 },
   { value: 'HTTP', label: 'HTTP', description: 'HTTP File Distribution', impact: 3 },
 ];
 
 // SW Add-ons for NIOS (conditional based on role/platform)
 // CNA = GM/GMC only, ADNS = NOT GM/GMC, SECECO = GM only, FIPS = Physical only
-// TA = Any member but GM/GMC, RPT = Reporting role with qty options
 export const SW_ADDONS = [
   { 
     value: 'CNA', 
     label: 'CNA', 
     description: 'Cloud Network Automation',
     allowedRoles: ['GM', 'GMC', 'GM+DNS', 'GM+DHCP', 'GM+DNS/DHCP', 'GMC+DNS', 'GMC+DHCP', 'GMC+DNS/DHCP'],
-    platformRestriction: null, // Any NIOS platform
+    platformRestriction: null,
   },
   { 
     value: 'ADNS', 
@@ -112,8 +116,8 @@ export const SW_ADDONS = [
     value: 'FIPS', 
     label: 'FIPS', 
     description: 'FIPS Compliance Mode',
-    allowedRoles: null, // Any role
-    platformRestriction: 'physical', // Only physical platforms
+    allowedRoles: null,
+    platformRestriction: 'physical',
   },
   { 
     value: 'TA', 
@@ -124,20 +128,24 @@ export const SW_ADDONS = [
   },
 ];
 
-// RPT (Reporting) options - only for Reporting role, with GB quantities
+// RPT Reporting storage — ACTIVATION sizes
 export const RPT_QUANTITIES = [
-  { value: '1GB', label: '1 GB' },
-  { value: '2GB', label: '2 GB' },
-  { value: '5GB', label: '5 GB' },
-  { value: '10GB', label: '10 GB' },
-  { value: '20GB', label: '20 GB' },
-  { value: '50GB', label: '50 GB' },
-  { value: '100GB', label: '100 GB' },
+  { value: '500MB',  label: '500 MB' },
+  { value: '1GB',    label: '1 GB' },
+  { value: '2GB',    label: '2 GB' },
+  { value: '5GB',    label: '5 GB' },
+  { value: '10GB',   label: '10 GB' },
+  { value: '20GB',   label: '20 GB' },
+  { value: '50GB',   label: '50 GB' },
+  { value: '100GB',  label: '100 GB' },
+  { value: '200GB',  label: '200 GB' },
+  { value: '500GB',  label: '500 GB' },
 ];
 
 // Default models by role
 export const DEFAULT_MODEL_BY_ROLE = {
-  'Reporting': 'TE-5005', // Reporting Server default
+  'Reporting': 'TR-5005',   // Reporting Server default — virtual
+  'ND':        'ND-906',    // Network Discovery default — smallest appliance
 };
 
 // HW Add-ons (only for physical platforms)
@@ -145,7 +153,7 @@ export const DEFAULT_MODEL_BY_ROLE = {
 export const HW_ADDONS = [
   { 
     value: 'PSU', 
-    label: 'T-PSU600', // Dynamic suffix -AC/-DC applied in UI based on selected hardware SKU
+    label: 'T-PSU600',
     description: 'Second Power Supply Unit',
     allowedModels: ['TE-1506', 'TE-1506-HW-AC', 'TE-1506-HW-DC', 'TE-1506-10GE-HW-AC', 'TE-1506-10GE-HW-DC'],
     hasQuantity: false,
@@ -168,29 +176,25 @@ export function isPlatformPhysical(platform) {
 // Helper to get available SW Add-ons for a given role and platform
 export function getAvailableSwAddons(role, platform) {
   const isPhysical = isPlatformPhysical(platform);
-  const isGmOrGmc = role?.startsWith('GM');
   
   return SW_ADDONS.filter(addon => {
-    // Check role restrictions
     if (addon.allowedRoles && !addon.allowedRoles.includes(role)) return false;
     if (addon.excludedRoles && addon.excludedRoles.includes(role)) return false;
-    
-    // Check platform restrictions
     if (addon.platformRestriction === 'physical' && !isPhysical) return false;
-    
     return true;
   });
 }
 
-// Helper to get available HW Add-ons for a given model
-export function getAvailableHwAddons(model, platform) {
+// Helper to get available HW Add-ons for a given hardware SKU
+export function getAvailableHwAddons(hardwareSku, platform) {
   if (!isPlatformPhysical(platform)) return [];
   
   return HW_ADDONS.filter(addon => {
     if (!addon.allowedModels) return true;
-    // Match against model prefix (e.g., "TE-1506" matches "TE-1506-HW-AC")
     return addon.allowedModels.some(allowed => 
-      allowed === model || allowed.startsWith(model + '-') || model?.startsWith(allowed.split('-HW')[0])
+      allowed === hardwareSku ||
+      allowed.startsWith(hardwareSku + '-') ||
+      hardwareSku?.startsWith(allowed.split('-HW')[0])
     );
   });
 }
