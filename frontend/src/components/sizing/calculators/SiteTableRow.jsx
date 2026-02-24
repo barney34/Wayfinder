@@ -1,6 +1,6 @@
 /**
- * SiteTableRow - Individual site row in the sizing table
- * Column order matches export: Location, IPs, KW?, Role, Services?, DHCP Partner, Srv#, HA, Platform, Model, HW SKU?, SW#, HW#, Tokens?, Rpt, BOM, Actions
+ * SiteTableRow - Individual site/server row in the sizing table
+ * Column order: Unit, #, Location, IPs, KW?, Role, Services?, DHCP Partner, Srv#, HA, Platform, Model, HW SKU?, SW#, HW#, Tokens?, Rpt, BOM, Actions
  */
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -10,11 +10,62 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Trash2, Info, Settings2, HelpCircle, Server, Copy, Plus } from "lucide-react";
+import { Trash2, Info, Settings2, HelpCircle, Server, Copy, Plus, Minus, MapPin, Building2 } from "lucide-react";
 import { formatNumber } from "@/lib/utils";
 import { ADDITIONAL_SERVICES, SW_ADDONS, HW_ADDONS, RPT_QUANTITIES, getAvailableSwAddons, getAvailableHwAddons } from "./platformConfig";
 import { getSiteWorkloadDetails } from "../calculations";
 import { CopySiteToDrawingMenu } from "./DrawingManager";
+
+/**
+ * LocationHeaderRow — visual separator showing location name + server count controls
+ * Rendered when a site has serverCount > 1
+ */
+export function LocationHeaderRow({ site, onUpdateSite, onDeleteSite, totalColumns }) {
+  const serverCount = site.serverCount || 1;
+  const isDataCenter = site.sourceType === 'dataCenter';
+  
+  return (
+    <TableRow className="bg-muted/30 border-t-2 border-primary/20">
+      <TableCell colSpan={totalColumns} className="p-2 lg:p-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {isDataCenter 
+              ? <Building2 className="h-4 w-4 text-primary" />
+              : <MapPin className="h-4 w-4 text-foreground" />
+            }
+            <span className="font-bold text-sm">{site.name}</span>
+            <Badge variant="outline" className="text-xs">
+              {serverCount} {serverCount === 1 ? 'server' : 'servers'}
+            </Badge>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => {
+                  if (serverCount > 1) onUpdateSite(site.id, 'serverCount', serverCount - 1);
+                }}
+                disabled={serverCount <= 1}
+                className="h-7 w-7 flex items-center justify-center rounded border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30 transition-colors"
+              >
+                <Minus className="h-3 w-3" />
+              </button>
+              <span className="text-sm font-semibold w-6 text-center tabular-nums">{serverCount}</span>
+              <button
+                onClick={() => onUpdateSite(site.id, 'serverCount', serverCount + 1)}
+                className="h-7 w-7 flex items-center justify-center rounded border border-border text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              >
+                <Plus className="h-3 w-3" />
+              </button>
+            </div>
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onDeleteSite(site.id)}>
+              <Trash2 className="h-3.5 w-3.5 text-destructive" />
+            </Button>
+          </div>
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+}
 
 // Calculate token packs (500K per pack, rounded up)
 const TOKENS_PER_PACK = 500000;
