@@ -271,10 +271,14 @@ export function SiteTableRow({
   const availableHwAddons = getAvailableHwAddons(site.hardwareSku, site.platform);
   const isReportingRole = site.role === 'Reporting';
 
-  // Roles/platforms that have no add-ons at all
-  const noAddonsRole = site.role === 'Reporting' || site.role === 'ND';
-  const noAddOnsPlatform = site.platform === 'NXVS' || site.platform === 'NXaaS';
-  const hideAddons = noAddonsRole || noAddOnsPlatform;
+  // Roles/platforms that have no SW add-ons
+  // NX-P (NIOS-X Physical) also has no SW add-ons
+  const hideSwAddons = site.role === 'Reporting' || site.role === 'ND' || site.role === 'LIC' || site.role === 'CDC'
+    || site.platform === 'NXVS' || site.platform === 'NXaaS' || site.platform === 'NX-P';
+  // Roles/platforms with no HW add-ons popover
+  // ND DOES have HW (variant selector AC/DC) — only Reporting and virtual platforms are excluded
+  const hideHwAddons = site.role === 'Reporting' || site.role === 'LIC' || site.role === 'CDC'
+    || site.platform === 'NXVS' || site.platform === 'NXaaS' || site.platform === 'NX-P';
 
   // Export view - full export columns matching Lucidchart format
   if (exportView) {
