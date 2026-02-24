@@ -1282,7 +1282,7 @@ function ModelTooltipContent({ site, platformMode, dhcpPercent }) {
       isSpoke: site.isSpoke,
       hubLPS: site.hubLPS || 0,
       foObjects: site.foObjects || 0,
-      perfFeatures: site.perfFeatures || [],
+      perfFeatures: site.effectivePerfFeatures || site.perfFeatures || [],
     }
   );
   return (
