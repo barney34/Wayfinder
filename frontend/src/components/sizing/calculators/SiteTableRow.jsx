@@ -107,39 +107,44 @@ export function LocationHeaderRow({ site, onUpdateSite, onDeleteSite, totalColum
             </div>
           </div>
 
-          {/* Grouping chips — only show when 2+ servers */}
+          {/* Server grouping controls — only show when 2+ servers */}
           {serverCount > 1 && (
             <div className="flex items-center gap-1.5 ml-2">
-              <span className="text-[10px] text-muted-foreground uppercase tracking-wide">Export:</span>
-              {/* Quick mode buttons */}
+              <span className="text-[10px] text-muted-foreground uppercase tracking-wide">Rows:</span>
+              {/* Each = individual export rows per server */}
               <button
                 onClick={() => { onUpdateSite(site.id, 'groupingMode', 'individual'); onUpdateSite(site.id, 'customGroups', []); setRangeStart(null); }}
                 className={`px-2 py-0.5 text-[10px] font-semibold rounded transition-colors ${grouping === 'individual' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:text-foreground'}`}
-              >Individual</button>
+                title="Show each server as its own row"
+              >Each</button>
+              {/* All = combine all into one row */}
               <button
                 onClick={() => { onUpdateSite(site.id, 'groupingMode', 'combined'); onUpdateSite(site.id, 'customGroups', []); setRangeStart(null); }}
                 className={`px-2 py-0.5 text-[10px] font-semibold rounded transition-colors ${grouping === 'combined' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:text-foreground'}`}
-              >Combined</button>
+                title={`Collapse all ${serverCount} servers into 1 row (range 1-${serverCount})`}
+              >All</button>
               
-              {/* Chips for visual grouping */}
-              <div className="flex items-center gap-0.5 ml-1">
-                {chips.map((chip, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => handleChipClick(chip)}
-                    className={`px-1.5 py-0.5 text-[10px] font-bold rounded transition-all tabular-nums ${
-                      chip.merged
-                        ? 'bg-primary text-primary-foreground'
-                        : rangeStart === chip.start
-                          ? 'bg-accent text-accent-foreground ring-2 ring-accent/50'
-                          : 'bg-secondary text-muted-foreground hover:bg-muted hover:text-foreground'
-                    }`}
-                    title={chip.merged ? 'Click to split' : rangeStart !== null ? 'Click to set range end' : 'Click to start range'}
-                  >
-                    {chip.merged && chip.start !== chip.end ? `${chip.start}━${chip.end}` : chip.start}
-                  </button>
-                ))}
-              </div>
+              {/* Custom grouping chips: click 2 numbers to merge a range */}
+              {grouping !== 'combined' && (
+                <div className="flex items-center gap-0.5 ml-1" title="Click two numbers to group them into a range">
+                  {chips.map((chip, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => handleChipClick(chip)}
+                      className={`px-1.5 py-0.5 text-[10px] font-bold rounded transition-all tabular-nums ${
+                        chip.merged
+                          ? 'bg-primary text-primary-foreground'
+                          : rangeStart === chip.start
+                            ? 'bg-accent text-accent-foreground ring-2 ring-accent/50'
+                            : 'bg-secondary text-muted-foreground hover:bg-muted hover:text-foreground'
+                      }`}
+                      title={chip.merged ? `Range ${chip.start}-${chip.end} (click to split)` : rangeStart !== null ? `Click to group ${rangeStart}-${chip.start}` : `Click to start grouping from ${chip.start}`}
+                    >
+                      {chip.merged && chip.start !== chip.end ? `${chip.start}-${chip.end}` : chip.start}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
           
