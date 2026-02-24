@@ -265,6 +265,22 @@ export function TokenCalculatorSummary() {
       } else {
         // Multiple servers — create individual entries
         const serverOverrides = siteOverrides[site.id]?.servers || {};
+        const groupMode = site.groupingMode || 'individual';
+        const customGroups = site.customGroups || [];
+        
+        // Build a map of serverIndex → group range string (for combined display)
+        const groupRangeMap = {};
+        if (groupMode === 'combined') {
+          // All servers combined: show "1-N" for all
+          const rangeStr = count > 1 ? `1-${count}` : '1';
+          for (let i = 0; i < count; i++) groupRangeMap[i] = rangeStr;
+        } else if (groupMode === 'custom' && customGroups.length > 0) {
+          customGroups.forEach(([s, e]) => {
+            const rangeStr = s === e ? `${s}` : `${s}-${e}`;
+            for (let i = s - 1; i < e && i < count; i++) groupRangeMap[i] = rangeStr;
+          });
+        }
+        
         for (let i = 0; i < count; i++) {
           const srvOvr = serverOverrides[i] || {};
           result.push({
@@ -279,6 +295,9 @@ export function TokenCalculatorSummary() {
             haEnabled: srvOvr.haEnabled !== undefined ? srvOvr.haEnabled : site.haEnabled,
             unitLetterOverride: srvOvr.unitLetterOverride || site.unitLetterOverride,
             unitNumberOverride: srvOvr.unitNumberOverride !== undefined ? srvOvr.unitNumberOverride : undefined,
+            // Grouping
+            _groupRange: groupRangeMap[i] || null, // e.g. "1-3" if combined
+            _groupMode: groupMode,
             // Metadata
             _isExpanded: true,
             _serverIndex: i,
