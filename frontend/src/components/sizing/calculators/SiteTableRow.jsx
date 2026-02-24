@@ -199,19 +199,27 @@ export function SiteTableRow({
   };
 
   // Helper to get SW Base SKU from model
+  // TE → TE-xxx-SWSUB, ND → ND-xxx-SWBSUB, RPT → TR-SWBSUB-5005
   const getSwBaseSku = (model) => {
     if (!model) return '';
-    return `${model}-SWSUB`;
+    if (model.startsWith('ND-'))   return `${model}-SWBSUB`;
+    if (model === 'TR-5005')       return 'TR-SWBSUB-5005';
+    if (model.startsWith('NXVS-') || model.startsWith('NXaaS-')) return `${model}-SWSUB`;
+    return `${model}-SWSUB`; // TE-xxx-SWSUB default
   };
 
-  // Helper to get SW Package from role
+  // Helper to get SW Package from role (with ACTIVATION for Reporting)
   const getSwPackage = (role, hasDiscovery) => {
-    if (role === 'GM' || role === 'GMC') return 'GM';
-    if (hasDiscovery) return 'DD/GD'; // DNS/DHCP with Discovery
-    if (role === 'DNS/DHCP') return 'DD/GD';
-    if (role === 'DNS') return 'DNS';
-    if (role === 'DHCP') return 'DHCP';
-    return 'DD/GD';
+    if (role === 'Reporting') {
+      return site.rptQuantity ? `ACTIVATION-${site.rptQuantity}` : 'ACTIVATION';
+    }
+    if (role === 'ND') return 'NIGD';
+    if (role === 'GM' || role === 'GMC') return 'DDI';
+    if (hasDiscovery) return 'DDIGD';
+    if (role === 'DNS/DHCP') return 'DDIDH';
+    if (role === 'DNS') return 'DD';
+    if (role === 'DHCP') return 'DH';
+    return 'DDI';
   };
 
   // Helper to get HW License SKU — VM for virtual, HW-AC for physical
