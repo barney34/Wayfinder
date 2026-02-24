@@ -607,7 +607,7 @@ export function SiteTableRow({
       <TableCell className="p-1">
         {site._isExpanded ? (
           <span className="text-xs font-semibold text-center block">
-            {site._groupRange ? site._serverCount : site._serverIndex + 1}
+            {site._groupRange ? site._serverCount : 1}
           </span>
         ) : (
           <div className="flex items-center gap-0 rounded border border-border overflow-hidden h-8 w-12">
