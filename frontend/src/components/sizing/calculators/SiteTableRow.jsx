@@ -27,6 +27,7 @@ export function SiteTableRow({
   site, sites, drawings, activeDrawingId, platformMode, dhcpPercent,
   roleOptions, platformOptions, showHardware, showKW, showServices, exportView,
   onUpdateSite, onToggleService, onDeleteSite, onOpenModelDialog, onCopySiteToDrawing,
+  unitAssignment,
 }) {
   const showTokens = platformMode !== 'NIOS'; // Hide tokens for NIOS-only mode
   
