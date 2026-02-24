@@ -510,6 +510,13 @@ export function TokenCalculatorSummary() {
     });
   }, [totals, partnerSku.sku, sites.length, tokenPacks, platformMode, setSizingSummary]);
 
+  // Reset sort order when switching drawings
+  useEffect(() => {
+    setSiteOrder(null);
+  }, [activeDrawingId]);
+
+
+
   // Update site field — handles both regular sites and expanded server sub-rows
   const updateSite = useCallback((siteId, field, value) => {
     // Check if this is a server sub-row update (id contains __srv__)
