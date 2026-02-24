@@ -201,12 +201,102 @@ export function exportForLucid(sites, drawingNum, unitAssignments = {}) {
     return;
   }
 
+  // --- Helper: build description for a site ---
+  function buildDesc(site, overrideLabel) {
+    if (site.description?.trim()) return site.description.trim();
+    const parts = [];
+    const role = site.role || '';
+    const sw = site.swAddons || [];
+    const pf = site.effectivePerfFeatures || site.perfFeatures || [];
+
+    if (role === 'GM' || role.startsWith('GM+')) {
+      parts.push('HA Grid Manager');
+      if (sw.includes('CNA')) parts.push('Cloud Network Automation');
+    } else if (role === 'GMC' || role.startsWith('GMC+')) {
+      parts.push('Grid Manager Candidate');
+      if (sw.includes('CNA')) parts.push('Cloud Network Automation');
+    } else if (role === 'DNS/DHCP') {
+      parts.push(site.isHub ? 'DNS and DHCP Services\nDHCP Failover Hub' :
+                 site.isSpoke ? 'DNS and DHCP Services\nDHCP Failover' :
+                 'Int. Auth DNS, DHCP');
+    } else if (role === 'DNS') {
+      parts.push('Int. Auth. DNS');
+      if (pf.includes('ADP')) parts.push('Advanced DNS Protection');
+      if (pf.includes('DTC')) parts.push('Global Server Load Balancing');
+    } else if (role === 'DHCP') {
+      parts.push('Core DHCP Services');
+      if (site.isHub || site.isSpoke) parts.push('Failover redundancy');
+    } else if (role === 'ND') {
+      parts.push('Network Insight\nAutomated Discovery\nAuthoritative IPAM');
+    } else if (role === 'Reporting') {
+      parts.push('Reporting Virtual Server\nScheduled Reports\nAutomated Data Collection');
+    } else if (role === 'CDC') {
+      parts.push('Cloud Data Connector\nExport service logs');
+    } else if (role === 'LIC') {
+      parts.push(site.name || 'License');
+    } else {
+      parts.push(site.name || role);
+    }
+    if (sw.includes('DDIMSGD') || sw.includes('MS')) parts.push('Microsoft Sync');
+    if (sw.includes('ADNS')) parts.push('Advanced DNS');
+    if (sw.includes('TA')) parts.push('Threat Analytics');
+    if (sw.includes('SECECO')) parts.push('Security Ecosystem');
+    if (overrideLabel) parts.push(overrideLabel);
+    return parts.join('\n');
+  }
+
+  // --- Helper: build one export row ---
+  function makeRow(site, unitGroup, unitRange, swCount, hwCount, desc) {
+    let solution = 'NIOS';
+    if (site.platform?.includes('NXVS'))  solution = 'NXVS';
+    if (site.platform?.includes('NXaaS')) solution = 'NXaaS';
+    if (site.role === 'ND' || site.role === 'Reporting') solution = 'NIOS';
+
+    const model = site.recommendedModel || 'TBD';
+    const swBaseSku = getSwBaseSku(model);
+    const hasDiscovery = (site.services || []).includes('Discovery');
+    const swPackage = getSwPackage(site.role, hasDiscovery, site.rptQuantity || null);
+    const isVirtual = site.platform?.includes('NXVS') || site.platform?.includes('NXaaS') ||
+                      site.platform === 'NIOS-V' || site.role === 'Reporting';
+    const hwLicenseSku = isVirtual ? 'VM' : (site.hardwareSku || `${model}-HW-AC`);
+    const swAddons = [...(site.swAddons || [])];
+    if ((site.services || []).includes('DFP') && !swAddons.includes('ADP')) swAddons.push('ADP');
+
+    const hwSkuStr = site.hardwareSku || '';
+    const srvCnt = site._serverCount || site.serverCount || 1;
+    const hwAddonLabels = (site.hwAddons || []).map(v => {
+      if (v === 'PSU') return hwSkuStr.includes('-AC') ? 'T-PSU600-AC' : hwSkuStr.includes('-DC') ? 'T-PSU600-DC' : 'T-PSU600';
+      return v;
+    });
+    const sfpLabels = Object.entries(site.sfpAddons || {})
+      .filter(([, qty]) => qty > 0)
+      .map(([sfp, qty]) => `${qty * srvCnt}×${sfp}`);
+    const hwAddons = [...hwAddonLabels, ...sfpLabels].join(', ');
+
+    return {
+      'Drawing #':     drawingNum || '',
+      'Unit Group':    unitGroup,
+      'Unit #/Range':  unitRange,
+      'Solution':      solution,
+      'Model Info':    model,
+      'SW Instances':  swCount,
+      'Description':   desc,
+      'SW Base SKU':   swBaseSku,
+      'SW Package':    swPackage,
+      'SW Add-ons':    swAddons.join(', ') || '',
+      'HW License SKU':hwLicenseSku,
+      'HW Add-ons':    hwAddons,
+      'HW Count':      hwCount,
+      'Add to Report': 'Yes',
+      'Add to BOM':    site.addToBom !== false ? 'Yes' : 'No',
+    };
+  }
+
   const rows = [];
 
-  // Sort: A (GM/GMC) → B (DNS) → C (DHCP) → D-G → M → N (ND) → RPT → LIC → CDC
+  // Sort by role priority
   const roleOrder = {
-    'GM': 0, 'GMC': 1,
-    'GM+DNS': 0, 'GM+DHCP': 0, 'GM+DNS/DHCP': 0,
+    'GM': 0, 'GMC': 1, 'GM+DNS': 0, 'GM+DHCP': 0, 'GM+DNS/DHCP': 0,
     'GMC+DNS': 1, 'GMC+DHCP': 1, 'GMC+DNS/DHCP': 1,
     'DNS': 2, 'DNS/DHCP': 2, 'DHCP': 3,
     'Edge': 4, 'ExtDNS': 5, 'Cache': 6, 'Guest': 7,
@@ -216,153 +306,26 @@ export function exportForLucid(sites, drawingNum, unitAssignments = {}) {
     (roleOrder[a.role] ?? 5) - (roleOrder[b.role] ?? 5)
   );
 
-  console.log('[exportForLucid] Processing', sortedSites.length, 'sorted sites');
-
-  sortedSites.forEach((site, idx) => {
+  // Group expanded servers by parent site to produce individual + combined rows
+  const parentGroups = new Map();
+  sortedSites.forEach(site => {
     if (site.addToReport === false) return;
+    const parentId = site._parentSiteId || site.id;
+    if (!parentGroups.has(parentId)) parentGroups.set(parentId, []);
+    parentGroups.get(parentId).push(site);
+  });
 
-    console.log('[exportForLucid] Site', idx, site.name, site.role, 'model:', site.recommendedModel);
+  parentGroups.forEach((groupSites) => {
+    const firstSite = groupSites[0];
+    const unitGroup = firstSite.unitLetterOverride || getUnitGroup(firstSite.role, firstSite.sourceType, firstSite.services);
 
-    const unitGroup = site.unitLetterOverride || getUnitGroup(site.role, site.sourceType, site.services);
-    
-    // Use unit assignment for #/Range if available, else compute
-    const ua = unitAssignments[site.id];
-    const unitNum = site.unitNumberOverride ?? ua?.unitNumber ?? 1;
-    
-    // #/Range: Use _groupRange if it exists (combined rows), else the unit number
-    const unitRange = site._groupRange || String(unitNum);
-
-    // Solution column
-    let solution = 'NIOS';
-    if (site.platform?.includes('NXVS'))  solution = 'NXVS';
-    if (site.platform?.includes('NXaaS')) solution = 'NXaaS';
-    if (site.role === 'ND')               solution = 'NIOS';
-    if (site.role === 'Reporting')        solution = 'NIOS';
-
-    // Model
-    const model = site.recommendedModel || 'TBD';
-
-    // SW Base SKU
-    const swBaseSku = getSwBaseSku(model);
-
-    // SW Package
-    const hasDiscovery = (site.services || []).includes('Discovery');
-    const swPackage = getSwPackage(site.role, hasDiscovery, site.rptQuantity || null);
-
-    // HW License SKU
-    const isVirtual = site.platform?.includes('NXVS') || site.platform?.includes('NXaaS') ||
-                      site.platform === 'NIOS-V' || site.role === 'Reporting';
-    const hwLicenseSku = isVirtual ? 'VM' : (site.hardwareSku || `${model}-HW-AC`);
-
-    // --- Build rich description ---
-    const descParts = [];
-    const userDesc = site.description?.trim();
-    
-    if (userDesc) {
-      // User-provided description takes priority
-      descParts.push(userDesc);
-    } else {
-      // Auto-generate from role, features, and add-ons
-      const role = site.role || '';
-      const swAddonsArr = site.swAddons || [];
-      const perfFeats = site.effectivePerfFeatures || site.perfFeatures || [];
-      const svcCount = site._serverCount || site.serverCount || 1;
-      
-      if (role === 'GM' || role.startsWith('GM+')) {
-        descParts.push('HA Grid Manager');
-        if (swAddonsArr.includes('CNA')) descParts.push('Cloud Network Automation');
-        if (role.includes('DNS')) descParts.push('DNS Services');
-        if (role.includes('DHCP')) descParts.push('DHCP Services');
-      } else if (role === 'GMC' || role.startsWith('GMC+')) {
-        descParts.push('Grid Manager Candidate');
-        if (swAddonsArr.includes('CNA')) descParts.push('Cloud Network Automation');
-      } else if (role === 'DNS/DHCP') {
-        if (site.isHub) {
-          descParts.push('DNS and DHCP Services');
-          descParts.push('DHCP Failover Hub');
-        } else if (site.isSpoke) {
-          descParts.push('DNS and DHCP Services');
-          descParts.push('DHCP Failover');
-        } else {
-          descParts.push('Int. Auth DNS, DHCP');
-        }
-      } else if (role === 'DNS') {
-        descParts.push('Int. Auth. DNS');
-        if (perfFeats.includes('ADP')) descParts.push('Advanced DNS Protection');
-        if (perfFeats.includes('DTC')) descParts.push('Global Server Load Balancing');
-      } else if (role === 'DHCP') {
-        descParts.push('Core DHCP Services');
-        if (site.isHub || site.isSpoke) descParts.push('Failover redundancy');
-      } else if (role === 'ND') {
-        descParts.push('Network Insight');
-        descParts.push('Automated Discovery');
-        descParts.push('Authoritative IPAM');
-      } else if (role === 'Reporting') {
-        descParts.push('Reporting Virtual Server');
-        descParts.push('Scheduled Reports');
-        descParts.push('Automated Data Collection');
-      } else if (role === 'CDC') {
-        descParts.push('NIOS-X Virtual Server for Cloud Data');
-        descParts.push('Connector to export service logs');
-      } else if (role === 'LIC') {
-        descParts.push(site.name || 'License');
-      } else {
-        descParts.push(site.name || role);
-      }
-      
-      // Add MS sync note
-      if (swAddonsArr.includes('DDIMSGD') || swAddonsArr.includes('MS')) {
-        descParts.push('Microsoft Sync');
-      }
-      
-      // For multi-server combined rows
-      if (svcCount > 1 && site._groupRange) {
-        descParts.push(`${svcCount} servers`);
-      }
-    }
-    
-    const description = descParts.join('\n');
-
-    // SW Add-ons
-    const swAddons = [...(site.swAddons || [])];
-    if ((site.services || []).includes('DFP') && !swAddons.includes('ADP')) swAddons.push('ADP');
-    if (site.role === 'Reporting' && site.rptQuantity) swAddons.push(`${site.rptQuantity}`);
-
-    // HW Add-ons
-    const hwSkuStr = site.hardwareSku || '';
-    const serverCount = site._serverCount || site.serverCount || 1;
-    const hwAddonLabels = (site.hwAddons || []).map(v => {
-      if (v === 'PSU') return hwSkuStr.includes('-AC') ? 'T-PSU600-AC' : hwSkuStr.includes('-DC') ? 'T-PSU600-DC' : 'T-PSU600';
-      return v;
-    });
-    const sfpLabels = Object.entries(site.sfpAddons || {})
-      .filter(([, qty]) => qty > 0)
-      .map(([sfp, qty]) => `${qty * serverCount}×${sfp}`);
-    const hwAddons = [...hwAddonLabels, ...sfpLabels].join(', ');
-
-    // SW / HW instance counts
-    const swInstances = site.swInstances || (site.serverCount || 1) * (site.haEnabled ? 2 : 1);
-    const hwCount = site.hwCount !== undefined ? site.hwCount : (isVirtual ? 0 : swInstances);
-
-    // Reporting: emit main row + companion
-    if (site.role === 'Reporting') {
-      rows.push({
-        'Drawing #':     drawingNum || '',
-        'Unit Group':    'RPT',
-        'Unit #/Range':  unitRange,
-        'Solution':      'NIOS',
-        'Model Info':    'TR-5005',
-        'SW Instances':  swInstances,
-        'Description':   'Reporting Virtual Server\nScheduled Reports\nAutomated Data Collection',
-        'SW Base SKU':   'TR-SWBSUB-5005',
-        'SW Package':    'ACTIVATION',
-        'SW Add-ons':    '',
-        'HW License SKU':'VM',
-        'HW Add-ons':    '',
-        'HW Count':      1,
-        'Add to Report': 'Yes',
-        'Add to BOM':    'Yes',
-      });
+    // --- Reporting: special handling ---
+    if (firstSite.role === 'Reporting') {
+      const ua = unitAssignments[firstSite.id];
+      const unitNum = firstSite.unitNumberOverride ?? ua?.unitNumber ?? 1;
+      const swInst = firstSite.swInstances || 1;
+      rows.push(makeRow(firstSite, 'RPT', String(unitNum), swInst, 1,
+        'Reporting Virtual Server\nScheduled Reports\nAutomated Data Collection'));
       rows.push({
         'Drawing #':     drawingNum || '',
         'Unit Group':    'RPT',
@@ -372,7 +335,7 @@ export function exportForLucid(sites, drawingNum, unitAssignments = {}) {
         'SW Instances':  1,
         'Description':   'Reporting Data Volume\nScheduled Reports\nAutomated Data Collection',
         'SW Base SKU':   'TR-SWTL',
-        'SW Package':    site.rptQuantity || '',
+        'SW Package':    firstSite.rptQuantity || '',
         'SW Add-ons':    '',
         'HW License SKU':'',
         'HW Add-ons':    '',
@@ -383,24 +346,53 @@ export function exportForLucid(sites, drawingNum, unitAssignments = {}) {
       return;
     }
 
-    // All other rows: single row with #/Range from unit assignment
-    rows.push({
-      'Drawing #':     drawingNum || '',
-      'Unit Group':    unitGroup,
-      'Unit #/Range':  unitRange,
-      'Solution':      solution,
-      'Model Info':    model,
-      'SW Instances':  swInstances,
-      'Description':   description,
-      'SW Base SKU':   swBaseSku,
-      'SW Package':    swPackage,
-      'SW Add-ons':    swAddons.join(', ') || '',
-      'HW License SKU':hwLicenseSku,
-      'HW Add-ons':    hwAddons,
-      'HW Count':      hwCount,
-      'Add to Report': 'Yes',
-      'Add to BOM':    site.addToBom !== false ? 'Yes' : 'No',
-    });
+    const isVirtual = firstSite.platform?.includes('NXVS') || firstSite.platform?.includes('NXaaS') ||
+                      firstSite.platform === 'NIOS-V';
+    const haMultiplier = firstSite.haEnabled ? 2 : 1;
+
+    if (groupSites.length === 1 && (firstSite.serverCount || 1) <= 1) {
+      // --- Single server: one row ---
+      const ua = unitAssignments[firstSite.id];
+      const unitNum = firstSite.unitNumberOverride ?? ua?.unitNumber ?? 1;
+      const sw = haMultiplier;
+      const hw = isVirtual ? 0 : sw;
+      rows.push(makeRow(firstSite, unitGroup, String(unitNum), sw, hw, buildDesc(firstSite)));
+    } else {
+      // --- Multi-server: individual rows + combined summary ---
+      let totalSW = 0;
+      let totalHW = 0;
+      let minUnit = Infinity;
+      let maxUnit = -Infinity;
+
+      // Emit individual rows
+      groupSites.forEach(site => {
+        const ua = unitAssignments[site.id];
+        const unitNum = site.unitNumberOverride ?? ua?.unitNumber ?? 1;
+        const srvCount = site._serverCount || 1;
+        const sw = srvCount * haMultiplier;
+        const hw = isVirtual ? 0 : sw;
+        const range = site._groupRange || String(unitNum);
+        
+        // Track range bounds
+        if (site._groupRange) {
+          const [s, e] = site._groupRange.split('-').map(Number);
+          minUnit = Math.min(minUnit, s);
+          maxUnit = Math.max(maxUnit, e || s);
+        } else {
+          minUnit = Math.min(minUnit, unitNum);
+          maxUnit = Math.max(maxUnit, unitNum);
+        }
+
+        totalSW += sw;
+        totalHW += hw;
+        rows.push(makeRow(site, unitGroup, range, sw, hw, buildDesc(site)));
+      });
+
+      // Emit combined summary row
+      const combinedRange = minUnit === maxUnit ? String(minUnit) : `${minUnit}-${maxUnit}`;
+      const combinedDesc = buildDesc(firstSite, `${totalSW} total instances`);
+      rows.push(makeRow(firstSite, unitGroup, combinedRange, totalSW, totalHW, combinedDesc));
+    }
   });
 
   console.log('[exportForLucid] Created', rows.length, 'rows');
@@ -409,25 +401,12 @@ export function exportForLucid(sites, drawingNum, unitAssignments = {}) {
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(rows);
     ws['!cols'] = [
-      { wch: 12 }, // Drawing #
-      { wch: 10 }, // Unit Group
-      { wch: 12 }, // Unit #/Range
-      { wch: 10 }, // Solution
-      { wch: 18 }, // Model Info
-      { wch: 12 }, // SW Instances
-      { wch: 35 }, // Description
-      { wch: 20 }, // SW Base SKU
-      { wch: 20 }, // SW Package
-      { wch: 20 }, // SW Add-ons
-      { wch: 22 }, // HW License SKU
-      { wch: 20 }, // HW Add-ons
-      { wch: 10 }, // HW Count
-      { wch: 12 }, // Add to Report
-      { wch: 12 }, // Add to BOM
+      { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 18 },
+      { wch: 12 }, { wch: 35 }, { wch: 20 }, { wch: 20 }, { wch: 20 },
+      { wch: 22 }, { wch: 20 }, { wch: 10 }, { wch: 12 }, { wch: 12 },
     ];
     XLSX.utils.book_append_sheet(wb, ws, 'Drawing');
     const filename = `drawing-${drawingNum || '10'}-lucid-export.xlsx`;
-    console.log('[exportForLucid] Writing file:', filename);
     XLSX.writeFile(wb, filename);
     console.log('[exportForLucid] Export complete');
   } catch (err) {
