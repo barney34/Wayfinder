@@ -625,16 +625,36 @@ export function SiteTableRow({
         })()}
       </TableCell>
 
-      {/* Description — free text with auto-generated placeholder */}
+      {/* Description — click to open editor popover */}
       <TableCell className="p-1 lg:p-2">
-        <Input
-          value={site.description || ''}
-          onChange={e => onUpdateSite(site.id, 'description', e.target.value)}
-          placeholder={getDescription().replace(/\n/g, ', ')}
-          className="h-8 text-xs min-w-[100px]"
-          disabled={site.isDisabledInUddi}
-          title={getDescription()}
-        />
+        <Popover>
+          <PopoverTrigger asChild>
+            <button
+              className="h-8 w-full text-left text-xs rounded border border-border bg-background hover:bg-muted px-2 truncate min-w-[80px]"
+              disabled={site.isDisabledInUddi}
+              title={site.description || getDescription()}
+            >
+              {site.description ? (
+                <span>{site.description}</span>
+              ) : (
+                <span className="text-muted-foreground">{getDescription().replace(/\n/g, ', ')}</span>
+              )}
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-72 p-3" align="start">
+            <div className="space-y-2">
+              <div className="font-medium text-sm">Description</div>
+              <textarea
+                value={site.description || ''}
+                onChange={e => onUpdateSite(site.id, 'description', e.target.value)}
+                placeholder={getDescription()}
+                className="w-full min-h-[80px] text-sm rounded border border-border bg-background px-2 py-1.5 resize-y focus:outline-none focus:ring-1 focus:ring-primary"
+                rows={4}
+              />
+              <p className="text-[10px] text-muted-foreground">Leave empty to use auto-generated text in exports. Multi-line supported.</p>
+            </div>
+          </PopoverContent>
+        </Popover>
       </TableCell>
 
       {/* Services (conditional) */}
