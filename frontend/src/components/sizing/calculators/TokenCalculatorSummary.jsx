@@ -76,7 +76,7 @@ export function TokenCalculatorSummary() {
   // UI toggle for KW column (hidden by default like Hardware SKU)
   const [showKW, setShowKW] = useState(false);
   // UI toggle for Services column (hidden by default)
-  const [showServices, setShowServices] = useState(true);
+  const [showServices, setShowServices] = useState(false);
   // "Export View" mode - shows only exportable columns
   const [exportView, setExportView] = useState(false);
 
