@@ -806,18 +806,24 @@ export function TokenCalculatorSummary() {
                 })()}
                 {/* Total Row */}
                 <TableRow className="bg-muted/30 font-medium">
-                  <TableCell className="p-2 lg:p-4" colSpan={2}></TableCell>
-                  <TableCell className="p-2 lg:p-4 text-sm">
+                  <TableCell className="p-1" colSpan={2}></TableCell>
+                  <TableCell className="p-1 text-sm">
                     <span className="font-semibold">Total</span>
-                    <span className="text-xs text-muted-foreground ml-2">({sites.length} sites)</span>
+                    <span className="text-[10px] text-muted-foreground ml-1">({sites.length} sites)</span>
                   </TableCell>
-                  <TableCell className="p-2 lg:p-4 tabular-nums text-sm lg:text-base">{formatNumber(totals.totalIPs)}</TableCell>
+                  <TableCell className="p-1 tabular-nums text-sm">
+                    <div>{formatNumber(totals.totalIPs)}</div>
+                    <div className="text-[9px] text-muted-foreground">excl. GM/GMC</div>
+                  </TableCell>
                   {showKW && (
-                    <TableCell className="p-2 lg:p-4 tabular-nums text-sm lg:text-base">{formatNumber(totals.totalKW)}</TableCell>
+                    <TableCell className="p-1 tabular-nums text-sm">{formatNumber(totals.totalKW)}</TableCell>
                   )}
-                  <TableCell className="p-2 lg:p-4" colSpan={showServices ? 2 : 1}></TableCell>
-                  <TableCell className="p-2 lg:p-4"></TableCell>
-                  <TableCell className="p-2 lg:p-4"></TableCell>
+                  <TableCell className="p-1"></TableCell>
+                  <TableCell className="p-1"></TableCell>
+                  {showServices && <TableCell className="p-1"></TableCell>}
+                  <TableCell className="p-1"></TableCell>
+                  <TableCell className="p-1"></TableCell>
+                  <TableCell className="p-1"></TableCell>
                   <TableCell className="p-2 lg:p-4"></TableCell>
                   <TableCell className="p-2 lg:p-4"></TableCell>
                   <TableCell className="p-2 lg:p-4"></TableCell>
