@@ -45,10 +45,10 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
   }, [cloudMgmtActive, uddiEnabled, setAnswer]);
 
   useEffect(() => {
-    if (niosEnabled && (uddiEnabled || assetEnabled)) setPlatformMode('Hybrid');
+    if (niosEnabled && uddiEnabled) setPlatformMode('Hybrid');
     else if (uddiEnabled && !niosEnabled) setPlatformMode('UDDI');
-    else if (niosEnabled && !uddiEnabled && !assetEnabled) setPlatformMode('NIOS');
-  }, [niosEnabled, uddiEnabled, assetEnabled, setPlatformMode]);
+    else if (niosEnabled && !uddiEnabled) setPlatformMode('NIOS');
+  }, [niosEnabled, uddiEnabled, setPlatformMode]);
 
   // Measure pill width for spacer alignment
   useEffect(() => {
