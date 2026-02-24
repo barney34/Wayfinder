@@ -598,6 +598,7 @@ export function TokenCalculatorSummary() {
                 ))}
                 {/* Total Row */}
                 <TableRow className="bg-muted/30 font-medium">
+                  <TableCell className="p-2 lg:p-4" colSpan={2}></TableCell>
                   <TableCell className="p-2 lg:p-4 text-sm">
                     <span className="font-semibold">Total</span>
                     <span className="text-xs text-muted-foreground ml-2">({sites.length} sites)</span>
