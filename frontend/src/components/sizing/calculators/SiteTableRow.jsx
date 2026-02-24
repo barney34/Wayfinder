@@ -588,37 +588,83 @@ export function SiteTableRow({
                 disabled={site.isDisabledInUddi}
                 data-testid={`site-services-${site.id}`}
               >
-                {(site.services?.length || 0) > 0 ? (
-                  <span className="truncate">{site.services.length}</span>
-                ) : (
-                  <span className="text-muted-foreground">&mdash;</span>
-                )}
+                {(() => {
+                  const svcCount = (site.services?.length || 0);
+                  const perfCount = (site.perfFeatures?.length || 0);
+                  const total = svcCount + perfCount;
+                  return total > 0 ? (
+                    <span className="truncate">{total}</span>
+                  ) : (
+                    <span className="text-muted-foreground">&mdash;</span>
+                  );
+                })()}
                 <Settings2 className="h-3 w-3 lg:h-4 lg:w-4 ml-1 flex-shrink-0" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-56 p-3" align="start">
+            <PopoverContent className="w-64 p-3" align="start">
               <div className="space-y-3">
-                <div className="font-medium text-sm">Co-located Services</div>
-                <p className="text-xs text-muted-foreground">Select additional services running on this host. Each adds performance overhead.</p>
-                <div className="space-y-2">
-                  {ADDITIONAL_SERVICES.map(svc => (
-                    <div key={svc.value} className="flex items-center gap-2">
-                      <Checkbox
-                        id={`${site.id}-${svc.value}`}
-                        checked={(site.services || []).includes(svc.value)}
-                        onCheckedChange={() => onToggleService(site.id, svc.value)}
-                        data-testid={`checkbox-${site.id}-${svc.value}`}
-                      />
-                      <label htmlFor={`${site.id}-${svc.value}`} className="flex-1 text-sm cursor-pointer">
-                        {svc.label}
-                        {svc.impact > 0 && <span className="text-xs text-amber-600 ml-1">+{svc.impact}%</span>}
-                      </label>
-                    </div>
-                  ))}
+                {/* Performance Features — high impact, affects model sizing */}
+                {(() => {
+                  const availPerf = getAvailablePerfFeatures(site.role);
+                  if (availPerf.length === 0) return null;
+                  return (
+                    <>
+                      <div className="font-medium text-sm">Performance Features</div>
+                      <p className="text-xs text-muted-foreground">These reduce effective server capacity and affect model sizing.</p>
+                      <div className="space-y-2">
+                        {availPerf.map(feat => (
+                          <div key={feat.value} className="flex items-center gap-2">
+                            <Checkbox
+                              id={`${site.id}-perf-${feat.value}`}
+                              checked={(site.perfFeatures || []).includes(feat.value)}
+                              onCheckedChange={() => onTogglePerfFeature?.(site.id, feat.value)}
+                              data-testid={`perf-${site.id}-${feat.value}`}
+                            />
+                            <label htmlFor={`${site.id}-perf-${feat.value}`} className="flex-1 text-sm cursor-pointer">
+                              <span className="font-medium">{feat.label}</span>
+                              <span className="text-xs text-red-500 ml-1">−{feat.impactPercent}% {feat.impactType.toUpperCase()}</span>
+                              {feat.warning && (
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <HelpCircle className="h-3 w-3 inline ml-1 text-amber-500" />
+                                    </TooltipTrigger>
+                                    <TooltipContent className="max-w-xs text-xs">{feat.warning}</TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              )}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  );
+                })()}
+
+                {/* Co-located Services — low impact, token overhead */}
+                <div className="border-t pt-3">
+                  <div className="font-medium text-sm">Co-located Services</div>
+                  <p className="text-xs text-muted-foreground">Additional services add token overhead.</p>
+                  <div className="space-y-2 mt-2">
+                    {ADDITIONAL_SERVICES.map(svc => (
+                      <div key={svc.value} className="flex items-center gap-2">
+                        <Checkbox
+                          id={`${site.id}-${svc.value}`}
+                          checked={(site.services || []).includes(svc.value)}
+                          onCheckedChange={() => onToggleService(site.id, svc.value)}
+                          data-testid={`checkbox-${site.id}-${svc.value}`}
+                        />
+                        <label htmlFor={`${site.id}-${svc.value}`} className="flex-1 text-sm cursor-pointer">
+                          {svc.label}
+                          {svc.impact > 0 && <span className="text-xs text-amber-600 ml-1">+{svc.impact}%</span>}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 {(site.serviceImpact || 0) > 0 && (
                   <div className="pt-2 border-t text-xs">
-                    <span className="text-muted-foreground">Total overhead: </span>
+                    <span className="text-muted-foreground">Token overhead: </span>
                     <span className="font-medium text-amber-600">+{site.serviceImpact}%</span>
                   </div>
                 )}
