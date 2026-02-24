@@ -54,6 +54,14 @@ export function SizingTableHeader({ showHardware, showKW, showServices, platform
   return (
     <TableHeader>
       <TableRow className="bg-muted/50">
+        {/* Unit Letter */}
+        <HeaderWithTooltip className="w-14 lg:w-16" tooltip="Unit designation: A=GM/GMC, B=DNS, C=DHCP, D=Edge, E=ExtDNS, F=Cache, G=Guest, M=MSSync, N=NI, RPT=Reporting">
+          Unit
+        </HeaderWithTooltip>
+        
+        {/* Unit Number */}
+        <TableHead className="w-10 text-xs lg:text-sm text-center">#</TableHead>
+        
         {/* Location */}
         <TableHead className="w-32 lg:w-40 text-xs lg:text-sm">Location</TableHead>
         
