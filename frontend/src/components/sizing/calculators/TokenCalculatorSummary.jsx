@@ -619,10 +619,11 @@ export function TokenCalculatorSummary() {
           </div>
 
           {/* Drawing # Header */}
-          <div className="flex items-center gap-2 mb-2 mt-4">
+          <div className="flex items-center gap-2 mb-2 mt-2">
             <span className="text-lg font-bold text-primary">Drawing #{activeDrawing?.name || '10'}</span>
             <span className="text-sm text-muted-foreground">({sites.length} sites)</span>
           </div>
+          </div>{/* end sticky toolbar */}
 
           <div className="border rounded-lg overflow-hidden overflow-x-auto">
             <Table className="table-auto w-full">
