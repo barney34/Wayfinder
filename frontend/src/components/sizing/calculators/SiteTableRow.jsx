@@ -237,11 +237,59 @@ export function SiteTableRow({
 
   // Build description from name, role, and services
   const getDescription = () => {
-    let desc = site.role || 'DNS/DHCP';
-    if (site.services && site.services.length > 0) {
-      desc += ` + ${site.services.join(', ')}`;
+    // Return user-entered description if present, else auto-generate
+    if (site.description?.trim()) return site.description.trim();
+    
+    const descParts = [];
+    const role = site.role || '';
+    const swAddonsArr = site.swAddons || [];
+    const perfFeats = site.effectivePerfFeatures || site.perfFeatures || [];
+    
+    if (role === 'GM' || role.startsWith('GM+')) {
+      descParts.push('HA Grid Manager');
+      if (swAddonsArr.includes('CNA')) descParts.push('Cloud Network Automation');
+      if (role.includes('DNS')) descParts.push('DNS Services');
+      if (role.includes('DHCP')) descParts.push('DHCP Services');
+    } else if (role === 'GMC' || role.startsWith('GMC+')) {
+      descParts.push('Grid Manager Candidate');
+      if (swAddonsArr.includes('CNA')) descParts.push('Cloud Network Automation');
+    } else if (role === 'DNS/DHCP') {
+      if (site.isHub) {
+        descParts.push('DNS and DHCP Services');
+        descParts.push('DHCP Failover Hub');
+      } else if (site.isSpoke) {
+        descParts.push('DNS and DHCP Services');
+        descParts.push('DHCP Failover');
+      } else {
+        descParts.push('Int. Auth DNS, DHCP');
+      }
+    } else if (role === 'DNS') {
+      descParts.push('Int. Auth. DNS');
+      if (perfFeats.includes('ADP')) descParts.push('Advanced DNS Protection');
+      if (perfFeats.includes('DTC')) descParts.push('Global Server Load Balancing');
+    } else if (role === 'DHCP') {
+      descParts.push('Core DHCP Services');
+      if (site.isHub || site.isSpoke) descParts.push('Failover redundancy');
+    } else if (role === 'ND') {
+      descParts.push('Network Insight');
+      descParts.push('Automated Discovery');
+    } else if (role === 'Reporting') {
+      descParts.push('Reporting Virtual Server');
+      descParts.push('Scheduled Reports');
+    } else if (role === 'CDC') {
+      descParts.push('Cloud Data Connector');
+    } else if (role === 'LIC') {
+      descParts.push(site.name || 'License');
+    } else {
+      descParts.push(site.name || role);
     }
-    return desc;
+    
+    if (swAddonsArr.includes('DDIMSGD') || swAddonsArr.includes('MS')) descParts.push('Microsoft Sync');
+    if (swAddonsArr.includes('ADNS')) descParts.push('Advanced DNS');
+    if (swAddonsArr.includes('SECECO')) descParts.push('Security Ecosystem');
+    if (swAddonsArr.includes('TA')) descParts.push('Threat Analytics');
+    
+    return descParts.join('\n');
   };
 
   // SW Add-ons from site.swAddons array (selected by user)
