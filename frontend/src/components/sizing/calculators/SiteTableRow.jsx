@@ -250,7 +250,8 @@ export function SiteTableRow({
 
   // Get available SW Add-ons for this row
   const availableSwAddons = getAvailableSwAddons(site.role, site.platform);
-  const availableHwAddons = getAvailableHwAddons(site.recommendedModel, site.platform);
+  // Use hardwareSku (e.g. 'TE-1506-HW-AC') not recommendedModel (e.g. 'TE-1516') — HW addons match on hardware SKU
+  const availableHwAddons = getAvailableHwAddons(site.hardwareSku, site.platform);
   const isReportingRole = site.role === 'Reporting';
 
   // Export view - full export columns matching Lucidchart format
