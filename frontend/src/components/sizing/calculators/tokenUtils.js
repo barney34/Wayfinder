@@ -14,12 +14,24 @@ export function getServiceImpact(services = []) {
   }, 0);
 }
 
-// Get token count for a model
-export function getTokensForModel(model) {
+// Get token count for a model — platform-aware for UDDI (NXVS vs NXaaS have different token costs)
+export function getTokensForModel(model, platform = null) {
   const niosServer = niosServerGuardrails.find(s => s.model === model);
   if (niosServer) return niosServer.tokens;
-  const uddiServer = uddiServerTokens.find(s => s.serverSize === model || s.key === model);
-  if (uddiServer) return uddiServer.tokens;
+  
+  // For UDDI: match by server type + size
+  if (platform === 'NXaaS') {
+    const nxaas = uddiServerTokens.find(s => s.serverType === 'NXaaS' && s.serverSize === model);
+    if (nxaas) return nxaas.tokens;
+  }
+  // Default to NXVS for UDDI
+  const nxvs = uddiServerTokens.find(s => s.serverType === 'NXVS' && s.serverSize === model);
+  if (nxvs) return nxvs.tokens;
+  
+  // Fallback: try key match (e.g., 'NXVS-S')
+  const byKey = uddiServerTokens.find(s => s.key === model);
+  if (byKey) return byKey.tokens;
+  
   const tokenModel = tokenModels.find(t => t.appSize.toString() === model?.replace('TE-', ''));
   if (tokenModel) return tokenModel.tokens;
   return 0;
