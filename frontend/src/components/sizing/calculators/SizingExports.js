@@ -277,8 +277,48 @@ export function exportForLucid(sites, drawingNum) {
     const hwCount = site.hwCount !== undefined ? site.hwCount : (isVirtual ? 0 : swInstances);
 
     const endUnit = startUnit + swInstances - 1;
-    // Reporting reserves an extra unit slot for the TR-SWTL companion row
-    unitCounter[unitGroup] = site.role === 'Reporting' ? endUnit + 1 : endUnit;
+    // Reporting: always occupies 2 unit slots (main + TR-SWTL companion), regardless of SW count
+    // All other roles: occupies swInstances unit slots
+    unitCounter[unitGroup] = site.role === 'Reporting' ? startUnit + 1 : endUnit;
+
+    // Reporting: always emit as ONE combined main row (SW# = total swInstances) + companion
+    if (site.role === 'Reporting') {
+      rows.push({
+        'Drawing #':     drawingNum || '',
+        'Unit Group':    'RPT',
+        'Unit #/Range':  String(startUnit),
+        'Solution':      'NIOS',
+        'Model Info':    'TR-5005',
+        'SW Instances':  swInstances,
+        'Description':   'Reporting Virtual Server\nScheduled Reports\nAutomated Data Collection',
+        'SW Base SKU':   'TR-SWBSUB-5005',
+        'SW Package':    'ACTIVATION',
+        'SW Add-ons':    '',
+        'HW License SKU':'VM',
+        'HW Add-ons':    '',
+        'HW Count':      1,
+        'Add to Report': 'Yes',
+        'Add to BOM':    'Yes',
+      });
+      rows.push({
+        'Drawing #':     drawingNum || '',
+        'Unit Group':    'RPT',
+        'Unit #/Range':  String(startUnit + 1),
+        'Solution':      'NIOS',
+        'Model Info':    'TR-5005',
+        'SW Instances':  1,
+        'Description':   'Reporting Data Volume\nScheduled Reports\nAutomated Data Collection',
+        'SW Base SKU':   'TR-SWTL',
+        'SW Package':    site.rptQuantity || '',
+        'SW Add-ons':    '',
+        'HW License SKU':'',
+        'HW Add-ons':    '',
+        'HW Count':      0,
+        'Add to Report': 'Yes',
+        'Add to BOM':    'Yes',
+      });
+      return; // skip the generic multi/single logic below
+    }
 
     if (swInstances > 1) {
       const hwPerInstance = Math.floor(hwCount / swInstances);
