@@ -814,10 +814,54 @@ export function SiteTableRow({
         )}
       </TableCell>
 
-      {/* SW Add-ons — hidden for Reporting, ND, NXVS, NXaaS */}
+      {/* SW Add-ons — Reporting gets storage+TR-SWTL popover; ND/NX-P/NXVS/NXaaS show — */}
       {!exportView && (
         <TableCell className="p-1">
-          {hideSwAddons ? (
+          {isReportingRole ? (
+            /* Reporting: ACTIVATION storage selector + optional TR-SWTL on first RPT row */
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="h-7 text-xs w-full justify-between" disabled={site.isDisabledInUddi}>
+                  {site.rptQuantity ? (
+                    <span className="truncate text-xs">
+                      {site.rptQuantity}{site.trSwtl ? ', TR-SWTL' : ''}
+                    </span>
+                  ) : (
+                    <span className="text-muted-foreground text-base leading-none">+</span>
+                  )}
+                  {site.rptQuantity && <Plus className="h-3 w-3 ml-1 flex-shrink-0" />}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-56 p-3" align="start">
+                <div className="space-y-3">
+                  <div className="font-medium text-sm">Reporting Options</div>
+                  <div>
+                    <div className="text-xs font-medium mb-1">ACTIVATION Storage</div>
+                    <Select value={site.rptQuantity || ''} onValueChange={v => onUpdateSite(site.id, 'rptQuantity', v)}>
+                      <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Select size" /></SelectTrigger>
+                      <SelectContent>
+                        {RPT_QUANTITIES.map(q => <SelectItem key={q.value} value={q.value}>{q.label}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {/* TR-SWTL optional add-on — first RPT row only */}
+                  {site._isFirstRpt && (
+                    <div className="flex items-center gap-2 pt-1 border-t">
+                      <Checkbox
+                        id={`${site.id}-tr-swtl`}
+                        checked={!!site.trSwtl}
+                        onCheckedChange={v => onUpdateSite(site.id, 'trSwtl', !!v)}
+                      />
+                      <label htmlFor={`${site.id}-tr-swtl`} className="text-xs cursor-pointer">
+                        <span className="font-medium font-mono">TR-SWTL</span>
+                        <span className="block text-muted-foreground">Optional add-on (first RPT only)</span>
+                      </label>
+                    </div>
+                  )}
+                </div>
+              </PopoverContent>
+            </Popover>
+          ) : hideSwAddons ? (
             <span className="text-xs text-muted-foreground">—</span>
           ) : (
           <Popover>
