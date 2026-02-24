@@ -267,73 +267,89 @@ export const uddiEstimatorDefaults = {
 
 // SW Base SKU by model (subscription)
 export const swBaseSkuMap = {
-  // NIOS TE-series
-  'TE-926': 'TE-926-SWSUB',
+  // NIOS TE-series → TE-xxx-SWSUB
+  'TE-926':  'TE-926-SWSUB',
   'TE-1516': 'TE-1516-SWSUB',
   'TE-1526': 'TE-1526-SWSUB',
   'TE-2326': 'TE-2326-SWSUB',
   'TE-4126': 'TE-4126-SWSUB',
-  // NIOS-X Virtual Servers
+  // NIOS ND-series → ND-xxx-SWBSUB
+  'ND-906':  'ND-906-SWBSUB',
+  'ND-1606': 'ND-1606-SWBSUB',
+  'ND-2306': 'ND-2306-SWBSUB',
+  'ND-4106': 'ND-4106-SWBSUB',
+  // NIOS Reporting (RPT) — defaults to virtual TR-5005
+  'TR-5005': 'TR-SWBSUB-5005',
+  // NIOS-X Virtual Servers → NXVS-xxx-SWSUB
   'NXVS-3XS': 'NXVS-3XS-SWSUB',
   'NXVS-2XS': 'NXVS-2XS-SWSUB',
-  'NXVS-XS': 'NXVS-XS-SWSUB',
-  'NXVS-S': 'NXVS-S-SWSUB',
-  'NXVS-M': 'NXVS-M-SWSUB',
-  'NXVS-L': 'NXVS-L-SWSUB',
-  'NXVS-XL': 'NXVS-XL-SWSUB',
+  'NXVS-XS':  'NXVS-XS-SWSUB',
+  'NXVS-S':   'NXVS-S-SWSUB',
+  'NXVS-M':   'NXVS-M-SWSUB',
+  'NXVS-L':   'NXVS-L-SWSUB',
+  'NXVS-XL':  'NXVS-XL-SWSUB',
   // NIOS-X CDC
   'NXVS-CDC': 'NXVS-CDC-SWSUB',
-  // NXaaS
-  'NXaaS-S': 'NXaaS-S-SWSUB',
-  'NXaaS-M': 'NXaaS-M-SWSUB',
-  'NXaaS-L': 'NXaaS-L-SWSUB',
+  // NXaaS → NXaaS-xxx-SWSUB
+  'NXaaS-S':  'NXaaS-S-SWSUB',
+  'NXaaS-M':  'NXaaS-M-SWSUB',
+  'NXaaS-L':  'NXaaS-L-SWSUB',
   'NXaaS-XL': 'NXaaS-XL-SWSUB',
 };
 
 // SW Package codes by role combination
 export const swPackageMap = {
-  'DNS': 'DD',           // DNS only
-  'DHCP': 'DH',          // DHCP only
-  'DNS/DHCP': 'DDIDH',   // DNS + DHCP
-  'GM': 'DDI',           // Grid Master (full DDI)
-  'GMC': 'DDI',          // Grid Master Candidate
-  'DNS/DHCP/Discovery': 'DDIGD',  // DNS + DHCP + Discovery
-  'Discovery': 'GD',     // Discovery only
+  'DNS':               'DD',     // DNS only
+  'DHCP':              'DH',     // DHCP only
+  'DNS/DHCP':          'DDIDH',  // DNS + DHCP
+  'GM':                'DDI',    // Grid Master
+  'GMC':               'DDI',    // Grid Master Candidate
+  'DNS/DHCP/Discovery':'DDIGD',  // DNS + DHCP + Discovery
+  'Discovery':         'GD',     // Discovery only
+  'ND':                'NIGD',   // Network Discovery
+  'Reporting':         'ACTIVATION', // RPT storage activation
 };
 
 // Hardware SKU mapping
 export const hwSkuMap = {
   // NIOS TE-series Physical
-  'TE-926': { hwSku: 'TE-926-HW-AC', description: 'NIOS TE-926 Appliance' },
-  'TE-1516': { hwSku: 'TE-1516-HW-AC', description: 'NIOS TE-1516 Appliance' },
-  'TE-1526': { hwSku: 'TE-1526-HW-AC', description: 'NIOS TE-1526 Appliance' },
-  'TE-2326': { hwSku: 'TE-2326-HW-AC', description: 'NIOS TE-2326 Appliance' },
-  'TE-4126': { hwSku: 'TE-4126-HW-AC', description: 'NIOS TE-4126 Appliance' },
-  // Virtual - no HW SKU
+  'TE-926':  { hwSku: 'TE-906-HW-AC',  description: 'NIOS TE-926 Appliance' },
+  'TE-1516': { hwSku: 'TE-1506-HW-AC', description: 'NIOS TE-1516 Appliance' },
+  'TE-1526': { hwSku: 'TE-1606-HW-AC', description: 'NIOS TE-1526 Appliance' },
+  'TE-2326': { hwSku: 'TE-2306-HW-AC', description: 'NIOS TE-2326 Appliance' },
+  'TE-4126': { hwSku: 'TE-4106-HW-AC', description: 'NIOS TE-4126 Appliance' },
+  // NIOS ND-series Physical
+  'ND-906':  { hwSku: 'ND-906-HW-AC',  description: 'Network Discovery ND-906' },
+  'ND-1606': { hwSku: 'ND-1606-HW-AC', description: 'Network Discovery ND-1606' },
+  'ND-2306': { hwSku: 'ND-2306-HW-AC', description: 'Network Discovery ND-2306' },
+  'ND-4106': { hwSku: 'ND-4106-HW-AC', description: 'Network Discovery ND-4106' },
+  // RPT — virtual
+  'TR-5005': { hwSku: 'VM', description: 'Reporting Server (Virtual)' },
+  // NIOS-X Virtual
   'NXVS-3XS': { hwSku: 'VM', description: 'Virtual Machine' },
   'NXVS-2XS': { hwSku: 'VM', description: 'Virtual Machine' },
-  'NXVS-XS': { hwSku: 'VM', description: 'Virtual Machine' },
-  'NXVS-S': { hwSku: 'VM', description: 'Virtual Machine' },
-  'NXVS-M': { hwSku: 'VM', description: 'Virtual Machine' },
-  'NXVS-L': { hwSku: 'VM', description: 'Virtual Machine' },
-  'NXVS-XL': { hwSku: 'VM', description: 'Virtual Machine' },
+  'NXVS-XS':  { hwSku: 'VM', description: 'Virtual Machine' },
+  'NXVS-S':   { hwSku: 'VM', description: 'Virtual Machine' },
+  'NXVS-M':   { hwSku: 'VM', description: 'Virtual Machine' },
+  'NXVS-L':   { hwSku: 'VM', description: 'Virtual Machine' },
+  'NXVS-XL':  { hwSku: 'VM', description: 'Virtual Machine' },
   'NXVS-CDC': { hwSku: 'VM', description: 'Virtual Machine (CDC)' },
-  // NXaaS - Cloud
-  'NXaaS-S': { hwSku: 'Cloud', description: 'Cloud Service' },
-  'NXaaS-M': { hwSku: 'Cloud', description: 'Cloud Service' },
-  'NXaaS-L': { hwSku: 'Cloud', description: 'Cloud Service' },
+  // NXaaS — Cloud
+  'NXaaS-S':  { hwSku: 'Cloud', description: 'Cloud Service' },
+  'NXaaS-M':  { hwSku: 'Cloud', description: 'Cloud Service' },
+  'NXaaS-L':  { hwSku: 'Cloud', description: 'Cloud Service' },
   'NXaaS-XL': { hwSku: 'Cloud', description: 'Cloud Service' },
 };
 
 // Unit Group codes based on role
 export const unitGroupMap = {
-  'GM': 'A',
-  'GMC': 'B', 
-  'DNS/DHCP': 'C',
-  'DNS': 'D',
-  'DHCP': 'E',
-  'dataCenter': 'F',
-  'site': 'G',
+  'GM':       'A',
+  'GMC':      'A',
+  'DNS':      'B',
+  'DNS/DHCP': 'B',
+  'DHCP':     'C',
+  'ND':       'N',
+  'Reporting':'RPT',
 };
 
 // Helper to get SW Base SKU
@@ -342,7 +358,11 @@ export function getSwBaseSku(model) {
 }
 
 // Helper to get SW Package
-export function getSwPackage(role, hasDiscovery = false) {
+// For Reporting role, returns the ACTIVATION storage size if set
+export function getSwPackage(role, hasDiscovery = false, rptStorage = null) {
+  if (role === 'Reporting') {
+    return rptStorage ? `ACTIVATION-${rptStorage}` : 'ACTIVATION';
+  }
   if (hasDiscovery && (role === 'DNS/DHCP' || role === 'DNS')) {
     return swPackageMap['DNS/DHCP/Discovery'] || 'DDIGD';
   }
