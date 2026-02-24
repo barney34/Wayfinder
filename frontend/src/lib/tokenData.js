@@ -383,17 +383,17 @@ export function getHwSkuInfo(model) {
 
 // Unit Group mapping based on Lucidchart alphabet chart
 // A = GM/GMC, B = Internal DNS, C = DHCP, D = Edge/Remote, E = External DNS
-// F = Cache/DMZ, G = Guest, M = MSFT Sync, N = Network Insight, RPT = Reporting
+// F = Cache/DMZ, G = Guest, M = MSFT Sync, N = Network Discovery/Insight, RPT = Reporting, LIC = License, CDC = Cloud Data Connector
 export function getUnitGroup(role, sourceType, services = []) {
-  // GM and GMC are always A
-  if (role === 'GM') return 'A';
-  if (role === 'GMC') return 'A';
-  
-  // Check for special services
+  if (role === 'GM' || role?.startsWith('GM+') || role?.startsWith('GMC')) return 'A';
+  if (role === 'Reporting') return 'RPT';
+  if (role === 'ND')        return 'N';
+
+  // Service-based overrides
   if (services?.includes('NI') || services?.includes('Network Insight')) return 'N';
   if (services?.includes('Reporting')) return 'RPT';
   if (services?.includes('MSFT') || services?.includes('Microsoft')) return 'M';
-  
+
   // Role-based mapping
   if (role === 'DNS' || role === 'DNS/DHCP' || role?.includes('Internal DNS')) return 'B';
   if (role === 'DHCP') return 'C';
@@ -401,8 +401,6 @@ export function getUnitGroup(role, sourceType, services = []) {
   if (role?.toLowerCase()?.includes('external') || role?.toLowerCase()?.includes('authoritative')) return 'E';
   if (role?.toLowerCase()?.includes('cache') || role?.toLowerCase()?.includes('forward') || role?.toLowerCase()?.includes('dmz')) return 'F';
   if (role?.toLowerCase()?.includes('guest')) return 'G';
-  
-  // Default based on source type
-  if (sourceType === 'dataCenter') return 'B'; // DCs are typically internal DNS
-  return 'B'; // Default to internal DNS
+
+  return 'B'; // Default internal DNS
 }
