@@ -476,8 +476,11 @@ export function SiteTableRow({
         </div>
       </TableCell>
 
-      {/* # IPs */}
+      {/* # IPs — not applicable for Reporting */}
       <TableCell className="p-1">
+        {isReportingRole ? (
+          <span className="text-xs text-muted-foreground">—</span>
+        ) : (
         <div className="flex items-center gap-1">
           <Input
             type="number"
