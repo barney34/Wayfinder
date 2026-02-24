@@ -755,7 +755,7 @@ export function SiteTableRow({
       </TableCell>
 
       {/* SW Add-ons (NIOS only) */}
-      {platformMode === 'NIOS' && !exportView && (
+      {!exportView && (
         <TableCell className="p-1">
           <Popover>
             <PopoverTrigger asChild>
@@ -835,7 +835,7 @@ export function SiteTableRow({
       )}
 
       {/* HW Add-ons (Physical only, with SFP quantity) */}
-      {platformMode === 'NIOS' && !exportView && (
+      {!exportView && (
         <TableCell className="p-1">
           {isVirtualPlatform ? (
             <span className="text-xs text-muted-foreground">—</span>
