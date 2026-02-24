@@ -550,9 +550,11 @@ export function TokenCalculatorSummary() {
 
       {/* Site Sizing Table */}
       <Card>
-        <CardContent className="pt-4 lg:pt-6">
-          {/* Drawing Tabs */}
-          <DrawingTabs
+        <CardContent className="pt-4 lg:pt-6 p-0">
+          {/* Sticky header area — tabs, toolbar, Drawing #, column headers */}
+          <div className="sticky top-0 z-30 bg-card px-4 lg:px-6 pt-4 lg:pt-6 pb-0 border-b border-border">
+            {/* Drawing Tabs */}
+            <DrawingTabs
             drawings={drawings}
             activeDrawingId={activeDrawingId}
             onSelectDrawing={setActiveDrawingId}
