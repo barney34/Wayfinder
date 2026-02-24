@@ -728,7 +728,6 @@ export function TokenCalculatorSummary() {
                   if (showServices && !exportView) totalCols++;
                   if (showHardware) totalCols++;
                   if (platformMode !== 'NIOS') totalCols++; // tokens
-                  if (platformMode === 'NIOS') totalCols += 2; // SW Add-ons, HW Add-ons
                   totalCols += 3; // Rpt, BOM, Actions
                   
                   const rows = [];
