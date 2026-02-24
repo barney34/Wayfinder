@@ -685,9 +685,45 @@ export function SiteTableRow({
             <SelectTrigger className="h-7 text-xs" data-testid={`site-dhcp-partner-${site.id}`}>
               <SelectValue>
                 {site.isHub ? (
-                  <span className="text-accent font-medium flex items-center gap-1"><Server className="h-3 w-3" /> Hub</span>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="text-accent font-medium flex items-center gap-1">
+                          <Server className="h-3 w-3" />
+                          {(site.partnerCount || 0) > 1 ? `Hub (${site.partnerCount})` : 'Partner'}
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent className="text-xs max-w-xs">
+                        <div className="space-y-1">
+                          <div className="font-medium">DHCP FO {(site.partnerCount || 0) > 1 ? 'Hub' : 'Partner'}</div>
+                          <div>{(site.partnerCount || 0)} site(s) failover to this server</div>
+                          {(site.foObjects || 0) > 0 && (
+                            <div className="text-amber-500">+{(site.foObjects || 0).toLocaleString()} replicated objects</div>
+                          )}
+                          {site.foWarning && <div className="text-red-500">{site.foWarning}</div>}
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 ) : site.dhcpPartner ? (
-                  <span className="text-amber-600">{sites.find(s => s.id === site.dhcpPartner)?.name || 'Spoke'}</span>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="text-amber-600 truncate">
+                          {sites.find(s => s.id === site.dhcpPartner)?.name || 'Partner'}
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent className="text-xs max-w-xs">
+                        <div className="space-y-1">
+                          <div className="font-medium">DHCP FO → {sites.find(s => s.id === site.dhcpPartner)?.name}</div>
+                          {(site.foObjects || 0) > 0 && (
+                            <div className="text-amber-500">+{(site.foObjects || 0).toLocaleString()} replicated objects from partner</div>
+                          )}
+                          {site.foWarning && <div className="text-red-500">{site.foWarning}</div>}
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 ) : (
                   <span className="text-muted-foreground">&mdash;</span>
                 )}
@@ -701,7 +737,9 @@ export function SiteTableRow({
                                 s.role.includes('+DHCP') || s.role.includes('+DNS/DHCP');
                 return s.id !== site.id && !s.isSpoke && hasDHCP;
               }).map(s => (
-                <SelectItem key={s.id} value={s.id}>{s.name} {s.isHub && '(Hub)'}</SelectItem>
+                <SelectItem key={s.id} value={s.id}>
+                  {s.name} {s.isHub ? `(Hub · ${s.partnerCount || 0})` : ''}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
