@@ -252,15 +252,56 @@ export function TokenCalculatorSummary() {
     });
   }, [dataCenterIds, contextSiteIds, dataCenters, contextSites, siteOverrides, ipMultiplier, dhcpPercent, platformMode, leaseTimeSeconds, ipCalcValue]);
 
-  // Compute unit assignments (letter + global number) for all sites
+  // Expand sites with serverCount > 1 into individual server rows for rendering
+  const expandedServers = useMemo(() => {
+    const result = [];
+    sites.forEach(site => {
+      const count = site.serverCount || 1;
+      if (count <= 1) {
+        // Single server — render as normal row
+        result.push({ ...site, _isExpanded: false, _serverIndex: 0, _parentSiteId: site.id });
+      } else {
+        // Multiple servers — create individual entries
+        const serverOverrides = siteOverrides[site.id]?.servers || {};
+        for (let i = 0; i < count; i++) {
+          const srvOvr = serverOverrides[i] || {};
+          result.push({
+            ...site,
+            // Server-level overrides (each server can have its own IPs, role, etc.)
+            id: `${site.id}__srv__${i}`,
+            name: srvOvr.name || site.name,
+            numIPs: srvOvr.numIPs !== undefined ? srvOvr.numIPs : site.numIPs,
+            role: srvOvr.role || site.role,
+            services: srvOvr.services || site.services,
+            platform: srvOvr.platform || site.platform,
+            haEnabled: srvOvr.haEnabled !== undefined ? srvOvr.haEnabled : site.haEnabled,
+            unitLetterOverride: srvOvr.unitLetterOverride || site.unitLetterOverride,
+            unitNumberOverride: srvOvr.unitNumberOverride !== undefined ? srvOvr.unitNumberOverride : undefined,
+            // Metadata
+            _isExpanded: true,
+            _serverIndex: i,
+            _parentSiteId: site.id,
+            _parentName: site.name,
+            // Each expanded server has serverCount=1 for its own row
+            serverCount: 1,
+            swInstances: srvOvr.haEnabled ? 2 : (site.haEnabled ? 2 : 1),
+            hwCount: srvOvr.hwCount !== undefined ? srvOvr.hwCount : (site.hwCount !== undefined ? Math.max(1, Math.round(site.hwCount / count)) : undefined),
+          });
+        }
+      }
+    });
+    return result;
+  }, [sites, siteOverrides]);
+
+  // Compute unit assignments on expanded servers (global numbering across all individual servers)
   const unitAssignments = useMemo(() => {
-    const serversForUnit = sites.map(site => ({
-      id: site.id,
-      role: site.role,
-      unitLetterOverride: siteOverrides[site.id]?.unitLetterOverride || null,
+    const serversForUnit = expandedServers.map(srv => ({
+      id: srv.id,
+      role: srv.role,
+      unitLetterOverride: srv.unitLetterOverride || null,
     }));
     return computeUnitAssignments(serversForUnit);
-  }, [sites, siteOverrides]);
+  }, [expandedServers]);
 
   // Calculate totals
   const totals = useMemo(() => {
