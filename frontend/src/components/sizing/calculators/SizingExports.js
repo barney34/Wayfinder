@@ -314,6 +314,26 @@ export function exportForLucid(sites, drawingNum) {
         'Add to Report': 'Yes',
         'Add to BOM':    site.addToBom !== false ? 'Yes' : 'No',
       });
+      // TR-SWTL add-on line — first RPT row only, optional
+      if (site.role === 'Reporting' && site._isFirstRpt && site.trSwtl) {
+        rows.push({
+          'Drawing #':     drawingNum || '',
+          'Unit Group':    'RPT',
+          'Unit #/Range':  String(startUnit),
+          'Solution':      'NIOS',
+          'Model Info':    'TR-5005',
+          'SW Instances':  swInstances,
+          'Description':   `${site.name}\nTR-SWTL (add-on)`,
+          'SW Base SKU':   'TR-SWTL',
+          'SW Package':    '',
+          'SW Add-ons':    '',
+          'HW License SKU':'VM',
+          'HW Add-ons':    '',
+          'HW Count':      0,
+          'Add to Report': 'Yes',
+          'Add to BOM':    'Yes',
+        });
+      }
     }
   });
 
