@@ -204,8 +204,15 @@ export function exportForLucid(sites, drawingNum) {
   const rows = [];
   let unitCounter = {};
 
-  // Sort: A (GM/GMC) first, then B-N alphabetically, RPT last
-  const roleOrder = { 'GM': 0, 'GMC': 1, 'DNS': 2, 'DNS/DHCP': 2, 'DHCP': 3, 'ND': 8, 'Reporting': 9 };
+  // Sort: A (GM/GMC) → B (DNS) → C (DHCP) → D-G → M → N (ND) → RPT → LIC → CDC
+  const roleOrder = {
+    'GM': 0, 'GMC': 1,
+    'GM+DNS': 0, 'GM+DHCP': 0, 'GM+DNS/DHCP': 0,
+    'GMC+DNS': 1, 'GMC+DHCP': 1, 'GMC+DNS/DHCP': 1,
+    'DNS': 2, 'DNS/DHCP': 2, 'DHCP': 3,
+    'Edge': 4, 'ExtDNS': 5, 'Cache': 6, 'Guest': 7,
+    'MSSync': 8, 'ND': 9, 'Reporting': 10, 'LIC': 11, 'CDC': 12,
+  };
   const sortedSites = [...sites].sort((a, b) =>
     (roleOrder[a.role] ?? 5) - (roleOrder[b.role] ?? 5)
   );
