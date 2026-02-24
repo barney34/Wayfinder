@@ -478,6 +478,16 @@ export function TokenCalculatorSummary() {
       return;
     }
 
+    // Check if this is a grouped row update (id contains __grp__) — route to parent
+    const grpMatch = siteId.match(/^(.+)__grp__/);
+    if (grpMatch) {
+      const parentId = grpMatch[1];
+      const parentSite = sites.find(s => s.id === parentId);
+      if (!parentSite) return;
+      setSiteOverrides(prev => ({ ...prev, [parentId]: { ...prev[parentId], [field]: value } }));
+      return;
+    }
+
     const site = sites.find(s => s.id === siteId);
     if (!site) return;
     let updates = { [field]: value };
