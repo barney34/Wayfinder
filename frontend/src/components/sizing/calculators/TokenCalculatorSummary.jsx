@@ -714,7 +714,7 @@ export function TokenCalculatorSummary() {
             <div className="flex items-center gap-2">
               <Button
                 variant="outline" size="sm"
-                onClick={() => exportForLucid(sites, activeDrawing?.name || '10')}
+                onClick={() => exportForLucid(expandedServers, activeDrawing?.name || '10')}
                 className="text-xs"
                 data-testid="export-drawing-button"
               >
