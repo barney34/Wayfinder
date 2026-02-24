@@ -196,7 +196,10 @@ export function getAvailableHwAddons(model, platform) {
   if (!isPhysical) return [];
   
   return HW_ADDONS.filter(addon => {
-    if (addon.allowedModels && !addon.allowedModels.includes(model)) return false;
-    return true;
+    if (!addon.allowedModels) return true;
+    // Match against model prefix (e.g., "TE-1506" matches "TE-1506-HW-AC")
+    return addon.allowedModels.some(allowed => 
+      allowed === model || allowed.startsWith(model + '-') || model?.startsWith(allowed.split('-HW')[0])
+    );
   });
 }
