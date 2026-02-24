@@ -182,22 +182,22 @@ frontend:
 
 metadata:
   created_by: "main_agent"
-  version: "1.2"
-  test_sequence: 2
+  version: "2.0"
+  test_sequence: 3
   run_ui: true
 
 test_plan:
   current_focus:
-    - "Sizing Table Column Headers - Two-line Add-ons Layout"
-    - "Add-ons Button Style - Plus Character Display"
-    - "PSU Logic - 1506 Models Only with AC/DC Labels"
-    - "SFP Visibility - 10GE Models Only"
+    - "DHCP FO Object Replication"
+    - "Performance Features in Services"
+    - "Fix Impact Values"
+    - "Wire Perf Features into Model Selection"
+    - "DHCP FO Association Limits"
+    - "Partner/Hub Terminology"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
 agent_communication:
-    - agent: "testing"
-    - message: "Code review completed for Sizing/Drawing table changes. All 4 requirements verified in code: 1) Column headers show two-line layout with 'Add-ons' above 'SW'/'HW' (SizingTableHeader.jsx L128-141), 2) Buttons show '+' when empty (SiteTableRow.jsx L774, L860), 3) PSU only for 1506 models with AC/DC labels (platformConfig.js L145-152, SiteTableRow.jsx L877-881), 4) SFP only for 10GE models (SiteTableRow.jsx L906). Implementation is correct. UI testing blocked: database has no customers. Need user to create customer > navigate to Sizing > Drawing tab > add sites to verify visual display."
-    - agent: "testing"
-    - message: "UI testing completed for Sizing/Drawing table. RESULTS: ✅ Task 1 & 2 WORKING - Column headers show correct two-line layout, Add-ons buttons display '+' when empty, Srv# column shows '1' correctly. ❌ Task 3 & 4 BLOCKED - CRITICAL ISSUE: TE-1506-10GE-HW-AC hardware SKU is NOT available in dropdown. Only B1-105-HW-AC and B1-212-HW-AC models appear when NIOS platform is selected. Cannot verify PSU checkbox (with AC/DC labels) or SFP Interfaces section without access to 1506 10GE hardware. Root cause investigation needed: Either (1) Model recommendation system not suggesting 1506 models, or (2) Hardware SKU options list missing 1506 models. The code implementation for PSU and SFP logic is correct, but hardware model availability is the blocker."
+    - agent: "main"
+    - message: "Implemented 6 major sizing calculation enhancements based on UDDI/NIOS Sizing PDF and Best Practices PDF analysis. Key changes: (1) DHCP FO object replication - hub/spoke both get partner DHCP objects for model sizing, (2) Added DTC/Syslog/RPZ/ADP/TI/FP as per-site Performance Features in Services popover with impact on model sizing, (3) Fixed SYS 50→90%, NSIP 30→45%, DTC 25→20%, (4) Wired perfFeatures into getSiteRecommendedModel via calculatePerfImpact multipliers, (5) Added DHCP FO association limits per model with warnings, (6) Partner→Hub terminology (single partner = 'Partner', 2+ = 'Hub(N)'). All changes frontend-only, no backend modifications."
