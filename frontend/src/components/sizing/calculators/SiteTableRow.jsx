@@ -606,12 +606,26 @@ export function SiteTableRow({
                 {/* Performance Features — high impact, affects model sizing */}
                 {(() => {
                   const availPerf = getAvailablePerfFeatures(site.role);
-                  if (availPerf.length === 0) return null;
+                  const hasFO = site.isHub || site.isSpoke;
+                  const hasDhcpRole = site.role === 'DHCP' || site.role === 'DNS/DHCP' || 
+                                      site.role?.includes('+DHCP') || site.role?.includes('+DNS/DHCP');
+                  if (availPerf.length === 0 && !hasFO) return null;
                   return (
                     <>
                       <div className="font-medium text-sm">Performance Features</div>
                       <p className="text-xs text-muted-foreground">These reduce effective server capacity and affect model sizing.</p>
                       <div className="space-y-2">
+                        {/* Auto-applied DHCP-FO indicator */}
+                        {hasFO && hasDhcpRole && (
+                          <div className="flex items-center gap-2 opacity-80">
+                            <Checkbox checked={true} disabled={true} />
+                            <span className="text-sm">
+                              <span className="font-medium">DHCP FO</span>
+                              <span className="text-xs text-red-500 ml-1">−50% LPS</span>
+                              <Badge variant="outline" className="ml-1 text-[9px] py-0">auto</Badge>
+                            </span>
+                          </div>
+                        )}
                         {availPerf.map(feat => (
                           <div key={feat.value} className="flex items-center gap-2">
                             <Checkbox
