@@ -706,7 +706,7 @@ export function TokenCalculatorSummary() {
                           }
                         } : deleteSite}
                         onOpenModelDialog={openModelDialog}
-                        onCopySiteToDrawing={onCopySiteToDrawing || copySiteToDrawing}
+                        onCopySiteToDrawing={copySiteToDrawing}
                         unitAssignment={unitAssignments[srv.id]}
                       />
                     );
