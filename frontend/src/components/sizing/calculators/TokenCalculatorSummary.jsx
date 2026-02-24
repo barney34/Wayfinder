@@ -630,29 +630,89 @@ export function TokenCalculatorSummary() {
                 exportView={exportView}
               />
               <TableBody>
-                {sites.map(site => (
-                  <SiteTableRow
-                    key={site.id}
-                    site={site}
-                    sites={sites}
-                    drawings={drawings}
-                    activeDrawingId={activeDrawingId}
-                    platformMode={platformMode}
-                    dhcpPercent={dhcpPercent}
-                    roleOptions={roleOptions}
-                    platformOptions={platformOptions}
-                    showHardware={showHardware}
-                    showKW={showKW && !exportView}
-                    showServices={showServices && !exportView}
-                    exportView={exportView}
-                    onUpdateSite={updateSite}
-                    onToggleService={toggleService}
-                    onDeleteSite={deleteSite}
-                    onOpenModelDialog={openModelDialog}
-                    onCopySiteToDrawing={copySiteToDrawing}
-                    unitAssignment={unitAssignments[site.id]}
-                  />
-                ))}
+                {(() => {
+                  // Calculate total visible columns for the location header colSpan
+                  let totalCols = 12; // base: Unit, #, Location, IPs, Role, DHCP, Srv#, HA, Platform, Model, SW#, HW#
+                  if (showKW && !exportView) totalCols++;
+                  if (showServices && !exportView) totalCols++;
+                  if (showHardware) totalCols++;
+                  if (platformMode !== 'NIOS') totalCols++; // tokens
+                  if (platformMode === 'NIOS') totalCols += 2; // SW Add-ons, HW Add-ons
+                  totalCols += 3; // Rpt, BOM, Actions
+                  
+                  const rows = [];
+                  let lastParentId = null;
+                  
+                  expandedServers.forEach((srv, idx) => {
+                    const parentSite = sites.find(s => s.id === srv._parentSiteId);
+                    
+                    // Show location header when entering a new location group with multiple servers
+                    if (srv._isExpanded && srv._parentSiteId !== lastParentId && parentSite) {
+                      rows.push(
+                        <LocationHeaderRow
+                          key={`header-${srv._parentSiteId}`}
+                          site={parentSite}
+                          onUpdateSite={updateSite}
+                          onDeleteSite={deleteSite}
+                          totalColumns={totalCols}
+                        />
+                      );
+                    }
+                    lastParentId = srv._parentSiteId;
+                    
+                    rows.push(
+                      <SiteTableRow
+                        key={srv.id}
+                        site={srv}
+                        sites={sites}
+                        drawings={drawings}
+                        activeDrawingId={activeDrawingId}
+                        platformMode={platformMode}
+                        dhcpPercent={dhcpPercent}
+                        roleOptions={roleOptions}
+                        platformOptions={platformOptions}
+                        showHardware={showHardware}
+                        showKW={showKW && !exportView}
+                        showServices={showServices && !exportView}
+                        exportView={exportView}
+                        onUpdateSite={updateSite}
+                        onToggleService={(srvId, svcVal) => {
+                          // Route toggle to server-level if expanded
+                          if (srv._isExpanded) {
+                            const parentId = srv._parentSiteId;
+                            const srvIndex = srv._serverIndex;
+                            setSiteOverrides(prev => {
+                              const parentOvr = prev[parentId] || {};
+                              const servers = { ...(parentOvr.servers || {}) };
+                              const srvOvr = servers[srvIndex] || {};
+                              const currentServices = srvOvr.services || srv.services || [];
+                              const newServices = currentServices.includes(svcVal)
+                                ? currentServices.filter(s => s !== svcVal)
+                                : [...currentServices, svcVal];
+                              servers[srvIndex] = { ...srvOvr, services: newServices };
+                              return { ...prev, [parentId]: { ...parentOvr, servers } };
+                            });
+                          } else {
+                            toggleService(srvId, svcVal);
+                          }
+                        }}
+                        onDeleteSite={srv._isExpanded ? () => {
+                          // For expanded servers, reduce serverCount instead of deleting
+                          const parentSite2 = sites.find(s => s.id === srv._parentSiteId);
+                          if (parentSite2 && parentSite2.serverCount > 1) {
+                            updateSite(srv._parentSiteId, 'serverCount', parentSite2.serverCount - 1);
+                          } else {
+                            deleteSite(srv._parentSiteId);
+                          }
+                        } : deleteSite}
+                        onOpenModelDialog={openModelDialog}
+                        onCopySiteToDrawing={onCopySiteToDrawing || copySiteToDrawing}
+                        unitAssignment={unitAssignments[srv.id]}
+                      />
+                    );
+                  });
+                  return rows;
+                })()}
                 {/* Total Row */}
                 <TableRow className="bg-muted/30 font-medium">
                   <TableCell className="p-2 lg:p-4" colSpan={2}></TableCell>
