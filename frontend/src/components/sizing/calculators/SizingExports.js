@@ -344,26 +344,6 @@ export function exportForLucid(sites, drawingNum) {
           'Add to BOM':    site.addToBom !== false ? 'Yes' : 'No',
         });
       }
-      // Reporting: always add TR-SWTL companion row after the last main row
-      if (site.role === 'Reporting') {
-        rows.push({
-          'Drawing #':     drawingNum || '',
-          'Unit Group':    'RPT',
-          'Unit #/Range':  String(endUnit + 1),
-          'Solution':      'NIOS',
-          'Model Info':    'TR-5005',
-          'SW Instances':  1,
-          'Description':   'Reporting Data Volume\nScheduled Reports\nAutomated Data Collection',
-          'SW Base SKU':   'TR-SWTL',
-          'SW Package':    site.rptQuantity || '',
-          'SW Add-ons':    '',
-          'HW License SKU':'',
-          'HW Add-ons':    '',
-          'HW Count':      0,
-          'Add to Report': 'Yes',
-          'Add to BOM':    'Yes',
-        });
-      }
     } else {
       rows.push({
         'Drawing #':     drawingNum || '',
@@ -372,9 +352,7 @@ export function exportForLucid(sites, drawingNum) {
         'Solution':      solution,
         'Model Info':    model,
         'SW Instances':  swInstances,
-        'Description':   site.role === 'Reporting'
-          ? `Reporting Virtual Server\nScheduled Reports\nAutomated Data Collection`
-          : description,
+        'Description':   description,
         'SW Base SKU':   swBaseSku,
         'SW Package':    swPackage,
         'SW Add-ons':    swAddons.join(', ') || '',
@@ -384,26 +362,6 @@ export function exportForLucid(sites, drawingNum) {
         'Add to Report': 'Yes',
         'Add to BOM':    site.addToBom !== false ? 'Yes' : 'No',
       });
-      // Reporting: always add TR-SWTL companion row with next unit number
-      if (site.role === 'Reporting') {
-        rows.push({
-          'Drawing #':     drawingNum || '',
-          'Unit Group':    'RPT',
-          'Unit #/Range':  String(startUnit + 1),
-          'Solution':      'NIOS',
-          'Model Info':    'TR-5005',
-          'SW Instances':  1,
-          'Description':   'Reporting Data Volume\nScheduled Reports\nAutomated Data Collection',
-          'SW Base SKU':   'TR-SWTL',
-          'SW Package':    site.rptQuantity || '',
-          'SW Add-ons':    '',
-          'HW License SKU':'',
-          'HW Add-ons':    '',
-          'HW Count':      0,
-          'Add to Report': 'Yes',
-          'Add to BOM':    'Yes',
-        });
-      }
     }
   });
 
