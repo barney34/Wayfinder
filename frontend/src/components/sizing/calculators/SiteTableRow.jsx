@@ -765,16 +765,17 @@ export function SiteTableRow({
                 disabled={site.isDisabledInUddi}
                 data-testid={`site-sw-addons-${site.id}`}
               >
-                {(site.swAddons?.length || 0) > 0 || isReportingRole ? (
+                {(site.swAddons?.length || 0) > 0 || (isReportingRole && site.rptQuantity) ? (
                   <span className="truncate text-xs">
                     {isReportingRole && site.rptQuantity ? `RPT-${site.rptQuantity}` : ''}
                     {(site.swAddons?.length || 0) > 0 ? (isReportingRole && site.rptQuantity ? ', ' : '') + site.swAddons.join(', ') : ''}
-                    {!isReportingRole && !(site.swAddons?.length) ? '—' : ''}
                   </span>
                 ) : (
-                  <span className="text-muted-foreground">—</span>
+                  <span className="text-muted-foreground text-base leading-none">+</span>
                 )}
-                <Plus className="h-3 w-3 ml-1 flex-shrink-0" />
+                {((site.swAddons?.length || 0) > 0 || (isReportingRole && site.rptQuantity)) && (
+                  <Plus className="h-3 w-3 ml-1 flex-shrink-0" />
+                )}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-64 p-3" align="start">
