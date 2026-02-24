@@ -878,9 +878,9 @@ export function SiteTableRow({
                         // Compute dynamic PSU label based on model AC/DC
                         let displayLabel = addon.label;
                         if (addon.value === 'PSU') {
-                          const model = site.recommendedModel || '';
-                          if (model.includes('-AC')) displayLabel = 'T-PSU600-AC';
-                          else if (model.includes('-DC')) displayLabel = 'T-PSU600-DC';
+                          const hwSku = site.hardwareSku || '';
+                          if (hwSku.includes('-AC')) displayLabel = 'T-PSU600-AC';
+                          else if (hwSku.includes('-DC')) displayLabel = 'T-PSU600-DC';
                           else displayLabel = 'T-PSU600';
                         }
                         return (
