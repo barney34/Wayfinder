@@ -193,6 +193,8 @@ export function TokenCalculatorSummary() {
         addToBom: override.addToBom !== undefined ? override.addToBom : true,
         unitLetterOverride: override.unitLetterOverride || null,
         unitNumberOverride: override.unitNumberOverride !== undefined ? override.unitNumberOverride : undefined,
+        groupingMode: override.groupingMode || 'individual',
+        customGroups: override.customGroups || [],
         isDisabledInUddi, originalRole: role,
       };
     };
