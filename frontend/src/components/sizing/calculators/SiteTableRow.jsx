@@ -499,6 +499,7 @@ export function SiteTableRow({
             </TooltipProvider>
           )}
         </div>
+        )}
       </TableCell>
 
       {/* KW - Editable and synced with TopBar (hidden by default) */}
