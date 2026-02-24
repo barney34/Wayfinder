@@ -272,18 +272,33 @@ export function WhyThisModelDialog({ open, onOpenChange, site, platformMode, dhc
   );
 }
 
-function WorkloadBar({ label, isDriver, value, max, util }) {
-  // Color: green (<60%), yellow (60-99%), red (>=100% — at or over the 60% target limit)
-  const barColor = util >= 100 ? '[&>div]:bg-destructive' : util > 60 ? '[&>div]:bg-[#FEDD00]' : '';
+function WorkloadBar({ label, isDriver, value, max, effective, util }) {
+  // util = % of TOTAL rated capacity
+  // effective = the actual usable capacity after 60% target + perf penalties
+  const effectiveUtil = effective ? Math.round((value / effective) * 100) : 0;
+  // Color based on % of total: green (<50%), yellow (50-60%), red (>60%)
+  const barColor = util > 60 ? '[&>div]:bg-destructive' : util > 50 ? '[&>div]:bg-[#FEDD00]' : '';
+  
   return (
     <div className="space-y-1">
       <div className="flex justify-between text-sm">
         <span className={isDriver ? 'font-bold text-accent' : ''}>
           {label} {isDriver && '\u2605'}
         </span>
-        <span>{formatNumber(value)} / {formatNumber(max)} ({util}%)</span>
+        <span>
+          {formatNumber(value)} / {formatNumber(max)} ({util}%)
+        </span>
       </div>
-      <Progress value={Math.min(util, 100)} className={`h-2 ${barColor}`} />
+      <div className="relative">
+        <Progress value={Math.min(util, 100)} className={`h-2 ${barColor}`} />
+        {/* 60% threshold marker */}
+        <div className="absolute top-0 h-2 border-r-2 border-amber-500" style={{ left: '60%' }} title="60% target" />
+      </div>
+      {effective < max && effective > 0 && (
+        <div className="text-[10px] text-muted-foreground">
+          Effective capacity after penalties: {formatNumber(effective)} ({effectiveUtil}% used)
+        </div>
+      )}
     </div>
   );
 }
