@@ -345,11 +345,17 @@ export function SiteTableRow({
     const description = getDescription();
     const swInstances = site.swInstances || 1;
     const hwCount = site.hwCount ?? 0;
+    
+    // #/Range: use _groupRange if combined, else unit number
+    const unitRange = site._groupRange || String(unitAssignment?.unitNumber ?? '');
 
     return (
       <TableRow data-testid={`site-row-${site.id}`} className="hover:bg-muted/30 text-xs">
         {/* Unit Group */}
         <TableCell className="p-1.5 text-center font-medium">{unitGroup}</TableCell>
+        
+        {/* #/Range */}
+        <TableCell className="p-1.5 text-center font-mono">{unitRange}</TableCell>
         
         {/* Solution */}
         <TableCell className="p-1.5">{solution}</TableCell>
@@ -360,9 +366,9 @@ export function SiteTableRow({
         {/* SW Instances */}
         <TableCell className="p-1.5 text-center font-medium">{swInstances}</TableCell>
         
-        {/* Description */}
-        <TableCell className="p-1.5 max-w-[150px] truncate" title={`${site.name} - ${description}`}>
-          {site.name}
+        {/* Description — multi-line with newlines */}
+        <TableCell className="p-1.5 max-w-[200px] whitespace-pre-line text-[11px] leading-tight" title={description}>
+          {description}
         </TableCell>
         
         {/* SW Base SKU */}
