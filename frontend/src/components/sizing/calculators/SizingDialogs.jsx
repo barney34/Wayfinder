@@ -184,12 +184,12 @@ export function WhyThisModelDialog({ open, onOpenChange, site, platformMode, dhc
               <Activity className="h-4 w-4" /> Workload Requirements
             </h4>
             <div className="space-y-3">
-              <WorkloadBar label="QPS (Queries/sec)" isDriver={workload.driver === 'qps'} value={workload.adjustedQPS} max={Math.round((serverQPS || 0) * utilization)} util={qpsUtil} />
-              <WorkloadBar label="LPS (Leases/sec)" isDriver={workload.driver === 'lps'} value={workload.adjustedLPS} max={Math.round((serverLPS || 0) * utilization)} util={lpsUtil} />
-              <WorkloadBar label="DB Objects" isDriver={workload.driver === 'objects'} value={workload.objects} max={Math.round((serverObj || 0) * utilization)} util={objUtil} />
+              <WorkloadBar label="QPS (Queries/sec)" isDriver={workload.driver === 'qps'} value={workload.adjustedQPS} max={serverQPS || 0} effective={effQPS} util={qpsUtilTotal} />
+              <WorkloadBar label="LPS (Leases/sec)" isDriver={workload.driver === 'lps'} value={workload.adjustedLPS} max={serverLPS || 0} effective={effLPS} util={lpsUtilTotal} />
+              <WorkloadBar label="DB Objects" isDriver={workload.driver === 'objects'} value={workload.objects} max={serverObj || 0} effective={effObj} util={objUtilTotal} />
             </div>
             <p className="text-xs text-muted-foreground mt-2">
-              Capacity shown at 60% target utilization (recommended headroom for growth)
+              Bars show % of total rated capacity. 60% target line = recommended max at rollout.
             </p>
           </div>
 
