@@ -166,13 +166,12 @@ export const HW_ADDONS = [
   },
 ];
 
-// SFP Interface options — each requires a quantity (#)
+// SFP Interface options — each requires a per-server quantity
 export const SFP_OPTIONS = [
-  { value: 'IB-SFP-CO', label: 'SFP Copper 1GE', description: 'SFP Copper 1GE (CO)' },
-  { value: 'IB-1GE-LX-SFP', label: 'SFP LR 1GE (LX)', description: 'SFP Long Range 1GE' },
-  { value: 'IB-1GE-SX-SFP', label: 'SFP SR 1GE (SX)', description: 'SFP Short Range 1GE' },
-  { value: 'IB-10GE-LR-SFP', label: 'SFP+ LR 10GE', description: 'SFP+ Long Range 10GE' },
-  { value: 'IB-10GE-SR-SFP', label: 'SFP+ SR 10GE', description: 'SFP+ Short Range 10GE' },
+  { value: 'IB-SFPPLUS-LR', label: 'IB-SFPPLUS-LR', description: 'SFP+ Long Range 10GE' },
+  { value: 'IB-SFPPLUS-SR', label: 'IB-SFPPLUS-SR', description: 'SFP+ Short Range 10GE' },
+  { value: 'IB-SFP-SX',     label: 'IB-SFP-SX',     description: 'SFP Short Range 1GE' },
+  { value: 'IB-SFP-CO',     label: 'IB-SFP-CO',     description: 'SFP Copper 1GE' },
 ];
 
 // Helper: Check if platform is physical (has hardware)
