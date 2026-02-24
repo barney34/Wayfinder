@@ -644,8 +644,9 @@ export function TokenCalculatorSummary() {
             <span className="text-lg font-bold text-primary">Drawing #{activeDrawing?.name || '10'}</span>
             <span className="text-sm text-muted-foreground">({sites.length} sites)</span>
           </div>
-          </div>{/* end sticky toolbar */}
+          </div>{/* end sticky header area */}
 
+          <div className="px-4 lg:px-6 pb-4 lg:pb-6">
           <div className="border rounded-lg overflow-x-auto">
             <Table className="table-auto w-full">
               <SizingTableHeader 
