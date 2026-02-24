@@ -389,9 +389,10 @@ export function TokenCalculatorSummary() {
     return computeUnitAssignments(serversForUnit);
   }, [expandedServers]);
 
-  // Calculate totals
+  // Calculate totals — exclude GM/GMC IPs from total
   const totals = useMemo(() => {
-    const totalIPs = sites.reduce((sum, s) => sum + (s.numIPs || 0), 0);
+    const memberSites = sites.filter(s => s.role !== 'GM' && s.role !== 'GMC' && !s.role?.startsWith('GM+') && !s.role?.startsWith('GMC+'));
+    const totalIPs = memberSites.reduce((sum, s) => sum + (s.numIPs || 0), 0);
     const totalKW = sites.reduce((sum, s) => sum + (s.knowledgeWorkers || 0), 0);
     const infraTokens = sites.reduce((sum, s) => sum + (s.tokens || 0), 0);
 
