@@ -93,6 +93,20 @@ export const uddiFeatureImpacts = [
   { product: 'UDDI', role: 'ALL', featureCode: 'MULTI-ROLE', featureName: 'Multi-Protocol (DNS+DHCP)', impactPercent: 30, defaultEnabled: false },
 ];
 
+// DHCP Failover Association Limits — maximum supported IPs per FO association (from Best Practices)
+export const dhcpFoAssociationLimits = {
+  'TE-825':  100000,
+  'TE-926':  110000,
+  'TE-1415': 100000,
+  'TE-1425': 100000,
+  'TE-1516': 440000,
+  'TE-1526': 880000,
+  'TE-2225': 250000,
+  'TE-2326': 1000000,
+  'TE-4025': 250000,
+  'TE-4126': 1000000,
+};
+
 // GM Service Restrictions - Models where running DNS/DHCP is NOT recommended
 export const gmServiceRestrictions = {
   'TE-926': { canRunServices: true, maxMembers: 5, note: 'OK if no Reporting Server' },
