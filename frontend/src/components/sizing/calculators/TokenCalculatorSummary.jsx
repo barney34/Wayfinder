@@ -948,6 +948,7 @@ export function TokenCalculatorSummary() {
                         rows.push(
                           <TableRow key={`${srv.id}-trswtl`} className="hover:bg-muted/30 text-xs">
                             <TableCell className="p-1.5 text-center font-medium">RPT</TableCell>
+                            <TableCell className="p-1.5 text-center font-mono">{companionUnit}</TableCell>
                             <TableCell className="p-1.5">NIOS</TableCell>
                             <TableCell className="p-1.5 font-mono text-[11px]">TR-5005</TableCell>
                             <TableCell className="p-1.5 text-center">1</TableCell>
