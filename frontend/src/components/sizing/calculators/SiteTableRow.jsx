@@ -17,46 +17,133 @@ import { getSiteWorkloadDetails } from "../calculations";
 import { CopySiteToDrawingMenu } from "./DrawingManager";
 
 /**
- * LocationHeaderRow — visual separator showing location name + server count controls
+ * LocationHeaderRow — visual separator showing location name + server controls + grouping
  * Rendered when a site has serverCount > 1
  */
 export function LocationHeaderRow({ site, onUpdateSite, onDeleteSite, totalColumns }) {
   const serverCount = site.serverCount || 1;
   const isDataCenter = site.sourceType === 'dataCenter';
+  const grouping = site.groupingMode || 'individual'; // 'individual' | 'combined' | 'custom'
+  const customGroups = site.customGroups || []; // Array of [start, end] ranges
+  
+  // Build chips for custom grouping
+  const chips = [];
+  if (serverCount > 1) {
+    if (grouping === 'combined') {
+      chips.push({ start: 1, end: serverCount, merged: true });
+    } else if (grouping === 'custom' && customGroups.length > 0) {
+      // Build chips from custom groups, filling gaps with individual
+      const grouped = new Set();
+      customGroups.forEach(([s, e]) => {
+        chips.push({ start: s, end: e, merged: true });
+        for (let i = s; i <= e; i++) grouped.add(i);
+      });
+      for (let i = 1; i <= serverCount; i++) {
+        if (!grouped.has(i)) chips.push({ start: i, end: i, merged: false });
+      }
+      chips.sort((a, b) => a.start - b.start);
+    } else {
+      // Individual
+      for (let i = 1; i <= serverCount; i++) {
+        chips.push({ start: i, end: i, merged: false });
+      }
+    }
+  }
+
+  // Handle chip click for custom grouping
+  const [rangeStart, setRangeStart] = React.useState(null);
+  
+  const handleChipClick = (chip) => {
+    if (chip.merged) {
+      // Split back to individual
+      const newGroups = (customGroups || []).filter(([s, e]) => !(s === chip.start && e === chip.end));
+      onUpdateSite(site.id, 'customGroups', newGroups);
+      if (newGroups.length === 0) onUpdateSite(site.id, 'groupingMode', 'individual');
+      setRangeStart(null);
+      return;
+    }
+    
+    if (rangeStart === null) {
+      setRangeStart(chip.start);
+    } else {
+      // Create range from rangeStart to this chip
+      const start = Math.min(rangeStart, chip.start);
+      const end = Math.max(rangeStart, chip.start);
+      if (start !== end) {
+        const newGroups = [...(customGroups || []).filter(([s, e]) => {
+          // Remove any groups that overlap with the new range
+          return !(s >= start && e <= end);
+        }), [start, end]];
+        onUpdateSite(site.id, 'customGroups', newGroups);
+        onUpdateSite(site.id, 'groupingMode', 'custom');
+      }
+      setRangeStart(null);
+    }
+  };
   
   return (
     <TableRow className="bg-muted/30 border-t-2 border-primary/20">
       <TableCell colSpan={totalColumns} className="p-2 lg:p-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
+          {/* Icon + Name + ± controls together */}
+          <div className="flex items-center gap-2">
             {isDataCenter 
               ? <Building2 className="h-4 w-4 text-primary" />
               : <MapPin className="h-4 w-4 text-foreground" />
             }
             <span className="font-bold text-sm">{site.name}</span>
-            <Badge variant="outline" className="text-xs">
-              {serverCount} {serverCount === 1 ? 'server' : 'servers'}
-            </Badge>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1">
+            <div className="flex items-center h-7 rounded border border-border overflow-hidden">
               <button
-                onClick={() => {
-                  if (serverCount > 1) onUpdateSite(site.id, 'serverCount', serverCount - 1);
-                }}
+                onClick={() => { if (serverCount > 1) onUpdateSite(site.id, 'serverCount', serverCount - 1); }}
                 disabled={serverCount <= 1}
-                className="h-7 w-7 flex items-center justify-center rounded border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30 transition-colors"
-              >
-                <Minus className="h-3 w-3" />
-              </button>
-              <span className="text-sm font-semibold w-6 text-center tabular-nums">{serverCount}</span>
+                className="h-full w-6 flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30 transition-colors border-r border-border"
+              ><Minus className="h-3 w-3" /></button>
+              <span className="text-xs font-semibold w-6 text-center tabular-nums">{serverCount}</span>
               <button
                 onClick={() => onUpdateSite(site.id, 'serverCount', serverCount + 1)}
-                className="h-7 w-7 flex items-center justify-center rounded border border-border text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-              >
-                <Plus className="h-3 w-3" />
-              </button>
+                className="h-full w-6 flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border-l border-border"
+              ><Plus className="h-3 w-3" /></button>
             </div>
+          </div>
+
+          {/* Grouping chips — only show when 2+ servers */}
+          {serverCount > 1 && (
+            <div className="flex items-center gap-1.5 ml-2">
+              <span className="text-[10px] text-muted-foreground uppercase tracking-wide">Export:</span>
+              {/* Quick mode buttons */}
+              <button
+                onClick={() => { onUpdateSite(site.id, 'groupingMode', 'individual'); onUpdateSite(site.id, 'customGroups', []); setRangeStart(null); }}
+                className={`px-2 py-0.5 text-[10px] font-semibold rounded transition-colors ${grouping === 'individual' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:text-foreground'}`}
+              >Individual</button>
+              <button
+                onClick={() => { onUpdateSite(site.id, 'groupingMode', 'combined'); onUpdateSite(site.id, 'customGroups', []); setRangeStart(null); }}
+                className={`px-2 py-0.5 text-[10px] font-semibold rounded transition-colors ${grouping === 'combined' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:text-foreground'}`}
+              >Combined</button>
+              
+              {/* Chips for visual grouping */}
+              <div className="flex items-center gap-0.5 ml-1">
+                {chips.map((chip, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleChipClick(chip)}
+                    className={`px-1.5 py-0.5 text-[10px] font-bold rounded transition-all tabular-nums ${
+                      chip.merged
+                        ? 'bg-primary text-primary-foreground'
+                        : rangeStart === chip.start
+                          ? 'bg-accent text-accent-foreground ring-2 ring-accent/50'
+                          : 'bg-secondary text-muted-foreground hover:bg-muted hover:text-foreground'
+                    }`}
+                    title={chip.merged ? 'Click to split' : rangeStart !== null ? 'Click to set range end' : 'Click to start range'}
+                  >
+                    {chip.merged && chip.start !== chip.end ? `${chip.start}━${chip.end}` : chip.start}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* Spacer + Delete */}
+          <div className="ml-auto">
             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onDeleteSite(site.id)}>
               <Trash2 className="h-3.5 w-3.5 text-destructive" />
             </Button>
