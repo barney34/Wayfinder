@@ -943,7 +943,7 @@ export function SiteTableRow({
                     </div>
                   )}
                   {/* No add-ons available message */}
-                  {availableHwAddons.length === 0 && !(site.recommendedModel || '').includes('10GE') && (
+                  {availableHwAddons.length === 0 && !(site.hardwareSku || '').includes('10GE') && (
                     <p className="text-xs text-muted-foreground italic">No HW add-ons available for this model</p>
                   )}
                 </div>
