@@ -709,7 +709,7 @@ export function TokenCalculatorSummary() {
           </div>{/* end sticky header area */}
 
           <div className="px-4 lg:px-6 pb-4 lg:pb-6">
-          <div className="border rounded-lg overflow-x-auto overflow-y-auto" style={{ maxHeight: 'calc(100vh - 350px)' }}>
+          <div className="border rounded-lg overflow-auto" style={{ maxHeight: '50vh' }}>
             <Table className="table-auto w-full">
               <SizingTableHeader 
                 showHardware={showHardware} 
