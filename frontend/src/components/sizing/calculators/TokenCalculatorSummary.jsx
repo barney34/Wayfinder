@@ -572,9 +572,7 @@ export function TokenCalculatorSummary() {
             drawings={drawings}
           />
 
-          {/* Sticky toolbar area */}
-          <div className="sticky top-0 z-30 bg-background pb-2">
-            {/* Table Controls */}
+          {/* Table Controls */}
             <div className="flex items-center justify-between mb-3 gap-4 flex-wrap">
             <div className="flex items-center gap-4 flex-wrap">
               {/* Export View Toggle */}
