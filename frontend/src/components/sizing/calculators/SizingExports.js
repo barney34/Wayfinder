@@ -204,111 +204,115 @@ export function exportForLucid(sites, drawingNum) {
   const rows = [];
   let unitCounter = {};
 
-  const sortedSites = [...sites].sort((a, b) => {
-    const roleOrder = { 'GM': 0, 'GMC': 1, 'DNS/DHCP': 2, 'DNS': 3, 'DHCP': 4, 'Reporting': 5 };
-    return (roleOrder[a.role] || 6) - (roleOrder[b.role] || 6);
-  });
+  // Sort: A (GM/GMC) first, then B-N alphabetically, RPT last
+  const roleOrder = { 'GM': 0, 'GMC': 1, 'DNS': 2, 'DNS/DHCP': 2, 'DHCP': 3, 'ND': 8, 'Reporting': 9 };
+  const sortedSites = [...sites].sort((a, b) =>
+    (roleOrder[a.role] ?? 5) - (roleOrder[b.role] ?? 5)
+  );
 
   console.log('[exportForLucid] Processing', sortedSites.length, 'sorted sites');
 
   sortedSites.forEach((site, idx) => {
-    // Skip sites not marked for report
-    if (site.addToReport === false) {
-      console.log('[exportForLucid] Skipping site (not in report):', site.name);
-      return;
-    }
-    
-    console.log('[exportForLucid] Site', idx, site.name, site.role, 'HA:', site.haEnabled, 'Srv#:', site.serverCount);
-    
-    // Get unit group with services for special mappings (NI, Reporting, MSFT)
+    if (site.addToReport === false) return;
+
+    console.log('[exportForLucid] Site', idx, site.name, site.role, 'model:', site.recommendedModel);
+
     const unitGroup = getUnitGroup(site.role, site.sourceType, site.services);
     const startUnit = (unitCounter[unitGroup] || 0) + 1;
 
+    // Solution column
     let solution = 'NIOS';
-    if (site.platform?.includes('NXVS') || site.platform?.includes('NXaaS')) solution = 'UDDI';
-    if (site.role === 'GM' || site.role === 'GMC') solution = 'NIOS';
+    if (site.platform?.includes('NXVS'))  solution = 'NXVS';
+    if (site.platform?.includes('NXaaS')) solution = 'NXaaS';
+    if (site.role === 'ND')               solution = 'NIOS';
+    if (site.role === 'Reporting')        solution = 'NIOS';
 
-    const model = site.recommendedModel || site.platform || 'TBD';
+    // Model Info — for NXVS/NXaaS show full prefixed name (NXVS-S, NXaaS-M)
+    const model = site.recommendedModel || 'TBD';
+
+    // SW Base SKU
     const swBaseSku = getSwBaseSku(model);
-    const swPackage = getSwPackage(site.role, (site.services || []).includes('Discovery'));
-    const hwInfo = getHwSkuInfo(model);
 
-    // Description: role + name (matches Lucidchart format)
-    let description = site.role || 'DNS/DHCP';
-    if (site.name) description = `${site.name}\n${description}`;
-    if (site.services && site.services.length > 0) description += ` + ${site.services.join(', ')}`;
+    // SW Package — pass rptStorage for Reporting rows
+    const hasDiscovery = (site.services || []).includes('Discovery');
+    const swPackage = getSwPackage(site.role, hasDiscovery, site.rptQuantity || null);
 
-    // SW Add-ons based on services
-    const swAddons = [];
-    if ((site.services || []).includes('DFP')) swAddons.push('ADP');
-    if ((site.services || []).includes('NTP')) swAddons.push('NTP');
-    if ((site.services || []).includes('Discovery')) swAddons.push('DIS');
+    // HW License SKU
+    const isVirtual = site.platform?.includes('NXVS') || site.platform?.includes('NXaaS') ||
+                      site.platform === 'NIOS-V' || site.role === 'Reporting';
+    const hwLicenseSku = isVirtual ? 'VM' : (site.hardwareSku || `${model}-HW-AC`);
 
-    // SW Instances: serverCount * (HA ? 2 : 1)
+    // Description
+    let description = site.name || '';
+    if (site.role) description += `\n${site.role}`;
+    if (site.services?.length) description += ` + ${site.services.join(', ')}`;
+
+    // SW Add-ons
+    const swAddons = [...(site.swAddons || [])];
+    if ((site.services || []).includes('DFP') && !swAddons.includes('ADP')) swAddons.push('ADP');
+    // Reporting: add storage size as add-on label
+    if (site.role === 'Reporting' && site.rptQuantity) swAddons.push(`${site.rptQuantity}`);
+
+    // HW Add-ons — PSU label + SFP totals
+    const hwSkuStr = site.hardwareSku || '';
+    const serverCount = site._serverCount || site.serverCount || 1;
+    const hwAddonLabels = (site.hwAddons || []).map(v => {
+      if (v === 'PSU') return hwSkuStr.includes('-AC') ? 'T-PSU600-AC' : hwSkuStr.includes('-DC') ? 'T-PSU600-DC' : 'T-PSU600';
+      return v;
+    });
+    const sfpLabels = Object.entries(site.sfpAddons || {})
+      .filter(([, qty]) => qty > 0)
+      .map(([sfp, qty]) => `${qty * serverCount}×${sfp}`);
+    const hwAddons = [...hwAddonLabels, ...sfpLabels].join(', ');
+
+    // SW / HW instance counts
     const swInstances = site.swInstances || (site.serverCount || 1) * (site.haEnabled ? 2 : 1);
-    
-    // HW Count: use site.hwCount if defined, otherwise auto-calculate
-    const isVirtual = site.platform?.includes('NXVS') || site.platform?.includes('NXaaS') || 
-                      site.platform === 'NIOS-V';
-    const hwLicenseSku = isVirtual ? 'VM' : (hwInfo.hwSku || `${model}-HW-AC`);
     const hwCount = site.hwCount !== undefined ? site.hwCount : (isVirtual ? 0 : swInstances);
 
     const endUnit = startUnit + swInstances - 1;
-    
-    // Update counter for next site
     unitCounter[unitGroup] = endUnit;
 
-    // Get HW Add-ons from site
-    const hwAddons = (site.hwAddons || []).join(', ');
-
-    // Always create separate rows when SRV > 1 (multiple servers per site)
-    // Each row represents one server instance (e.g., DC1-1, DC1-2)
     if (swInstances > 1) {
-      // Distribute HW count across instances - typically 1 HW per SW for physical
       const hwPerInstance = Math.floor(hwCount / swInstances);
       const remainder = hwCount % swInstances;
-      
       for (let i = 0; i < swInstances; i++) {
         const unitNum = startUnit + i;
-        // First instances get the extra HW if there's a remainder
         const hwCountForUnit = hwPerInstance + (i < remainder ? 1 : 0);
-        
         rows.push({
-          'Drawing #': drawingNum || '',
-          'Unit Group': unitGroup,
-          'Unit #/Range': String(unitNum),
-          'Solution': solution,
-          'Model Info': model,
-          'SW Instances': 1,
-          'Description': `${site.name}-${i + 1}\n${site.role}`,
-          'SW Base SKU': swBaseSku,
-          'SW Package': swPackage,
-          'SW Add-ons': swAddons.join(', ') || '',
-          'HW License SKU': hwLicenseSku,
-          'HW Add-ons': hwAddons,
-          'HW Count': hwCountForUnit,
-          'Add to Report': site.addToReport !== false ? 'Yes' : 'No',
-          'Add to BOM': site.addToBom !== false ? 'Yes' : 'No',
+          'Drawing #':     drawingNum || '',
+          'Unit Group':    unitGroup,
+          'Unit #/Range':  String(unitNum),
+          'Solution':      solution,
+          'Model Info':    model,
+          'SW Instances':  1,
+          'Description':   `${site.name}-${i + 1}\n${site.role}`,
+          'SW Base SKU':   swBaseSku,
+          'SW Package':    swPackage,
+          'SW Add-ons':    swAddons.join(', ') || '',
+          'HW License SKU':hwLicenseSku,
+          'HW Add-ons':    hwAddons,
+          'HW Count':      hwCountForUnit,
+          'Add to Report': 'Yes',
+          'Add to BOM':    site.addToBom !== false ? 'Yes' : 'No',
         });
       }
     } else {
-      // Single server - one row
       rows.push({
-        'Drawing #': drawingNum || '',
-        'Unit Group': unitGroup,
-        'Unit #/Range': String(startUnit),
-        'Solution': solution,
-        'Model Info': model,
-        'SW Instances': 1,
-        'Description': description,
-        'SW Base SKU': swBaseSku,
-        'SW Package': swPackage,
-        'SW Add-ons': swAddons.join(', ') || '',
-        'HW License SKU': hwLicenseSku,
-        'HW Add-ons': hwAddons,
-        'HW Count': hwCount,
-        'Add to Report': site.addToReport !== false ? 'Yes' : 'No',
-        'Add to BOM': site.addToBom !== false ? 'Yes' : 'No',
+        'Drawing #':     drawingNum || '',
+        'Unit Group':    unitGroup,
+        'Unit #/Range':  String(startUnit),
+        'Solution':      solution,
+        'Model Info':    model,
+        'SW Instances':  swInstances,
+        'Description':   description,
+        'SW Base SKU':   swBaseSku,
+        'SW Package':    swPackage,
+        'SW Add-ons':    swAddons.join(', ') || '',
+        'HW License SKU':hwLicenseSku,
+        'HW Add-ons':    hwAddons,
+        'HW Count':      hwCount,
+        'Add to Report': 'Yes',
+        'Add to BOM':    site.addToBom !== false ? 'Yes' : 'No',
       });
     }
   });
@@ -323,14 +327,14 @@ export function exportForLucid(sites, drawingNum) {
       { wch: 10 }, // Unit Group
       { wch: 12 }, // Unit #/Range
       { wch: 10 }, // Solution
-      { wch: 15 }, // Model Info
+      { wch: 18 }, // Model Info
       { wch: 12 }, // SW Instances
       { wch: 35 }, // Description
-      { wch: 18 }, // SW Base SKU
-      { wch: 12 }, // SW Package
-      { wch: 15 }, // SW Add-ons
-      { wch: 18 }, // HW License SKU
-      { wch: 12 }, // HW Add-ons
+      { wch: 20 }, // SW Base SKU
+      { wch: 20 }, // SW Package
+      { wch: 20 }, // SW Add-ons
+      { wch: 22 }, // HW License SKU
+      { wch: 20 }, // HW Add-ons
       { wch: 10 }, // HW Count
       { wch: 12 }, // Add to Report
       { wch: 12 }, // Add to BOM
