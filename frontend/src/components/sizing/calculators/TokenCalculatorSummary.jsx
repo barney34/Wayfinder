@@ -254,7 +254,7 @@ export function TokenCalculatorSummary() {
     });
   }, [dataCenterIds, contextSiteIds, dataCenters, contextSites, siteOverrides, ipMultiplier, dhcpPercent, platformMode, leaseTimeSeconds, ipCalcValue]);
 
-  // Expand sites with serverCount > 1 into individual server rows for rendering
+  // Expand sites into display rows — combined groups collapse into single rows
   const expandedServers = useMemo(() => {
     const result = [];
     sites.forEach(site => {
@@ -263,30 +263,16 @@ export function TokenCalculatorSummary() {
         // Single server — render as normal row
         result.push({ ...site, _isExpanded: false, _serverIndex: 0, _parentSiteId: site.id });
       } else {
-        // Multiple servers — create individual entries
         const serverOverrides = siteOverrides[site.id]?.servers || {};
         const groupMode = site.groupingMode || 'individual';
         const customGroups = site.customGroups || [];
         
-        // Build a map of serverIndex → group range string (for combined display)
-        const groupRangeMap = {};
         if (groupMode === 'combined') {
-          // All servers combined: show "1-N" for all
-          const rangeStr = count > 1 ? `1-${count}` : '1';
-          for (let i = 0; i < count; i++) groupRangeMap[i] = rangeStr;
-        } else if (groupMode === 'custom' && customGroups.length > 0) {
-          customGroups.forEach(([s, e]) => {
-            const rangeStr = s === e ? `${s}` : `${s}-${e}`;
-            for (let i = s - 1; i < e && i < count; i++) groupRangeMap[i] = rangeStr;
-          });
-        }
-        
-        for (let i = 0; i < count; i++) {
-          const srvOvr = serverOverrides[i] || {};
+          // ALL combined into ONE row — collapse N servers into 1 display row
+          const srvOvr = serverOverrides[0] || {}; // use first server's overrides as base
           result.push({
             ...site,
-            // Server-level overrides (each server can have its own IPs, role, etc.)
-            id: `${site.id}__srv__${i}`,
+            id: `${site.id}__grp__1-${count}`,
             name: srvOvr.name || site.name,
             numIPs: srvOvr.numIPs !== undefined ? srvOvr.numIPs : site.numIPs,
             role: srvOvr.role || site.role,
@@ -294,20 +280,98 @@ export function TokenCalculatorSummary() {
             platform: srvOvr.platform || site.platform,
             haEnabled: srvOvr.haEnabled !== undefined ? srvOvr.haEnabled : site.haEnabled,
             unitLetterOverride: srvOvr.unitLetterOverride || site.unitLetterOverride,
-            unitNumberOverride: srvOvr.unitNumberOverride !== undefined ? srvOvr.unitNumberOverride : undefined,
-            // Grouping
-            _groupRange: groupRangeMap[i] || null, // e.g. "1-3" if combined
+            _groupRange: `1-${count}`,
             _groupMode: groupMode,
-            // Metadata
             _isExpanded: true,
-            _serverIndex: i,
+            _serverIndex: 0,
             _parentSiteId: site.id,
             _parentName: site.name,
-            // Each expanded server has serverCount=1 for its own row
-            serverCount: 1,
-            swInstances: srvOvr.haEnabled ? 2 : (site.haEnabled ? 2 : 1),
-            hwCount: srvOvr.hwCount !== undefined ? srvOvr.hwCount : (site.hwCount !== undefined ? Math.max(1, Math.round(site.hwCount / count)) : undefined),
+            _serverCount: count, // original count for display
+            serverCount: 1, // display as 1 row
+            swInstances: count * (site.haEnabled ? 2 : 1), // sum of all server SW instances
+            hwCount: site.hwCount !== undefined ? site.hwCount : count,
           });
+        } else if (groupMode === 'custom' && customGroups.length > 0) {
+          // Custom groups: each range → 1 row, ungrouped → individual rows
+          const grouped = new Set();
+          customGroups.forEach(([s, e]) => {
+            for (let i = s; i <= e; i++) grouped.add(i);
+            const srvOvr = serverOverrides[s - 1] || {};
+            const rangeCount = e - s + 1;
+            result.push({
+              ...site,
+              id: `${site.id}__grp__${s}-${e}`,
+              name: srvOvr.name || site.name,
+              numIPs: srvOvr.numIPs !== undefined ? srvOvr.numIPs : site.numIPs,
+              role: srvOvr.role || site.role,
+              services: srvOvr.services || site.services,
+              platform: srvOvr.platform || site.platform,
+              haEnabled: srvOvr.haEnabled !== undefined ? srvOvr.haEnabled : site.haEnabled,
+              unitLetterOverride: srvOvr.unitLetterOverride || site.unitLetterOverride,
+              _groupRange: s === e ? null : `${s}-${e}`,
+              _groupMode: groupMode,
+              _isExpanded: true,
+              _serverIndex: s - 1,
+              _parentSiteId: site.id,
+              _parentName: site.name,
+              _serverCount: rangeCount,
+              serverCount: 1,
+              swInstances: rangeCount * (site.haEnabled ? 2 : 1),
+              hwCount: site.hwCount !== undefined ? Math.round(site.hwCount * rangeCount / count) : rangeCount,
+            });
+          });
+          // Ungrouped servers → individual rows
+          for (let i = 1; i <= count; i++) {
+            if (!grouped.has(i)) {
+              const srvOvr = serverOverrides[i - 1] || {};
+              result.push({
+                ...site,
+                id: `${site.id}__srv__${i - 1}`,
+                name: srvOvr.name || site.name,
+                numIPs: srvOvr.numIPs !== undefined ? srvOvr.numIPs : site.numIPs,
+                role: srvOvr.role || site.role,
+                services: srvOvr.services || site.services,
+                platform: srvOvr.platform || site.platform,
+                haEnabled: srvOvr.haEnabled !== undefined ? srvOvr.haEnabled : site.haEnabled,
+                unitLetterOverride: srvOvr.unitLetterOverride || site.unitLetterOverride,
+                _groupRange: null,
+                _groupMode: groupMode,
+                _isExpanded: true,
+                _serverIndex: i - 1,
+                _parentSiteId: site.id,
+                _parentName: site.name,
+                serverCount: 1,
+                swInstances: site.haEnabled ? 2 : 1,
+                hwCount: site.hwCount !== undefined ? Math.max(1, Math.round(site.hwCount / count)) : 1,
+              });
+            }
+          }
+        } else {
+          // Individual mode — each server is its own row
+          for (let i = 0; i < count; i++) {
+            const srvOvr = serverOverrides[i] || {};
+            result.push({
+              ...site,
+              id: `${site.id}__srv__${i}`,
+              name: srvOvr.name || site.name,
+              numIPs: srvOvr.numIPs !== undefined ? srvOvr.numIPs : site.numIPs,
+              role: srvOvr.role || site.role,
+              services: srvOvr.services || site.services,
+              platform: srvOvr.platform || site.platform,
+              haEnabled: srvOvr.haEnabled !== undefined ? srvOvr.haEnabled : site.haEnabled,
+              unitLetterOverride: srvOvr.unitLetterOverride || site.unitLetterOverride,
+              unitNumberOverride: srvOvr.unitNumberOverride !== undefined ? srvOvr.unitNumberOverride : undefined,
+              _groupRange: null,
+              _groupMode: groupMode,
+              _isExpanded: true,
+              _serverIndex: i,
+              _parentSiteId: site.id,
+              _parentName: site.name,
+              serverCount: 1,
+              swInstances: srvOvr.haEnabled ? 2 : (site.haEnabled ? 2 : 1),
+              hwCount: srvOvr.hwCount !== undefined ? srvOvr.hwCount : (site.hwCount !== undefined ? Math.max(1, Math.round(site.hwCount / count)) : undefined),
+            });
+          }
         }
       }
     });
