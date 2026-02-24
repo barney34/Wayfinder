@@ -243,9 +243,18 @@ export function SiteTableRow({
     return addons.join(', ');
   };
 
-  // HW Add-ons from site.hwAddons array
+  // HW Add-ons from site.hwAddons array — include SFP totals (per-server qty × serverCount)
   const getHwAddonsDisplay = () => {
-    return (site.hwAddons || []).join(', ');
+    const serverCount = site._serverCount || 1;
+    const hwSku = site.hardwareSku || '';
+    const hwLabels = (site.hwAddons || []).map(v => {
+      if (v === 'PSU') return hwSku.includes('-AC') ? 'T-PSU600-AC' : hwSku.includes('-DC') ? 'T-PSU600-DC' : 'T-PSU600';
+      return v;
+    });
+    const sfpLabels = Object.entries(site.sfpAddons || {})
+      .filter(([, qty]) => qty > 0)
+      .map(([sfp, qty]) => `${qty * serverCount}×${sfp}`);
+    return [...hwLabels, ...sfpLabels].join(', ');
   };
 
   // Get available SW Add-ons for this row
