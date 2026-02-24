@@ -275,7 +275,32 @@ export function TokenCalculatorSummary() {
         hwCount,
       };
     });
-  }, [dataCenterIds, contextSiteIds, dataCenters, contextSites, siteOverrides, ipMultiplier, dhcpPercent, platformMode, leaseTimeSeconds, ipCalcValue]);
+  }, [dataCenterIds, contextSiteIds, dataCenters, contextSites, siteOverrides, ipMultiplier, dhcpPercent, platformMode, leaseTimeSeconds, ipCalcValue, siteOrder]);
+
+  // Sort sites by unit group (A→B→C→…→RPT→LIC→CDC) then by current position within group
+  const sortByUnit = useCallback(() => {
+    const { UNIT_SORT_ORDER } = require('./unitDesignations');
+    const sorted = [...sites].sort((a, b) => {
+      const la = getUnitLetterForRole(a.role);
+      const lb = getUnitLetterForRole(b.role);
+      const oa = UNIT_SORT_ORDER[la] ?? 99;
+      const ob = UNIT_SORT_ORDER[lb] ?? 99;
+      return oa !== ob ? oa - ob : 0; // stable within same group
+    });
+    setSiteOrder(sorted.map(s => s.id));
+  }, [sites]);
+
+  // Move a parent site up or down in the order
+  const moveSite = useCallback((siteId, direction) => {
+    const currentIds = siteOrder || sites.map(s => s.id);
+    const idx = currentIds.indexOf(siteId);
+    if (idx < 0) return;
+    const newOrder = [...currentIds];
+    const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
+    if (swapIdx < 0 || swapIdx >= newOrder.length) return;
+    [newOrder[idx], newOrder[swapIdx]] = [newOrder[swapIdx], newOrder[idx]];
+    setSiteOrder(newOrder);
+  }, [siteOrder, sites]);
 
   // Expand sites into display rows — combined groups collapse into single rows
   const expandedServers = useMemo(() => {
