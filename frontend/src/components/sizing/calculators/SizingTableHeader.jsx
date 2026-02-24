@@ -126,12 +126,18 @@ export function SizingTableHeader({ showHardware, showKW, showServices, platform
 
         {/* SW Add-ons */}
         <HeaderWithTooltip className="w-24" tooltip="SW Add-ons: CNA, ADNS, DCA, SECECO, FIPS, TA">
-          SW
+          <div className="flex flex-col leading-tight">
+            <span className="text-[9px] text-muted-foreground font-normal">Add-ons</span>
+            <span>SW</span>
+          </div>
         </HeaderWithTooltip>
 
         {/* HW Add-ons */}
         <HeaderWithTooltip className="w-20" tooltip="HW Add-ons: PSU (1506 only), SFP modules (10GE models only)">
-          HW
+          <div className="flex flex-col leading-tight">
+            <span className="text-[9px] text-muted-foreground font-normal">Add-ons</span>
+            <span>HW</span>
+          </div>
         </HeaderWithTooltip>
         
         {/* Tokens (conditional) */}
