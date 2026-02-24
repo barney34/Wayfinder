@@ -97,6 +97,7 @@ export function computeUnitAssignments(servers) {
 
   // Assign numbers within each letter group
   // Grouped rows (with _serverCount > 1) advance the counter by their count
+  // Reporting rows advance by serverCount + 1 (extra slot for TR-SWTL companion)
   const assignments = {};
   Object.keys(letterGroups)
     .sort((a, b) => (UNIT_SORT_ORDER[a] || 99) - (UNIT_SORT_ORDER[b] || 99))
@@ -107,8 +108,9 @@ export function computeUnitAssignments(servers) {
           unitLetter: letter,
           unitNumber: counter,
         };
-        // Advance counter by the number of physical servers this row represents
-        counter += srv._serverCount || 1;
+        // Reporting: +1 for TR-SWTL companion. Others: advance by server count.
+        const advance = (srv.role === 'Reporting') ? 2 : (srv._serverCount || 1);
+        counter += advance;
       });
     });
 
