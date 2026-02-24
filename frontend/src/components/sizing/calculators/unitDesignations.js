@@ -70,6 +70,7 @@ export function getUnitLetterForRole(role) {
  * Rules:
  * - A1 = always GM, A2+ = GMC
  * - Numbers increment per letter across the entire drawing
+ * - Grouped rows (e.g., 1-3) advance the counter by their server count
  * - Sort: A1, A2, B1, B2, B3, C1, etc.
  */
 export function computeUnitAssignments(servers) {
@@ -94,15 +95,19 @@ export function computeUnitAssignments(servers) {
   }
 
   // Assign numbers within each letter group
+  // Grouped rows (with _serverCount > 1) advance the counter by their count
   const assignments = {};
   Object.keys(letterGroups)
     .sort((a, b) => (UNIT_SORT_ORDER[a] || 99) - (UNIT_SORT_ORDER[b] || 99))
     .forEach(letter => {
-      letterGroups[letter].forEach((srv, idx) => {
+      let counter = 1;
+      letterGroups[letter].forEach((srv) => {
         assignments[srv.id] = {
           unitLetter: letter,
-          unitNumber: idx + 1,
+          unitNumber: counter,
         };
+        // Advance counter by the number of physical servers this row represents
+        counter += srv._serverCount || 1;
       });
     });
 
