@@ -642,8 +642,8 @@ export function SiteTableRow({
             <Tooltip>
               <TooltipTrigger asChild>
                 <span className="cursor-help">
-                  <Badge variant={site.isDisabledInUddi ? "secondary" : "outline"} className="font-mono text-xs lg:text-sm" data-testid={`site-model-${site.id}`}>
-                    {site.isDisabledInUddi ? '\u2014' : site.recommendedModel}
+                  <Badge variant={site.isDisabledInUddi ? "secondary" : "outline"} className="font-mono text-xs" data-testid={`site-model-${site.id}`}>
+                    {site.isDisabledInUddi ? '\u2014' : (site.recommendedModel || '').replace(/^TE-/, '')}
                   </Badge>
                 </span>
               </TooltipTrigger>
