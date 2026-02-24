@@ -84,7 +84,7 @@ export function LocationHeaderRow({ site, onUpdateSite, onDeleteSite, totalColum
   
   return (
     <TableRow className="bg-muted/30 border-t-2 border-primary/20">
-      <TableCell colSpan={totalColumns} className="p-2 lg:p-3">
+      <TableCell colSpan={totalColumns} className="p-1">
         <div className="flex items-center gap-3 flex-wrap">
           {/* Icon + Name + ± controls together */}
           <div className="flex items-center gap-2">
@@ -418,7 +418,7 @@ export function SiteTableRow({
       </TableCell>
       
       {/* Location Name */}
-      <TableCell className="p-2 lg:p-4">
+      <TableCell className="p-1">
         <div className="flex items-center gap-2">
           {site._isExpanded && (
             <span className="text-xs text-muted-foreground shrink-0">Srv {site._serverIndex + 1}</span>
@@ -426,7 +426,7 @@ export function SiteTableRow({
           <Input
             value={site.name}
             onChange={e => onUpdateSite(site.id, 'name', e.target.value)}
-            className={`h-8 lg:h-10 text-sm lg:text-base min-w-[120px] ${site._isExpanded ? 'bg-muted/30' : ''}`}
+            className={`h-7 text-sm min-w-[120px] ${site._isExpanded ? 'bg-muted/30' : ''}`}
             disabled={site.isDisabledInUddi}
             data-testid={`site-name-${site.id}`}
           />
@@ -444,13 +444,13 @@ export function SiteTableRow({
       </TableCell>
 
       {/* # IPs */}
-      <TableCell className="p-2 lg:p-4">
+      <TableCell className="p-1">
         <div className="flex items-center gap-1">
           <Input
             type="number"
             value={site.numIPs}
             onChange={e => onUpdateSite(site.id, 'numIPs', parseInt(e.target.value) || 0)}
-            className="h-8 lg:h-10 text-sm lg:text-base w-20 lg:w-24 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            className="h-7 text-sm w-20 lg:w-24 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             disabled={site.isDisabledInUddi}
             data-testid={`site-ips-${site.id}`}
           />
@@ -467,13 +467,13 @@ export function SiteTableRow({
 
       {/* KW - Editable and synced with TopBar (hidden by default) */}
       {showKW && (
-        <TableCell className="p-2 lg:p-4">
+        <TableCell className="p-1">
           <Input
             type="number"
             min="0"
             value={site.knowledgeWorkers || ''}
             onChange={e => onUpdateSite(site.id, 'knowledgeWorkers', parseInt(e.target.value) || 0)}
-            className="h-8 lg:h-10 text-sm w-16 lg:w-20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            className="h-7 text-sm w-16 lg:w-20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             disabled={site.isDisabledInUddi}
             data-testid={`site-kw-${site.id}`}
             placeholder="0"
@@ -516,12 +516,12 @@ export function SiteTableRow({
 
       {/* Services (conditional) */}
       {showServices && (
-        <TableCell className="p-2 lg:p-4">
+        <TableCell className="p-1">
           <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant="outline" size="sm"
-                className="h-8 lg:h-10 text-xs lg:text-sm w-full justify-between"
+                className="h-7 text-xs w-full justify-between"
                 disabled={site.isDisabledInUddi}
                 data-testid={`site-services-${site.id}`}
               >
@@ -566,14 +566,14 @@ export function SiteTableRow({
       )}
 
       {/* DHCP Partner */}
-      <TableCell className="p-2 lg:p-4">
+      <TableCell className="p-1">
         {(site.role === 'DHCP' || site.role === 'DNS/DHCP' || site.role.includes('+DHCP') || site.role.includes('+DNS/DHCP')) && !site.isDisabledInUddi ? (
           <Select
             value={site.dhcpPartner || '__none__'}
             onValueChange={v => onUpdateSite(site.id, 'dhcpPartner', v === '__none__' ? null : v)}
             disabled={site.isDisabledInUddi}
           >
-            <SelectTrigger className="h-8 lg:h-10 text-xs lg:text-sm" data-testid={`site-dhcp-partner-${site.id}`}>
+            <SelectTrigger className="h-7 text-xs" data-testid={`site-dhcp-partner-${site.id}`}>
               <SelectValue>
                 {site.isHub ? (
                   <span className="text-accent font-medium flex items-center gap-1"><Server className="h-3 w-3" /> Hub</span>
@@ -649,7 +649,7 @@ export function SiteTableRow({
       </TableCell>
 
       {/* HA Checkbox */}
-      <TableCell className="p-2 lg:p-4 text-center">
+      <TableCell className="p-1 text-center">
         <Checkbox
           checked={site.haEnabled || false}
           onCheckedChange={v => onUpdateSite(site.id, 'haEnabled', v)}
@@ -659,9 +659,9 @@ export function SiteTableRow({
       </TableCell>
 
       {/* Platform */}
-      <TableCell className="p-2 lg:p-4">
+      <TableCell className="p-1">
         <Select value={site.platform} onValueChange={v => onUpdateSite(site.id, 'platform', v)} disabled={site.isDisabledInUddi}>
-          <SelectTrigger className="h-8 lg:h-10 text-xs lg:text-sm" data-testid={`site-platform-${site.id}`}>
+          <SelectTrigger className="h-7 text-xs" data-testid={`site-platform-${site.id}`}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -671,7 +671,7 @@ export function SiteTableRow({
       </TableCell>
 
       {/* Model */}
-      <TableCell className="p-2 lg:p-4">
+      <TableCell className="p-1">
         <div className="flex items-center gap-1">
           <TooltipProvider>
             <Tooltip>
@@ -704,9 +704,9 @@ export function SiteTableRow({
 
       {/* Hardware SKU (conditional) */}
       {showHardware && (
-        <TableCell className="p-2 lg:p-4">
+        <TableCell className="p-1">
           <Select value={site.hardwareSku} onValueChange={v => onUpdateSite(site.id, 'hardwareSku', v)} disabled={site.isDisabledInUddi}>
-            <SelectTrigger className="h-8 lg:h-10 text-xs lg:text-sm" data-testid={`site-sku-${site.id}`}>
+            <SelectTrigger className="h-7 text-xs" data-testid={`site-sku-${site.id}`}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -719,7 +719,7 @@ export function SiteTableRow({
       )}
 
       {/* SW Instances (auto-calculated: serverCount * (HA ? 2 : 1)) */}
-      <TableCell className="p-2 lg:p-4 text-center tabular-nums font-medium text-sm lg:text-base">
+      <TableCell className="p-1 text-center tabular-nums font-medium text-sm">
         {site.isDisabledInUddi ? (
           <span className="text-muted-foreground">&mdash;</span>
         ) : (
@@ -757,12 +757,12 @@ export function SiteTableRow({
 
       {/* SW Add-ons (NIOS only) */}
       {platformMode === 'NIOS' && !exportView && (
-        <TableCell className="p-2 lg:p-4">
+        <TableCell className="p-1">
           <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant="outline" size="sm"
-                className="h-8 lg:h-10 text-xs lg:text-sm w-full justify-between"
+                className="h-7 text-xs w-full justify-between"
                 disabled={site.isDisabledInUddi}
                 data-testid={`site-sw-addons-${site.id}`}
               >
@@ -934,7 +934,7 @@ export function SiteTableRow({
 
       {/* Token Packs - only show for non-NIOS modes */}
       {showTokens && (
-        <TableCell className="p-2 lg:p-4 text-right tabular-nums font-medium text-sm lg:text-base">
+        <TableCell className="p-1 text-right tabular-nums font-medium text-sm">
           {site.isDisabledInUddi ? (
             <span className="text-muted-foreground">&mdash;</span>
           ) : (
@@ -964,17 +964,17 @@ export function SiteTableRow({
       )}
 
       {/* Add to Report */}
-      <TableCell className="p-2 lg:p-4 text-center">
+      <TableCell className="p-1 text-center">
         <Checkbox checked={site.addToReport} onCheckedChange={v => onUpdateSite(site.id, 'addToReport', v)} data-testid={`site-report-${site.id}`} />
       </TableCell>
 
       {/* Add to BOM */}
-      <TableCell className="p-2 lg:p-4 text-center">
+      <TableCell className="p-1 text-center">
         <Checkbox checked={site.addToBom} onCheckedChange={v => onUpdateSite(site.id, 'addToBom', v)} data-testid={`site-bom-${site.id}`} />
       </TableCell>
 
       {/* Actions: Copy to Drawing + Delete */}
-      <TableCell className="p-2 lg:p-4">
+      <TableCell className="p-1">
         <div className="flex items-center gap-1">
           {/* Copy to another drawing */}
           {drawings && drawings.length > 1 && onCopySiteToDrawing && (
