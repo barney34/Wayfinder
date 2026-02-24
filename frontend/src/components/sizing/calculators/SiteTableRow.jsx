@@ -447,9 +447,9 @@ export function SiteTableRow({
       )}
 
       {/* Role */}
-      <TableCell className="p-2 lg:p-4">
+      <TableCell className="p-1 lg:p-2">
         <Select value={site.role} onValueChange={v => onUpdateSite(site.id, 'role', v)} disabled={site.isDisabledInUddi}>
-          <SelectTrigger className="h-8 lg:h-10 text-xs lg:text-sm" data-testid={`site-role-${site.id}`}>
+          <SelectTrigger className="h-8 text-xs" data-testid={`site-role-${site.id}`}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -466,6 +466,17 @@ export function SiteTableRow({
             ))}
           </SelectContent>
         </Select>
+      </TableCell>
+
+      {/* Description — free text for export */}
+      <TableCell className="p-1 lg:p-2">
+        <Input
+          value={site.description || ''}
+          onChange={e => onUpdateSite(site.id, 'description', e.target.value)}
+          placeholder="Description..."
+          className="h-8 text-xs min-w-[100px]"
+          disabled={site.isDisabledInUddi}
+        />
       </TableCell>
 
       {/* Services (conditional) */}
