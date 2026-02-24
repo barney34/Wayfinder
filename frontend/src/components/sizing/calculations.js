@@ -203,10 +203,10 @@ export function getSiteRecommendedModel(numIPs, role, platform, dhcpPercent, lea
     lps += hubLPS;
   }
   
-  // If this is a Spoke, apply 50% LPS penalty (forwarding to Hub)
-  if (isSpoke) {
-    lps = Math.ceil(lps * 2); // Need 2x capacity to handle same workload
-  }
+  // NOTE: DHCP-FO 50% LPS penalty is applied via perfFeatures (auto-injected
+  // by TokenCalculatorSummary when site has a DHCP partner). This applies
+  // equally to both hub and spoke through the calculatePerfImpact system,
+  // reducing the server's effective LPS capacity by 50%.
 
   // Calculate performance feature impact on effective capacity
   const { qpsMultiplier, lpsMultiplier } = calculatePerfImpact(perfFeatures, role);
