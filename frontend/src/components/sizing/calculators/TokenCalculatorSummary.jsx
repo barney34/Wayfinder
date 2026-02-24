@@ -644,7 +644,7 @@ export function TokenCalculatorSummary() {
           </div>
           </div>{/* end sticky toolbar */}
 
-          <div className="border rounded-lg overflow-hidden overflow-x-auto">
+          <div className="border rounded-lg overflow-x-auto">
             <Table className="table-auto w-full">
               <SizingTableHeader 
                 showHardware={showHardware} 
