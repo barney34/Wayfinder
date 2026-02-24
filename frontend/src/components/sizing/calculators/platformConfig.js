@@ -40,6 +40,8 @@ export const ROLE_OPTIONS_BY_MODE = {
     { value: 'DNS/DHCP', label: 'DNS/DHCP', description: 'DNS + DHCP' },
     { value: 'ND',       label: 'ND',       description: 'Network Discovery Appliance' },
     { value: 'Reporting',label: 'Reporting',description: 'Reporting Server (RPT)' },
+    { value: 'LIC',      label: 'LIC',      description: 'License-only line item' },
+    { value: 'CDC',      label: 'CDC',      description: 'Cloud Data Connector' },
     // ── Grid Manager roles (dedicated GM/GMC servers only) ─
     { value: 'GM',  label: 'GM',  description: 'Grid Master (no DNS/DHCP)', group: 'Grid Manager' },
     { value: 'GMC', label: 'GMC', description: 'Grid Master Candidate',     group: 'Grid Manager' },
@@ -61,6 +63,8 @@ export const ROLE_OPTIONS_BY_MODE = {
     { value: 'DNS/DHCP', label: 'DNS/DHCP', description: 'DNS + DHCP' },
     { value: 'ND',       label: 'ND',       description: 'Network Discovery Appliance' },
     { value: 'Reporting',label: 'Reporting',description: 'Reporting Server (RPT)' },
+    { value: 'LIC',      label: 'LIC',      description: 'License-only line item' },
+    { value: 'CDC',      label: 'CDC',      description: 'Cloud Data Connector' },
     { value: 'GM',  label: 'GM',  description: 'Grid Master (NIOS only)',       group: 'Grid Manager' },
     { value: 'GMC', label: 'GMC', description: 'Grid Master Candidate (NIOS)', group: 'Grid Manager' },
     { value: 'GM+DNS',      label: 'GM+DNS',      notRecommended: true, group: 'Grid Manager' },
