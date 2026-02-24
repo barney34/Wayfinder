@@ -170,6 +170,11 @@ export function SiteTableRow({
 }) {
   const showTokens = platformMode !== 'NIOS'; // Hide tokens for NIOS-only mode
   
+  // Detect virtual/cloud platform — no HW needed
+  const isVirtualPlatform = site.platform === 'NIOS-V' || site.platform === 'NIOS-VHA' || 
+                            site.platform?.includes('NXVS') || site.platform?.includes('NXaaS');
+  const isPhysicalPlatform = !isVirtualPlatform;
+  
   // Unit Group mapping based on alphabet chart
   // A = GM/GMC, B = Internal DNS, C = DHCP, D = Edge/Remote, E = External DNS, F = Cache/DMZ, G = Guest, M = MSFT Sync, N = Network Insight
   const getUnitGroup = (role, services = []) => {
