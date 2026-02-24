@@ -894,10 +894,10 @@ export function SiteTableRow({
         </TableCell>
       )}
 
-      {/* HW Add-ons — hidden for Reporting, ND, NXVS, NXaaS */}
+      {/* HW Add-ons — hidden for Reporting, LIC, CDC, NXVS, NXaaS, NX-P. ND keeps it (AC/DC selector) */}
       {!exportView && (
         <TableCell className="p-1">
-          {hideAddons ? (
+          {hideHwAddons ? (
             <span className="text-xs text-muted-foreground">—</span>
           ) : isVirtualPlatform ? (
             <span className="text-xs text-muted-foreground">—</span>
