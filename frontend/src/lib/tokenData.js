@@ -354,7 +354,14 @@ export const unitGroupMap = {
 
 // Helper to get SW Base SKU
 export function getSwBaseSku(model) {
-  return swBaseSkuMap[model] || `${model}-SWSUB`;
+  if (!model) return '';
+  if (swBaseSkuMap[model]) return swBaseSkuMap[model];
+  // ND series → ND-xxx-SWBSUB
+  if (model.startsWith('ND-')) return `${model}-SWBSUB`;
+  // RPT
+  if (model === 'TR-5005') return 'TR-SWBSUB-5005';
+  // Default → model-SWSUB
+  return `${model}-SWSUB`;
 }
 
 // Helper to get SW Package
