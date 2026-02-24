@@ -319,7 +319,7 @@ export function getSiteWorkloadDetails(numIPs, role, platform, dhcpPercent, site
   const { isSpoke = false, hubLPS = 0 } = options;
   
   const isUDDI = sitePlatform
-    ? (sitePlatform === 'NXVS' || sitePlatform === 'NXaaS')
+    ? (sitePlatform === 'NXVS' || sitePlatform === 'NXaaS' || sitePlatform === 'NX-P')
     : (platform?.includes('UDDI') || platform?.includes('Hybrid'));
   
   const dhcpClients = Math.ceil(numIPs * (dhcpPercent / 100));
