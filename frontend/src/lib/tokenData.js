@@ -364,12 +364,12 @@ export function getSwBaseSku(model) {
   return `${model}-SWSUB`;
 }
 
-// Helper to get SW Package
-// For Reporting role, returns the ACTIVATION storage size if set
+// Helper to get SW Package — pass rptStorage for Reporting rows
 export function getSwPackage(role, hasDiscovery = false, rptStorage = null) {
   if (role === 'Reporting') {
     return rptStorage ? `ACTIVATION-${rptStorage}` : 'ACTIVATION';
   }
+  if (role === 'ND') return 'NIGD';
   if (hasDiscovery && (role === 'DNS/DHCP' || role === 'DNS')) {
     return swPackageMap['DNS/DHCP/Discovery'] || 'DDIGD';
   }
