@@ -102,68 +102,56 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Fix color scheme for dark and light mode - hard to read, not enough contrast. Full Infoblox brand rebrand."
+user_problem_statement: "Test the Sizing/Drawing table for: 1) Column headers showing two-line layout for SW/HW Add-ons, 2) Button style showing '+' when nothing selected, 3) PSU logic (1506 only with AC/DC labels), 4) SFP visibility (10GE models only)"
 
 frontend:
-  - task: "Infoblox Brand Color Scheme - CSS Variables"
+  - task: "Sizing Table Column Headers - Two-line Add-ons Layout"
     implemented: true
-    working: true
-    file: "frontend/src/index.css"
+    working: "NA"
+    file: "frontend/src/components/sizing/calculators/SizingTableHeader.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
-        - working: true
-        - agent: "main"
-        - comment: "Mapped all CSS variables to Infoblox brand palette. Light: Offwhite bg, White cards. Dark: Infoblox Black bg. Primary: Green #00BD4D. Muted text contrast improved from 55% to 65% in dark mode."
+        - working: "NA"
+        - agent: "testing"
+        - comment: "Code review verified: Lines 128-141 show SW and HW Add-ons headers with two-line layout ('Add-ons' label above 'SW'/'HW'). Implementation is correct. Unable to verify UI due to empty database - need customer with sites to test visually."
 
-  - task: "Infoblox Brand Text Color Compliance"
+  - task: "Add-ons Button Style - Plus Character Display"
     implemented: true
-    working: true
-    file: "frontend/src/components/TopBar.jsx, AssessmentQuestions.jsx, ChatValueDiscovery.jsx"
+    working: "NA"
+    file: "frontend/src/components/sizing/calculators/SiteTableRow.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
-        - working: true
-        - agent: "main"
-        - comment: "Teal text only on dark backgrounds, Yellow text only on dark. Evergreen #00594C for light mode accent text. All per brand Color usage - Type guidelines."
+        - working: "NA"
+        - agent: "testing"
+        - comment: "Code review verified: SW button (lines 767-779) and HW button (lines 846-865) show '+' character when nothing selected, no longer shows '—' dash. Implementation is correct. Unable to verify UI due to empty database."
 
-  - task: "Font Swap Inter to Lato"
+  - task: "PSU Logic - 1506 Models Only with AC/DC Labels"
     implemented: true
-    working: true
-    file: "frontend/src/index.css"
+    working: "NA"
+    file: "frontend/src/components/sizing/calculators/platformConfig.js, SiteTableRow.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
-        - working: true
-        - agent: "main"
-        - comment: "Swapped from Inter to Lato (Google Fonts) per Infoblox internal typeface guidelines. Weights: 300,400,700,900. Body line-height 1.25."
+        - working: "NA"
+        - agent: "testing"
+        - comment: "Code review verified: PSU only appears for 1506 models (platformConfig.js lines 145-152 allowedModels), NOT for 906 models. Label dynamically shows 'T-PSU600-AC' or 'T-PSU600-DC' based on model (SiteTableRow.jsx lines 877-881). Implementation is correct. Unable to verify UI due to empty database."
 
-  - task: "Icon Color Compliance"
+  - task: "SFP Visibility - 10GE Models Only"
     implemented: true
-    working: true
-    file: "frontend/src/components/TopBar.jsx"
+    working: "NA"
+    file: "frontend/src/components/sizing/calculators/SiteTableRow.jsx"
     stuck_count: 0
-    priority: "medium"
-    needs_retesting: false
+    priority: "high"
+    needs_retesting: true
     status_history:
-        - working: true
-        - agent: "main"
-        - comment: "Icons use only monochrome (foreground) or green per brand icon guidelines. Removed teal/yellow from icon elements."
-
-  - task: "Remove Decorative Shadows"
-    implemented: true
-    working: true
-    file: "frontend/src/index.css, TopBar.jsx, AssessmentQuestions.jsx, ChatValueDiscovery.jsx, AppSidebar.jsx"
-    stuck_count: 0
-    priority: "medium"
-    needs_retesting: false
-    status_history:
-        - working: true
-        - agent: "main"
-        - comment: "Removed drop shadows from cards, tabs, buttons per brand guidelines. Replaced with clean border-defined design."
+        - working: "NA"
+        - agent: "testing"
+        - comment: "Code review verified: SFP Interfaces section only appears when model contains '10GE' (line 906 conditional check). Implementation is correct. Unable to verify UI due to empty database."
 
 metadata:
   created_by: "main_agent"
