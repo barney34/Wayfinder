@@ -886,13 +886,16 @@ export function SiteTableRow({
               </div>
             </PopoverContent>
           </Popover>
+          )}
         </TableCell>
       )}
 
-      {/* HW Add-ons (Physical only, with SFP quantity) */}
+      {/* HW Add-ons — hidden for Reporting, ND, NXVS, NXaaS */}
       {!exportView && (
         <TableCell className="p-1">
-          {isVirtualPlatform ? (
+          {hideAddons ? (
+            <span className="text-xs text-muted-foreground">—</span>
+          ) : isVirtualPlatform ? (
             <span className="text-xs text-muted-foreground">—</span>
           ) : (
             <Popover>
