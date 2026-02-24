@@ -214,9 +214,9 @@ export function SiteTableRow({
     return 'DD/GD';
   };
 
-  // Helper to get HW License SKU
+  // Helper to get HW License SKU — VM for virtual, HW-AC for physical
   const getHwLicenseSku = (model, platform) => {
-    if (platform?.includes('NXVS') || platform?.includes('NXaaS') || platform === 'NIOS-V') return 'VM';
+    if (platform !== 'NIOS' && platform !== 'NX-P') return 'VM';
     if (!model) return '';
     // Map model to HW SKU (TE-XXXX -> TE-XXXX-HW-AC)
     return `${model.replace('-SWSUB', '')}-HW-AC`;
