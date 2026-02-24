@@ -138,6 +138,17 @@ export function findNIOSServerByPerformance(qps, lps, objects) {
 
 export function getSiteRecommendedModel(numIPs, role, platform, dhcpPercent, leaseTimeSeconds, sitePlatform, options = {}) {
   const { isSpoke = false, hubLPS = 0 } = options;
+
+  // Reporting role → always TR-5005 (virtual)
+  if (role === 'Reporting') return 'TR-5005';
+
+  // Network Discovery role → size by IP count using ND appliances
+  if (role === 'ND') {
+    if (numIPs <= 5000)  return 'ND-906';
+    if (numIPs <= 15000) return 'ND-1606';
+    if (numIPs <= 40000) return 'ND-2306';
+    return 'ND-4106';
+  }
   
   const isUDDI = sitePlatform
     ? (sitePlatform === 'NXVS' || sitePlatform === 'NXaaS' || sitePlatform === 'NX-P')
