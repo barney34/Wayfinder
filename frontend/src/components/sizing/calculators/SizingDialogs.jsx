@@ -90,7 +90,12 @@ export function WhyThisModelDialog({ open, onOpenChange, site, platformMode, dhc
 
   const workload = getSiteWorkloadDetails(
     site.numIPs, site.role, platformMode, dhcpPercent,
-    site.platform, { isSpoke: site.isSpoke, hubLPS: site.hubLPS || 0 }
+    site.platform, {
+      isSpoke: site.isSpoke,
+      hubLPS: site.hubLPS || 0,
+      foObjects: site.foObjects || 0,
+      perfFeatures: site.effectivePerfFeatures || site.perfFeatures || [],
+    }
   );
 
   const isUDDI = site.platform === 'NXVS' || site.platform === 'NXaaS';
