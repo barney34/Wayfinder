@@ -63,7 +63,7 @@ export function SizingTableHeader({ showHardware, showKW, showServices, platform
         <TableHead className="w-12 text-xs lg:text-sm text-center">#/Range</TableHead>
         
         {/* Location — GUI-only, not in export */}
-        <TableHead className="w-28 lg:w-36 text-xs lg:text-sm">Location</TableHead>
+        <TableHead className="w-24 text-xs lg:text-sm">Location</TableHead>
         
         {/* # IPs — GUI-only */}
         <TableHead className="w-20 text-xs lg:text-sm"># IPs</TableHead>
