@@ -426,7 +426,7 @@ export function SiteTableRow({
           <Input
             value={site.name}
             onChange={e => onUpdateSite(site.id, 'name', e.target.value)}
-            className={`h-7 text-sm min-w-[120px] ${site._isExpanded ? 'bg-muted/30' : ''}`}
+            className={`h-7 text-sm min-w-[80px] ${site._isExpanded ? 'bg-muted/30' : ''}`}
             disabled={site.isDisabledInUddi}
             data-testid={`site-name-${site.id}`}
           />
@@ -509,7 +509,7 @@ export function SiteTableRow({
           value={site.description || ''}
           onChange={e => onUpdateSite(site.id, 'description', e.target.value)}
           placeholder="Description..."
-          className="h-8 text-xs min-w-[100px]"
+          className="h-8 text-xs min-w-[70px]"
           disabled={site.isDisabledInUddi}
         />
       </TableCell>
