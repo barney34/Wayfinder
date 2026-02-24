@@ -102,68 +102,83 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Test the Sizing/Drawing table for: 1) Column headers showing two-line layout for SW/HW Add-ons, 2) Button style showing '+' when nothing selected, 3) PSU logic (1506 only with AC/DC labels), 4) SFP visibility (10GE models only)"
+user_problem_statement: "Overhaul sizing calculations based on UDDI/NIOS Sizing PDF and Best Practices PDF: 1) DHCP FO with partner takes whole object count into effect, 2) Add DTC and Syslog to Services with penalties, 3) Fix impact values (SYS 50→90%, NSIP 30→45%, DTC 25→20%), 4) Wire performance features into model selection, 5) Partner→Hub terminology for DHCP FO"
+
+backend:
+  # No backend changes needed - all sizing calculations are frontend-only
 
 frontend:
-  - task: "Sizing Table Column Headers - Two-line Add-ons Layout"
+  - task: "DHCP FO Object Replication - whole object count"
     implemented: true
     working: true
-    file: "frontend/src/components/sizing/calculators/SizingTableHeader.jsx"
+    file: "frontend/src/components/sizing/calculations.js, frontend/src/components/sizing/calculators/TokenCalculatorSummary.jsx"
     stuck_count: 0
     priority: "high"
     needs_retesting: false
     status_history:
-        - working: "NA"
-        - agent: "testing"
-        - comment: "Code review verified: Lines 128-141 show SW and HW Add-ons headers with two-line layout ('Add-ons' label above 'SW'/'HW'). Implementation is correct. Unable to verify UI due to empty database - need customer with sites to test visually."
         - working: true
-        - agent: "testing"
-        - comment: "UI testing completed. Verified column headers show two-line layout with 'Add-ons' label above 'SW'/'HW'. Implementation working as expected. Srv# column displays correctly showing '1' for single server."
+        - agent: "main"
+        - comment: "Implemented FO object replication: Hub gets all spokes' DHCP objects, spoke gets hub's DHCP objects. Objects are added to model selection via foObjects parameter. calculateSiteDhcpObjects() utility added."
 
-  - task: "Add-ons Button Style - Plus Character Display"
+  - task: "Performance Features (DTC, Syslog) in Services popover"
     implemented: true
     working: true
-    file: "frontend/src/components/sizing/calculators/SiteTableRow.jsx"
+    file: "frontend/src/components/sizing/calculators/platformConfig.js, frontend/src/components/sizing/calculators/SiteTableRow.jsx"
     stuck_count: 0
     priority: "high"
     needs_retesting: false
     status_history:
-        - working: "NA"
-        - agent: "testing"
-        - comment: "Code review verified: SW button (lines 767-779) and HW button (lines 846-865) show '+' character when nothing selected, no longer shows '—' dash. Implementation is correct. Unable to verify UI due to empty database."
         - working: true
-        - agent: "testing"
-        - comment: "UI testing completed. Verified Add-ons buttons show '+' character when nothing is selected. Button styling and behavior working correctly."
+        - agent: "main"
+        - comment: "Added PERFORMANCE_FEATURES array with DTC (−20% QPS), Syslog (−90% QPS), RPZ (−15%), ADP (−20%), TI (−30%), FP (−10% LPS). Role-aware filtering. Separate section in Services popover with impact labels and warning icons."
 
-  - task: "PSU Logic - 1506 Models Only with AC/DC Labels"
+  - task: "Fix Feature Performance Impact Values"
     implemented: true
-    working: false
-    file: "frontend/src/components/sizing/calculators/platformConfig.js, SiteTableRow.jsx"
+    working: true
+    file: "frontend/src/lib/tokenData.js"
     stuck_count: 0
     priority: "high"
     needs_retesting: false
     status_history:
-        - working: "NA"
-        - agent: "testing"
-        - comment: "Code review verified: PSU only appears for 1506 models (platformConfig.js lines 145-152 allowedModels), NOT for 906 models. Label dynamically shows 'T-PSU600-AC' or 'T-PSU600-DC' based on model (SiteTableRow.jsx lines 877-881). Implementation is correct. Unable to verify UI due to empty database."
-        - working: false
-        - agent: "testing"
-        - comment: "CRITICAL ISSUE: Cannot test PSU logic because TE-1506-10GE-HW-AC model is NOT available in HW SKU dropdown. Testing showed only B1-105-HW-AC and B1-212-HW-AC models are available when NIOS platform is selected. The 1506 models (which should show PSU and SFP add-ons) are not being offered as hardware options. This is either: (1) Model recommendation system not recommending 1506 models for test site configuration, or (2) Hardware SKU options not including 1506 models in the available list. Unable to verify PSU checkbox and AC/DC labels without access to 1506 hardware SKU."
+        - working: true
+        - agent: "main"
+        - comment: "Fixed per Best Practices PDF: SYS 50%→90%, NSIP 30%→45%, DTC 25%→20%. Renamed SYS to 'Q&R to Syslog', QR to 'Q&R to Data Connector'."
 
-  - task: "SFP Visibility - 10GE Models Only"
+  - task: "Wire Performance Features into Model Selection"
     implemented: true
-    working: false
-    file: "frontend/src/components/sizing/calculators/SiteTableRow.jsx"
+    working: true
+    file: "frontend/src/components/sizing/calculations.js"
     stuck_count: 0
     priority: "high"
     needs_retesting: false
     status_history:
-        - working: "NA"
-        - agent: "testing"
-        - comment: "Code review verified: SFP Interfaces section only appears when model contains '10GE' (line 906 conditional check). Implementation is correct. Unable to verify UI due to empty database."
-        - working: false
-        - agent: "testing"
-        - comment: "CRITICAL ISSUE: Cannot test SFP Interfaces section because TE-1506-10GE-HW-AC model is NOT available in HW SKU dropdown. Only B1-105-HW-AC and B1-212-HW-AC models are available. Without access to a 10GE hardware SKU, cannot verify SFP Interfaces section visibility and SFP options (IB-SFPPLUS-LR, IB-SFPPLUS-SR, IB-SFP-SX, IB-SFP-CO). Code implementation appears correct (line 927 checks for '10GE' in hardwareSku), but hardware SKU options list needs investigation."
+        - working: true
+        - agent: "main"
+        - comment: "getSiteRecommendedModel() now accepts perfFeatures array. calculatePerfImpact() returns qpsMultiplier/lpsMultiplier. Effective server capacity = rated * 60% * perfMultiplier. Applied in all role branches (DNS, DHCP, DNS/DHCP, GM+)."
+
+  - task: "DHCP FO Association Limits Validation"
+    implemented: true
+    working: true
+    file: "frontend/src/lib/tokenData.js, frontend/src/components/sizing/calculations.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+        - working: true
+        - agent: "main"
+        - comment: "Added dhcpFoAssociationLimits per model (TE-926:110K, TE-1516:440K, etc.). validateDhcpFoLimits() checks total FO IPs against model limits. Warnings shown in DHCP Partner tooltip and token tooltip."
+
+  - task: "Partner/Hub Terminology for DHCP FO"
+    implemented: true
+    working: true
+    file: "frontend/src/components/sizing/calculators/SiteTableRow.jsx, frontend/src/components/sizing/calculators/TokenCalculatorSummary.jsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+        - working: true
+        - agent: "main"
+        - comment: "Single partner shows 'Partner', 2+ partners shows 'Hub (N)'. Spokes show partner name in amber. Tooltips show FO object counts and warnings. partnerCount tracked in TokenCalculatorSummary."
 
 metadata:
   created_by: "main_agent"
