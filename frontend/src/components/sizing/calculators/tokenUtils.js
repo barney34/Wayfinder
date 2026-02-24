@@ -38,12 +38,36 @@ export function getPartnerSkuFromTokens(totalTokens) {
 // Get SKU description
 export function getSkuDescription(sku) {
   const descriptions = {
-    'TE-906-HW-2AC': 'NIOS TE-926 (Dual AC)',
-    'TE-906-HW-AC': 'NIOS TE-926 (AC)',
-    'TE-1506-HW-AC': 'NIOS TE-1516',
-    'TE-1606-HW-AC': 'NIOS TE-1526',
-    'TE-2306-HW-AC': 'NIOS TE-2326',
-    'TE-4106-HW-AC': 'NIOS TE-4126',
+    // NIOS TE hardware chassis
+    'TE-906-HW-AC':       'NIOS TE-926 (AC)',
+    'TE-906-HW-DC':       'NIOS TE-926 (DC)',
+    'TE-906-HW-2AC':      'NIOS TE-926 (Dual AC)',
+    'TE-1506-HW-AC':      'NIOS TE-1516 (AC)',
+    'TE-1506-HW-DC':      'NIOS TE-1516 (DC)',
+    'TE-1506-10GE-HW-AC': 'NIOS TE-1516 10GE (AC)',
+    'TE-1506-10GE-HW-DC': 'NIOS TE-1516 10GE (DC)',
+    'TE-1606-HW-AC':      'NIOS TE-1526 (AC)',
+    'TE-1606-HW-DC':      'NIOS TE-1526 (DC)',
+    'TE-1606-10GE-HW-AC': 'NIOS TE-1526 10GE (AC)',
+    'TE-1606-10GE-HW-DC': 'NIOS TE-1526 10GE (DC)',
+    'TE-2306-HW-AC':      'NIOS TE-2326 (AC)',
+    'TE-2306-HW-DC':      'NIOS TE-2326 (DC)',
+    'TE-2306-10GE-HW-AC': 'NIOS TE-2326 10GE (AC)',
+    'TE-4106-HW-AC':      'NIOS TE-4126 (AC)',
+    'TE-4106-HW-DC':      'NIOS TE-4126 (DC)',
+    'TE-4106-10GE-HW-AC': 'NIOS TE-4126 10GE (AC)',
+    // NIOS ND hardware chassis
+    'ND-906-HW-AC':       'Network Discovery ND-906 (AC)',
+    'ND-906-HW-DC':       'Network Discovery ND-906 (DC)',
+    'ND-1606-HW-AC':      'Network Discovery ND-1606 (AC)',
+    'ND-1606-HW-DC':      'Network Discovery ND-1606 (DC)',
+    'ND-2306-HW-AC':      'Network Discovery ND-2306 (AC)',
+    'ND-2306-HW-DC':      'Network Discovery ND-2306 (DC)',
+    'ND-4106-HW-AC':      'Network Discovery ND-4106 (AC)',
+    'ND-4106-HW-DC':      'Network Discovery ND-4106 (DC)',
+    // NX-P
+    'B1-105-HW-AC':       'NIOS-X B1-105 Appliance (AC)',
+    'B1-212-HW-AC':       'NIOS-X B1-212 Appliance (AC)',
   };
   return descriptions[sku] || sku;
 }
