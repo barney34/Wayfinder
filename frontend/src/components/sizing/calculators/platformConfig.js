@@ -141,27 +141,13 @@ export const DEFAULT_MODEL_BY_ROLE = {
 };
 
 // HW Add-ons (only for physical platforms)
-// PSU = 1506 series only (AC/DC), Interface cards + SFP = 1506-4106 with 10GE HW
+// PSU = 1506 series only (AC/DC). SFP options handled separately via SFP_OPTIONS for 10GE SKUs.
 export const HW_ADDONS = [
   { 
     value: 'PSU', 
-    label: 'T-PSU600', // Dynamic suffix -AC/-DC applied in UI based on selected model
+    label: 'T-PSU600', // Dynamic suffix -AC/-DC applied in UI based on selected hardware SKU
     description: 'Second Power Supply Unit',
     allowedModels: ['TE-1506', 'TE-1506-HW-AC', 'TE-1506-HW-DC', 'TE-1506-10GE-HW-AC', 'TE-1506-10GE-HW-DC'],
-    hasQuantity: false,
-  },
-  { 
-    value: '1GE-CARD', 
-    label: '1GE/SFP Card', 
-    description: '1GE/SFP Interface Card',
-    allowedModels: ['TE-1506', 'TE-1506-HW-AC', 'TE-1506-HW-DC', 'TE-1506-10GE-HW-AC', 'TE-1506-10GE-HW-DC', 'TE-1606', 'TE-1606-HW-AC', 'TE-1606-HW-DC', 'TE-2306', 'TE-2306-HW-AC', 'TE-2306-HW-DC', 'TE-4106', 'TE-4106-HW-AC', 'TE-4106-HW-DC'],
-    hasQuantity: false,
-  },
-  { 
-    value: '10GE-CARD', 
-    label: '10GE/SFP+ Card', 
-    description: '10GE/SFP+ Interface Card',
-    allowedModels: ['TE-1506', 'TE-1506-HW-AC', 'TE-1506-HW-DC', 'TE-1506-10GE-HW-AC', 'TE-1506-10GE-HW-DC', 'TE-1606', 'TE-1606-HW-AC', 'TE-1606-HW-DC', 'TE-2306', 'TE-2306-HW-AC', 'TE-2306-HW-DC', 'TE-4106', 'TE-4106-HW-AC', 'TE-4106-HW-DC'],
     hasQuantity: false,
   },
 ];
