@@ -184,12 +184,13 @@ export const SFP_OPTIONS = [
 // These are distinct from ADDITIONAL_SERVICES (low-impact co-located services)
 // Impact percentages reduce effective server QPS/LPS
 export const PERFORMANCE_FEATURES = [
+  // ── DNS QPS Features ──────────────────────────────────
   {
     value: 'DTC',
     label: 'DTC',
-    description: 'DNS Traffic Control',
+    description: 'DNS Traffic Control (−20% QPS)',
     impactPercent: 20,
-    impactType: 'qps',      // Reduces DNS QPS
+    impactType: 'qps',
     allowedRoles: ['DNS', 'DNS/DHCP', 'GM+DNS', 'GM+DNS/DHCP', 'GMC+DNS', 'GMC+DNS/DHCP'],
     warning: null,
   },
@@ -229,11 +230,40 @@ export const PERFORMANCE_FEATURES = [
     allowedRoles: ['DNS', 'DNS/DHCP', 'GM+DNS', 'GM+DNS/DHCP', 'GMC+DNS', 'GMC+DNS/DHCP'],
     warning: null,
   },
+  // ── DHCP LPS Features ─────────────────────────────────
+  {
+    value: 'DHCP-FO',
+    label: 'DHCP FO',
+    description: 'DHCP Failover (−50% LPS)',
+    impactPercent: 50,
+    impactType: 'lps',
+    allowedRoles: ['DHCP', 'DNS/DHCP', 'GM+DHCP', 'GM+DNS/DHCP', 'GMC+DHCP', 'GMC+DNS/DHCP'],
+    warning: null,
+    autoApply: true,   // Auto-applied when DHCP partner is selected
+  },
+  {
+    value: 'DDNS',
+    label: 'DDNS',
+    description: 'Dynamic DNS Updates (−20% LPS)',
+    impactPercent: 20,
+    impactType: 'lps',
+    allowedRoles: ['DHCP', 'DNS/DHCP', 'GM+DHCP', 'GM+DNS/DHCP', 'GMC+DHCP', 'GMC+DNS/DHCP'],
+    warning: null,
+  },
   {
     value: 'DHCP-FP',
     label: 'FP',
     description: 'DHCP Fingerprinting (−10% LPS)',
     impactPercent: 10,
+    impactType: 'lps',
+    allowedRoles: ['DHCP', 'DNS/DHCP', 'GM+DHCP', 'GM+DNS/DHCP', 'GMC+DHCP', 'GMC+DNS/DHCP'],
+    warning: null,
+  },
+  {
+    value: 'DHCP-DC',
+    label: 'DHCP Rpt',
+    description: 'DHCP Reporting / Data Connector (−15% LPS)',
+    impactPercent: 15,
     impactType: 'lps',
     allowedRoles: ['DHCP', 'DNS/DHCP', 'GM+DHCP', 'GM+DNS/DHCP', 'GMC+DHCP', 'GMC+DNS/DHCP'],
     warning: null,
