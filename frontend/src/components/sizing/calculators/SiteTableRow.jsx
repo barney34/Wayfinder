@@ -192,9 +192,11 @@ export function SiteTableRow({
     return 'B'; // Default to Internal DNS
   };
   
-  // Helper to get solution from platform
+  // Helper to get solution from platform/role
   const getSolution = (platform) => {
-    if (platform?.includes('NXVS') || platform?.includes('NXaaS')) return 'UDDI';
+    if (platform === 'NXVS')  return 'NXVS';
+    if (platform === 'NXaaS') return 'NXaaS';
+    if (platform === 'NX-P')  return 'NIOS-X';
     return 'NIOS';
   };
 
@@ -202,32 +204,35 @@ export function SiteTableRow({
   // TE → TE-xxx-SWSUB, ND → ND-xxx-SWBSUB, RPT → TR-SWBSUB-5005
   const getSwBaseSku = (model) => {
     if (!model) return '';
-    if (model.startsWith('ND-'))   return `${model}-SWBSUB`;
-    if (model === 'TR-5005')       return 'TR-SWBSUB-5005';
+    if (model.startsWith('ND-'))    return `${model}-SWBSUB`;
+    if (model === 'TR-5005')        return 'TR-SWBSUB-5005';
     if (model.startsWith('NXVS-') || model.startsWith('NXaaS-')) return `${model}-SWSUB`;
     return `${model}-SWSUB`; // TE-xxx-SWSUB default
   };
 
   // Helper to get SW Package from role (with ACTIVATION for Reporting)
   const getSwPackage = (role, hasDiscovery) => {
-    if (role === 'Reporting') {
-      return site.rptQuantity ? `ACTIVATION-${site.rptQuantity}` : 'ACTIVATION';
-    }
-    if (role === 'ND') return 'NIGD';
-    if (role === 'GM' || role === 'GMC') return 'DDI';
-    if (hasDiscovery) return 'DDIGD';
-    if (role === 'DNS/DHCP') return 'DDIDH';
-    if (role === 'DNS') return 'DD';
-    if (role === 'DHCP') return 'DH';
+    if (role === 'Reporting') return site.rptQuantity ? `ACTIVATION-${site.rptQuantity}` : 'ACTIVATION';
+    if (role === 'ND')  return 'NIGD';
+    if (role === 'LIC') return 'LIC';
+    if (role === 'CDC') return 'CDC';
+    if (role === 'GM' || role === 'GMC' || role?.startsWith('GM+') || role?.startsWith('GMC+')) return 'DDI';
+    if (hasDiscovery)          return 'DDIGD';
+    if (role === 'DNS/DHCP')   return 'DDIDH';
+    if (role === 'DNS')        return 'DD';
+    if (role === 'DHCP')       return 'DH';
     return 'DDI';
   };
 
-  // Helper to get HW License SKU — VM for virtual, HW-AC for physical
+  // Helper to get HW License SKU — use actual hardwareSku when available
   const getHwLicenseSku = (model, platform) => {
     if (platform !== 'NIOS' && platform !== 'NX-P') return 'VM';
+    if (site.role === 'Reporting') return 'VM';
+    if (site.role === 'LIC')       return '—';
+    // Use the actual selected hardware SKU if available
+    if (site.hardwareSku && site.hardwareSku !== 'VM' && site.hardwareSku !== 'N/A') return site.hardwareSku;
     if (!model) return '';
-    // Map model to HW SKU (TE-XXXX -> TE-XXXX-HW-AC)
-    return `${model.replace('-SWSUB', '')}-HW-AC`;
+    return `${model}-HW-AC`;
   };
 
   // Build description from name, role, and services
