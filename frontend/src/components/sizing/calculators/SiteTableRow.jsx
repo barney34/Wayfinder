@@ -11,7 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Trash2, Info, Settings2, HelpCircle, Server, Copy, Plus, Minus, MapPin, Building2 } from "lucide-react";
+import { Trash2, Info, Settings2, HelpCircle, Server, Copy, Plus, Minus, MapPin, Building2, ChevronUp, ChevronDown } from "lucide-react";
 import { formatNumber } from "@/lib/utils";
 import { ADDITIONAL_SERVICES, SW_ADDONS, HW_ADDONS, SFP_OPTIONS, RPT_QUANTITIES, getAvailableSwAddons, getAvailableHwAddons } from "./platformConfig";
 import { getSiteWorkloadDetails } from "../calculations";
