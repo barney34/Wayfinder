@@ -29,6 +29,7 @@ import { PlatformChangeAlertDialog, WhyThisModelDialog } from "./SizingDialogs";
 import { SiteTableRow } from "./SiteTableRow";
 import { SizingTableHeader } from "./SizingTableHeader";
 import { DrawingTabs, useDrawings, CompareDrawingsDialog, CopySiteToDrawingMenu } from "./DrawingManager";
+import { computeUnitAssignments, getUnitLetterForRole } from "./unitDesignations";
 
 // Re-export constants for backward compatibility
 export { PLATFORM_MODES, PLATFORM_OPTIONS_BY_MODE, ROLE_OPTIONS_BY_MODE, ADDITIONAL_SERVICES };
