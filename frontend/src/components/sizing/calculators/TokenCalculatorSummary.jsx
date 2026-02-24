@@ -191,6 +191,8 @@ export function TokenCalculatorSummary() {
         rptQuantity: override.rptQuantity || null, // RPT quantity for Reporting role
         addToReport: override.addToReport !== undefined ? override.addToReport : true,
         addToBom: override.addToBom !== undefined ? override.addToBom : true,
+        unitLetterOverride: override.unitLetterOverride || null,
+        unitNumberOverride: override.unitNumberOverride !== undefined ? override.unitNumberOverride : undefined,
         isDisabledInUddi, originalRole: role,
       };
     };
