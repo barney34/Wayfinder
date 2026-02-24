@@ -270,7 +270,8 @@ export function exportForLucid(sites, drawingNum) {
     const hwCount = site.hwCount !== undefined ? site.hwCount : (isVirtual ? 0 : swInstances);
 
     const endUnit = startUnit + swInstances - 1;
-    unitCounter[unitGroup] = endUnit;
+    // Reporting reserves an extra unit slot for the TR-SWTL companion row
+    unitCounter[unitGroup] = site.role === 'Reporting' ? endUnit + 1 : endUnit;
 
     if (swInstances > 1) {
       const hwPerInstance = Math.floor(hwCount / swInstances);
@@ -296,6 +297,26 @@ export function exportForLucid(sites, drawingNum) {
           'Add to BOM':    site.addToBom !== false ? 'Yes' : 'No',
         });
       }
+      // Reporting: always add TR-SWTL companion row after the last main row
+      if (site.role === 'Reporting') {
+        rows.push({
+          'Drawing #':     drawingNum || '',
+          'Unit Group':    'RPT',
+          'Unit #/Range':  String(endUnit + 1),
+          'Solution':      'NIOS',
+          'Model Info':    'TR-5005',
+          'SW Instances':  1,
+          'Description':   'Reporting Data Volume\nScheduled Reports\nAutomated Data Collection',
+          'SW Base SKU':   'TR-SWTL',
+          'SW Package':    site.rptQuantity || '',
+          'SW Add-ons':    '',
+          'HW License SKU':'',
+          'HW Add-ons':    '',
+          'HW Count':      0,
+          'Add to Report': 'Yes',
+          'Add to BOM':    'Yes',
+        });
+      }
     } else {
       rows.push({
         'Drawing #':     drawingNum || '',
@@ -304,7 +325,9 @@ export function exportForLucid(sites, drawingNum) {
         'Solution':      solution,
         'Model Info':    model,
         'SW Instances':  swInstances,
-        'Description':   description,
+        'Description':   site.role === 'Reporting'
+          ? `Reporting Virtual Server\nScheduled Reports\nAutomated Data Collection`
+          : description,
         'SW Base SKU':   swBaseSku,
         'SW Package':    swPackage,
         'SW Add-ons':    swAddons.join(', ') || '',
@@ -314,20 +337,20 @@ export function exportForLucid(sites, drawingNum) {
         'Add to Report': 'Yes',
         'Add to BOM':    site.addToBom !== false ? 'Yes' : 'No',
       });
-      // TR-SWTL add-on line — first RPT row only, optional
-      if (site.role === 'Reporting' && site._isFirstRpt && site.trSwtl) {
+      // Reporting: always add TR-SWTL companion row with next unit number
+      if (site.role === 'Reporting') {
         rows.push({
           'Drawing #':     drawingNum || '',
           'Unit Group':    'RPT',
-          'Unit #/Range':  String(startUnit),
+          'Unit #/Range':  String(startUnit + 1),
           'Solution':      'NIOS',
           'Model Info':    'TR-5005',
-          'SW Instances':  swInstances,
-          'Description':   `${site.name}\nTR-SWTL (add-on)`,
+          'SW Instances':  1,
+          'Description':   'Reporting Data Volume\nScheduled Reports\nAutomated Data Collection',
           'SW Base SKU':   'TR-SWTL',
-          'SW Package':    '',
+          'SW Package':    site.rptQuantity || '',
           'SW Add-ons':    '',
-          'HW License SKU':'VM',
+          'HW License SKU':'',
           'HW Add-ons':    '',
           'HW Count':      0,
           'Add to Report': 'Yes',
