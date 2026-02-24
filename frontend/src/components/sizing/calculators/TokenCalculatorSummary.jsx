@@ -195,6 +195,7 @@ export function TokenCalculatorSummary() {
         unitNumberOverride: override.unitNumberOverride !== undefined ? override.unitNumberOverride : undefined,
         groupingMode: override.groupingMode || 'individual',
         customGroups: override.customGroups || [],
+        description: override.description || '',
         isDisabledInUddi, originalRole: role,
       };
     };
