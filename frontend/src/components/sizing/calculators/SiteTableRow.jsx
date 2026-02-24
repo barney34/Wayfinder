@@ -334,27 +334,57 @@ export function SiteTableRow({
         ${!site.isDisabledInUddi && site.isSpoke ? 'bg-amber-50/50 dark:bg-amber-900/10' : ''}
       `}
     >
-      {/* Unit Letter */}
-      <TableCell className="p-1 lg:p-2 text-center">
-        <Select
-          value={unitAssignment?.unitLetter || getUnitGroup(site.role, site.services)}
-          onValueChange={val => onUpdateSite(site.id, 'unitLetterOverride', val)}
-          disabled={site.isDisabledInUddi}
-        >
-          <SelectTrigger className="h-8 w-14 text-xs font-bold px-1">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {[
-              { value: 'A', label: 'A' }, { value: 'B', label: 'B' }, { value: 'C', label: 'C' },
-              { value: 'D', label: 'D' }, { value: 'E', label: 'E' }, { value: 'F', label: 'F' },
-              { value: 'G', label: 'G' }, { value: 'M', label: 'M' }, { value: 'N', label: 'N' },
-              { value: 'RPT', label: 'RPT' }, { value: 'LIC', label: 'LIC' }, { value: 'CDC', label: 'CDC' },
-            ].map(opt => (
-              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      {/* Unit Group — dropdown with custom option */}
+      <TableCell className="p-1 text-center">
+        <Popover>
+          <PopoverTrigger asChild>
+            <button
+              className="h-8 w-14 text-xs font-bold rounded border border-border bg-background hover:bg-muted px-1 text-center"
+              disabled={site.isDisabledInUddi}
+            >
+              {unitAssignment?.unitLetter || getUnitGroup(site.role, site.services)}
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-36 p-2" align="start">
+            <div className="grid grid-cols-4 gap-1 mb-2">
+              {['A','B','C','D','E','F','G','M','N'].map(letter => (
+                <button
+                  key={letter}
+                  onClick={() => onUpdateSite(site.id, 'unitLetterOverride', letter)}
+                  className={`px-1 py-1 text-xs font-bold rounded transition-colors ${
+                    (unitAssignment?.unitLetter || getUnitGroup(site.role, site.services)) === letter
+                      ? 'bg-primary text-primary-foreground' : 'bg-secondary hover:bg-muted'
+                  }`}
+                >{letter}</button>
+              ))}
+            </div>
+            <div className="grid grid-cols-3 gap-1 mb-2">
+              {['RPT','LIC','CDC'].map(letter => (
+                <button
+                  key={letter}
+                  onClick={() => onUpdateSite(site.id, 'unitLetterOverride', letter)}
+                  className={`px-1 py-1 text-[10px] font-bold rounded transition-colors ${
+                    (unitAssignment?.unitLetter || getUnitGroup(site.role, site.services)) === letter
+                      ? 'bg-primary text-primary-foreground' : 'bg-secondary hover:bg-muted'
+                  }`}
+                >{letter}</button>
+              ))}
+            </div>
+            <div className="border-t pt-2">
+              <Input
+                placeholder="Custom..."
+                className="h-7 text-xs"
+                maxLength={6}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' && e.target.value.trim()) {
+                    onUpdateSite(site.id, 'unitLetterOverride', e.target.value.trim().toUpperCase());
+                    e.target.value = '';
+                  }
+                }}
+              />
+            </div>
+          </PopoverContent>
+        </Popover>
       </TableCell>
       
       {/* Unit Number — editable, shows range when combined */}
