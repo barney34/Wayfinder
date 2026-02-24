@@ -385,6 +385,7 @@ export function TokenCalculatorSummary() {
       id: srv.id,
       role: srv.role,
       unitLetterOverride: srv.unitLetterOverride || null,
+      _serverCount: srv._serverCount || 1, // grouped rows advance counter by their count
     }));
     return computeUnitAssignments(serversForUnit);
   }, [expandedServers]);
