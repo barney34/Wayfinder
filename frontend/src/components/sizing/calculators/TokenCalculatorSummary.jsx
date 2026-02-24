@@ -384,14 +384,6 @@ export function TokenCalculatorSummary() {
         }
       }
     });
-    // Mark the first Reporting row so TR-SWTL add-on is offered
-    let firstRptSeen = false;
-    result.forEach(row => {
-      if (row.role === 'Reporting') {
-        row._isFirstRpt = !firstRptSeen;
-        firstRptSeen = true;
-      }
-    });
     return result;
   }, [sites, siteOverrides]);
 
