@@ -222,22 +222,44 @@ export function TokenCalculatorSummary() {
       allBasicSites = naturalOrder;
     }
 
-    // Calculate Hub LPS - Hub needs to handle 50% of combined spoke capacity for failover
+    // === DHCP FO: Calculate Hub LPS + FO Object Replication ===
+    // Pass 1: Determine who is a spoke (has a partner) and compute LPS + DHCP objects
     const HUB_FAILOVER_CAPACITY = 0.5; // 50% of spoke LPS added to hub
-    const hubLPSMap = {};
+    const hubLPSMap = {};       // hubId → aggregate LPS from all spokes
+    const foObjectsMap = {};    // siteId → DHCP objects replicated from FO partner(s)
+    const partnerCountMap = {}; // hubId → number of sites pointing to it
+
     allBasicSites.forEach(site => {
       if (site.dhcpPartner) {
         const spokeLPS = calculateSiteLPS(site.numIPs, site.dhcpPercent, site.role);
-        // Hub only needs 50% of spoke capacity for failover scenarios
+        const spokeDhcpObjs = calculateSiteDhcpObjects(site.numIPs, site.dhcpPercent);
+        // Hub gets aggregate LPS from spokes (50% of each spoke)
         hubLPSMap[site.dhcpPartner] = (hubLPSMap[site.dhcpPartner] || 0) + Math.ceil(spokeLPS * HUB_FAILOVER_CAPACITY);
+        // Hub gets ALL spoke DHCP objects (FO replication — whole object count)
+        foObjectsMap[site.dhcpPartner] = (foObjectsMap[site.dhcpPartner] || 0) + spokeDhcpObjs;
+        // Count partners per hub
+        partnerCountMap[site.dhcpPartner] = (partnerCountMap[site.dhcpPartner] || 0) + 1;
       }
     });
 
-    // Second pass: Calculate model/tokens with HA logic
+    // Spoke gets partner's (hub's) DHCP objects replicated to it
+    allBasicSites.forEach(site => {
+      if (site.dhcpPartner) {
+        const partnerSite = allBasicSites.find(s => s.id === site.dhcpPartner);
+        if (partnerSite) {
+          const partnerDhcpObjs = calculateSiteDhcpObjects(partnerSite.numIPs, partnerSite.dhcpPercent);
+          foObjectsMap[site.id] = (foObjectsMap[site.id] || 0) + partnerDhcpObjs;
+        }
+      }
+    });
+
+    // === Pass 2: Calculate model/tokens with HA, FO objects, and perf features ===
     return allBasicSites.map(site => {
       const isSpoke = !!site.dhcpPartner;
       const hubLPS = hubLPSMap[site.id] || 0;
       const isHub = hubLPS > 0;
+      const foObjects = foObjectsMap[site.id] || 0;
+      const partnerCount = partnerCountMap[site.id] || 0;
 
       // Reporting → force virtual platform; ND → force NIOS physical if not already set
       const effectivePlatform = site.role === 'Reporting'
@@ -246,8 +268,19 @@ export function TokenCalculatorSummary() {
 
       const recommendedModel = getSiteRecommendedModel(
         site.numIPs, site.role, platformMode, site.dhcpPercent,
-        leaseTimeSeconds, effectivePlatform, { isSpoke, hubLPS }
+        leaseTimeSeconds, effectivePlatform,
+        { isSpoke, hubLPS, foObjects, perfFeatures: site.perfFeatures || [] }
       );
+
+      // Validate DHCP FO association limits
+      let foWarning = null;
+      if (isHub || isSpoke) {
+        const totalFoIPs = isHub
+          ? site.numIPs + allBasicSites.filter(s => s.dhcpPartner === site.id).reduce((sum, s) => sum + s.numIPs, 0)
+          : site.numIPs + (allBasicSites.find(s => s.id === site.dhcpPartner)?.numIPs || 0);
+        const validation = validateDhcpFoLimits(recommendedModel, totalFoIPs);
+        if (!validation.valid) foWarning = validation.warning;
+      }
 
       const hardwareOptions = getHardwareSkuOptions(recommendedModel);
       const defaultHardware = getDefaultHardwareSku(recommendedModel);
@@ -273,7 +306,7 @@ export function TokenCalculatorSummary() {
         recommendedModel,
         hardwareSku: siteOverrides[site.id]?.hardwareSku || defaultHardware,
         hardwareOptions, tokens: adjustedTokens, tokensPerServer: singleServerTokens,
-        serviceImpact, isHub, isSpoke, hubLPS,
+        serviceImpact, isHub, isSpoke, hubLPS, foObjects, partnerCount, foWarning,
         swInstances,
         hwCount,
       };
