@@ -292,7 +292,7 @@ export function TokenCalculatorSummary() {
       const hardwareOptions = getHardwareSkuOptions(recommendedModel);
       const defaultHardware = getDefaultHardwareSku(recommendedModel);
 
-      const baseTokens = getTokensForModel(recommendedModel);
+      const baseTokens = getTokensForModel(recommendedModel, effectivePlatform);
       const serviceImpact = getServiceImpact(site.services);
       const singleServerTokens = Math.ceil(baseTokens * (1 + serviceImpact / 100));
       
