@@ -266,10 +266,17 @@ export function TokenCalculatorSummary() {
         ? (site.platform || 'NIOS-V')   // RPT defaults to virtual
         : site.platform;
 
+      // Auto-inject DHCP-FO into perfFeatures when site is in an FO relationship
+      // This ensures the 50% LPS penalty is applied to BOTH hub and spoke
+      const basePerfFeatures = site.perfFeatures || [];
+      const effectivePerfFeatures = (isHub || isSpoke) && !basePerfFeatures.includes('DHCP-FO')
+        ? [...basePerfFeatures, 'DHCP-FO']
+        : basePerfFeatures;
+
       const recommendedModel = getSiteRecommendedModel(
         site.numIPs, site.role, platformMode, site.dhcpPercent,
         leaseTimeSeconds, effectivePlatform,
-        { isSpoke, hubLPS, foObjects, perfFeatures: site.perfFeatures || [] }
+        { isSpoke, hubLPS, foObjects, perfFeatures: effectivePerfFeatures }
       );
 
       // Validate DHCP FO association limits
