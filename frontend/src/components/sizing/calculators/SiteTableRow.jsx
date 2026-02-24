@@ -620,14 +620,15 @@ export function SiteTableRow({
         })()}
       </TableCell>
 
-      {/* Description — free text for export */}
+      {/* Description — free text with auto-generated placeholder */}
       <TableCell className="p-1 lg:p-2">
         <Input
           value={site.description || ''}
           onChange={e => onUpdateSite(site.id, 'description', e.target.value)}
-          placeholder="Description..."
-          className="h-8 text-xs min-w-[70px]"
+          placeholder={getDescription().replace(/\n/g, ', ')}
+          className="h-8 text-xs min-w-[100px]"
           disabled={site.isDisabledInUddi}
+          title={getDescription()}
         />
       </TableCell>
 
