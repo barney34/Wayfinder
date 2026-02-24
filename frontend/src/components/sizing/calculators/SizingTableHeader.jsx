@@ -124,19 +124,15 @@ export function SizingTableHeader({ showHardware, showKW, showServices, platform
           HW#
         </HeaderWithTooltip>
 
-        {/* SW Add-ons (NIOS only) */}
-        {platformMode === 'NIOS' && (
-          <HeaderWithTooltip className="w-24" tooltip="SW Add-ons: CNA, ADNS, DCA, SECECO, FIPS, TA">
-            SW Add-ons
-          </HeaderWithTooltip>
-        )}
+        {/* SW Add-ons */}
+        <HeaderWithTooltip className="w-24" tooltip="SW Add-ons: CNA, ADNS, DCA, SECECO, FIPS, TA">
+          SW Add-ons
+        </HeaderWithTooltip>
 
-        {/* HW Add-ons (NIOS only) */}
-        {platformMode === 'NIOS' && (
-          <HeaderWithTooltip className="w-20" tooltip="HW Add-ons: PSU, SFP modules with quantity">
-            HW Add-ons
-          </HeaderWithTooltip>
-        )}
+        {/* HW Add-ons */}
+        <HeaderWithTooltip className="w-20" tooltip="HW Add-ons: PSU, SFP modules with quantity">
+          HW Add-ons
+        </HeaderWithTooltip>
         
         {/* Tokens (conditional) */}
         {showTokens && (
