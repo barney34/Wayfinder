@@ -270,10 +270,11 @@ export const PERFORMANCE_FEATURES = [
   },
 ];
 
-// Helper: Get available Performance Features for a role
+// Helper: Get available Performance Features for a role (manual toggles only, excludes autoApply)
 export function getAvailablePerfFeatures(role) {
   if (!role) return [];
   return PERFORMANCE_FEATURES.filter(f => {
+    if (f.autoApply) return false; // autoApply features are not manual toggles
     if (!f.allowedRoles) return true;
     return f.allowedRoles.includes(role);
   });
@@ -281,12 +282,18 @@ export function getAvailablePerfFeatures(role) {
 
 // Helper: Calculate the net performance multiplier from enabled perf features
 // Returns { qpsMultiplier, lpsMultiplier } — multiplicative reduction
+// enabledFeatures: array of feature codes including auto-applied ones
 export function calculatePerfImpact(enabledFeatures = [], role) {
-  const available = getAvailablePerfFeatures(role);
+  // Check ALL features (including autoApply) — the caller is responsible for
+  // injecting auto-applied feature codes (like DHCP-FO) into enabledFeatures
+  const relevant = PERFORMANCE_FEATURES.filter(f => {
+    if (!f.allowedRoles) return true;
+    return f.allowedRoles.includes(role);
+  });
   let qpsMult = 1.0;
   let lpsMult = 1.0;
 
-  for (const feat of available) {
+  for (const feat of relevant) {
     if (enabledFeatures.includes(feat.value)) {
       if (feat.impactType === 'qps') {
         qpsMult *= (1 - feat.impactPercent / 100);
