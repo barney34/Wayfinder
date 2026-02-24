@@ -505,7 +505,15 @@ export function SiteTableRow({
         {(() => {
           const isGmRow = site.role?.startsWith('GM') || site.role?.startsWith('GMC');
           return (
-            <Select value={site.role} onValueChange={v => onUpdateSite(site.id, 'role', v)} disabled={site.isDisabledInUddi}>
+            <Select value={site.role} onValueChange={v => {
+                onUpdateSite(site.id, 'role', v);
+                // Reporting → force NIOS Virtual platform + clear HW
+                if (v === 'Reporting') {
+                  onUpdateSite(site.id, 'platform', 'NIOS-V');
+                  onUpdateSite(site.id, 'hwAddons', []);
+                  onUpdateSite(site.id, 'sfpAddons', {});
+                }
+              }} disabled={site.isDisabledInUddi}>
               <SelectTrigger className="h-8 text-xs" data-testid={`site-role-${site.id}`}>
                 <SelectValue />
               </SelectTrigger>
