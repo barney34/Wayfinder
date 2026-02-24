@@ -702,14 +702,14 @@ export function TokenCalculatorSummary() {
           </div>
 
           {/* Drawing # Header */}
-          <div className="flex items-center gap-2 mb-2 mt-2">
+          <div className="flex items-center gap-2 mb-0 mt-2">
             <span className="text-lg font-bold text-primary">Drawing #{activeDrawing?.name || '10'}</span>
             <span className="text-sm text-muted-foreground">({sites.length} sites)</span>
           </div>
           </div>{/* end sticky header area */}
 
           <div className="px-4 lg:px-6 pb-4 lg:pb-6">
-          <div className="border rounded-lg overflow-x-auto">
+          <div className="border rounded-lg overflow-x-auto max-h-[calc(100vh-200px)] overflow-y-auto">
             <Table className="table-auto w-full">
               <SizingTableHeader 
                 showHardware={showHardware} 
