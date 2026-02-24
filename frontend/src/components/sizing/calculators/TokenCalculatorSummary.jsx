@@ -867,6 +867,8 @@ export function TokenCalculatorSummary() {
                         onOpenModelDialog={openModelDialog}
                         onCopySiteToDrawing={copySiteToDrawing}
                         unitAssignment={unitAssignments[srv.id]}
+                        onMoveUp={!srv._isExpanded ? () => moveSite(srv.id, 'up') : undefined}
+                        onMoveDown={!srv._isExpanded ? () => moveSite(srv.id, 'down') : undefined}
                       />
                     );
 
