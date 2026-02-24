@@ -240,8 +240,7 @@ export function TokenCalculatorSummary() {
       const adjustedTokens = singleServerTokens * swInstances;
       
       // HW count: if includeHW is false, always 0. Otherwise user can override, or defaults based on platform
-      const isVirtualOrCloud = site.platform?.includes('NXVS') || site.platform?.includes('NXaaS') || 
-                               site.platform === 'NIOS-V';
+      const isVirtualOrCloud = site.platform !== 'NIOS' && site.platform !== 'NX-P';
       const defaultHwCount = isVirtualOrCloud ? 0 : swInstances;
       const hwCount = site.includeHW === false ? 0 : (site.hwCount !== undefined ? site.hwCount : defaultHwCount);
 
