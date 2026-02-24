@@ -195,6 +195,34 @@ export function SiteTableRow({
         ${!site.isDisabledInUddi && site.isSpoke ? 'bg-amber-50/50 dark:bg-amber-900/10' : ''}
       `}
     >
+      {/* Unit Letter */}
+      <TableCell className="p-1 lg:p-2 text-center">
+        <Select
+          value={unitAssignment?.unitLetter || getUnitGroup(site.role, site.services)}
+          onValueChange={val => onUpdateSite(site.id, 'unitLetterOverride', val)}
+          disabled={site.isDisabledInUddi}
+        >
+          <SelectTrigger className="h-8 w-14 text-xs font-bold px-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {[
+              { value: 'A', label: 'A' }, { value: 'B', label: 'B' }, { value: 'C', label: 'C' },
+              { value: 'D', label: 'D' }, { value: 'E', label: 'E' }, { value: 'F', label: 'F' },
+              { value: 'G', label: 'G' }, { value: 'M', label: 'M' }, { value: 'N', label: 'N' },
+              { value: 'RPT', label: 'RPT' }, { value: 'LIC', label: 'LIC' }, { value: 'CDC', label: 'CDC' },
+            ].map(opt => (
+              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </TableCell>
+      
+      {/* Unit Number */}
+      <TableCell className="p-1 lg:p-2 text-center text-sm font-semibold tabular-nums">
+        {unitAssignment?.unitNumber || 1}
+      </TableCell>
+      
       {/* Location Name */}
       <TableCell className="p-2 lg:p-4">
         <div className="flex items-center gap-2">
