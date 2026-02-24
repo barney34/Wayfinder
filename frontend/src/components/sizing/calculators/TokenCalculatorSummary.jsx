@@ -436,16 +436,18 @@ export function TokenCalculatorSummary() {
     return { ...gmObjects, recommendedGM, serviceWarnings, memberCount: totals.memberCount };
   }, [sites, dhcpPercent, platformMode, answers, totals.memberCount]);
 
-  // BOM
+  // BOM — include all physical hardware SKUs (TE, ND), exclude VM/Cloud/N/A
   const bom = useMemo(() => {
     const bomItems = {};
     sites.forEach(site => {
       const sku = site.hardwareSku || 'N/A';
-      if (sku !== 'N/A') {
-        if (!bomItems[sku]) bomItems[sku] = { sku, description: getSkuDescription(sku), quantity: 0, sites: [] };
-        bomItems[sku].quantity += 1;
-        bomItems[sku].sites.push(site.name);
-      }
+      // Only include real physical hardware SKUs
+      if (!sku || sku === 'N/A' || sku === 'VM' || sku === 'Cloud') return;
+      const hwCount = site.hwCount ?? 0;
+      if (hwCount <= 0) return;
+      if (!bomItems[sku]) bomItems[sku] = { sku, description: getSkuDescription(sku), quantity: 0, sites: [] };
+      bomItems[sku].quantity += hwCount;
+      bomItems[sku].sites.push(site.name);
     });
     return Object.values(bomItems);
   }, [sites]);
