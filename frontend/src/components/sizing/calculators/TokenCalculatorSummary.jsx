@@ -205,7 +205,17 @@ export function TokenCalculatorSummary() {
 
     const dcSites = dataCenters.map((dc, i) => buildBasicSite(dc, i, 'dataCenter'));
     const branchSites = contextSites.map((site, i) => buildBasicSite(site, i, 'site'));
-    const allBasicSites = [...dcSites, ...branchSites];
+    const naturalOrder = [...dcSites, ...branchSites];
+    // Apply manual sort order if set
+    if (siteOrder && siteOrder.length > 0) {
+      const idToSite = Object.fromEntries(naturalOrder.map(s => [s.id, s]));
+      const ordered = siteOrder.map(id => idToSite[id]).filter(Boolean);
+      // Append any new sites not yet in siteOrder
+      const inOrder = new Set(siteOrder);
+      naturalOrder.forEach(s => { if (!inOrder.has(s.id)) ordered.push(s); });
+      return ordered;
+    }
+    return naturalOrder;
 
     // Calculate Hub LPS - Hub needs to handle 50% of combined spoke capacity for failover
     const HUB_FAILOVER_CAPACITY = 0.5; // 50% of spoke LPS added to hub
