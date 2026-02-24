@@ -835,57 +835,100 @@ export function SiteTableRow({
         </TableCell>
       )}
 
-      {/* HW Add-ons (Physical only) */}
-      {platformMode === 'NIOS' && !exportView && site.platform === 'NIOS' && (
-        <TableCell className="p-2 lg:p-4">
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline" size="sm"
-                className="h-8 lg:h-10 text-xs lg:text-sm w-full justify-between"
-                disabled={site.isDisabledInUddi || availableHwAddons.length === 0}
-                data-testid={`site-hw-addons-${site.id}`}
-              >
-                {(site.hwAddons?.length || 0) > 0 ? (
-                  <span className="truncate text-xs">{site.hwAddons.join(', ')}</span>
-                ) : (
-                  <span className="text-muted-foreground">—</span>
-                )}
-                <Plus className="h-3 w-3 ml-1 flex-shrink-0" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-56 p-3" align="start">
-              <div className="space-y-3">
-                <div className="font-medium text-sm">HW Add-ons</div>
-                <p className="text-xs text-muted-foreground">Select hardware add-ons for this appliance.</p>
-                <div className="space-y-2">
-                  {availableHwAddons.length > 0 ? (
-                    availableHwAddons.map(addon => (
-                      <div key={addon.value} className="flex items-center gap-2">
-                        <Checkbox
-                          id={`${site.id}-hw-${addon.value}`}
-                          checked={(site.hwAddons || []).includes(addon.value)}
-                          onCheckedChange={(checked) => {
-                            const current = site.hwAddons || [];
-                            const updated = checked 
-                              ? [...current, addon.value]
-                              : current.filter(a => a !== addon.value);
-                            onUpdateSite(site.id, 'hwAddons', updated);
-                          }}
-                        />
-                        <label htmlFor={`${site.id}-hw-${addon.value}`} className="flex-1 text-sm cursor-pointer">
-                          <span className="font-medium">{addon.label}</span>
-                          <span className="text-xs text-muted-foreground block">{addon.description}</span>
-                        </label>
-                      </div>
-                    ))
+      {/* HW Add-ons (Physical only, with SFP quantity) */}
+      {platformMode === 'NIOS' && !exportView && (
+        <TableCell className="p-1">
+          {isVirtualPlatform ? (
+            <span className="text-xs text-muted-foreground">—</span>
+          ) : (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline" size="sm"
+                  className="h-8 text-xs w-full justify-between"
+                  disabled={site.isDisabledInUddi}
+                  data-testid={`site-hw-addons-${site.id}`}
+                >
+                  {(site.hwAddons?.length || 0) > 0 || (site.sfpAddons && Object.keys(site.sfpAddons).length > 0) ? (
+                    <span className="truncate text-xs">
+                      {[
+                        ...(site.hwAddons || []),
+                        ...Object.entries(site.sfpAddons || {}).filter(([,qty]) => qty > 0).map(([sfp, qty]) => `${qty}×${sfp.replace('IB-','')}`),
+                      ].join(', ') || '—'}
+                    </span>
                   ) : (
-                    <p className="text-xs text-muted-foreground italic">No HW add-ons for this model</p>
+                    <span className="text-muted-foreground">—</span>
                   )}
+                  <Settings2 className="h-3 w-3 ml-1 flex-shrink-0" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-72 p-3" align="start">
+                <div className="space-y-3">
+                  <div className="font-medium text-sm">HW Add-ons</div>
+                  
+                  {/* Standard HW add-ons (PSU, Cards) */}
+                  {availableHwAddons.length > 0 && (
+                    <div className="space-y-2">
+                      {availableHwAddons.map(addon => (
+                        <div key={addon.value} className="flex items-center gap-2">
+                          <Checkbox
+                            id={`${site.id}-hw-${addon.value}`}
+                            checked={(site.hwAddons || []).includes(addon.value)}
+                            onCheckedChange={(checked) => {
+                              const current = site.hwAddons || [];
+                              const updated = checked 
+                                ? [...current, addon.value]
+                                : current.filter(a => a !== addon.value);
+                              onUpdateSite(site.id, 'hwAddons', updated);
+                            }}
+                          />
+                          <label htmlFor={`${site.id}-hw-${addon.value}`} className="text-xs cursor-pointer">
+                            <span className="font-medium">{addon.label}</span>
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* SFP Interfaces with quantity */}
+                  <div className="border-t pt-2">
+                    <div className="text-xs font-medium text-muted-foreground mb-2">SFP Interfaces</div>
+                    <div className="space-y-1.5">
+                      {SFP_OPTIONS.map(sfp => {
+                        const qty = (site.sfpAddons || {})[sfp.value] || 0;
+                        return (
+                          <div key={sfp.value} className="flex items-center gap-2">
+                            <div className="flex items-center h-6 rounded border border-border overflow-hidden">
+                              <button
+                                onClick={() => {
+                                  if (qty > 0) {
+                                    const updated = { ...(site.sfpAddons || {}), [sfp.value]: qty - 1 };
+                                    if (updated[sfp.value] <= 0) delete updated[sfp.value];
+                                    onUpdateSite(site.id, 'sfpAddons', updated);
+                                  }
+                                }}
+                                disabled={qty <= 0}
+                                className="h-full w-5 flex items-center justify-center text-muted-foreground hover:bg-muted disabled:opacity-30 text-[10px] border-r border-border"
+                              >−</button>
+                              <span className="text-[10px] font-semibold w-5 text-center tabular-nums">{qty}</span>
+                              <button
+                                onClick={() => {
+                                  const updated = { ...(site.sfpAddons || {}), [sfp.value]: qty + 1 };
+                                  onUpdateSite(site.id, 'sfpAddons', updated);
+                                }}
+                                className="h-full w-5 flex items-center justify-center text-muted-foreground hover:bg-muted text-[10px] border-l border-border"
+                              >+</button>
+                            </div>
+                            <span className="text-[10px] flex-1">{sfp.label}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </PopoverContent>
-          </Popover>
+              </PopoverContent>
+            </Popover>
+          )}
         </TableCell>
       )}
 
