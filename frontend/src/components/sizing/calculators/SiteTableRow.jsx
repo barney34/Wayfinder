@@ -1200,8 +1200,11 @@ export function SiteTableRow({
                     {site.serverCount > 1 && <div><strong>Servers:</strong> x{site.serverCount}</div>}
                     {site.haEnabled && <div className="text-primary"><strong>HA:</strong> Enabled (×2 SW instances)</div>}
                     {(site.serviceImpact || 0) > 0 && <div><strong>Service overhead:</strong> +{site.serviceImpact}%</div>}
-                    {site.isSpoke && <div className="text-amber-600"><strong>Spoke penalty:</strong> 50% LPS</div>}
-                    {site.isHub && <div className="text-accent"><strong>Hub failover:</strong> +{site.hubLPS} LPS (50% of spokes)</div>}
+                    {site.isSpoke && <div className="text-amber-600"><strong>FO Partner:</strong> 2x LPS capacity</div>}
+                    {site.isHub && <div className="text-accent"><strong>FO {(site.partnerCount || 0) > 1 ? 'Hub' : 'Partner'}:</strong> +{site.hubLPS} LPS from {site.partnerCount || 0} partner(s)</div>}
+                    {(site.foObjects || 0) > 0 && <div className="text-amber-500"><strong>FO Objects:</strong> +{site.foObjects.toLocaleString()} replicated</div>}
+                    {site.foWarning && <div className="text-red-500 font-medium">{site.foWarning}</div>}
+                    {(site.perfFeatures?.length || 0) > 0 && <div className="text-red-400"><strong>Perf features:</strong> {site.perfFeatures.join(', ')}</div>}
                   </div>
                 </TooltipContent>
               </Tooltip>
