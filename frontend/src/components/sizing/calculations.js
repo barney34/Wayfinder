@@ -222,7 +222,7 @@ export function getSiteRecommendedModel(numIPs, role, platform, dhcpPercent, lea
     if (isUDDI) return 'S';
     
     for (const server of niosServerGuardrails) {
-      if (server.maxDbObj * util >= gridObjects) {
+      if (server.maxDbObj * util > gridObjects) {
         return server.model;
       }
     }
@@ -255,14 +255,13 @@ export function getSiteRecommendedModel(numIPs, role, platform, dhcpPercent, lea
     }
     
     for (const server of niosServerGuardrails) {
-      // Apply perf feature impact to server's effective capacity
       const effectiveQPS = server.maxQPS * util * qpsMultiplier;
       const effectiveLPS = server.maxLPS * util * lpsMultiplier;
       const effectiveObjects = server.maxDbObj * util;
       
-      const meetsQPS = !hasDNS && !hasBoth || effectiveQPS >= requiredQPS;
-      const meetsLPS = !hasDHCP && !hasBoth || effectiveLPS >= requiredLPS;
-      const meetsObjects = effectiveObjects >= requiredObjects;
+      const meetsQPS = !hasDNS && !hasBoth || effectiveQPS > requiredQPS;
+      const meetsLPS = !hasDHCP && !hasBoth || effectiveLPS > requiredLPS;
+      const meetsObjects = effectiveObjects > requiredObjects;
       
       if (meetsQPS && meetsLPS && meetsObjects) {
         return server.model;
