@@ -1278,7 +1278,12 @@ export function SiteTableRow({
 function ModelTooltipContent({ site, platformMode, dhcpPercent }) {
   const workload = getSiteWorkloadDetails(
     site.numIPs, site.role, platformMode, dhcpPercent,
-    site.platform, { isSpoke: site.isSpoke, hubLPS: site.hubLPS || 0 }
+    site.platform, {
+      isSpoke: site.isSpoke,
+      hubLPS: site.hubLPS || 0,
+      foObjects: site.foObjects || 0,
+      perfFeatures: site.perfFeatures || [],
+    }
   );
   return (
     <div className="space-y-2 text-xs">
@@ -1295,10 +1300,23 @@ function ModelTooltipContent({ site, platformMode, dhcpPercent }) {
         </div>
         <div className="text-muted-foreground">DHCP: {formatNumber(workload.dhcpClients)}</div>
       </div>
+      {workload.foObjects > 0 && (
+        <div className="border-t pt-1 text-amber-500">
+          <div className="font-medium">FO Object Replication:</div>
+          <div>&#8226; +{workload.foObjects.toLocaleString()} DHCP objects from partner(s)</div>
+        </div>
+      )}
       {workload.penalties.length > 0 && (
         <div className="border-t pt-1 text-amber-600">
           <div className="font-medium">Penalties Applied:</div>
           {workload.penalties.map((p, i) => <div key={i}>&#8226; {p}</div>)}
+        </div>
+      )}
+      {(workload.qpsMultiplier < 1 || workload.lpsMultiplier < 1) && (
+        <div className="border-t pt-1 text-red-400">
+          <div className="font-medium">Effective Capacity Reduction:</div>
+          {workload.qpsMultiplier < 1 && <div>&#8226; QPS: {Math.round(workload.qpsMultiplier * 100)}% of rated</div>}
+          {workload.lpsMultiplier < 1 && <div>&#8226; LPS: {Math.round(workload.lpsMultiplier * 100)}% of rated</div>}
         </div>
       )}
       <div className="border-t pt-1 text-muted-foreground">
