@@ -40,13 +40,13 @@ export const niosFeatureImpacts = [
   { product: 'NIOS', role: 'DHCP', featureCode: 'OS-FP', featureName: 'Fingerprinting', impactPercent: 10, defaultEnabled: true },
   { product: 'NIOS', role: 'DHCP', featureCode: 'DHCP-DC', featureName: 'DHCP Reporting', impactPercent: 15, defaultEnabled: true },
   { product: 'NIOS', role: 'DNS', featureCode: 'ADP', featureName: 'Advanced DNS Protection', impactPercent: 20, defaultEnabled: false },
-  { product: 'NIOS', role: 'DNS', featureCode: 'DTC', featureName: 'DNS Traffic Control', impactPercent: 25, defaultEnabled: true },
-  { product: 'NIOS', role: 'DNS', featureCode: 'QR', featureName: 'Query Or Response Capture', impactPercent: 40, defaultEnabled: true },
+  { product: 'NIOS', role: 'DNS', featureCode: 'DTC', featureName: 'DNS Traffic Control', impactPercent: 20, defaultEnabled: true },
+  { product: 'NIOS', role: 'DNS', featureCode: 'QR', featureName: 'Q&R to Data Connector', impactPercent: 40, defaultEnabled: true },
   { product: 'NIOS', role: 'DNS', featureCode: 'QR2', featureName: 'Query And Response Capture', impactPercent: 10, defaultEnabled: true },
-  { product: 'NIOS', role: 'DNS', featureCode: 'SYS', featureName: 'Forward to Syslog', impactPercent: 50, defaultEnabled: false },
+  { product: 'NIOS', role: 'DNS', featureCode: 'SYS', featureName: 'Q&R to Syslog', impactPercent: 90, defaultEnabled: false },
   { product: 'NIOS', role: 'DNS', featureCode: 'DNS-DC', featureName: 'DNS Reporting', impactPercent: 15, defaultEnabled: true },
   { product: 'NIOS', role: 'DNS', featureCode: 'RPZ', featureName: 'DNS Firewall', impactPercent: 15, defaultEnabled: false },
-  { product: 'NIOS', role: 'DNS', featureCode: 'NSIP', featureName: 'RPZ NSDNAME/NSIP', impactPercent: 30, defaultEnabled: false },
+  { product: 'NIOS', role: 'DNS', featureCode: 'NSIP', featureName: 'RPZ NSDNAME/NSIP', impactPercent: 45, defaultEnabled: false },
   { product: 'NIOS', role: 'DNS', featureCode: 'TI', featureName: 'RPZ Threat Insight', impactPercent: 30, defaultEnabled: false },
 ];
 
