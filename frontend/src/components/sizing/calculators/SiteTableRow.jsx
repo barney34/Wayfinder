@@ -738,7 +738,7 @@ export function SiteTableRow({
       {/* HW Count — auto 0 for virtual, editable for physical */}
       <TableCell className="p-1 text-center">
         {isVirtualPlatform ? (
-          <span className="text-xs text-muted-foreground">VM</span>
+          <span className="text-xs text-muted-foreground">0</span>
         ) : (
           <Input
             type="number" min="0" max="999"
