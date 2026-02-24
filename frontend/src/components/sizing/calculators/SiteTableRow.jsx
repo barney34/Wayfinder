@@ -888,8 +888,33 @@ export function SiteTableRow({
               <PopoverContent className="w-72 p-3" align="start">
                 <div className="space-y-3">
                   <div className="font-medium text-sm">HW Add-ons</div>
+
+                  {/* HW Variant selector — switch AC/DC/10GE without needing the HW SKU column */}
+                  {(site.hardwareOptions || []).length > 1 && (
+                    <div className="pb-2 border-b">
+                      <div className="text-xs text-muted-foreground mb-1">HW Variant</div>
+                      <Select
+                        value={site.hardwareSku || ''}
+                        onValueChange={v => {
+                          onUpdateSite(site.id, 'hardwareSku', v);
+                          // Clear PSU/SFP selections when variant changes
+                          onUpdateSite(site.id, 'hwAddons', []);
+                          onUpdateSite(site.id, 'sfpAddons', {});
+                        }}
+                      >
+                        <SelectTrigger className="h-7 text-xs font-mono">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {(site.hardwareOptions || []).map(o => (
+                            <SelectItem key={o} value={o} className="text-xs font-mono">{o}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
                   
-                  {/* Standard HW add-ons (PSU) */}
+                  {/* PSU — 1506 models only */}
                   {availableHwAddons.length > 0 && (
                     <div className="space-y-2">
                       {availableHwAddons.map(addon => {
@@ -915,7 +940,7 @@ export function SiteTableRow({
                               }}
                             />
                             <label htmlFor={`${site.id}-hw-${addon.value}`} className="text-xs cursor-pointer">
-                              <span className="font-medium">{displayLabel}</span>
+                              <span className="font-medium font-mono">{displayLabel}</span>
                             </label>
                           </div>
                         );
