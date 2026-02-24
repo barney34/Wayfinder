@@ -33,10 +33,11 @@ export function SizingTableHeader({ showHardware, showKW, showServices, platform
       <TableHeader className="sticky top-0 z-20">
         <TableRow className="bg-muted text-xs">
           <TableHead className="w-14 p-1.5">Unit Grp</TableHead>
+          <TableHead className="w-14 p-1.5 text-center">#/Range</TableHead>
           <TableHead className="w-16 p-1.5">Solution</TableHead>
           <TableHead className="w-20 p-1.5">Model Info</TableHead>
           <TableHead className="w-12 p-1.5 text-center">SW#</TableHead>
-          <TableHead className="w-32 p-1.5">Description</TableHead>
+          <TableHead className="w-44 p-1.5">Description</TableHead>
           <TableHead className="w-28 p-1.5">SW Base SKU</TableHead>
           <TableHead className="w-16 p-1.5">SW Pkg</TableHead>
           <TableHead className="w-20 p-1.5">SW Add-ons</TableHead>
