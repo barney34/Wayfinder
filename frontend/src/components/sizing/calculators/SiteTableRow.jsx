@@ -852,16 +852,25 @@ export function SiteTableRow({
                   disabled={site.isDisabledInUddi}
                   data-testid={`site-hw-addons-${site.id}`}
                 >
-                  {(site.hwAddons?.length || 0) > 0 || (site.sfpAddons && Object.keys(site.sfpAddons).length > 0) ? (
-                    <span className="truncate text-xs">
-                      {[
-                        ...(site.hwAddons || []),
-                        ...Object.entries(site.sfpAddons || {}).filter(([,qty]) => qty > 0).map(([sfp, qty]) => `${qty}×${sfp.replace('IB-','')}`),
-                      ].join(', ') || '+'}
-                    </span>
-                  ) : (
-                    <span className="text-muted-foreground text-base leading-none">+</span>
-                  )}
+                  {(() => {
+                    const serverCount = site._serverCount || 1;
+                    const hwLabels = (site.hwAddons || []).map(v => {
+                      if (v === 'PSU') {
+                        const hwSku = site.hardwareSku || '';
+                        return hwSku.includes('-AC') ? 'T-PSU600-AC' : hwSku.includes('-DC') ? 'T-PSU600-DC' : 'T-PSU600';
+                      }
+                      return v;
+                    });
+                    const sfpLabels = Object.entries(site.sfpAddons || {})
+                      .filter(([, qty]) => qty > 0)
+                      .map(([sfp, qty]) => `${qty * serverCount}×${sfp.replace('IB-', '')}`);
+                    const all = [...hwLabels, ...sfpLabels];
+                    return all.length > 0 ? (
+                      <span className="truncate text-xs">{all.join(', ')}</span>
+                    ) : (
+                      <span className="text-muted-foreground text-base leading-none">+</span>
+                    );
+                  })()}
                   {((site.hwAddons?.length || 0) > 0 || (site.sfpAddons && Object.keys(site.sfpAddons).length > 0)) && (
                     <Settings2 className="h-3 w-3 ml-1 flex-shrink-0" />
                   )}
