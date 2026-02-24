@@ -321,15 +321,19 @@ export function TokenCalculatorSummary() {
     });
   }, [dataCenterIds, contextSiteIds, dataCenters, contextSites, siteOverrides, ipMultiplier, dhcpPercent, platformMode, leaseTimeSeconds, ipCalcValue, siteOrder]);
 
-  // Sort sites by unit group (A→B→C→…→RPT→LIC→CDC) then by current position within group
+  // Sort sites by unit group (A→B→C→…→RPT→LIC→CDC) then by unit number within group
   const sortByUnit = useCallback(() => {
     const { UNIT_SORT_ORDER } = require('./unitDesignations');
     const sorted = [...sites].sort((a, b) => {
-      const la = getUnitLetterForRole(a.role);
-      const lb = getUnitLetterForRole(b.role);
+      const la = a.unitLetterOverride || getUnitLetterForRole(a.role);
+      const lb = b.unitLetterOverride || getUnitLetterForRole(b.role);
       const oa = UNIT_SORT_ORDER[la] ?? 99;
       const ob = UNIT_SORT_ORDER[lb] ?? 99;
-      return oa !== ob ? oa - ob : 0; // stable within same group
+      if (oa !== ob) return oa - ob;
+      // Within same group, sort by unit number override or natural order
+      const na = a.unitNumberOverride ?? 999;
+      const nb = b.unitNumberOverride ?? 999;
+      return na - nb;
     });
     setSiteOrder(sorted.map(s => s.id));
   }, [sites]);
