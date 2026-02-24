@@ -263,6 +263,8 @@ export function WhyThisModelDialog({ open, onOpenChange, site, platformMode, dhc
 }
 
 function WorkloadBar({ label, isDriver, value, max, util }) {
+  // Color: green (<60%), yellow (60-99%), red (>=100% — at or over the 60% target limit)
+  const barColor = util >= 100 ? '[&>div]:bg-destructive' : util > 60 ? '[&>div]:bg-[#FEDD00]' : '';
   return (
     <div className="space-y-1">
       <div className="flex justify-between text-sm">
@@ -271,7 +273,7 @@ function WorkloadBar({ label, isDriver, value, max, util }) {
         </span>
         <span>{formatNumber(value)} / {formatNumber(max)} ({util}%)</span>
       </div>
-      <Progress value={Math.min(util, 100)} className={`h-2 ${util > 60 ? '[&>div]:bg-[#FEDD00]' : ''} ${util > 80 ? '[&>div]:bg-destructive' : ''}`} />
+      <Progress value={Math.min(util, 100)} className={`h-2 ${barColor}`} />
     </div>
   );
 }
