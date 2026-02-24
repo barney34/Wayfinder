@@ -175,9 +175,14 @@ export const SFP_OPTIONS = [
   { value: 'IB-10GE-SR-SFP', label: 'SFP+ SR 10GE', description: 'SFP+ Short Range 10GE' },
 ];
 
+// Helper: Check if platform is physical (has hardware)
+export function isPlatformPhysical(platform) {
+  return platform === 'NIOS' || platform === 'NX-P';
+}
+
 // Helper to get available SW Add-ons for a given role and platform
 export function getAvailableSwAddons(role, platform) {
-  const isPhysical = platform === 'NIOS' || platform?.includes('Physical');
+  const isPhysical = isPlatformPhysical(platform);
   const isGmOrGmc = role?.startsWith('GM');
   
   return SW_ADDONS.filter(addon => {
@@ -194,8 +199,7 @@ export function getAvailableSwAddons(role, platform) {
 
 // Helper to get available HW Add-ons for a given model
 export function getAvailableHwAddons(model, platform) {
-  const isPhysical = platform === 'NIOS' || platform?.includes('Physical');
-  if (!isPhysical) return [];
+  if (!isPlatformPhysical(platform)) return [];
   
   return HW_ADDONS.filter(addon => {
     if (!addon.allowedModels) return true;
