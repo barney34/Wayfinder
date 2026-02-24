@@ -507,17 +507,35 @@ export function SiteTableRow({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {roleOptions.map(o => (
+            {/* Member roles first */}
+            {roleOptions.filter(o => !o.group).map(o => (
               <SelectItem 
                 key={o.value} 
                 value={o.value} 
                 title={o.description}
                 className={o.notRecommended ? 'text-amber-600 dark:text-amber-400' : ''}
               >
-                {o.label}
-                {o.notRecommended && <span className="ml-1 text-[10px]">⚠️</span>}
+                {o.label}{o.notRecommended && ' ⚠️'}
               </SelectItem>
             ))}
+            {/* Grid Manager roles — separated */}
+            {roleOptions.some(o => o.group === 'Grid Manager') && (
+              <>
+                <div className="px-2 py-1 text-[10px] text-muted-foreground uppercase tracking-wide border-t mt-1 pt-2">
+                  Grid Manager only
+                </div>
+                {roleOptions.filter(o => o.group === 'Grid Manager').map(o => (
+                  <SelectItem
+                    key={o.value}
+                    value={o.value}
+                    title={o.description}
+                    className={o.notRecommended ? 'text-amber-600 dark:text-amber-400' : ''}
+                  >
+                    {o.label}{o.notRecommended && ' ⚠️'}
+                  </SelectItem>
+                ))}
+              </>
+            )}
           </SelectContent>
         </Select>
       </TableCell>
