@@ -222,9 +222,14 @@ export function TokenCalculatorSummary() {
       const hubLPS = hubLPSMap[site.id] || 0;
       const isHub = hubLPS > 0;
 
+      // Reporting → force virtual platform; ND → force NIOS physical if not already set
+      const effectivePlatform = site.role === 'Reporting'
+        ? (site.platform || 'NIOS-V')   // RPT defaults to virtual
+        : site.platform;
+
       const recommendedModel = getSiteRecommendedModel(
         site.numIPs, site.role, platformMode, site.dhcpPercent,
-        leaseTimeSeconds, site.platform, { isSpoke, hubLPS }
+        leaseTimeSeconds, effectivePlatform, { isSpoke, hubLPS }
       );
 
       const hardwareOptions = getHardwareSkuOptions(recommendedModel);
@@ -239,18 +244,21 @@ export function TokenCalculatorSummary() {
       const swInstances = site.serverCount * haMultiplier;
       const adjustedTokens = singleServerTokens * swInstances;
       
-      // HW count: if includeHW is false, always 0. Otherwise user can override, or defaults based on platform
-      const isVirtualOrCloud = site.platform !== 'NIOS' && site.platform !== 'NX-P';
+      // HW count: Reporting is always virtual (0 HW). ND is physical.
+      const isVirtualOrCloud = effectivePlatform !== 'NIOS' && effectivePlatform !== 'NX-P'
+        || site.role === 'Reporting';
       const defaultHwCount = isVirtualOrCloud ? 0 : swInstances;
       const hwCount = site.includeHW === false ? 0 : (site.hwCount !== undefined ? site.hwCount : defaultHwCount);
 
       return {
-        ...site, recommendedModel,
+        ...site,
+        platform: effectivePlatform,
+        recommendedModel,
         hardwareSku: siteOverrides[site.id]?.hardwareSku || defaultHardware,
         hardwareOptions, tokens: adjustedTokens, tokensPerServer: singleServerTokens,
         serviceImpact, isHub, isSpoke, hubLPS,
-        swInstances, // Calculated: serverCount * (HA ? 2 : 1)
-        hwCount, // User-editable or auto-calculated, 0 if includeHW=false
+        swInstances,
+        hwCount,
       };
     });
   }, [dataCenterIds, contextSiteIds, dataCenters, contextSites, siteOverrides, ipMultiplier, dhcpPercent, platformMode, leaseTimeSeconds, ipCalcValue]);
