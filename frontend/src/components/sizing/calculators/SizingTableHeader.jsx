@@ -30,8 +30,8 @@ export function SizingTableHeader({ showHardware, showKW, showServices, platform
   // Columns: Unit Group, Solution, Model Info, SW Instances, Description, SW Base SKU, SW Package, SW Add-ons, HW License SKU, HW Add-ons, HW Count, Add to Report, Add to BOM
   if (exportView) {
     return (
-      <TableHeader>
-        <TableRow className="bg-muted/50 text-xs">
+      <TableHeader className="sticky top-0 z-20">
+        <TableRow className="bg-muted text-xs">
           <TableHead className="w-14 p-1.5">Unit Grp</TableHead>
           <TableHead className="w-16 p-1.5">Solution</TableHead>
           <TableHead className="w-20 p-1.5">Model Info</TableHead>
