@@ -812,7 +812,7 @@ export function SiteTableRow({
       {/* SW Add-ons — hidden for Reporting, ND, NXVS, NXaaS */}
       {!exportView && (
         <TableCell className="p-1">
-          {hideAddons ? (
+          {hideSwAddons ? (
             <span className="text-xs text-muted-foreground">—</span>
           ) : (
           <Popover>
