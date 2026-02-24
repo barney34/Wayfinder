@@ -5,8 +5,8 @@
 
 // Role → Unit Letter mapping
 export const ROLE_TO_UNIT = {
-  'GM':       'A',  // Grid Manager (A1 = GM)
-  'GMC':      'A',  // Grid Master Candidate (A2+ = GMC)
+  'GM':       'A',  // Grid Manager
+  'GMC':      'A',  // Grid Master Candidate
   'GM+DNS':   'A',
   'GM+DHCP':  'A',
   'GM+DNS/DHCP': 'A',
@@ -14,17 +14,18 @@ export const ROLE_TO_UNIT = {
   'GMC+DHCP': 'A',
   'GMC+DNS/DHCP': 'A',
   'DNS':      'B',  // Internal DNS
-  'DNS/DHCP': 'B',  // Multi-protocol DNS/DHCP
-  'DHCP':     'C',  // DHCP members or secondary DNS
-  'Edge':     'D',  // Edge/Remote DNS/DHCP
-  'ExtDNS':   'E',  // External Authoritative DNS
-  'Cache':    'F',  // Cache forwarders / DMZ recursive DNS
-  'Guest':    'G',  // Guest network devices
-  'MSSync':   'M',  // Microsoft Sync members
-  'NI':       'N',  // Network Insight
-  'Reporting':'RPT',// Reporting Server(s)
-  'License':  'LIC',// License-only items
-  'CDC':      'CDC',// Cloud Data Connector
+  'DNS/DHCP': 'B',
+  'DHCP':     'C',  // DHCP
+  'Edge':     'D',
+  'ExtDNS':   'E',
+  'Cache':    'F',
+  'Guest':    'G',
+  'MSSync':   'M',
+  'ND':       'N',  // Network Discovery
+  'NI':       'N',  // Network Insight (legacy)
+  'Reporting':'RPT',
+  'License':  'LIC',
+  'CDC':      'CDC',
 };
 
 // Unit letter definitions with descriptions
