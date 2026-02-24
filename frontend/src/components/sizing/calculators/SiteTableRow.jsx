@@ -602,23 +602,12 @@ export function SiteTableRow({
         )}
       </TableCell>
 
-      {/* Server Count (Srv#) - compact stepper with buttons inside border */}
-      <TableCell className="p-1 lg:p-2">
+      {/* Server Count (Srv#) — number + stacked ±  */}
+      <TableCell className="p-1">
         {site._isExpanded ? (
-          /* Expanded sub-row: just show server index, no stepper */
           <span className="text-xs text-muted-foreground text-center block">{site._serverIndex + 1}</span>
         ) : (
-          /* Normal row: compact stepper */
-          <div className="flex items-center h-8 rounded border border-border overflow-hidden w-[72px]">
-            <button
-              onClick={() => {
-                const current = parseInt(site.serverCount) || 1;
-                if (current > 1) onUpdateSite(site.id, 'serverCount', current - 1);
-              }}
-              disabled={site.isDisabledInUddi || (parseInt(site.serverCount) || 1) <= 1}
-              className="h-full w-6 flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30 transition-colors text-xs font-bold shrink-0 border-r border-border"
-              data-testid={`site-srv-minus-${site.id}`}
-            >−</button>
+          <div className="flex items-center gap-0 rounded border border-border overflow-hidden h-8 w-12">
             <input
               type="number" min="1" max="99"
               value={site.serverCount ?? 1}
@@ -632,19 +621,24 @@ export function SiteTableRow({
                 const val = parseInt(e.target.value);
                 if (isNaN(val) || val < 1) onUpdateSite(site.id, 'serverCount', 1);
               }}
-              className="h-full w-6 text-center text-sm font-semibold bg-transparent focus:outline-none tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="h-full w-6 text-center text-xs font-semibold bg-transparent focus:outline-none tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               disabled={site.isDisabledInUddi}
               data-testid={`site-server-count-${site.id}`}
             />
-            <button
-              onClick={() => {
-                const current = parseInt(site.serverCount) || 1;
-                if (current < 99) onUpdateSite(site.id, 'serverCount', current + 1);
-              }}
-              disabled={site.isDisabledInUddi || (parseInt(site.serverCount) || 1) >= 99}
-              className="h-full w-6 flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30 transition-colors text-xs font-bold shrink-0 border-l border-border"
-              data-testid={`site-srv-plus-${site.id}`}
-            >+</button>
+            <div className="flex flex-col border-l border-border h-full">
+              <button
+                onClick={() => { const c = parseInt(site.serverCount) || 1; if (c < 99) onUpdateSite(site.id, 'serverCount', c + 1); }}
+                disabled={site.isDisabledInUddi || (parseInt(site.serverCount) || 1) >= 99}
+                className="flex-1 w-6 flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30 text-[9px] leading-none border-b border-border"
+                data-testid={`site-srv-plus-${site.id}`}
+              >▲</button>
+              <button
+                onClick={() => { const c = parseInt(site.serverCount) || 1; if (c > 1) onUpdateSite(site.id, 'serverCount', c - 1); }}
+                disabled={site.isDisabledInUddi || (parseInt(site.serverCount) || 1) <= 1}
+                className="flex-1 w-6 flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30 text-[9px] leading-none"
+                data-testid={`site-srv-minus-${site.id}`}
+              >▼</button>
+            </div>
           </div>
         )}
       </TableCell>
