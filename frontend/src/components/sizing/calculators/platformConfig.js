@@ -87,6 +87,7 @@ export const ADDITIONAL_SERVICES = [
 
 // SW Add-ons for NIOS (conditional based on role/platform)
 // CNA = GM/GMC only, ADNS = NOT GM/GMC, SECECO = GM only, FIPS = Physical only
+// MS = all NIOS roles (GM, GMC, DNS, DHCP, DNS/DHCP), SKU=DDIMSGD
 export const SW_ADDONS = [
   { 
     value: 'CNA', 
@@ -128,6 +129,13 @@ export const SW_ADDONS = [
     label: 'TA', 
     description: 'Threat Analytics',
     excludedRoles: ['GM', 'GMC', 'GM+DNS', 'GM+DHCP', 'GM+DNS/DHCP', 'GMC+DNS', 'GMC+DHCP', 'GMC+DNS/DHCP'],
+    platformRestriction: null,
+  },
+  {
+    value: 'DDIMSGD',
+    label: 'MS',
+    description: 'Microsoft Sync',
+    allowedRoles: null,   // all NIOS roles: GM, GMC, DNS, DHCP, DNS/DHCP
     platformRestriction: null,
   },
 ];
