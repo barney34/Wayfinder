@@ -285,7 +285,7 @@ export function getSiteRecommendedModel(numIPs, role, platform, dhcpPercent, lea
         const effectiveLPS = server.lps * util * lpsMultiplier;
         const effectiveObjects = server.objects * util;
         
-        if (effectiveQPS >= adjustedQPS && effectiveLPS >= adjustedLPS && effectiveObjects >= combinedObjects) {
+        if (effectiveQPS > adjustedQPS && effectiveLPS > adjustedLPS && effectiveObjects > combinedObjects) {
           return server.serverSize;
         }
       }
@@ -296,7 +296,7 @@ export function getSiteRecommendedModel(numIPs, role, platform, dhcpPercent, lea
         const effectiveLPS = server.maxLPS * util * lpsMultiplier;
         const effectiveObjects = server.maxDbObj * util;
         
-        if (effectiveQPS >= adjustedQPS && effectiveLPS >= adjustedLPS && effectiveObjects >= combinedObjects) {
+        if (effectiveQPS > adjustedQPS && effectiveLPS > adjustedLPS && effectiveObjects > combinedObjects) {
           return server.model;
         }
       }
@@ -308,14 +308,14 @@ export function getSiteRecommendedModel(numIPs, role, platform, dhcpPercent, lea
   if (role === 'DNS') {
     if (isUDDI) {
       for (const server of nxvsServers) {
-        if (server.qps * util * qpsMultiplier >= qps && server.objects * util >= dnsObjects) {
+        if (server.qps * util * qpsMultiplier > qps && server.objects * util > dnsObjects) {
           return server.serverSize;
         }
       }
       return 'XL';
     } else {
       for (const server of niosServerGuardrails) {
-        if (server.maxQPS * util * qpsMultiplier >= qps && server.maxDbObj * util >= dnsObjects) {
+        if (server.maxQPS * util * qpsMultiplier > qps && server.maxDbObj * util > dnsObjects) {
           return server.model;
         }
       }
@@ -329,14 +329,14 @@ export function getSiteRecommendedModel(numIPs, role, platform, dhcpPercent, lea
   
   if (isUDDI) {
     for (const server of nxvsServers) {
-      if (server.lps * util * lpsMultiplier >= lps && server.objects * util >= totalDhcpObjects) {
+      if (server.lps * util * lpsMultiplier > lps && server.objects * util > totalDhcpObjects) {
         return server.serverSize;
       }
     }
     return 'XL';
   } else {
     for (const server of niosServerGuardrails) {
-      if (server.maxLPS * util * lpsMultiplier >= lps && server.maxDbObj * util >= totalDhcpObjects) {
+      if (server.maxLPS * util * lpsMultiplier > lps && server.maxDbObj * util > totalDhcpObjects) {
         return server.model;
       }
     }
