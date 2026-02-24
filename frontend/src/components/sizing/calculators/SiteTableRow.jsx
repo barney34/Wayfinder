@@ -1136,9 +1136,32 @@ export function SiteTableRow({
         <Checkbox checked={site.addToBom} onCheckedChange={v => onUpdateSite(site.id, 'addToBom', v)} data-testid={`site-bom-${site.id}`} />
       </TableCell>
 
-      {/* Actions: Copy to Drawing + Delete */}
+      {/* Actions: Move Up/Down + Copy to Drawing + Delete */}
       <TableCell className="p-1">
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5">
+          {/* Up/Down — only on non-expanded parent rows */}
+          {!site._isExpanded && (onMoveUp || onMoveDown) && (
+            <div className="flex flex-col">
+              <Button
+                variant="ghost" size="icon"
+                className="h-3.5 w-5 rounded-none p-0 hover:bg-muted disabled:opacity-20"
+                onClick={() => onMoveUp?.(site.id)}
+                disabled={!onMoveUp}
+                title="Move up"
+              >
+                <ChevronUp className="h-3 w-3" />
+              </Button>
+              <Button
+                variant="ghost" size="icon"
+                className="h-3.5 w-5 rounded-none p-0 hover:bg-muted disabled:opacity-20"
+                onClick={() => onMoveDown?.(site.id)}
+                disabled={!onMoveDown}
+                title="Move down"
+              >
+                <ChevronDown className="h-3 w-3" />
+              </Button>
+            </div>
+          )}
           {/* Copy to another drawing */}
           {drawings && drawings.length > 1 && onCopySiteToDrawing && (
             <CopySiteToDrawingMenu
@@ -1148,8 +1171,7 @@ export function SiteTableRow({
               onCopy={onCopySiteToDrawing}
             />
           )}
-          
-          {/* Delete - available for all rows */}
+          {/* Delete */}
           <Button 
             variant="ghost" 
             size="icon" 
