@@ -905,8 +905,8 @@ export function SiteTableRow({
                     </div>
                   )}
                   
-                  {/* SFP Interfaces with quantity — only for 10GE models */}
-                  {(site.recommendedModel || '').includes('10GE') && (
+                  {/* SFP Interfaces with quantity — only for 10GE hardware SKUs */}
+                  {(site.hardwareSku || '').includes('10GE') && (
                     <div className="border-t pt-2">
                       <div className="text-xs font-medium text-muted-foreground mb-2">SFP Interfaces</div>
                       <div className="space-y-1.5">
