@@ -26,7 +26,7 @@ import { PLATFORM_MODES, PLATFORM_OPTIONS_BY_MODE, ROLE_OPTIONS_BY_MODE, ADDITIO
 import { getServiceImpact, getTokensForModel, getPartnerSkuFromTokens, getSkuDescription, getRecommendedPlatformMode } from "./tokenUtils";
 import { exportCSV, exportYAML, exportExcel, exportPDF, exportForLucid } from "./SizingExports";
 import { PlatformChangeAlertDialog, WhyThisModelDialog } from "./SizingDialogs";
-import { SiteTableRow } from "./SiteTableRow";
+import { SiteTableRow, LocationHeaderRow } from "./SiteTableRow";
 import { SizingTableHeader } from "./SizingTableHeader";
 import { DrawingTabs, useDrawings, CompareDrawingsDialog, CopySiteToDrawingMenu } from "./DrawingManager";
 import { computeUnitAssignments, getUnitLetterForRole } from "./unitDesignations";
