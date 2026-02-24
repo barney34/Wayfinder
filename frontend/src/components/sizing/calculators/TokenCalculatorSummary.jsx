@@ -250,6 +250,16 @@ export function TokenCalculatorSummary() {
     });
   }, [dataCenterIds, contextSiteIds, dataCenters, contextSites, siteOverrides, ipMultiplier, dhcpPercent, platformMode, leaseTimeSeconds, ipCalcValue]);
 
+  // Compute unit assignments (letter + global number) for all sites
+  const unitAssignments = useMemo(() => {
+    const serversForUnit = sites.map(site => ({
+      id: site.id,
+      role: site.role,
+      unitLetterOverride: siteOverrides[site.id]?.unitLetterOverride || null,
+    }));
+    return computeUnitAssignments(serversForUnit);
+  }, [sites, siteOverrides]);
+
   // Calculate totals
   const totals = useMemo(() => {
     const totalIPs = sites.reduce((sum, s) => sum + (s.numIPs || 0), 0);
