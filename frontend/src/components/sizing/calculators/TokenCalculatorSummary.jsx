@@ -821,6 +821,37 @@ export function TokenCalculatorSummary() {
                         unitAssignment={unitAssignments[srv.id]}
                       />
                     );
+
+                    // Export view: add TR-SWTL companion row immediately after each Reporting row
+                    if (exportView && srv.role === 'Reporting') {
+                      const ua = unitAssignments[srv.id];
+                      const mainUnit = ua?.unitNumber ?? 1;
+                      const swInstances = srv.swInstances || srv.serverCount || 1;
+                      rows.push(
+                        <TableRow key={`${srv.id}-trswtl`} className="hover:bg-muted/30 text-xs bg-muted/10">
+                          <TableCell className="p-1.5 text-center font-medium">RPT</TableCell>
+                          <TableCell className="p-1.5">NIOS</TableCell>
+                          <TableCell className="p-1.5 font-mono">TR-5005</TableCell>
+                          <TableCell className="p-1.5 text-center">1</TableCell>
+                          <TableCell className="p-1.5 text-xs text-muted-foreground">
+                            Reporting Data Volume
+                          </TableCell>
+                          <TableCell className="p-1.5 font-mono text-[11px]">TR-SWTL</TableCell>
+                          <TableCell className="p-1.5 font-mono text-[11px]">{srv.rptQuantity || '—'}</TableCell>
+                          <TableCell className="p-1.5 text-muted-foreground">—</TableCell>
+                          <TableCell className="p-1.5 font-mono text-[11px]">—</TableCell>
+                          <TableCell className="p-1.5 text-muted-foreground">—</TableCell>
+                          <TableCell className="p-1.5 text-center">0</TableCell>
+                          <TableCell className="p-1.5 text-center">
+                            <span className="text-[10px] text-primary">✓</span>
+                          </TableCell>
+                          <TableCell className="p-1.5 text-center">
+                            <span className="text-[10px] text-primary">✓</span>
+                          </TableCell>
+                          <TableCell className="p-1.5"></TableCell>
+                        </TableRow>
+                      );
+                    }
                   });
                   return rows;
                 })()}
