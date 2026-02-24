@@ -357,24 +357,29 @@ export function SiteTableRow({
         </Select>
       </TableCell>
       
-      {/* Unit Number — editable */}
+      {/* Unit Number — editable, shows range when combined */}
       <TableCell className="p-1 lg:p-2 text-center">
-        <Input
-          type="number" min="1" max="999"
-          value={site.unitNumberOverride ?? unitAssignment?.unitNumber ?? 1}
-          onChange={e => {
-            const raw = e.target.value;
-            if (raw === '') { onUpdateSite(site.id, 'unitNumberOverride', ''); return; }
-            const val = parseInt(raw);
-            if (!isNaN(val) && val >= 0) onUpdateSite(site.id, 'unitNumberOverride', val);
-          }}
-          onBlur={e => {
-            const val = parseInt(e.target.value);
-            if (isNaN(val) || val < 1) onUpdateSite(site.id, 'unitNumberOverride', undefined);
-          }}
-          className="h-8 w-10 text-center text-sm font-semibold px-1 tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-          disabled={site.isDisabledInUddi}
-        />
+        {site._groupRange ? (
+          /* Combined group: show range string like "1-3" */
+          <span className="text-sm font-semibold tabular-nums text-primary">{site._groupRange}</span>
+        ) : (
+          <Input
+            type="number" min="1" max="999"
+            value={site.unitNumberOverride ?? unitAssignment?.unitNumber ?? 1}
+            onChange={e => {
+              const raw = e.target.value;
+              if (raw === '') { onUpdateSite(site.id, 'unitNumberOverride', ''); return; }
+              const val = parseInt(raw);
+              if (!isNaN(val) && val >= 0) onUpdateSite(site.id, 'unitNumberOverride', val);
+            }}
+            onBlur={e => {
+              const val = parseInt(e.target.value);
+              if (isNaN(val) || val < 1) onUpdateSite(site.id, 'unitNumberOverride', undefined);
+            }}
+            className="h-8 w-12 text-center text-sm font-semibold px-1 tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            disabled={site.isDisabledInUddi}
+          />
+        )}
       </TableCell>
       
       {/* Location Name */}
