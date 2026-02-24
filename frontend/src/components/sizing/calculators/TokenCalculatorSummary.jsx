@@ -193,6 +193,7 @@ export function TokenCalculatorSummary() {
         swAddons: override.swAddons || [], // SW Add-ons array
         hwAddons: override.hwAddons || [], // HW Add-ons array
         sfpAddons: override.sfpAddons || {}, // SFP add-ons with quantity { 'IB-SFP-CO': 4 }
+        perfFeatures: override.perfFeatures || [], // Performance features (DTC, SYSLOG, etc.)
         rptQuantity: override.rptQuantity || null, // RPT quantity for Reporting role
         addToReport: override.addToReport !== undefined ? override.addToReport : true,
         addToBom: override.addToBom !== undefined ? override.addToBom : true,
