@@ -753,6 +753,15 @@ export function TokenCalculatorSummary() {
             <div className="flex items-center gap-2">
               <Button
                 variant="outline" size="sm"
+                onClick={sortByUnit}
+                className="text-xs"
+                title="Sort rows by Unit Group (A→B→C→…→RPT→LIC→CDC)"
+              >
+                <ArrowUpDown className="h-4 w-4 mr-1" />
+                Sort
+              </Button>
+              <Button
+                variant="outline" size="sm"
                 onClick={() => exportForLucid(expandedServers, activeDrawing?.name || '10')}
                 className="text-xs"
                 data-testid="export-drawing-button"
