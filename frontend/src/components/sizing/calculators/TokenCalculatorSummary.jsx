@@ -593,6 +593,7 @@ export function TokenCalculatorSummary() {
                     onDeleteSite={deleteSite}
                     onOpenModelDialog={openModelDialog}
                     onCopySiteToDrawing={copySiteToDrawing}
+                    unitAssignment={unitAssignments[site.id]}
                   />
                 ))}
                 {/* Total Row */}
