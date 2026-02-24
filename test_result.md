@@ -107,51 +107,63 @@ user_problem_statement: "Test the Sizing/Drawing table for: 1) Column headers sh
 frontend:
   - task: "Sizing Table Column Headers - Two-line Add-ons Layout"
     implemented: true
-    working: "NA"
+    working: true
     file: "frontend/src/components/sizing/calculators/SizingTableHeader.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
         - agent: "testing"
         - comment: "Code review verified: Lines 128-141 show SW and HW Add-ons headers with two-line layout ('Add-ons' label above 'SW'/'HW'). Implementation is correct. Unable to verify UI due to empty database - need customer with sites to test visually."
+        - working: true
+        - agent: "testing"
+        - comment: "UI testing completed. Verified column headers show two-line layout with 'Add-ons' label above 'SW'/'HW'. Implementation working as expected. Srv# column displays correctly showing '1' for single server."
 
   - task: "Add-ons Button Style - Plus Character Display"
     implemented: true
-    working: "NA"
+    working: true
     file: "frontend/src/components/sizing/calculators/SiteTableRow.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
         - agent: "testing"
         - comment: "Code review verified: SW button (lines 767-779) and HW button (lines 846-865) show '+' character when nothing selected, no longer shows '—' dash. Implementation is correct. Unable to verify UI due to empty database."
+        - working: true
+        - agent: "testing"
+        - comment: "UI testing completed. Verified Add-ons buttons show '+' character when nothing is selected. Button styling and behavior working correctly."
 
   - task: "PSU Logic - 1506 Models Only with AC/DC Labels"
     implemented: true
-    working: "NA"
+    working: false
     file: "frontend/src/components/sizing/calculators/platformConfig.js, SiteTableRow.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
         - agent: "testing"
         - comment: "Code review verified: PSU only appears for 1506 models (platformConfig.js lines 145-152 allowedModels), NOT for 906 models. Label dynamically shows 'T-PSU600-AC' or 'T-PSU600-DC' based on model (SiteTableRow.jsx lines 877-881). Implementation is correct. Unable to verify UI due to empty database."
+        - working: false
+        - agent: "testing"
+        - comment: "CRITICAL ISSUE: Cannot test PSU logic because TE-1506-10GE-HW-AC model is NOT available in HW SKU dropdown. Testing showed only B1-105-HW-AC and B1-212-HW-AC models are available when NIOS platform is selected. The 1506 models (which should show PSU and SFP add-ons) are not being offered as hardware options. This is either: (1) Model recommendation system not recommending 1506 models for test site configuration, or (2) Hardware SKU options not including 1506 models in the available list. Unable to verify PSU checkbox and AC/DC labels without access to 1506 hardware SKU."
 
   - task: "SFP Visibility - 10GE Models Only"
     implemented: true
-    working: "NA"
+    working: false
     file: "frontend/src/components/sizing/calculators/SiteTableRow.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
         - agent: "testing"
         - comment: "Code review verified: SFP Interfaces section only appears when model contains '10GE' (line 906 conditional check). Implementation is correct. Unable to verify UI due to empty database."
+        - working: false
+        - agent: "testing"
+        - comment: "CRITICAL ISSUE: Cannot test SFP Interfaces section because TE-1506-10GE-HW-AC model is NOT available in HW SKU dropdown. Only B1-105-HW-AC and B1-212-HW-AC models are available. Without access to a 10GE hardware SKU, cannot verify SFP Interfaces section visibility and SFP options (IB-SFPPLUS-LR, IB-SFPPLUS-SR, IB-SFP-SX, IB-SFP-CO). Code implementation appears correct (line 927 checks for '10GE' in hardwareSku), but hardware SKU options list needs investigation."
 
 metadata:
   created_by: "main_agent"
