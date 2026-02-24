@@ -905,15 +905,24 @@ export function SiteTableRow({
                     </div>
                   )}
                   
-                  {/* SFP Interfaces with quantity — only for 10GE hardware SKUs */}
+                  {/* SFP Interfaces with quantity — any 10GE hardware SKU */}
                   {(site.hardwareSku || '').includes('10GE') && (
-                    <div className="border-t pt-2">
-                      <div className="text-xs font-medium text-muted-foreground mb-2">SFP Interfaces</div>
+                    <div className={availableHwAddons.length > 0 ? 'border-t pt-2' : ''}>
+                      <div className="text-xs font-medium text-muted-foreground mb-1">SFP Interfaces</div>
+                      {/* Per-server qty explanation */}
+                      {(site._serverCount || 1) > 1 && (
+                        <p className="text-[10px] text-muted-foreground italic mb-2">
+                          Qty = per server × {site._serverCount} servers = total
+                        </p>
+                      )}
                       <div className="space-y-1.5">
                         {SFP_OPTIONS.map(sfp => {
                           const qty = (site.sfpAddons || {})[sfp.value] || 0;
+                          const serverCount = site._serverCount || 1;
+                          const total = qty * serverCount;
                           return (
                             <div key={sfp.value} className="flex items-center gap-2">
+                              {/* − qty + stepper */}
                               <div className="flex items-center h-6 rounded border border-border overflow-hidden">
                                 <button
                                   onClick={() => {
@@ -935,7 +944,13 @@ export function SiteTableRow({
                                   className="h-full w-5 flex items-center justify-center text-muted-foreground hover:bg-muted text-[10px] border-l border-border"
                                 >+</button>
                               </div>
-                              <span className="text-[10px] flex-1">{sfp.label}</span>
+                              {/* SKU label + total */}
+                              <div className="flex-1 flex items-center justify-between gap-1">
+                                <span className="text-[10px] font-mono">{sfp.label}</span>
+                                {serverCount > 1 && qty > 0 && (
+                                  <span className="text-[10px] text-primary font-semibold tabular-nums">= {total}</span>
+                                )}
+                              </div>
                             </div>
                           );
                         })}
