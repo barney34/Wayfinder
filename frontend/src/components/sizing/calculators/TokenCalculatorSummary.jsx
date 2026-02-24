@@ -314,6 +314,7 @@ export function TokenCalculatorSummary() {
         hardwareSku: siteOverrides[site.id]?.hardwareSku || defaultHardware,
         hardwareOptions, tokens: adjustedTokens, tokensPerServer: singleServerTokens,
         serviceImpact, isHub, isSpoke, hubLPS, foObjects, partnerCount, foWarning,
+        effectivePerfFeatures,
         swInstances,
         hwCount,
       };
