@@ -373,22 +373,36 @@ export function TokenCalculatorSummary() {
     });
   }, [totals, partnerSku.sku, sites.length, tokenPacks, platformMode, setSizingSummary]);
 
-  // Update site field
+  // Update site field — handles both regular sites and expanded server sub-rows
   const updateSite = useCallback((siteId, field, value) => {
+    // Check if this is a server sub-row update (id contains __srv__)
+    const srvMatch = siteId.match(/^(.+)__srv__(\d+)$/);
+    if (srvMatch) {
+      const parentId = srvMatch[1];
+      const srvIndex = parseInt(srvMatch[2]);
+      // Store in server-level overrides
+      setSiteOverrides(prev => {
+        const parentOvr = prev[parentId] || {};
+        const servers = { ...(parentOvr.servers || {}) };
+        servers[srvIndex] = { ...(servers[srvIndex] || {}), [field]: value };
+        return { ...prev, [parentId]: { ...parentOvr, servers } };
+      });
+      return;
+    }
+
     const site = sites.find(s => s.id === siteId);
     if (!site) return;
     let updates = { [field]: value };
     if (field === 'role' && value !== 'DHCP' && value !== 'DNS/DHCP') updates.dhcpPartner = null;
 
     // If updating KW, sync to context (which updates TopBar) and DON'T add to local override
-    // The value will flow back through context
     if (field === 'knowledgeWorkers' && site.sourceType) {
       if (site.sourceType === 'site' && contextUpdateSite) {
         contextUpdateSite(site.sourceId, { knowledgeWorkers: value });
-        return; // Don't update local override for KW - let context be source of truth
+        return;
       } else if (site.sourceType === 'dataCenter' && contextUpdateDC) {
         contextUpdateDC(site.sourceId, { knowledgeWorkers: value });
-        return; // Don't update local override for KW - let context be source of truth
+        return;
       }
     }
 
