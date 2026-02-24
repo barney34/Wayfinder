@@ -364,34 +364,52 @@ export function SiteTableRow({
         )}
       </TableCell>
 
-      {/* Server Count (Srv#) - minimum 1, can't be empty */}
-      <TableCell className="p-2 lg:p-4">
-        <Input
-          type="number" min="1" max="99"
-          value={site.serverCount ?? 1}
-          onChange={e => {
-            const raw = e.target.value;
-            if (raw === '') {
-              // Allow empty while typing - will reset on blur
-              onUpdateSite(site.id, 'serverCount', '');
-              return;
-            }
-            const val = parseInt(raw);
-            if (!isNaN(val) && val >= 0) {
-              onUpdateSite(site.id, 'serverCount', val);
-            }
-          }}
-          onBlur={e => {
-            // Reset to 1 if empty or invalid on blur
-            const val = parseInt(e.target.value);
-            if (isNaN(val) || val < 1) {
-              onUpdateSite(site.id, 'serverCount', 1);
-            }
-          }}
-          className="h-8 lg:h-10 text-sm w-14 lg:w-16 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-          disabled={site.isDisabledInUddi}
-          data-testid={`site-server-count-${site.id}`}
-        />
+      {/* Server Count (Srv#) - minimum 1, with +/- stepper */}
+      <TableCell className="p-1 lg:p-2">
+        <div className="flex items-center gap-0.5">
+          <button
+            onClick={() => {
+              const current = parseInt(site.serverCount) || 1;
+              if (current > 1) onUpdateSite(site.id, 'serverCount', current - 1);
+            }}
+            disabled={site.isDisabledInUddi || (parseInt(site.serverCount) || 1) <= 1}
+            className="h-8 w-6 flex items-center justify-center rounded border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-sm font-bold"
+            data-testid={`site-srv-minus-${site.id}`}
+          >−</button>
+          <Input
+            type="number" min="1" max="99"
+            value={site.serverCount ?? 1}
+            onChange={e => {
+              const raw = e.target.value;
+              if (raw === '') {
+                onUpdateSite(site.id, 'serverCount', '');
+                return;
+              }
+              const val = parseInt(raw);
+              if (!isNaN(val) && val >= 0) {
+                onUpdateSite(site.id, 'serverCount', val);
+              }
+            }}
+            onBlur={e => {
+              const val = parseInt(e.target.value);
+              if (isNaN(val) || val < 1) {
+                onUpdateSite(site.id, 'serverCount', 1);
+              }
+            }}
+            className="h-8 text-sm w-10 text-center px-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            disabled={site.isDisabledInUddi}
+            data-testid={`site-server-count-${site.id}`}
+          />
+          <button
+            onClick={() => {
+              const current = parseInt(site.serverCount) || 1;
+              if (current < 99) onUpdateSite(site.id, 'serverCount', current + 1);
+            }}
+            disabled={site.isDisabledInUddi || (parseInt(site.serverCount) || 1) >= 99}
+            className="h-8 w-6 flex items-center justify-center rounded border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-sm font-bold"
+            data-testid={`site-srv-plus-${site.id}`}
+          >+</button>
+        </div>
       </TableCell>
 
       {/* HA Checkbox */}
