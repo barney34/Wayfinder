@@ -803,6 +803,7 @@ export function TokenCalculatorSummary() {
               Sites auto-sync from Quick Capture. All fields are editable.
             </p>
           </div>
+          </div>{/* end px wrapper */}
         </CardContent>
       </Card>
     </div>
