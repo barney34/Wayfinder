@@ -817,7 +817,7 @@ export function TokenCalculatorSummary() {
               </Button>
               <Button
                 variant="outline" size="sm"
-                onClick={() => exportForLucid(expandedServers, activeDrawing?.name || '10')}
+                onClick={() => exportForLucid(expandedServers, activeDrawing?.name || '10', unitAssignments)}
                 className="text-xs"
                 data-testid="export-drawing-button"
               >
