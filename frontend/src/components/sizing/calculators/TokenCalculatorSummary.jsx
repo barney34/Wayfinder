@@ -79,6 +79,8 @@ export function TokenCalculatorSummary() {
   const [showServices, setShowServices] = useState(false);
   // "Export View" mode - shows only exportable columns
   const [exportView, setExportView] = useState(false);
+  // Manual draw order: array of site IDs. null = natural order.
+  const [siteOrder, setSiteOrder] = useState(null);
 
   // "Why this model?" dialog state
   const [showModelDialog, setShowModelDialog] = useState(false);
