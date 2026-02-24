@@ -736,21 +736,23 @@ export function SiteTableRow({
         )}
       </TableCell>
 
-      {/* HW Count (editable) */}
-      <TableCell className="p-2 lg:p-4 text-center">
-        <Input
-          type="number" min="0" max="999"
-          value={site.hwCount ?? 0}
-          onChange={e => {
-            const val = parseInt(e.target.value);
-            if (!isNaN(val) && val >= 0) {
-              onUpdateSite(site.id, 'hwCount', val);
-            }
-          }}
-          className="h-8 lg:h-10 text-sm w-14 lg:w-16 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-          disabled={site.isDisabledInUddi}
-          data-testid={`site-hw-count-${site.id}`}
-        />
+      {/* HW Count — auto 0 for virtual, editable for physical */}
+      <TableCell className="p-1 text-center">
+        {isVirtualPlatform ? (
+          <span className="text-xs text-muted-foreground">VM</span>
+        ) : (
+          <Input
+            type="number" min="0" max="999"
+            value={site.hwCount ?? 0}
+            onChange={e => {
+              const val = parseInt(e.target.value);
+              if (!isNaN(val) && val >= 0) onUpdateSite(site.id, 'hwCount', val);
+            }}
+            className="h-8 text-sm w-14 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            disabled={site.isDisabledInUddi}
+            data-testid={`site-hw-count-${site.id}`}
+          />
+        )}
       </TableCell>
 
       {/* SW Add-ons (NIOS only) */}
