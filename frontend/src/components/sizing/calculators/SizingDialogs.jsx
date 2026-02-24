@@ -109,9 +109,19 @@ export function WhyThisModelDialog({ open, onOpenChange, site, platformMode, dhc
   const serverLPS = isUDDI ? selectedServer?.lps : selectedServer?.maxLPS;
   const serverObj = isUDDI ? selectedServer?.objects : selectedServer?.maxDbObj;
 
-  const qpsUtil = serverQPS ? Math.round((workload.adjustedQPS / (serverQPS * utilization)) * 100) : 0;
-  const lpsUtil = serverLPS ? Math.round((workload.adjustedLPS / (serverLPS * utilization)) * 100) : 0;
-  const objUtil = serverObj ? Math.round((workload.objects / (serverObj * utilization)) * 100) : 0;
+  // Apply perf feature multipliers to effective capacity (matches model selection logic)
+  const qpsMult = workload.qpsMultiplier ?? 1;
+  const lpsMult = workload.lpsMultiplier ?? 1;
+  
+  // Effective capacity = rated × 60% × perf multiplier
+  const effQPS = Math.round((serverQPS || 0) * utilization * qpsMult);
+  const effLPS = Math.round((serverLPS || 0) * utilization * lpsMult);
+  const effObj = Math.round((serverObj || 0) * utilization);
+
+  // Utilization as % of total rated capacity (not effective)
+  const qpsUtilTotal = serverQPS ? Math.round((workload.adjustedQPS / serverQPS) * 100) : 0;
+  const lpsUtilTotal = serverLPS ? Math.round((workload.adjustedLPS / serverLPS) * 100) : 0;
+  const objUtilTotal = serverObj ? Math.round((workload.objects / serverObj) * 100) : 0;
 
   const driverLabels = {
     qps: 'Query Performance (QPS)',
