@@ -825,7 +825,8 @@ export function TokenCalculatorSummary() {
                     // Add TR-SWTL companion row immediately after each Reporting row (both views)
                     if (srv.role === 'Reporting') {
                       const ua = unitAssignments[srv.id];
-                      const companionUnit = (ua?.unitNumber ?? 1) + (srv.swInstances || srv.serverCount || 1);
+                      // Companion is always unit + 1 (immediately after main row)
+                      const companionUnit = (ua?.unitNumber ?? 1) + 1;
 
                       if (exportView) {
                         // Export view: match exact export column order
