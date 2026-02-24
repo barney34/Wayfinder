@@ -1204,7 +1204,7 @@ export function SiteTableRow({
                     {site.isHub && <div className="text-accent"><strong>FO {(site.partnerCount || 0) > 1 ? 'Hub' : 'Partner'}:</strong> +{site.hubLPS} LPS from {site.partnerCount || 0} partner(s)</div>}
                     {(site.foObjects || 0) > 0 && <div className="text-amber-500"><strong>FO Objects:</strong> +{site.foObjects.toLocaleString()} replicated</div>}
                     {site.foWarning && <div className="text-red-500 font-medium">{site.foWarning}</div>}
-                    {(site.perfFeatures?.length || 0) > 0 && <div className="text-red-400"><strong>Perf features:</strong> {site.perfFeatures.join(', ')}</div>}
+                    {(site.effectivePerfFeatures?.length || site.perfFeatures?.length || 0) > 0 && <div className="text-red-400"><strong>Perf features:</strong> {(site.effectivePerfFeatures || site.perfFeatures || []).join(', ')}</div>}
                   </div>
                 </TooltipContent>
               </Tooltip>
