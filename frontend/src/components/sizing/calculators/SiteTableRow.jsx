@@ -271,6 +271,11 @@ export function SiteTableRow({
   const availableHwAddons = getAvailableHwAddons(site.hardwareSku, site.platform);
   const isReportingRole = site.role === 'Reporting';
 
+  // Roles/platforms that have no add-ons at all
+  const noAddonsRole = site.role === 'Reporting' || site.role === 'ND';
+  const noAddOnsPlatform = site.platform === 'NXVS' || site.platform === 'NXaaS';
+  const hideAddons = noAddonsRole || noAddOnsPlatform;
+
   // Export view - full export columns matching Lucidchart format
   if (exportView) {
     const unitGroup = getUnitGroup(site.role, site.services);
