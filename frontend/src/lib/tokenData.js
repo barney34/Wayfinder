@@ -388,6 +388,8 @@ export function getUnitGroup(role, sourceType, services = []) {
   if (role === 'GM' || role?.startsWith('GM+') || role?.startsWith('GMC')) return 'A';
   if (role === 'Reporting') return 'RPT';
   if (role === 'ND')        return 'N';
+  if (role === 'LIC')       return 'LIC';
+  if (role === 'CDC')       return 'CDC';
 
   // Service-based overrides
   if (services?.includes('NI') || services?.includes('Network Insight')) return 'N';
