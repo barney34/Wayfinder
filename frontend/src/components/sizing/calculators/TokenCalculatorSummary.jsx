@@ -188,6 +188,7 @@ export function TokenCalculatorSummary() {
         hwCount: override.hwCount, // User-editable HW count (undefined = auto)
         swAddons: override.swAddons || [], // SW Add-ons array
         hwAddons: override.hwAddons || [], // HW Add-ons array
+        sfpAddons: override.sfpAddons || {}, // SFP add-ons with quantity { 'IB-SFP-CO': 4 }
         rptQuantity: override.rptQuantity || null, // RPT quantity for Reporting role
         addToReport: override.addToReport !== undefined ? override.addToReport : true,
         addToBom: override.addToBom !== undefined ? override.addToBom : true,
