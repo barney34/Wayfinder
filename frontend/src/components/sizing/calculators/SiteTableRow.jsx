@@ -370,8 +370,14 @@ export function SiteTableRow({
           type="number" min="1" max="99"
           value={site.serverCount ?? 1}
           onChange={e => {
-            const val = parseInt(e.target.value);
-            if (!isNaN(val) && val >= 1) {
+            const raw = e.target.value;
+            if (raw === '') {
+              // Allow empty while typing - will reset on blur
+              onUpdateSite(site.id, 'serverCount', '');
+              return;
+            }
+            const val = parseInt(raw);
+            if (!isNaN(val) && val >= 0) {
               onUpdateSite(site.id, 'serverCount', val);
             }
           }}
