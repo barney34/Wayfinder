@@ -292,10 +292,13 @@ export function SiteTableRow({
       {/* Location Name */}
       <TableCell className="p-2 lg:p-4">
         <div className="flex items-center gap-2">
+          {site._isExpanded && (
+            <span className="text-xs text-muted-foreground shrink-0">Srv {site._serverIndex + 1}</span>
+          )}
           <Input
             value={site.name}
             onChange={e => onUpdateSite(site.id, 'name', e.target.value)}
-            className="h-8 lg:h-10 text-sm lg:text-base min-w-[120px]"
+            className={`h-8 lg:h-10 text-sm lg:text-base min-w-[120px] ${site._isExpanded ? 'bg-muted/30' : ''}`}
             disabled={site.isDisabledInUddi}
             data-testid={`site-name-${site.id}`}
           />
