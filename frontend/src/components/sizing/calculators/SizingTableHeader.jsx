@@ -54,106 +54,105 @@ export function SizingTableHeader({ showHardware, showKW, showServices, platform
   return (
     <TableHeader className="sticky top-0 z-20 bg-card">
       <TableRow className="bg-muted">
-        {/* Unit Letter */}
-        <HeaderWithTooltip className="w-14 lg:w-16" tooltip="Unit designation: A=GM/GMC, B=DNS, C=DHCP, D=Edge, E=ExtDNS, F=Cache, G=Guest, M=MSSync, N=NI, RPT=Reporting">
+        {/* Unit Group */}
+        <HeaderWithTooltip className="w-14" tooltip="Unit Group: A=GM/GMC, B=DNS, C=DHCP, D=Edge, E=ExtDNS, F=Cache, G=Guest, M=MSSync, N=NI, RPT, LIC, CDC. Click + to add custom.">
           Unit
         </HeaderWithTooltip>
         
-        {/* Unit Number */}
-        <TableHead className="w-10 text-xs lg:text-sm text-center">#</TableHead>
+        {/* Unit #/Range */}
+        <TableHead className="w-12 text-xs lg:text-sm text-center">#/Range</TableHead>
         
-        {/* Location */}
-        <TableHead className="w-32 lg:w-40 text-xs lg:text-sm">Location</TableHead>
+        {/* Location — GUI-only, not in export */}
+        <TableHead className="w-28 lg:w-36 text-xs lg:text-sm">Location</TableHead>
         
-        {/* # IPs */}
-        <TableHead className="w-20 lg:w-24 text-xs lg:text-sm"># IPs</TableHead>
+        {/* # IPs — GUI-only */}
+        <TableHead className="w-20 text-xs lg:text-sm"># IPs</TableHead>
         
-        {/* KW (conditional) */}
+        {/* KW (conditional, hidden by default) */}
         {showKW && (
-          <HeaderWithTooltip className="w-16 lg:w-20" tooltip="Knowledge Workers. Editable here and syncs with DCs/Sites in the TopBar.">
+          <HeaderWithTooltip className="w-16" tooltip="Knowledge Workers. Syncs with TopBar.">
             KW
           </HeaderWithTooltip>
         )}
         
-        {/* Role */}
-        <TableHead className="w-28 lg:w-32 text-xs lg:text-sm">Role</TableHead>
+        {/* Role → maps to Description in export */}
+        <TableHead className="w-24 text-xs lg:text-sm">Role</TableHead>
         
-        {/* Services (conditional) */}
+        {/* Description — free text, maps to export Description */}
+        <TableHead className="w-32 text-xs lg:text-sm">Description</TableHead>
+        
+        {/* Services (conditional, hidden by default) */}
         {showServices && (
-          <HeaderWithTooltip className="w-20 lg:w-24" tooltip="Co-located services that can run on the same host. Each service adds performance overhead.">
+          <HeaderWithTooltip className="w-20" tooltip="Co-located services. Each adds performance overhead.">
             Services
           </HeaderWithTooltip>
         )}
         
         {/* DHCP Partner */}
-        <HeaderWithTooltip className="w-24 lg:w-28" tooltip="Select a Hub site for DHCP failover. Hub receives 50% of combined spoke LPS for failover capacity.">
-          DHCP Partner
+        <HeaderWithTooltip className="w-20" tooltip="Hub site for DHCP failover.">
+          DHCP Ptnr
         </HeaderWithTooltip>
         
         {/* Server Count */}
-        <HeaderWithTooltip className="w-14 lg:w-16" tooltip="Number of server instances per site. For multiple servers, enter the count here.">
-          Srv#
-        </HeaderWithTooltip>
+        <TableHead className="w-16 text-xs lg:text-sm text-center">Srv#</TableHead>
         
-        {/* HA Checkbox */}
-        <HeaderWithTooltip className="w-12 text-center" tooltip="High Availability. When enabled, doubles SW instances for the site. HW count is user-editable.">
-          HA
-        </HeaderWithTooltip>
+        {/* HA */}
+        <TableHead className="w-10 text-xs lg:text-sm text-center">HA</TableHead>
         
-        {/* Platform */}
-        <TableHead className="w-24 lg:w-28 text-xs lg:text-sm">Platform</TableHead>
+        {/* Solution (was Platform) — maps to export Solution */}
+        <TableHead className="w-24 text-xs lg:text-sm">Solution</TableHead>
         
-        {/* Model */}
-        <HeaderWithTooltip className="w-20 lg:w-24" tooltip={<><p>Recommended server model based on workload.</p><p className="mt-1 text-muted-foreground">Hover on model for sizing details.</p></>}>
+        {/* Model Info — show just number in GUI */}
+        <HeaderWithTooltip className="w-16" tooltip="Recommended model. Shows number only — full SKU in export.">
           Model
         </HeaderWithTooltip>
         
-        {/* Hardware SKU (conditional) */}
-        {showHardware && <TableHead className="w-28 text-xs lg:text-sm">HW SKU</TableHead>}
+        {/* HW License SKU (conditional) */}
+        {showHardware && (
+          <HeaderWithTooltip className="w-28" tooltip="Hardware License SKU for export.">
+            HW SKU
+          </HeaderWithTooltip>
+        )}
         
         {/* SW Instances */}
-        <HeaderWithTooltip className="w-14 lg:w-16 text-center" tooltip="Software instance count. Auto-calculated: Srv# × (HA ? 2 : 1)">
+        <HeaderWithTooltip className="w-12 text-center" tooltip="SW Instances: Srv# × (HA ? 2 : 1)">
           SW#
         </HeaderWithTooltip>
         
         {/* HW Count */}
-        <HeaderWithTooltip className="w-20 lg:w-24 text-center" tooltip="Hardware unit count for export. Check box to include HW, uncheck for VM (0 HW).">
+        <HeaderWithTooltip className="w-16 text-center" tooltip="Hardware unit count. Uncheck for VM (0 HW).">
           HW#
         </HeaderWithTooltip>
 
         {/* SW Add-ons (NIOS only) */}
         {platformMode === 'NIOS' && (
-          <HeaderWithTooltip className="w-24" tooltip="Software add-ons: CNA (GM/GMC), ADNS, DCA, SECECO (GM), FIPS (Physical), TA">
+          <HeaderWithTooltip className="w-24" tooltip="SW Add-ons: CNA, ADNS, DCA, SECECO, FIPS, TA">
             SW Add-ons
           </HeaderWithTooltip>
         )}
 
-        {/* HW Add-ons (NIOS Physical only) */}
+        {/* HW Add-ons (NIOS only) */}
         {platformMode === 'NIOS' && (
-          <HeaderWithTooltip className="w-20" tooltip="Hardware add-ons: 2nd PSU (1516+), SFP modules">
+          <HeaderWithTooltip className="w-20" tooltip="HW Add-ons: PSU, SFP modules with quantity">
             HW Add-ons
           </HeaderWithTooltip>
         )}
         
         {/* Tokens (conditional) */}
         {showTokens && (
-          <HeaderWithTooltip className="w-20 lg:w-24 text-right" tooltip="Token packs required. Each pack = 500K tokens.">
+          <HeaderWithTooltip className="w-20 text-right" tooltip="Token packs (500K each).">
             Tokens
           </HeaderWithTooltip>
         )}
         
         {/* Add to Report */}
-        <HeaderWithTooltip className="w-12 text-center" tooltip="Include in exported report/drawing">
-          Rpt
-        </HeaderWithTooltip>
+        <TableHead className="w-10 text-xs text-center">Rpt</TableHead>
         
         {/* Add to BOM */}
-        <HeaderWithTooltip className="w-12 text-center" tooltip="Include in Bill of Materials">
-          BOM
-        </HeaderWithTooltip>
+        <TableHead className="w-10 text-xs text-center">BOM</TableHead>
         
-        {/* Actions column */}
-        <TableHead className="w-12 lg:w-16 text-xs lg:text-sm"></TableHead>
+        {/* Actions */}
+        <TableHead className="w-10 text-xs"></TableHead>
       </TableRow>
     </TableHeader>
   );
