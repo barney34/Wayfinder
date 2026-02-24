@@ -6,19 +6,29 @@ export const NIOS_MODELS = ['TE-926', 'TE-1516', 'TE-1526', 'TE-2326', 'TE-4126'
 export const UDDI_SIZES = ['3XS', '2XS', 'XS', 'S', 'M', 'L', 'XL'];
 
 export const hardwareSkuMapping = {
+  // UDDI NX-P appliances
   '3XS': { default: 'B1-105-HW-AC', alternatives: ['B1-212-HW-AC'] },
   '2XS': { default: 'B1-105-HW-AC', alternatives: ['B1-212-HW-AC'] },
-  'XS': { default: 'B1-212-HW-AC', alternatives: ['B1-105-HW-AC'] },
-  'S': { default: 'B1-212-HW-AC', alternatives: ['B1-105-HW-AC'] },
-  'M': { default: 'B1-212-HW-AC', alternatives: ['B1-105-HW-AC'] },
-  'L': { default: 'B1-212-HW-AC', alternatives: ['B1-105-HW-AC'] },
-  'XL': { default: 'B1-212-HW-AC', alternatives: ['B1-105-HW-AC'] },
-  'TE-926': { default: 'TE-906-HW-2AC', alternatives: ['TE-906-HW-AC'] },
+  'XS':  { default: 'B1-212-HW-AC', alternatives: ['B1-105-HW-AC'] },
+  'S':   { default: 'B1-212-HW-AC', alternatives: ['B1-105-HW-AC'] },
+  'M':   { default: 'B1-212-HW-AC', alternatives: ['B1-105-HW-AC'] },
+  'L':   { default: 'B1-212-HW-AC', alternatives: ['B1-105-HW-AC'] },
+  'XL':  { default: 'B1-212-HW-AC', alternatives: ['B1-105-HW-AC'] },
+  // NIOS TE-series (software model → hardware chassis options)
+  'TE-926':  { default: 'TE-906-HW-AC',  alternatives: ['TE-906-HW-DC', 'TE-906-HW-2AC'] },
   'TE-1516': { default: 'TE-1506-HW-AC', alternatives: ['TE-1506-HW-DC', 'TE-1506-10GE-HW-AC', 'TE-1506-10GE-HW-DC'] },
   'TE-1526': { default: 'TE-1606-HW-AC', alternatives: ['TE-1606-HW-DC', 'TE-1606-10GE-HW-AC', 'TE-1606-10GE-HW-DC'] },
   'TE-2326': { default: 'TE-2306-HW-AC', alternatives: ['TE-2306-HW-DC', 'TE-2306-10GE-HW-AC', 'TE-2306-10GE-HW-DC'] },
   'TE-4126': { default: 'TE-4106-HW-AC', alternatives: ['TE-4106-HW-DC', 'TE-4106-10GE-HW-AC', 'TE-4106-10GE-HW-DC'] },
-  'TE-825': { default: 'TE-805-HW-AC', alternatives: [], locked: true },
+  // NIOS ND-series (Network Discovery appliances)
+  'ND-906':  { default: 'ND-906-HW-AC',  alternatives: ['ND-906-HW-DC'] },
+  'ND-1606': { default: 'ND-1606-HW-AC', alternatives: ['ND-1606-HW-DC'] },
+  'ND-2306': { default: 'ND-2306-HW-AC', alternatives: ['ND-2306-HW-DC'] },
+  'ND-4106': { default: 'ND-4106-HW-AC', alternatives: ['ND-4106-HW-DC'] },
+  // Reporting Server — virtual only, no hardware
+  'TR-5005': { default: 'VM', alternatives: [], locked: true },
+  // Legacy locked models
+  'TE-825':  { default: 'TE-805-HW-AC',  alternatives: [], locked: true },
   'TE-2215': { default: 'TE-2205-HW-AC', alternatives: [], locked: true },
   'TE-4015': { default: 'TE-4005-HW-AC', alternatives: ['TE-4005-10G-HW-AC'], locked: true },
   'TE-4025': { default: 'TE-4005-HW-AC', alternatives: ['TE-4005-10G-HW-AC'], locked: true },
