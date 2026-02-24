@@ -723,7 +723,7 @@ export function TokenCalculatorSummary() {
               <TableBody>
                 {(() => {
                   // Calculate total visible columns for the location header colSpan
-                  let totalCols = 12; // base: Unit, #, Location, IPs, Role, DHCP, Srv#, HA, Platform, Model, SW#, HW#
+                  let totalCols = 13; // base: Unit, #/Range, Location, IPs, Role, Description, DHCP, Srv#, HA, Solution, Model, SW#, HW#
                   if (showKW && !exportView) totalCols++;
                   if (showServices && !exportView) totalCols++;
                   if (showHardware) totalCols++;
