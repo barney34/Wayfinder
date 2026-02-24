@@ -155,18 +155,20 @@ frontend:
 
 metadata:
   created_by: "main_agent"
-  version: "1.0"
-  test_sequence: 0
+  version: "1.1"
+  test_sequence: 1
   run_ui: false
 
 test_plan:
   current_focus:
-    - "Infoblox Brand Color Scheme"
-    - "Font Swap"
+    - "Sizing Table Column Headers - Two-line Add-ons Layout"
+    - "Add-ons Button Style - Plus Character Display"
+    - "PSU Logic - 1506 Models Only with AC/DC Labels"
+    - "SFP Visibility - 10GE Models Only"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
 agent_communication:
-    - agent: "main"
-    - message: "Completed full Infoblox brand rebrand including colors, typography (Lato), icon compliance, and shadow removal."
+    - agent: "testing"
+    - message: "Code review completed for Sizing/Drawing table changes. All 4 requirements verified in code: 1) Column headers show two-line layout with 'Add-ons' above 'SW'/'HW' (SizingTableHeader.jsx L128-141), 2) Buttons show '+' when empty (SiteTableRow.jsx L774, L860), 3) PSU only for 1506 models with AC/DC labels (platformConfig.js L145-152, SiteTableRow.jsx L877-881), 4) SFP only for 10GE models (SiteTableRow.jsx L906). Implementation is correct. UI testing blocked: database has no customers. Need user to create customer > navigate to Sizing > Drawing tab > add sites to verify visual display."
