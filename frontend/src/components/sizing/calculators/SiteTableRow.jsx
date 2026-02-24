@@ -706,16 +706,20 @@ export function SiteTableRow({
       {/* Hardware SKU (conditional) */}
       {showHardware && (
         <TableCell className="p-1">
-          <Select value={site.hardwareSku} onValueChange={v => onUpdateSite(site.id, 'hardwareSku', v)} disabled={site.isDisabledInUddi}>
-            <SelectTrigger className="h-7 text-xs" data-testid={`site-sku-${site.id}`}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {(site.hardwareOptions || [site.hardwareSku]).map(o => (
-                <SelectItem key={o} value={o}>{o}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {isVirtualPlatform ? (
+            <span className="text-xs text-muted-foreground">VM</span>
+          ) : (
+            <Select value={site.hardwareSku} onValueChange={v => onUpdateSite(site.id, 'hardwareSku', v)} disabled={site.isDisabledInUddi}>
+              <SelectTrigger className="h-7 text-xs" data-testid={`site-sku-${site.id}`}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {(site.hardwareOptions || [site.hardwareSku]).map(o => (
+                  <SelectItem key={o} value={o}>{o}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </TableCell>
       )}
 
