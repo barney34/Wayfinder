@@ -217,104 +217,10 @@ export function DrawingTabs({
 }
 
 /**
- * useDrawings Hook - Manages drawing state
+ * useDrawings Hook — stub (drawings now managed in DiscoveryContext)
  */
-export function useDrawings(initialSites = []) {
-  const [drawings, setDrawings] = useState(() => [{
-    id: generateDrawingId(),
-    name: '10', // Start at 10
-    sites: initialSites,
-    createdAt: new Date().toISOString(),
-  }]);
-
-  const [activeDrawingId, setActiveDrawingId] = useState(drawings[0].id);
-
-  const activeDrawing = drawings.find(d => d.id === activeDrawingId) || drawings[0];
-
-  // Get next drawing number in increments of 10
-  const getNextDrawingNumber = useCallback(() => {
-    const existingNumbers = drawings
-      .map(d => parseInt(d.name))
-      .filter(n => !isNaN(n));
-
-    if (existingNumbers.length === 0) return '10';
-
-    const maxNumber = Math.max(...existingNumbers);
-    return String(Math.ceil((maxNumber + 1) / 10) * 10);
-  }, [drawings]);
-
-  const addDrawing = useCallback(() => {
-    const newDrawing = {
-      id: generateDrawingId(),
-      name: getNextDrawingNumber(),
-      sites: [],
-      createdAt: new Date().toISOString(),
-    };
-    setDrawings(prev => [...prev, newDrawing]);
-    setActiveDrawingId(newDrawing.id);
-    return newDrawing;
-  }, [getNextDrawingNumber]);
-
-  const copyDrawing = useCallback((drawingId) => {
-    const source = drawings.find(d => d.id === drawingId);
-    if (!source) return;
-
-    const newDrawing = {
-      id: generateDrawingId(),
-      name: getNextDrawingNumber(),
-      sites: JSON.parse(JSON.stringify(source.sites)),
-      createdAt: new Date().toISOString(),
-    };
-    setDrawings(prev => [...prev, newDrawing]);
-    setActiveDrawingId(newDrawing.id);
-    return newDrawing;
-  }, [drawings, getNextDrawingNumber]);
-
-  const deleteDrawing = useCallback((drawingId) => {
-    if (drawings.length <= 1) return;
-
-    setDrawings(prev => {
-      const filtered = prev.filter(d => d.id !== drawingId);
-      if (drawingId === activeDrawingId) {
-        setActiveDrawingId(filtered[0].id);
-      }
-      return filtered;
-    });
-  }, [drawings.length, activeDrawingId]);
-
-  const renameDrawing = useCallback((drawingId, newName) => {
-    setDrawings(prev => prev.map(d =>
-      d.id === drawingId ? { ...d, name: newName } : d
-    ));
-  }, []);
-
-  const updateDrawingSites = useCallback((drawingId, sites) => {
-    setDrawings(prev => prev.map(d =>
-      d.id === drawingId ? { ...d, sites } : d
-    ));
-  }, []);
-
-  const copySiteToDrawing = useCallback((site, targetDrawingId) => {
-    setDrawings(prev => prev.map(d => {
-      if (d.id === targetDrawingId) {
-        return { ...d, sites: [...d.sites, { ...site, id: `${site.id}-copy-${Date.now()}` }] };
-      }
-      return d;
-    }));
-  }, []);
-
-  return {
-    drawings,
-    activeDrawing,
-    activeDrawingId,
-    setActiveDrawingId,
-    addDrawing,
-    copyDrawing,
-    deleteDrawing,
-    renameDrawing,
-    updateDrawingSites,
-    copySiteToDrawing,
-  };
+export function useDrawings() {
+  return {};
 }
 
 // ── Diff helpers ──────────────────────────────────────────────────────────────
