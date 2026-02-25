@@ -238,26 +238,53 @@ export function AppSidebar({
                 ))}
               </div>
 
-              {/* Tokens Summary - compact */}
+              {/* Tokens Summary - Management / Server / Security breakdown */}
               {!collapsed && sizingSummary && (
                 <>
                   <Separator className="my-3" />
                   <div className="bg-muted/50 rounded-lg p-3 space-y-2">
-                    <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Summary</div>
-                    {sizingSummary.platformMode !== 'NIOS' && (
-                      <>
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">Tokens</span>
-                          <span className="font-bold">{formatKW(sizingSummary.totalTokens)}</span>
+                    <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Token Summary</div>
+                    {sizingSummary.platformMode !== 'NIOS' ? (
+                      <div className="space-y-1.5 text-xs">
+                        {/* Management Tokens: value / 1000 = packs */}
+                        {(sizingSummary.uddiMgmtTokens || 0) > 0 && (
+                          <div className="flex items-center justify-between gap-1">
+                            <span className="text-muted-foreground text-[11px]">Mgmt Tokens</span>
+                            <span className="font-mono text-[11px] text-foreground">
+                              {formatKW(sizingSummary.uddiMgmtTokens)} / 1K = <strong>{Math.ceil((sizingSummary.uddiMgmtTokens||0)/1000)}</strong>
+                            </span>
+                          </div>
+                        )}
+                        {/* Server Tokens: value / 500 = packs */}
+                        {(sizingSummary.infraTokens || 0) > 0 && (
+                          <div className="flex items-center justify-between gap-1">
+                            <span className="text-muted-foreground text-[11px]">Server Tokens</span>
+                            <span className="font-mono text-[11px] text-foreground">
+                              {formatKW(sizingSummary.infraTokens)} / 500 = <strong>{Math.ceil((sizingSummary.infraTokens||0)/500)}</strong>
+                            </span>
+                          </div>
+                        )}
+                        {/* Security Tokens: raw value */}
+                        {(sizingSummary.securityTokens || 0) > 0 && (
+                          <div className="flex items-center justify-between gap-1">
+                            <span className="text-muted-foreground text-[11px]">Security</span>
+                            <span className="font-mono font-bold text-[11px] text-[#FF585D]">
+                              {formatKW(sizingSummary.securityTokens)}
+                            </span>
+                          </div>
+                        )}
+                        <div className="border-t border-border/40 pt-1.5 flex items-center justify-between">
+                          <span className="text-muted-foreground text-[11px] font-semibold">Total</span>
+                          <span className="font-bold text-[#12C2D3] text-sm">{formatKW(sizingSummary.totalTokens)}</span>
                         </div>
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">Token Packs</span>
-                          <Badge variant="outline" className="text-xs">{sizingSummary.tokenPack || '—'}</Badge>
-                        </div>
-                      </>
-                    )}
-                    {sizingSummary.platformMode === 'NIOS' && (
-                      <div className="text-xs text-muted-foreground italic">NIOS mode - no tokens</div>
+                        {sizingSummary.tokenPack && (
+                          <div className="flex justify-end">
+                            <Badge variant="outline" className="text-[10px]">{sizingSummary.tokenPack}</Badge>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-xs text-muted-foreground italic">NIOS mode — no tokens</div>
                     )}
                   </div>
                 </>
