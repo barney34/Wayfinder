@@ -591,6 +591,7 @@ export function TokenCalculatorSummary() {
       totalTokens: totals.totalTokens, totalIPs: totals.totalIPs,
       partnerSku: partnerSku.sku, siteCount: sites.length,
       infraTokens: totals.infraTokens, securityTokens: totals.securityTokens,
+      uddiMgmtTokens: totals.uddiMgmtTokens || 0,
       tokenPack: tokenPacks,
       platformMode: platformMode,
     });
