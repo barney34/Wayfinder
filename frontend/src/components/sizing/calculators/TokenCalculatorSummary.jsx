@@ -413,13 +413,12 @@ export function TokenCalculatorSummary() {
             platform: srvOvr.platform || site.platform,
             haEnabled: srvOvr.haEnabled !== undefined ? srvOvr.haEnabled : site.haEnabled,
             unitLetterOverride: srvOvr.unitLetterOverride || site.unitLetterOverride,
-            _groupRange: `1-${count}`,
             _groupMode: groupMode,
             _isExpanded: true,
             _serverIndex: 0,
             _parentSiteId: site.id,
             _parentName: site.name,
-            _serverCount: count, // original count for display
+            _serverCount: count, // original count for display - used to calculate unit range
             serverCount: 1, // display as 1 row
             swInstances: count * (site.haEnabled ? 2 : 1), // sum of all server SW instances
             hwCount: site.hwCount !== undefined ? site.hwCount : count,
