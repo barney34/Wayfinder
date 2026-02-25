@@ -1100,7 +1100,7 @@ export function TokenCalculatorSummary() {
                     </span>
                   )}
                   <span className="font-bold text-[#12C2D3]">
-                    Total: {formatNumber(totals.totalTokens)} ({Math.ceil(totals.totalTokens / 500000)} packs)
+                    Total: {formatNumber(totals.totalTokens)} → {getPartnerSkuFromTokens(totals.totalTokens).description}
                   </span>
                 </div>
               </div>
