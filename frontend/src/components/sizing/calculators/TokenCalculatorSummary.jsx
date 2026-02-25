@@ -112,6 +112,13 @@ export function TokenCalculatorSummary() {
     setShowModelDialog(true);
   }, []);
 
+  // ── Per-drawing platform mode (shadows global platformMode) ─────────────────
+  // Each drawing has its own platformMode stored in drawingConfigs
+  // MUST be defined BEFORE handlePlatformModeChange to avoid TDZ error
+  const platformMode = activeDrawingConfig.platformMode || 'NIOS';
+  const securityEnabled = activeDrawingConfig.featureSecurity ?? (answers['feature-security'] === 'Yes');
+  const uddiEnabled = activeDrawingConfig.featureUDDI ?? (answers['feature-uddi'] === 'Yes');
+
   // Recommended platform based on DC/Site counts
   const recommendedMode = useMemo(() =>
     getRecommendedPlatformMode(dataCenters.length, contextSites.length),
@@ -150,12 +157,6 @@ export function TokenCalculatorSummary() {
     setPendingPlatformChange(null);
     setShowPlatformAlert(false);
   }, []);
-
-  // ── Per-drawing platform mode (shadows global platformMode) ─────────────────
-  // Each drawing has its own platformMode stored in drawingConfigs
-  const platformMode = activeDrawingConfig.platformMode || 'NIOS';
-  const securityEnabled = activeDrawingConfig.featureSecurity ?? (answers['feature-security'] === 'Yes');
-  const uddiEnabled = activeDrawingConfig.featureUDDI ?? (answers['feature-uddi'] === 'Yes');
 
   // Global settings
   const dhcpPercent = parseInt(answers['dhcp-0-pct']) || 80;
