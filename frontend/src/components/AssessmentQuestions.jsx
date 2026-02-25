@@ -1291,6 +1291,40 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                   </div>
                 )}
                 
+                {/* Token Calculator subsection for Security section */}
+                {section === 'Security' && tokenCalculatorQuestions.length > 0 && (
+                  <div className="mt-2 mx-4 mb-4">
+                    <div 
+                      className="flex items-center justify-between cursor-pointer py-3 px-4 hover:bg-muted/30 rounded-md border border-border"
+                      onClick={() => setExpandedSubsections(p => ({ ...p, 'Token Calculator': !(p['Token Calculator'] ?? true) }))}
+                      data-testid="subsection-token-calculator"
+                    >
+                      <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Token Calculator</h4>
+                      <div className="flex items-center gap-2">
+                        <button onClick={e => { e.stopPropagation(); setExpandedSubsections(p => ({ ...p, 'Token Calculator': !(p['Token Calculator'] ?? true) })); }}>
+                          {(expandedSubsections['Token Calculator'] ?? true) ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                        </button>
+                      </div>
+                    </div>
+                    {(expandedSubsections['Token Calculator'] ?? true) && (
+                      <div className="mt-2 space-y-2">
+                        {tokenCalculatorQuestions.map(q => (
+                          <div key={q.id} className="px-4 py-3 bg-background border border-border rounded-md">
+                            <div className="flex items-start justify-between gap-3 mb-2">
+                              <label className="text-sm font-semibold text-foreground leading-relaxed flex-1">
+                                {q.question}
+                              </label>
+                            </div>
+                            <div onClick={e => e.stopPropagation()}>
+                              {renderField(q)}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+                
                 {/* Section-level Add Response for SmartFill */}
                 <div className="px-5 py-4 border-t border-border">
                   <AddResponseField
