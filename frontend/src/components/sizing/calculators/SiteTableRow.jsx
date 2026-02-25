@@ -125,25 +125,25 @@ export function LocationHeaderRow({ site, onUpdateSite, onDeleteSite, totalColum
               >Group All</button>
 
               {/* Grouping info tooltip */}
-              <TooltipProvider>
+              <TooltipProvider delayDuration={0}>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button className="text-muted-foreground hover:text-foreground p-0.5">
                       <HelpCircle className="h-3.5 w-3.5" />
                     </button>
                   </TooltipTrigger>
-                  <TooltipContent side="bottom" className="max-w-xs p-3 text-xs leading-relaxed" sideOffset={6}>
-                    <p className="font-semibold mb-1">Custom Number Groupings</p>
-                    <p className="mb-1.5">
-                      <strong>To Group:</strong> Click the first and last numbers of your range
+                  <TooltipContent side="bottom" className="w-72 p-3 text-xs leading-relaxed bg-popover text-popover-foreground border border-border shadow-lg" sideOffset={6}>
+                    <p className="font-semibold mb-2 text-foreground">Custom Number Groupings</p>
+                    <p className="mb-2 text-popover-foreground">
+                      <strong className="text-foreground">To Group:</strong> Click the first and last numbers of your range
                       (e.g., 1 then 3 creates Unit 1-3).
                     </p>
-                    <p className="mb-1.5">
-                      <strong>To Ungroup:</strong> Click <em>Individual</em> for all groups, or click
+                    <p className="mb-2 text-popover-foreground">
+                      <strong className="text-foreground">To Ungroup:</strong> Click <em>Individual</em> for all groups, or click
                       an existing grouped range to reset those units to individual rows.
                     </p>
-                    <p>
-                      <strong>To Combine All:</strong> Click <em>Group All</em> to create one continuous
+                    <p className="text-popover-foreground">
+                      <strong className="text-foreground">To Combine All:</strong> Click <em>Group All</em> to create one continuous
                       Unit Range covering all servers.
                     </p>
                   </TooltipContent>
