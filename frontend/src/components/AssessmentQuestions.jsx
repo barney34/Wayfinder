@@ -911,17 +911,16 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
         let formula = '';
         
         if (q.fieldType === 'dnsAggregateCalculated' && activeIPs > 0) {
-          // Section = Internal DNS: aggregate = IPs / 3
+          // Section = Internal DNS: aggregate = IPs × 3500 / 32400 (9hr workday)
           if (q.section === 'Internal DNS' || q.id.startsWith('idns')) {
-            autoValue = Math.ceil(activeIPs / AUTO_CALC_DEFAULTS.peakQpsDivisor).toLocaleString();
-            formula = `${activeIPs.toLocaleString()} IPs ÷ 3`;
+            autoValue = aggregateQPS.toLocaleString();
+            formula = `${activeIPs.toLocaleString()} IPs × 3,500 QPD ÷ 32,400 sec`;
           } else {
             // External DNS aggregate: don't auto-fill — let user enter
             autoValue = '';
             formula = '';
           }
         } else if (q.fieldType === 'dnsPerServerCalculated' && activeIPs > 0) {
-          const aggregateQPS = Math.ceil(activeIPs / AUTO_CALC_DEFAULTS.peakQpsDivisor);
           if (q.section === 'Internal DNS' || q.id.startsWith('idns')) {
             // Internal: aggregate / internal DNS site count from sizing
             autoValue = Math.ceil(aggregateQPS / internalDnsServers).toLocaleString();
