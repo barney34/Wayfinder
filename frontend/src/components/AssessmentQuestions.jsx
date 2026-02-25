@@ -1380,7 +1380,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
               </div>
               <AccordionContent className="px-6 pb-4">
                 <div className={`space-y-4 ${!isSectionEnabled ? 'pointer-events-none' : ''}`}>
-                  {renderSectionQuestions(sectionQuestions, answers, expandedSubsections, setExpandedSubsections, handleBetaSubsectionToggle, expandedNotes, setExpandedNotes, notes, setNote, renderField)}
+                  {renderSectionQuestions(sectionQuestions, answers, expandedSubsections, setExpandedSubsections, expandedNotes, setExpandedNotes, notes, setNote, renderField)}
                 </div>
               </AccordionContent>
             </AccordionItem>
