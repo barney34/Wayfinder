@@ -328,15 +328,14 @@ class TestDiscoveryDataEndpoint:
 
 
 class TestTokenCalculatorQuestions:
-    """Tests for Token Calculator conditional questions"""
+    """Tests for Token Calculator questions"""
     
     def test_token_calculator_questions_exist(self):
-        """Verify all Token Calculator sub-questions exist and are conditional on beta-enable"""
+        """Verify all Token Calculator sub-questions exist (always enabled, no conditional)"""
         response = requests.get(f"{BASE_URL}/api/questions")
         questions = response.json()
         
         token_calc_ids = [
-            "beta-enable",
             "beta-asset-config",
             "beta-td-nios-section",
             "beta-reporting",
@@ -350,17 +349,11 @@ class TestTokenCalculatorQuestions:
         for qid in token_calc_ids:
             q = next((q for q in questions if q["id"] == qid), None)
             assert q is not None, f"Token Calculator question {qid} not found"
-            
-            # beta-enable should NOT be conditional
-            if qid == "beta-enable":
-                assert q.get("fieldType") == "enableSwitch"
-            else:
-                # All others should be conditional on beta-enable=Yes
-                assert "conditionalOn" in q, f"{qid} should be conditional"
-                assert q["conditionalOn"]["questionId"] == "beta-enable"
-                assert q["conditionalOn"]["value"] == "Yes"
+            assert q.get("subsection") == "Token Calculator", f"{qid} should be in Token Calculator subsection"
+            # Token Calculator questions are always enabled (no conditionalOn)
+            assert "conditionalOn" not in q, f"{qid} should NOT have conditionalOn"
         
-        print("✓ All Token Calculator questions exist with correct conditional dependencies")
+        print("✓ All Token Calculator questions exist and are always enabled")
 
 
 class TestNewDiscoveryFields:
