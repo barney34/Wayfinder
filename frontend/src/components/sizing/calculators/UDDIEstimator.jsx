@@ -69,7 +69,8 @@ export function UDDIEstimator({ value, onChange, questionId }) {
       const isImplicitUddi = (platformMode === 'UDDI' || platformMode === 'Hybrid')
         && s.role !== 'GM' && s.role !== 'GMC'
         && !s.role?.startsWith('GM+') && !s.role?.startsWith('GMC+')
-        && s.role !== 'Reporting' && s.role !== 'ND' && s.role !== 'LIC';
+        && s.role !== 'Reporting' && s.role !== 'ND' && s.role !== 'LIC'
+        && s.role !== 'CDC'; // CDC is design reference only, not a token server
       return isExplicitUddi || isImplicitUddi;
     });
   }, [contextSites, dataCenters, platformMode]);
