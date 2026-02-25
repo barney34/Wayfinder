@@ -115,6 +115,9 @@ class DiscoveryData(BaseModel):
     leaseTimeUnits: Dict[str, str] = {}
     dataCenters: List[Dict] = []
     sites: List[Dict] = []
+    drawings: List[Dict] = []
+    activeDrawingId: Optional[str] = None
+    drawingConfigs: Dict[str, Dict] = {}
 
 
 class DiscoveryDataResponse(BaseModel):
