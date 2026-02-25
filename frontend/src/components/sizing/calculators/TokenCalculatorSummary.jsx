@@ -509,8 +509,9 @@ export function TokenCalculatorSummary() {
       : 0;
 
     return {
-      totalIPs, totalKW, infraTokens, securityTokens, uddiTokens,
-      totalTokens: infraTokens + securityTokens + uddiTokens,
+      totalIPs, totalKW, infraTokens, securityTokens, uddiTokens: uddiMgmtWithBuffer,
+      uddiMgmtTokens: uddiMgmtWithBuffer,
+      totalTokens: infraTokens + securityTokens + uddiMgmtWithBuffer,
       gmCount: sites.filter(s => s.role === 'GM').length,
       gmcCount: sites.filter(s => s.role === 'GMC').length,
       memberCount: sites.filter(s => !['GM', 'GMC'].includes(s.role)).length,
