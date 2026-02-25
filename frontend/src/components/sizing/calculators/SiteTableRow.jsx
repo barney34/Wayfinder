@@ -386,8 +386,13 @@ export function SiteTableRow({
     const swInstances = site.swInstances || 1;
     const hwCount = site.hwCount ?? 0;
     
-    // #/Range: use _groupRange if combined, else unit number
-    const unitRange = site._groupRange || String(unitAssignment?.unitNumber ?? '');
+    // #/Range: For grouped rows, calculate range from unit number + server count
+    // For individual rows, just show the unit number
+    const serverCount = site._serverCount || 1;
+    const unitNumber = unitAssignment?.unitNumber ?? 1;
+    const unitRange = serverCount > 1 
+      ? `${unitNumber}-${unitNumber + serverCount - 1}`
+      : String(unitNumber);
 
     return (
       <TableRow data-testid={`site-row-${site.id}`} className="hover:bg-muted/30 text-xs">
