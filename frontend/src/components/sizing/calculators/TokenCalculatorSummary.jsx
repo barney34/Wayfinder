@@ -500,6 +500,13 @@ export function TokenCalculatorSummary() {
     const reportingTokens = parseInt(answers['reporting-tokens']) || 0;
     const securityTokens = securityEnabled ? (tdTokens + dossierTokens + lookalikeTokens + socTokens + domainTokens + reportingTokens) : 0;
     const uddiTokens = uddiEnabled ? (parseInt(answers['uddi-tokens']) || 0) : 0;
+    // UDDI management tokens come from UDDIEstimator (pushed to uddi-mgmt-tokens)
+    const uddiMgmtTokens = uddiEnabled ? (parseInt(answers['uddi-mgmt-tokens']) || 0) : 0;
+    // UDDI server tokens are already included in infraTokens (NXVS/NXaaS sites)
+    // So total UDDI-specific tokens = management tokens only (server tokens already counted)
+    const uddiMgmtWithBuffer = uddiMgmtTokens > 0
+      ? Math.ceil(uddiMgmtTokens * (1 + (parseInt(answers['uddi-growth-buffer']) || 20) / 100))
+      : 0;
 
     return {
       totalIPs, totalKW, infraTokens, securityTokens, uddiTokens,
