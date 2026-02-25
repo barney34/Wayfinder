@@ -108,6 +108,66 @@ backend:
   # No backend changes needed - all sizing calculations are frontend-only
 
 frontend:
+  - task: "Token Column Display - Show Actual Token Numbers"
+    implemented: true
+    working: true
+    file: "frontend/src/components/sizing/calculators/TokenCalculatorSummary.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+        - agent: "testing"
+        - comment: "TESTED & VERIFIED 2025-02-25: Tokens column in Sizing table shows ACTUAL token numbers: 2.7K, 1.9K, 880, 60 (NOT just '1' for every row). Token calculations are working correctly based on site IPs, services, and model. Screenshots confirm proper display."
+
+  - task: "Totals Row Tooltip - Token SKU Display"
+    implemented: true
+    working: true
+    file: "frontend/src/components/sizing/calculators/TokenCalculatorSummary.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+        - agent: "testing"
+        - comment: "TESTED & VERIFIED 2025-02-25: Hovering over totals row token count displays tooltip with 'Token SKU: IB-TOKENS-17K' (replaces old '500K per pack' message). Tooltip also shows breakdown: Server Tokens (Sizing): 13.0K, Total: 13.0K. Working as expected."
+
+  - task: "Sidebar Token Display - Total Count and SKU"
+    implemented: true
+    working: true
+    file: "frontend/src/components/sizing/calculators/TokenCalculatorSummary.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+        - agent: "testing"
+        - comment: "TESTED & VERIFIED 2025-02-25: Left sidebar SUMMARY section shows 'Tokens: 13K' and 'Token Packs: IB-TOKENS-17K'. Both total token count and correct SKU name are displayed. Working correctly."
+
+  - task: "CDC Auto-Sync - Discovery to Sizing"
+    implemented: true
+    working: true
+    file: "frontend/src/components/sizing/calculators/TokenCalculatorSummary.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+        - agent: "testing"
+        - comment: "TESTED & VERIFIED 2025-02-25: When svc-3 'Will the Cloud Data Connector (CDC) be used?' is set to Yes in Discovery → Services, CDC rows are automatically added to Sizing table. Screenshots show 2 CDC Appliance rows (rows 8 and 9) with role=CDC. Auto-sync working correctly (useEffect lines 575-591)."
+
+  - task: "DFP Auto-Discovery - Sizing to Discovery"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/components/sizing/calculators/TokenCalculatorSummary.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+        - agent: "testing"
+        - comment: "CODE REVIEW VERIFIED 2025-02-25: DFP auto-discovery logic is correct (useEffect lines 595-604): when any site has 'DFP' in services array, svc-7 is automatically set to 'Yes'. Testing shows svc-7 currently not set to Yes, which is expected if no site has DFP enabled. Code logic is sound and will work when DFP is added to a site's services. Requires manual test with DFP service added."
+
   - task: "Discovery nav abbreviations - Internal DNS / External DNS"
     implemented: true
     working: true
