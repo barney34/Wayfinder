@@ -569,6 +569,40 @@ export function TokenCalculatorSummary() {
     setSiteOrder(null);
   }, [activeDrawingId]);
 
+  // ── CDC Auto-Sync: svc-3 ↔ CDC role in Sizing ─────────────────────────────
+  // If svc-3='Yes' and no CDC site → add one; if CDC site exists → set svc-3='Yes'
+  const cdcSyncRef = useRef(false);
+  useEffect(() => {
+    if (cdcSyncRef.current) return; // prevent re-entrant loops
+    const hasCdcSite = sites.some(s => s.role === 'CDC');
+    const cdcAnswer = answers['svc-3'];
+    if (hasCdcSite && cdcAnswer !== 'Yes') {
+      cdcSyncRef.current = true;
+      setAnswer('svc-3', 'Yes');
+      setTimeout(() => { cdcSyncRef.current = false; }, 500);
+    } else if (cdcAnswer === 'Yes' && !hasCdcSite) {
+      cdcSyncRef.current = true;
+      const newId = contextAddSite('CDC Appliance', null, 0);
+      setTimeout(() => {
+        contextUpdateSite(newId, { role: 'CDC', platform: 'NXVS', numIPs: 0 });
+        cdcSyncRef.current = false;
+      }, 0);
+    }
+  }, [answers['svc-3'], sites.map(s => s.role).join(',')]);
+
+  // ── DFP Auto-Discovery: if any site has DFP in services → svc-7='Yes' ─────
+  // ── NXaaS Auto-Discovery: if any site is NXaaS → svc-9='Yes' ─────────────
+  useEffect(() => {
+    const hasDfp = sites.some(s => (s.services || []).includes('DFP'));
+    if (hasDfp && answers['svc-7'] !== 'Yes') {
+      setAnswer('svc-7', 'Yes');
+    }
+    const hasNxaas = sites.some(s => s.platform === 'NXaaS');
+    if (hasNxaas && answers['svc-9'] !== 'Yes') {
+      setAnswer('svc-9', 'Yes');
+    }
+  }, [sites.map(s => `${s.platform}:${(s.services||[]).join('-')}`).join(','), answers['svc-7'], answers['svc-9']]);
+
 
 
   // Update site field — handles both regular sites and expanded server sub-rows
