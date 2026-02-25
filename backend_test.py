@@ -11,7 +11,7 @@ from datetime import datetime
 import uuid
 
 class DiscoveryTrackAPITester:
-    def __init__(self, base_url="https://qa-assistant-4.preview.emergentagent.com"):
+    def __init__(self, base_url="https://size-guide-app.preview.emergentagent.com"):
         self.base_url = base_url
         self.tests_run = 0
         self.tests_passed = 0
