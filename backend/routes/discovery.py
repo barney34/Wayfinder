@@ -67,6 +67,9 @@ async def save_discovery_data(customer_id: str, data: DiscoveryData):
         "leaseTimeUnits": data.leaseTimeUnits,
         "dataCenters": data.dataCenters,
         "sites": data.sites,
+        "drawings": data.drawings,
+        "activeDrawingId": data.activeDrawingId,
+        "drawingConfigs": data.drawingConfigs,
         "lastSaved": now,
     }
     
