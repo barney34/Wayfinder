@@ -419,9 +419,12 @@ metadata:
 
 test_plan:
   current_focus:
-    - "CDC Token Fix - Show 0 tokens for CDC role"
-    - "Quick Entry Keyboard Flow - TopBar DC/Site inputs"
-    - "No Duplicate CDC on Navigation - Discovery ↔ Sizing"
+    - "Drawing Tab Site Count Display"
+    - "New Drawing Button Dropdown - Blank or Clone Options"
+    - "Drawing Tab Clone Option in ... Menu"
+    - "Rename Dialog - Numbers Only Input"
+    - "Compare Dialog - Line-by-Line Diff View"
+    - "Grouping UI Labels - Create Groupings, Individual, Group All"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
