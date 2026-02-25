@@ -56,6 +56,7 @@ export const ROLE_OPTIONS_BY_MODE = {
     { value: 'DNS',      label: 'DNS',      description: 'DNS Only' },
     { value: 'DHCP',     label: 'DHCP',     description: 'DHCP Only' },
     { value: 'DNS/DHCP', label: 'DNS/DHCP', description: 'DNS + DHCP' },
+    { value: 'CDC',      label: 'CDC',      description: 'Cloud Data Connector' },
   ],
   Hybrid: [
     { value: 'DNS',      label: 'DNS',      description: 'Internal DNS' },
