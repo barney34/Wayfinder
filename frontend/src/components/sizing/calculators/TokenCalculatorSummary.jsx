@@ -570,25 +570,31 @@ export function TokenCalculatorSummary() {
   }, [activeDrawingId]);
 
   // ── CDC Auto-Sync: svc-3 ↔ CDC role in Sizing ─────────────────────────────
-  // If svc-3='Yes' and no CDC site → add one; if CDC site exists → set svc-3='Yes'
+  // Check contextSites (raw) to avoid computed-sites race conditions on remount
   const cdcSyncRef = useRef(false);
   useEffect(() => {
-    if (cdcSyncRef.current) return; // prevent re-entrant loops
-    const hasCdcSite = sites.some(s => s.role === 'CDC');
+    if (cdcSyncRef.current) return;
+    // Check the raw context sites for CDC role (most reliable - persists across navigation)
+    const hasCdcInContext = contextSites.some(s => s.role === 'CDC');
     const cdcAnswer = answers['svc-3'];
-    if (hasCdcSite && cdcAnswer !== 'Yes') {
+
+    if (hasCdcInContext && cdcAnswer !== 'Yes') {
+      // CDC exists in sizing → mark in discovery
       cdcSyncRef.current = true;
       setAnswer('svc-3', 'Yes');
-      setTimeout(() => { cdcSyncRef.current = false; }, 500);
-    } else if (cdcAnswer === 'Yes' && !hasCdcSite) {
+      setTimeout(() => { cdcSyncRef.current = false; }, 300);
+    } else if (cdcAnswer === 'Yes' && !hasCdcInContext) {
+      // svc-3=Yes but no CDC site → add one (only once)
       cdcSyncRef.current = true;
-      const newId = contextAddSite('CDC Appliance', null, 0);
-      setTimeout(() => {
-        contextUpdateSite(newId, { role: 'CDC', platform: 'NXVS', numIPs: 0 });
-        cdcSyncRef.current = false;
-      }, 0);
+      const newId = contextAddSite('CDC', null, 0);
+      // Add synchronously to context before clearing lock
+      contextUpdateSite(newId, { role: 'CDC', numIPs: 0 });
+      // Keep lock for 1s to prevent immediate re-trigger on state flush
+      setTimeout(() => { cdcSyncRef.current = false; }, 1000);
     }
-  }, [answers['svc-3'], sites.map(s => s.role).join(',')]);
+  // Depend on raw contextSites roles string (stable, no computed delay)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [answers['svc-3'], contextSites.map(s => s.role).join(',')]);
 
   // ── DFP Auto-Discovery: if any site has DFP in services → svc-7='Yes' ─────
   // ── NXaaS Auto-Discovery: if any site is NXaaS → svc-9='Yes' ─────────────
