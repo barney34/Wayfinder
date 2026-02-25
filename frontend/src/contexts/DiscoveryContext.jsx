@@ -280,6 +280,81 @@ export function DiscoveryProvider({ children, customerId }) {
     setSizingSummaryState(summary);
   }, []);
 
+  // ── Drawing management functions ──────────────────────────────────────────
+  const _genDrawingId = () => `drawing-${Date.now()}-${Math.random().toString(36).substr(2,9)}`;
+
+  const _getNextDrawingName = useCallback((currentDrawings) => {
+    const nums = currentDrawings.map(d => parseInt(d.name)).filter(n => !isNaN(n));
+    if (nums.length === 0) return '10';
+    return String(Math.ceil((Math.max(...nums) + 1) / 10) * 10);
+  }, []);
+
+  const setActiveDrawingId = useCallback((id) => {
+    setActiveDrawingIdState(id);
+    markDirty();
+  }, [markDirty]);
+
+  const getDrawingConfig = useCallback((drawingId) => {
+    return drawingConfigs[drawingId] || {
+      platformMode: 'NIOS',
+      featureNIOS: true, featureUDDI: false, featureSecurity: true,
+      siteOverrides: {}, siteOrder: null,
+    };
+  }, [drawingConfigs]);
+
+  const updateDrawingConfig = useCallback((drawingId, updates) => {
+    setDrawingConfigs(prev => ({
+      ...prev,
+      [drawingId]: { ...(prev[drawingId] || {}), ...updates },
+    }));
+    markDirty();
+  }, [markDirty]);
+
+  const addDrawing = useCallback(() => {
+    const newId = _genDrawingId();
+    const newDrawing = { id: newId, name: _getNextDrawingName(drawings), createdAt: new Date().toISOString() };
+    setDrawings(prev => [...prev, newDrawing]);
+    setDrawingConfigs(prev => ({
+      ...prev,
+      [newId]: { platformMode: 'NIOS', featureNIOS: true, featureUDDI: false, featureSecurity: false, siteOverrides: {}, siteOrder: null },
+    }));
+    setActiveDrawingIdState(newId);
+    markDirty();
+    return newDrawing;
+  }, [drawings, _getNextDrawingName, markDirty]);
+
+  const cloneDrawing = useCallback((sourceId) => {
+    const source = drawings.find(d => d.id === sourceId);
+    if (!source) return;
+    const newId = _genDrawingId();
+    const newDrawing = { id: newId, name: _getNextDrawingName(drawings), createdAt: new Date().toISOString() };
+    const sourceConfig = drawingConfigs[sourceId] || {};
+    setDrawings(prev => [...prev, newDrawing]);
+    setDrawingConfigs(prev => ({
+      ...prev,
+      [newId]: JSON.parse(JSON.stringify(sourceConfig)), // deep copy
+    }));
+    setActiveDrawingIdState(newId);
+    markDirty();
+    return newDrawing;
+  }, [drawings, drawingConfigs, _getNextDrawingName, markDirty]);
+
+  const deleteDrawing = useCallback((drawingId) => {
+    setDrawings(prev => {
+      if (prev.length <= 1) return prev;
+      const filtered = prev.filter(d => d.id !== drawingId);
+      setActiveDrawingIdState(cur => cur === drawingId ? filtered[0].id : cur);
+      return filtered;
+    });
+    setDrawingConfigs(prev => { const n = { ...prev }; delete n[drawingId]; return n; });
+    markDirty();
+  }, [markDirty]);
+
+  const renameDrawing = useCallback((drawingId, newName) => {
+    setDrawings(prev => prev.map(d => d.id === drawingId ? { ...d, name: newName } : d));
+    markDirty();
+  }, [markDirty]);
+
   // Immediate save to server (bypasses debounce)
   const saveToServer = useCallback(async () => {
     if (!customerId) return;
@@ -288,6 +363,7 @@ export function DiscoveryProvider({ children, customerId }) {
       const payload = {
         answers, notes, contextFields, meetingNotes,
         enabledSections, udsMembers, leaseTimeUnits, dataCenters, sites,
+        drawings, activeDrawingId, drawingConfigs,
       };
       await apiRequest('PUT', `/api/customers/${customerId}/discovery`, payload);
       setIsDirty(false);
@@ -295,7 +371,7 @@ export function DiscoveryProvider({ children, customerId }) {
     } finally {
       setIsSaving(false);
     }
-  }, [answers, notes, contextFields, meetingNotes, enabledSections, udsMembers, leaseTimeUnits, dataCenters, sites, customerId]);
+  }, [answers, notes, contextFields, meetingNotes, enabledSections, udsMembers, leaseTimeUnits, dataCenters, sites, drawings, activeDrawingId, drawingConfigs, customerId]);
 
   const defaultAnswers = getDefaultAnswers();
 
