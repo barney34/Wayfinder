@@ -871,13 +871,21 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
       case 'ipCalculated':
       case 'dnsAggregateCalculated':
       case 'dnsPerServerCalculated': {
-        // Auto-calculate DNS QPS from active IPs
+        // ── DNS QPS Formula (from PDF): ──────────────────────────────────────
+        // activeIPs = KW × 2.5 (use TOP BAR KW only — answers['ud-1'])
+        // total_queries_per_day = activeIPs × 3500
+        // aggregate_QPS = total_qpd ÷ (9hr × 3600s) = activeIPs × 3500 / 32400
+        const topBarKW = parseInt(answers['ud-1']) || 0;
+        const topBarIPs = Math.round(topBarKW * (parseFloat(answers['ipam-multiplier']) || 2.5));
+        const aggregateQPS_daily = Math.ceil(topBarIPs * 3500 / 32400); // 9hr workday
+
+        // Fallback: use IPs from IPAM override if available
         const ipCalcManualOverride = answers['ipam-1-override'] === 'true';
-        const kwNum = parseInt(answers['ud-1']) || 0;
-        const ipMultiplier = parseFloat(answers['ipam-multiplier']) || 2.5;
-        const calculatedIPs = Math.round(kwNum * ipMultiplier);
         const manualIPs = parseInt(answers['ipam-1']) || 0;
-        const activeIPs = ipCalcManualOverride ? manualIPs : calculatedIPs;
+        const activeIPs = ipCalcManualOverride ? manualIPs : topBarIPs;
+        const aggregateQPS = ipCalcManualOverride
+          ? Math.ceil(activeIPs * 3500 / 32400)
+          : aggregateQPS_daily;
 
         // Count Internal DNS sites from Sizing (unit letter NOT 'E', role has DNS)
         // Includes DNS, DNS/DHCP, GM+DNS, GMC+DNS, and any multi-protocol role with DNS
