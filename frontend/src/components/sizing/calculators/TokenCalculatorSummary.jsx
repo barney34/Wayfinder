@@ -1054,7 +1054,7 @@ export function TokenCalculatorSummary() {
                                 <div><strong>Security Tokens:</strong> {formatNumber(totals.securityTokens)}</div>
                               )}
                               <div className="border-t border-border/40 pt-1 font-bold">Total: {formatNumber(totals.totalTokens)}</div>
-                              <div><strong>Token packs:</strong> {Math.ceil(totals.totalTokens / 500000)} (500K per pack)</div>
+                              <div><strong>Token SKU:</strong> {getPartnerSkuFromTokens(totals.totalTokens).sku}</div>
                             </div>
                           </TooltipContent>
                         </Tooltip>
