@@ -426,12 +426,16 @@ export function TokenCalculatorSummary() {
           });
         } else if (groupMode === 'custom' && customGroups.length > 0) {
           // Custom groups: each range → 1 row, ungrouped → individual rows
+          // Collect all rows first, then sort by server index to maintain correct order
+          const siteRows = [];
           const grouped = new Set();
+          
+          // Add grouped ranges
           customGroups.forEach(([s, e]) => {
             for (let i = s; i <= e; i++) grouped.add(i);
             const srvOvr = serverOverrides[s - 1] || {};
             const rangeCount = e - s + 1;
-            result.push({
+            siteRows.push({
               ...site,
               id: `${site.id}__grp__${s}-${e}`,
               name: srvOvr.name || site.name,
@@ -441,7 +445,6 @@ export function TokenCalculatorSummary() {
               platform: srvOvr.platform || site.platform,
               haEnabled: srvOvr.haEnabled !== undefined ? srvOvr.haEnabled : site.haEnabled,
               unitLetterOverride: srvOvr.unitLetterOverride || site.unitLetterOverride,
-              _groupRange: s === e ? null : `${s}-${e}`,
               _groupMode: groupMode,
               _isExpanded: true,
               _serverIndex: s - 1,
@@ -453,11 +456,12 @@ export function TokenCalculatorSummary() {
               hwCount: site.hwCount !== undefined ? Math.round(site.hwCount * rangeCount / count) : rangeCount,
             });
           });
-          // Ungrouped servers → individual rows
+          
+          // Add ungrouped servers as individual rows
           for (let i = 1; i <= count; i++) {
             if (!grouped.has(i)) {
               const srvOvr = serverOverrides[i - 1] || {};
-              result.push({
+              siteRows.push({
                 ...site,
                 id: `${site.id}__srv__${i - 1}`,
                 name: srvOvr.name || site.name,
@@ -467,18 +471,22 @@ export function TokenCalculatorSummary() {
                 platform: srvOvr.platform || site.platform,
                 haEnabled: srvOvr.haEnabled !== undefined ? srvOvr.haEnabled : site.haEnabled,
                 unitLetterOverride: srvOvr.unitLetterOverride || site.unitLetterOverride,
-                _groupRange: null,
                 _groupMode: groupMode,
                 _isExpanded: true,
                 _serverIndex: i - 1,
                 _parentSiteId: site.id,
                 _parentName: site.name,
+                _serverCount: 1,
                 serverCount: 1,
                 swInstances: site.haEnabled ? 2 : 1,
                 hwCount: site.hwCount !== undefined ? Math.max(1, Math.round(site.hwCount / count)) : 1,
               });
             }
           }
+          
+          // Sort by server index to maintain correct order, then push to result
+          siteRows.sort((a, b) => a._serverIndex - b._serverIndex);
+          result.push(...siteRows);
         } else {
           // Individual mode — each server is its own row
           for (let i = 0; i < count; i++) {
