@@ -462,6 +462,13 @@ export function SiteTableRow({
     );
   }
   
+  // Calculate unitRange for grouped rows (used in non-export view)
+  const serverCount = site._serverCount || 1;
+  const unitNumber = unitAssignment?.unitNumber ?? 1;
+  const unitRange = serverCount > 1 
+    ? `${unitNumber}-${unitNumber + serverCount - 1}`
+    : String(unitNumber);
+
   return (
     <TableRow
       data-testid={`site-row-${site.id}`}
