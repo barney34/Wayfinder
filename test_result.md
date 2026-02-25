@@ -243,6 +243,42 @@ frontend:
         - agent: "main"
         - comment: "Implemented FO object replication: Hub gets all spokes' DHCP objects, spoke gets hub's DHCP objects. Objects are added to model selection via foObjects parameter. calculateSiteDhcpObjects() utility added."
 
+  - task: "CDC Token Fix - Show 0 tokens for CDC role"
+    implemented: true
+    working: true
+    file: "frontend/src/components/sizing/calculators/TokenCalculatorSummary.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+        - agent: "testing"
+        - comment: "TESTED & VERIFIED 2025-02-25: CDC row in Sizing table shows '0' tokens (NOT 60 or any positive number). Code at lines 296-299 correctly checks isCDC and sets baseTokens=0 and singleServerTokens=0. Screenshot confirms CDC row displays '0' in Tokens column. ✅ PASS"
+
+  - task: "Quick Entry Keyboard Flow - TopBar DC/Site inputs"
+    implemented: true
+    working: true
+    file: "frontend/src/components/TopBar.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+        - agent: "testing"
+        - comment: "TESTED & VERIFIED 2025-02-25: TopBar keyboard flow working correctly. Test results: (1) Enter in DC Name field → cursor moves to DC KW field ✅ PASS, (2) Enter in DC KW field → DC added to list (count 3→4) ✅ PASS, (3) Cursor returns to DC Name field after submission ✅ PASS. Code at lines 195-200 implements correct onKeyDown handlers with e.preventDefault() and focus management."
+
+  - task: "No Duplicate CDC on Navigation - Discovery ↔ Sizing"
+    implemented: true
+    working: true
+    file: "frontend/src/components/sizing/calculators/TokenCalculatorSummary.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+        - agent: "testing"
+        - comment: "TESTED & VERIFIED 2025-02-25: CDC duplication bug FIXED. Multiple navigation tests (Discovery → Sizing → Discovery → Sizing) confirm CDC count remains stable at 1. Code at lines 576-599 uses cdcSyncRef lock mechanism with 1000ms timeout to prevent duplicate CDC creation on state flush. ✅ PASS - Confirmed stable across multiple navigations."
+
   - task: "Performance Features (DTC, Syslog) in Services popover"
     implemented: true
     working: true
