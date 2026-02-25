@@ -19,7 +19,11 @@ const TARGET_SOLUTIONS = [
 ];
 
 export function TopBar({ customerName, opportunity, onNameChange, onOpportunityChange, onNameBlur, onOpportunityBlur }) {
-  const { answers, setAnswer, dataCenters, sites, addDataCenter, addSite, deleteDataCenter, deleteSite, updateDataCenter, updateSite, setPlatformMode } = useDiscovery();
+  const {
+    answers, setAnswer, dataCenters, sites, addDataCenter, addSite, deleteDataCenter, deleteSite,
+    updateDataCenter, updateSite,
+    drawings, activeDrawingId, getDrawingConfig, updateDrawingConfig,
+  } = useDiscovery();
   const [collapsed, setCollapsed] = useState(false);
   const [dcName, setDcName] = useState('');
   const [dcKW, setDcKW] = useState('');
@@ -28,27 +32,45 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
   const [pillWidth, setPillWidth] = useState(0);
   const pillRef = useRef(null);
 
+  // Global KW from top bar field (single source of truth)
   const kw = parseInt(answers['ud-1']) || 0;
   const mult = parseFloat(answers['ipam-multiplier']) || 2.5;
   const activeIPs = Math.ceil(kw * mult);
   const totalKW = dataCenters.reduce((sum, dc) => sum + (dc.knowledgeWorkers || 0), 0) + sites.reduce((sum, s) => sum + (s.knowledgeWorkers || 0), 0);
 
-  const niosEnabled = answers['feature-nios'] === 'Yes';
-  const uddiEnabled = answers['feature-uddi'] === 'Yes';
-  const assetEnabled = answers['feature-asset insights'] === 'Yes';
+  // Per-drawing feature state (each drawing independent)
+  const activeConfig = getDrawingConfig(activeDrawingId);
+  const niosEnabled = activeConfig.featureNIOS ?? true;
+  const uddiEnabled = activeConfig.featureUDDI ?? false;
+  const securityEnabled = activeConfig.featureSecurity ?? false;
+  const assetEnabled = answers['feature-asset insights'] === 'Yes'; // asset is still global
+
+  const toggleFeature = (feature) => {
+    const updates = {};
+    if (feature === 'nios') {
+      const newNIOS = !niosEnabled;
+      updates.featureNIOS = newNIOS;
+      updates.platformMode = newNIOS && uddiEnabled ? 'Hybrid' : newNIOS ? 'NIOS' : uddiEnabled ? 'UDDI' : 'NIOS';
+    } else if (feature === 'uddi') {
+      const newUDDI = !uddiEnabled;
+      updates.featureUDDI = newUDDI;
+      updates.platformMode = niosEnabled && newUDDI ? 'Hybrid' : newUDDI ? 'UDDI' : niosEnabled ? 'NIOS' : 'NIOS';
+    } else if (feature === 'security') {
+      updates.featureSecurity = !securityEnabled;
+    }
+    updateDrawingConfig(activeDrawingId, updates);
+  };
+
+  const isHybrid = niosEnabled && uddiEnabled;
 
   const cloudMgmtActive = answers['uddi-1'] === 'Yes' || answers['uddi-4'] === 'Yes';
   const prevCloudMgmt = useRef(cloudMgmtActive);
   useEffect(() => {
-    if (cloudMgmtActive && !prevCloudMgmt.current && !uddiEnabled) setAnswer('feature-uddi', 'Yes');
+    if (cloudMgmtActive && !prevCloudMgmt.current && !uddiEnabled) {
+      updateDrawingConfig(activeDrawingId, { featureUDDI: true, platformMode: niosEnabled ? 'Hybrid' : 'UDDI' });
+    }
     prevCloudMgmt.current = cloudMgmtActive;
-  }, [cloudMgmtActive, uddiEnabled, setAnswer]);
-
-  useEffect(() => {
-    if (niosEnabled && uddiEnabled) setPlatformMode('Hybrid');
-    else if (uddiEnabled && !niosEnabled) setPlatformMode('UDDI');
-    else if (niosEnabled && !uddiEnabled) setPlatformMode('NIOS');
-  }, [niosEnabled, uddiEnabled, setPlatformMode]);
+  }, [cloudMgmtActive, uddiEnabled, updateDrawingConfig, activeDrawingId, niosEnabled]);
 
   // Measure pill width for spacer alignment
   useEffect(() => {
@@ -66,12 +88,10 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
   const siteNameRef = useRef(null);
   const siteKWRef = useRef(null);
 
-  const isNIOS = answers['feature-nios'] === 'Yes';
-  const isUDDI = answers['feature-uddi'] === 'Yes';
-  const isSecurity = answers['feature-security'] === 'Yes';
-  const isAsset = answers['feature-asset insights'] === 'Yes';
-  const isHybrid = isNIOS && isUDDI;
-  const activeSolutions = TARGET_SOLUTIONS.filter(s => answers[s.key] === 'Yes');
+  const isNIOS = niosEnabled;
+  const isUDDI = uddiEnabled;
+  const isSecurity = securityEnabled;
+  const isAsset = assetEnabled;
 
   const nameLen = Math.max((customerName || '').length, 6);
   const oppLen = Math.max((opportunity || '').length, 8);
