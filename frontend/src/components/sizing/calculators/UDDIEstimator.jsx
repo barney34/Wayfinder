@@ -222,6 +222,7 @@ export function UDDIEstimator({ value, onChange, questionId }) {
                 type="number" min="0"
                 value={data.knowledgeWorkers || ''}
                 onChange={(e) => updateData({ knowledgeWorkers: parseInt(e.target.value) || 0 })}
+                placeholder={topBarKW > 0 ? topBarKW.toLocaleString() + ' (TopBar)' : '0'}
                 className="h-8 text-xs w-full"
               />
             </div>
