@@ -1,17 +1,41 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, ChevronDown, ChevronRight } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Plus, Trash2, ChevronDown, ChevronRight, Info, Link2 } from "lucide-react";
 import { uddiServerTokens, nxvsServers, nxaasServers, uddiManagementTokenRates } from "@/lib/tokenData";
 import { safeParseUDDI } from '../parsers';
 import { defaultUDDIData } from '../constants';
+import { useDiscovery } from "@/contexts/DiscoveryContext";
 
+/**
+ * UDDIEstimator — Discovery-side UDDI token estimator
+ *
+ * Server Selections are SYNCED with the Sizing table:
+ *  - NXVS/NXaaS rows in Sizing appear here automatically
+ *  - Adding a server here creates a row in Sizing
+ *  - Removing a server here removes it from Sizing
+ *
+ * Management Tokens (DDI objects, Active IPs, Disc. Assets) are tracked locally
+ * and pushed to answers['uddi-mgmt-tokens'] for the Sizing summary to read.
+ */
 export function UDDIEstimator({ value, onChange, questionId }) {
   const data = safeParseUDDI(value);
   const [isExpanded, setIsExpanded] = useState(false);
 
+  const {
+    sites: contextSites = [],
+    dataCenters = [],
+    addSite,
+    deleteSite,
+    updateSite,
+    setAnswer,
+    answers = {},
+  } = useDiscovery();
+
+  // ── Management token inputs (stored locally in uddi-estimator JSON) ──────────
   const activeIPs = Math.ceil((data.knowledgeWorkers || 0) * (data.devicesPerUser || 2.5));
   const dhcpClients = Math.ceil(activeIPs * ((data.dhcpPercent || 80) / 100));
   const staticClients = activeIPs - dhcpClients;
@@ -28,105 +52,315 @@ export function UDDIEstimator({ value, onChange, questionId }) {
   const assetRate = isNios ? rates[2].nios : rates[2].native;
   const totalManagementTokens = Math.ceil(ddiObjects / ddiRate) + Math.ceil(activeIPs / ipRate) + Math.ceil(discoveredAssets / assetRate);
 
-  const serverTokens = (data.servers || []).reduce((sum, s) => sum + (s.tokens * s.quantity), 0);
-  const totalTokens = totalManagementTokens + serverTokens;
   const growthBuffer = data.growthBuffer || 20;
+
+  // ── Server Selections: derived from Sizing table (NXVS / NXaaS sites) ────────
+  // We read NXVS/NXaaS sites from context — this is the single source of truth
+  const uddiSizingSites = useMemo(() => {
+    const allSites = [
+      ...dataCenters.map(dc => ({ ...dc, _type: 'dataCenter' })),
+      ...contextSites.map(s => ({ ...s, _type: 'site' })),
+    ];
+    return allSites.filter(s => {
+      const platform = (s.platform || '').toUpperCase();
+      return platform === 'NXVS' || platform === 'NXAAS';
+    });
+  }, [contextSites, dataCenters]);
+
+  // Compute server tokens from sizing sites
+  const serverTokensFromSizing = useMemo(() => {
+    return uddiSizingSites.reduce((sum, s) => {
+      const platform = (s.platform || 'NXVS').toUpperCase();
+      const model = s.recommendedModel || s.model || 'S';
+      const serverType = platform === 'NXAAS' ? 'NXaaS' : 'NXVS';
+      const match = uddiServerTokens.find(t =>
+        t.serverType === serverType && (t.serverSize === model || t.key === `${serverType}-${model}`)
+      );
+      const tokenCost = match?.tokens || 0;
+      const qty = (s.serverCount || 1) * (s.haEnabled ? 2 : 1);
+      return sum + tokenCost * qty;
+    }, 0);
+  }, [uddiSizingSites]);
+
+  const totalTokens = totalManagementTokens + serverTokensFromSizing;
   const bufferedTotal = Math.ceil(totalTokens * (1 + growthBuffer / 100));
 
-  const updateData = (updates) => onChange(JSON.stringify({ ...data, ...updates, ddiObjects, calculatedActiveIPs: activeIPs, discoveredAssets, totalManagementTokens }));
+  // ── Push management tokens to answers so TokenCalculatorSummary can read them ─
+  useEffect(() => {
+    if (isNios !== undefined) {
+      setAnswer('uddi-mgmt-tokens', String(totalManagementTokens));
+      setAnswer('uddi-growth-buffer', String(growthBuffer));
+    }
+  }, [totalManagementTokens, growthBuffer, isNios, setAnswer]);
 
-  const handleToggle = (checked) => {
-    if (checked) { setIsExpanded(true); updateData({ enabled: true }); }
-    else onChange(JSON.stringify({ ...defaultUDDIData }));
-  };
+  // ── Local update helper ────────────────────────────────────────────────────────
+  const updateData = (updates) =>
+    onChange(JSON.stringify({ ...data, ...updates, ddiObjects, calculatedActiveIPs: activeIPs, discoveredAssets, totalManagementTokens }));
 
+  // ── Add a new NXVS server → creates a site in Sizing table ───────────────────
   const addServer = () => {
-    const newServer = { id: `${Date.now()}`, serverType: 'NXVS', serverSize: 'S', tokens: 470, quantity: 1 };
-    updateData({ servers: [...(data.servers || []), newServer] });
+    const newId = addSite(`NXVS-S Site ${uddiSizingSites.length + 1}`, null, 0);
+    // Override platform on the next tick (context may need a moment)
+    setTimeout(() => {
+      updateSite(newId, { platform: 'NXVS', role: 'DNS/DHCP', numIPs: 500 });
+    }, 0);
   };
 
-  const removeServer = (id) => updateData({ servers: (data.servers || []).filter(s => s.id !== id) });
+  // ── Remove a sizing site ───────────────────────────────────────────────────────
+  const removeServer = (siteId) => {
+    deleteSite(siteId);
+  };
 
-  const updateServer = (id, updates) => {
-    const servers = (data.servers || []).map(s => {
-      if (s.id !== id) return s;
-      const updated = { ...s, ...updates };
-      if (updates.serverType || updates.serverSize) {
-        const match = uddiServerTokens.find(t => t.serverType === (updates.serverType || s.serverType) && t.serverSize === (updates.serverSize || s.serverSize));
-        if (match) updated.tokens = match.tokens;
-      }
-      return updated;
-    });
-    updateData({ servers });
+  // ── Update server platform/size in context ────────────────────────────────────
+  const changeServerType = (siteId, newPlatform) => {
+    updateSite(siteId, { platform: newPlatform });
+  };
+
+  const changeServerSize = (siteId, newSize, serverType) => {
+    // Size is actually stored as the model override
+    updateSite(siteId, { recommendedModel: newSize, modelOverride: newSize });
+  };
+
+  const changeServerQty = (siteId, qty) => {
+    updateSite(siteId, { serverCount: Math.max(1, qty) });
+  };
+
+  // ── Helper: get size from site ────────────────────────────────────────────────
+  const getSiteSize = (site) => site.modelOverride || site.recommendedModel || 'S';
+  const getSiteType = (site) => {
+    const p = (site.platform || 'NXVS').toUpperCase();
+    return p === 'NXAAS' ? 'NXaaS' : 'NXVS';
   };
 
   return (
     <div className="space-y-3 p-3 bg-muted/30 rounded-md" data-testid={`uddi-estimator-${questionId}`}>
+      {/* Header */}
       <div className="flex items-center gap-3">
-        <Button type="button" variant="ghost" size="sm" onClick={() => setIsExpanded(!isExpanded)} className="p-0 h-auto hover:bg-transparent">
-          {isExpanded ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
-          <span className="text-sm font-semibold">UDDI Estimator</span>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="p-0 h-auto hover:bg-transparent"
+        >
+          {isExpanded
+            ? <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+          <span className="text-sm font-semibold ml-1">UDDI Token Estimator</span>
         </Button>
-        <div className="flex items-center gap-1">
-          <span className="text-xs text-muted-foreground">No</span>
-          <Switch checked={data.enabled} onCheckedChange={handleToggle} data-testid={`uddi-toggle-${questionId}`} />
-          <span className="text-xs text-muted-foreground">Yes</span>
+
+        <div className="flex items-center gap-1.5 ml-auto">
+          <Badge variant="outline" className="text-xs font-mono text-[#12C2D3] border-[#12C2D3]/40">
+            {bufferedTotal.toLocaleString()} total tokens
+          </Badge>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <Badge variant="secondary" className="text-[10px] gap-1 cursor-help">
+                  <Link2 className="h-2.5 w-2.5" />
+                  Synced with Sizing
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-xs">Server tokens sync automatically with the Sizing table.</p>
+                <p className="text-xs text-muted-foreground">Add/remove NXVS or NXaaS rows in either place.</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
-        {data.enabled && <span className="text-sm text-muted-foreground ml-auto">{bufferedTotal.toLocaleString()} total tokens</span>}
       </div>
-      {isExpanded && data.enabled && (
-        <div className="space-y-4 pl-4">
+
+      {isExpanded && (
+        <div className="space-y-4 pl-4 border-l-2 border-[#12C2D3]/20">
+
+          {/* ── Mode selector ──────────────────────────────────────────────────── */}
           <div className="flex items-center gap-3">
-            <span className="text-sm font-medium min-w-[180px]">Mode</span>
-            <Select value={data.mode} onValueChange={(v) => updateData({ mode: v })}>
-              <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
-              <SelectContent><SelectItem value="native">Native</SelectItem><SelectItem value="nios">NIOS</SelectItem></SelectContent>
+            <span className="text-xs font-medium text-muted-foreground min-w-[160px]">Deployment Mode</span>
+            <Select value={data.mode || 'native'} onValueChange={(v) => updateData({ mode: v })}>
+              <SelectTrigger className="w-36 h-8 text-xs"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="native">UDDI Native</SelectItem>
+                <SelectItem value="nios">NIOS Hybrid</SelectItem>
+              </SelectContent>
             </Select>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-medium min-w-[180px]">Knowledge Workers</span>
-            <Input type="number" min="0" value={data.knowledgeWorkers || ''} onChange={(e) => updateData({ knowledgeWorkers: parseInt(e.target.value) || 0 })} className="w-28" />
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-medium min-w-[180px]">Devices per User</span>
-            <Input type="number" step="0.5" min="1" value={data.devicesPerUser || 2.5} onChange={(e) => updateData({ devicesPerUser: parseFloat(e.target.value) || 2.5 })} className="w-20" />
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-medium min-w-[180px]">DHCP %</span>
-            <Input type="number" min="0" max="100" value={data.dhcpPercent || 80} onChange={(e) => updateData({ dhcpPercent: parseInt(e.target.value) || 80, staticPercent: 100 - (parseInt(e.target.value) || 80) })} className="w-20" />
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-medium min-w-[180px]">Growth Buffer %</span>
-            <Input type="number" min="0" max="100" value={data.growthBuffer || 20} onChange={(e) => updateData({ growthBuffer: parseInt(e.target.value) || 20 })} className="w-20" />
-          </div>
-          <div className="border-t border-border pt-3 space-y-1">
-            <div className="text-xs uppercase tracking-wider font-semibold text-foreground">Calculated Values</div>
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <div><span className="text-muted-foreground">Active IPs:</span> <span className="font-semibold">{activeIPs.toLocaleString()}</span></div>
-              <div><span className="text-muted-foreground">DDI Objects:</span> <span className="font-semibold">{ddiObjects.toLocaleString()}</span></div>
-              <div><span className="text-muted-foreground">Disc. Assets:</span> <span className="font-semibold">{discoveredAssets.toLocaleString()}</span></div>
-              <div><span className="text-muted-foreground">Mgmt Tokens:</span> <span className="font-semibold">{totalManagementTokens.toLocaleString()}</span></div>
+
+          {/* ── Knowledge Workers / Devices ──────────────────────────────────── */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-medium text-muted-foreground">Knowledge Workers</label>
+              <Input
+                type="number" min="0"
+                value={data.knowledgeWorkers || ''}
+                onChange={(e) => updateData({ knowledgeWorkers: parseInt(e.target.value) || 0 })}
+                className="h-8 text-xs w-full"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-medium text-muted-foreground">Devices / User</label>
+              <Input
+                type="number" step="0.5" min="1"
+                value={data.devicesPerUser || 2.5}
+                onChange={(e) => updateData({ devicesPerUser: parseFloat(e.target.value) || 2.5 })}
+                className="h-8 text-xs w-full"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-medium text-muted-foreground">DHCP %</label>
+              <Input
+                type="number" min="0" max="100"
+                value={data.dhcpPercent || 80}
+                onChange={(e) => updateData({ dhcpPercent: parseInt(e.target.value) || 80 })}
+                className="h-8 text-xs w-full"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-medium text-muted-foreground">Growth Buffer %</label>
+              <Input
+                type="number" min="0" max="100"
+                value={growthBuffer}
+                onChange={(e) => updateData({ growthBuffer: parseInt(e.target.value) || 20 })}
+                className="h-8 text-xs w-full"
+              />
             </div>
           </div>
-          <div className="border-t border-border pt-3 space-y-2">
-            <div className="text-xs uppercase tracking-wider font-semibold text-foreground">Server Selections</div>
-            {(data.servers || []).map((server, i) => (
-              <div key={server.id} className="flex items-center gap-2 bg-muted/50 rounded-md p-2">
-                <Select value={server.serverType} onValueChange={(v) => updateServer(server.id, { serverType: v })}>
-                  <SelectTrigger className="w-24"><SelectValue /></SelectTrigger>
-                  <SelectContent><SelectItem value="NXVS">NXVS</SelectItem><SelectItem value="NXaaS">NXaaS</SelectItem></SelectContent>
-                </Select>
-                <Select value={server.serverSize} onValueChange={(v) => updateServer(server.id, { serverSize: v })}>
-                  <SelectTrigger className="w-20"><SelectValue /></SelectTrigger>
-                  <SelectContent>{(server.serverType === 'NXVS' ? nxvsServers : nxaasServers).map(s => <SelectItem key={s.serverSize} value={s.serverSize}>{s.serverSize}</SelectItem>)}</SelectContent>
-                </Select>
-                <span className="text-xs text-muted-foreground">x</span>
-                <Input type="number" min="1" value={server.quantity} onChange={(e) => updateServer(server.id, { quantity: parseInt(e.target.value) || 1 })} className="w-16 h-8" />
-                <span className="text-xs text-muted-foreground flex-1">({(server.tokens * server.quantity).toLocaleString()} tokens)</span>
-                <Button size="icon" variant="ghost" onClick={() => removeServer(server.id)}><Trash2 className="h-4 w-4" /></Button>
+
+          {/* ── Calculated Management Inputs ──────────────────────────────────── */}
+          <div className="border border-border rounded-md p-3 space-y-2 bg-background/60">
+            <div className="text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-2">
+              Management Token Inputs
+            </div>
+            <div className="grid grid-cols-3 gap-2 text-xs">
+              <div className="flex flex-col gap-0.5">
+                <span className="text-muted-foreground">Active IPs</span>
+                <span className="font-semibold text-foreground">{activeIPs.toLocaleString()}</span>
               </div>
-            ))}
-            <Button variant="outline" size="sm" onClick={addServer}><Plus className="h-4 w-4 mr-1" />Add Server</Button>
+              <div className="flex flex-col gap-0.5">
+                <span className="text-muted-foreground">DDI Objects</span>
+                <span className="font-semibold text-foreground">{ddiObjects.toLocaleString()}</span>
+              </div>
+              <div className="flex flex-col gap-0.5">
+                <span className="text-muted-foreground">Disc. Assets</span>
+                <span className="font-semibold text-foreground">{discoveredAssets.toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Token Breakdown ────────────────────────────────────────────────── */}
+          <div className="border border-[#12C2D3]/30 rounded-md p-3 space-y-2 bg-[#12C2D3]/5">
+            <div className="text-xs uppercase tracking-wider font-semibold text-[#12C2D3]/80 mb-2">
+              Token Breakdown
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Management Tokens</span>
+                <span className="font-semibold text-foreground">{totalManagementTokens.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Server Tokens</span>
+                <span className="font-semibold text-foreground">{serverTokensFromSizing.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Subtotal</span>
+                <span className="font-semibold text-foreground">{totalTokens.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">+{growthBuffer}% Buffer</span>
+                <span className="font-bold text-[#12C2D3]">{bufferedTotal.toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Server Selections — synced with Sizing table ──────────────────── */}
+          <div className="border-t border-border pt-3 space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-xs uppercase tracking-wider font-semibold text-foreground">
+                  Server Selections
+                </span>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="h-3.5 w-3.5 text-muted-foreground" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-xs">These servers are synced with the Sizing table.</p>
+                      <p className="text-xs text-muted-foreground">Changes here update the Sizing table and vice versa.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <span className="text-[10px] text-muted-foreground">
+                {uddiSizingSites.length} server{uddiSizingSites.length !== 1 ? 's' : ''}
+              </span>
+            </div>
+
+            {uddiSizingSites.length === 0 ? (
+              <div className="text-xs text-muted-foreground py-2 text-center italic">
+                No NXVS / NXaaS servers in Sizing table yet
+              </div>
+            ) : (
+              <div className="space-y-1.5">
+                {uddiSizingSites.map((server) => {
+                  const srvType = getSiteType(server);
+                  const srvSize = getSiteSize(server);
+                  const srvQty = server.serverCount || 1;
+                  const sizeOptions = srvType === 'NXaaS' ? nxaasServers : nxvsServers;
+                  const match = uddiServerTokens.find(
+                    t => t.serverType === srvType && (t.serverSize === srvSize || t.key === `${srvType}-${srvSize}`)
+                  );
+                  const tokenCost = (match?.tokens || 0) * srvQty * (server.haEnabled ? 2 : 1);
+
+                  return (
+                    <div key={server.id} className="flex items-center gap-2 bg-muted/50 rounded-md p-2">
+                      {/* Server Name */}
+                      <span className="text-[11px] text-muted-foreground flex-1 truncate min-w-0" title={server.name}>
+                        {server.name || 'Unnamed'}
+                      </span>
+                      {/* Type */}
+                      <Select value={srvType} onValueChange={(v) => changeServerType(server.id, v)}>
+                        <SelectTrigger className="w-20 h-7 text-xs shrink-0"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="NXVS">NXVS</SelectItem>
+                          <SelectItem value="NXaaS">NXaaS</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {/* Size */}
+                      <Select value={srvSize} onValueChange={(v) => changeServerSize(server.id, v, srvType)}>
+                        <SelectTrigger className="w-16 h-7 text-xs shrink-0"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {sizeOptions.map(s => (
+                            <SelectItem key={s.serverSize} value={s.serverSize}>
+                              {s.serverSize}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {/* Quantity */}
+                      <span className="text-[10px] text-muted-foreground shrink-0">x</span>
+                      <Input
+                        type="number" min="1"
+                        value={srvQty}
+                        onChange={(e) => changeServerQty(server.id, parseInt(e.target.value) || 1)}
+                        className="w-12 h-7 text-xs shrink-0"
+                      />
+                      {/* Token cost */}
+                      <span className="text-[10px] text-muted-foreground shrink-0 min-w-[56px] text-right">
+                        {tokenCost.toLocaleString()} tk
+                      </span>
+                      <Button size="icon" variant="ghost" className="h-6 w-6 shrink-0" onClick={() => removeServer(server.id)}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            <Button variant="outline" size="sm" className="h-7 text-xs" onClick={addServer}>
+              <Plus className="h-3.5 w-3.5 mr-1" />
+              Add Server to Sizing
+            </Button>
           </div>
         </div>
       )}
