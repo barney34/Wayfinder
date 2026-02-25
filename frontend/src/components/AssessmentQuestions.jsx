@@ -880,11 +880,14 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
         const activeIPs = ipCalcManualOverride ? manualIPs : calculatedIPs;
 
         // Count Internal DNS sites from Sizing (unit letter NOT 'E', role has DNS)
-        // Count External DNS sites (unit letter = 'E')
+        // Includes DNS, DNS/DHCP, GM+DNS, GMC+DNS, and any multi-protocol role with DNS
         const allSizingSites = [...(sites || [])];
         const internalDnsSiteCount = Math.max(1, allSizingSites.filter(s => {
           const letter = s.unitLetterOverride || getUnitLetterForRole(s.role);
-          const hasDns = s.role?.includes('DNS') || letter === 'B' || letter === 'D' || letter === 'F';
+          // Any role that serves DNS (not E=external, not CDC/ND/LIC/Reporting)
+          const hasDns = s.role === 'DNS' || s.role === 'DNS/DHCP'
+            || s.role?.startsWith('GM+DNS') || s.role?.startsWith('GMC+DNS')
+            || s.role?.includes('DNS');
           return hasDns && letter !== 'E';
         }).length);
         const externalDnsSiteCount = Math.max(1, allSizingSites.filter(s => {
