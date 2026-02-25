@@ -45,6 +45,17 @@ export function DiscoveryProvider({ children, customerId }) {
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState(null);
 
+  // ── Per-drawing state: each drawing has its own platformMode, features, siteOverrides, siteOrder ──
+  const _defaultDrawingId = `drawing-${Date.now()}-init`;
+  const [drawings, setDrawings] = useState([{
+    id: _defaultDrawingId,
+    name: '10',
+    createdAt: new Date().toISOString(),
+  }]);
+  const [activeDrawingId, setActiveDrawingIdState] = useState(_defaultDrawingId);
+  // drawingConfigs: { [drawingId]: { platformMode, featureNIOS, featureUDDI, featureSecurity, siteOverrides, siteOrder } }
+  const [drawingConfigs, setDrawingConfigs] = useState({});
+
   // Load data from MongoDB on mount or customer change
   useEffect(() => {
     if (!customerId) { setIsHydrated(true); return; }
