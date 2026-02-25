@@ -55,7 +55,11 @@ export function TokenCalculatorSummary() {
 
   // Get active drawing config — all per-drawing state lives here
   const activeDrawingConfig = getDrawingConfig(activeDrawingId);
-  const siteOverrides = activeDrawingConfig.siteOverrides || {};
+  const siteOverrides = useMemo(
+    () => activeDrawingConfig.siteOverrides || {},
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [activeDrawingId, drawingConfigs]
+  );
   const siteOrder = activeDrawingConfig.siteOrder || null;
 
   // Setters that write to active drawing config
