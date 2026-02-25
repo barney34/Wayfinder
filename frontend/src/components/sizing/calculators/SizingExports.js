@@ -374,12 +374,12 @@ export function exportForLucid(sites, drawingNum, unitAssignments = {}) {
         const hw = isVirtual ? 0 : sw;
 
         let range;
-        if (site._groupRange) {
-          // Grouped range: use server index range directly (e.g. "1-3")
-          range = site._groupRange;
-          const parts = site._groupRange.split('-').map(Number);
-          minServerIdx = Math.min(minServerIdx, parts[0]);
-          maxServerIdx = Math.max(maxServerIdx, parts[1] || parts[0]);
+        if (srvCount > 1) {
+          // Grouped: calculate range from server index
+          const startIdx = (site._serverIndex ?? 0) + 1;
+          range = `${startIdx}-${startIdx + srvCount - 1}`;
+          minServerIdx = Math.min(minServerIdx, startIdx);
+          maxServerIdx = Math.max(maxServerIdx, startIdx + srvCount - 1);
         } else {
           // Individual row within multi-server site: use 1-based server position
           const serverPos = (site._serverIndex ?? 0) + 1;
