@@ -78,6 +78,12 @@ export function DiscoveryProvider({ children, customerId }) {
         setLeaseTimeUnitsState(data.leaseTimeUnits || {});
         setDataCenters(data.dataCenters || []);
         setSites(data.sites || []);
+        // Load per-drawing state
+        if (data.drawings && data.drawings.length > 0) {
+          setDrawings(data.drawings);
+          setActiveDrawingIdState(data.activeDrawingId || data.drawings[0].id);
+        }
+        if (data.drawingConfigs) setDrawingConfigs(data.drawingConfigs);
         setIsHydrated(true);
       })
       .catch(() => {
