@@ -1383,32 +1383,30 @@ function renderSectionQuestions(sectionQuestions, answers, expandedSubsections, 
       if (!conditionMet) return null;
     }
 
-    // Token Calculator subsection handling
-    if (q.subsection === 'Token Calculator' && q.id !== 'beta-enable') {
-      const isBetaEnabled = answers['beta-enable'] === 'Yes';
-      const isBetaExpanded = expandedSubsections['Token Calculator'] ?? isBetaEnabled;
-      if (!isBetaEnabled || !isBetaExpanded) return null;
-    }
-
-    // beta-enable renders as subsection header
-    if (q.id === 'beta-enable') {
-      const isBetaEnabled = answers['beta-enable'] === 'Yes';
-      const isBetaExpanded = expandedSubsections['Token Calculator'] ?? isBetaEnabled;
-      return (
-        <div key={q.id} className="mt-6 mb-2 pt-4 border-t" data-testid="subsection-token-calculator">
-          <div className="flex items-center justify-between cursor-pointer py-2 hover:bg-muted/30 rounded-md px-2 -mx-2"
-            onClick={() => isBetaEnabled && setExpandedSubsections(p => ({ ...p, 'Token Calculator': !isBetaExpanded }))}>
-            <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">{q.subsection}</h4>
-            <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
-              <Switch checked={isBetaEnabled} onCheckedChange={handleBetaSubsectionToggle} data-testid="switch-beta-enable" />
-              <Label className="text-xs font-normal cursor-pointer">Enabled</Label>
-              {isBetaEnabled && <button onClick={e => { e.stopPropagation(); setExpandedSubsections(p => ({ ...p, 'Token Calculator': !isBetaExpanded })); }} className="ml-2">
-                {isBetaExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
-              </button>}
+    // Token Calculator subsection handling - always show content if expanded
+    if (q.subsection === 'Token Calculator') {
+      const isBetaExpanded = expandedSubsections['Token Calculator'] ?? true;
+      // First Token Calculator question renders the header
+      if (q.id === 'beta-asset-config') {
+        return (
+          <React.Fragment key={q.id}>
+            <div className="mt-6 mb-2 pt-4 border-t" data-testid="subsection-token-calculator">
+              <div className="flex items-center justify-between cursor-pointer py-2 hover:bg-muted/30 rounded-md px-2 -mx-2"
+                onClick={() => setExpandedSubsections(p => ({ ...p, 'Token Calculator': !isBetaExpanded }))}>
+                <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">{q.subsection}</h4>
+                <div className="flex items-center gap-2">
+                  <button onClick={e => { e.stopPropagation(); setExpandedSubsections(p => ({ ...p, 'Token Calculator': !isBetaExpanded })); }} className="ml-2">
+                    {isBetaExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      );
+            {isBetaExpanded && renderField(q)}
+          </React.Fragment>
+        );
+      }
+      // Other Token Calculator questions - only show if expanded
+      if (!isBetaExpanded) return null;
     }
 
     // Subsection header for "Sites & Locations" - render all in one row
