@@ -311,11 +311,12 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Discovery nav abbreviations"
-    - "DHCP lease renewal warning"
-    - "CDC sizing reminder"
-    - "Multi-select 2-column grid"
-    - "UDDI Estimator sync"
+    - "Token Column Display - Show Actual Token Numbers"
+    - "Totals Row Tooltip - Token SKU Display"
+    - "Sidebar Token Display - Total Count and SKU"
+    - "CDC Auto-Sync - Discovery to Sizing"
+    - "DFP Auto-Discovery - Sizing to Discovery"
+    - "UDDI Estimator sync with Sizing"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
