@@ -526,12 +526,12 @@ export function SiteTableRow({
       
       {/* Unit Number — editable, shows range when combined */}
       <TableCell className="p-1 lg:p-2 text-center">
-        {site._groupRange ? (
-          /* Combined group: show range string like "1-3" */
-          <span className="text-sm font-semibold tabular-nums text-primary">{site._groupRange}</span>
+        {(site._serverCount || 1) > 1 ? (
+          /* Combined group: show range string like "1-3" based on unit number */
+          <span className="text-sm font-semibold tabular-nums text-primary">{unitRange}</span>
         ) : site._isExpanded && site._serverIndex !== undefined ? (
-          /* Individual server within a multi-server expansion: show 1-based server position */
-          <span className="text-sm font-semibold tabular-nums text-foreground">{site._serverIndex + 1}</span>
+          /* Individual server within a multi-server expansion: show unit number */
+          <span className="text-sm font-semibold tabular-nums text-foreground">{unitAssignment?.unitNumber ?? (site._serverIndex + 1)}</span>
         ) : (
           <Input
             type="number" min="1" max="999"
