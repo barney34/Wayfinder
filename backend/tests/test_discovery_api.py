@@ -243,7 +243,6 @@ class TestDiscoveryDataEndpoint:
             "answers": {
                 "ud-1": "5000",
                 "ipam-0": "Microsoft, Spreadsheets",
-                "beta-enable": "Yes",
                 "dhcp-scopes-network-equipment": "Yes"
             },
             "notes": {
@@ -271,7 +270,6 @@ class TestDiscoveryDataEndpoint:
         # Verify answers persisted
         assert retrieved["answers"]["ud-1"] == "5000"
         assert retrieved["answers"]["ipam-0"] == "Microsoft, Spreadsheets"
-        assert retrieved["answers"]["beta-enable"] == "Yes"
         
         # Verify notes persisted
         assert retrieved["notes"]["ud-1"] == "Estimated based on HR data"
