@@ -833,6 +833,7 @@ export function TokenCalculatorSummary() {
             onOpenChange={setShowCompareDialog}
             drawings={drawings}
             currentSites={sites}
+            drawingConfigs={drawingConfigs}
           />
 
           {/* Table Controls */}
