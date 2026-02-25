@@ -547,10 +547,10 @@ export function TokenCalculatorSummary() {
 
   const partnerSku = useMemo(() => getPartnerSkuFromTokens(totals.totalTokens), [totals.totalTokens]);
   
-  // Calculate token packs (500K per pack, rounded up)
+  // Token SKU based on total tokens (replaces incorrect 500K-per-pack formula)
   const tokenPacks = useMemo(() => {
     if (platformMode === 'NIOS' || totals.totalTokens <= 0) return null;
-    return Math.ceil(totals.totalTokens / 500000);
+    return getPartnerSkuFromTokens(totals.totalTokens).sku;
   }, [totals.totalTokens, platformMode]);
 
   // Update context with sizing summary
