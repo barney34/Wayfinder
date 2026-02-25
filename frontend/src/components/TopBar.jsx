@@ -257,20 +257,26 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
             </div>
             <div className="space-y-1">
               <div className="grid grid-cols-2 gap-1">
-                <button onClick={() => setAnswer('feature-nios', !isNIOS ? 'Yes' : 'No')} className={`flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all border ${isNIOS ? 'bg-primary text-white border-primary' : 'bg-secondary text-secondary-foreground hover:bg-muted border-border'}`} data-testid="toggle-feature-nios">
+                <button onClick={() => toggleFeature('nios')} className={`flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all border ${isNIOS ? 'bg-primary text-white border-primary' : 'bg-secondary text-secondary-foreground hover:bg-muted border-border'}`} data-testid="toggle-feature-nios">
                   NIOS
                   {isNIOS && isAsset && (<div className="relative group"><Info className="h-2.5 w-2.5" /><div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-popover text-popover-foreground text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-10 shadow-lg border border-border">+Mgmt Tokens Added</div></div>)}
                 </button>
-                <button onClick={() => setAnswer('feature-uddi', !isUDDI ? 'Yes' : 'No')} className={`flex items-center justify-center px-1.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all border ${isUDDI ? 'bg-[#12C2D3] text-white border-[#12C2D3]' : 'bg-secondary text-secondary-foreground hover:bg-muted border-border'}`} data-testid="toggle-feature-uddi">UDDI</button>
+                <button onClick={() => toggleFeature('uddi')} className={`flex items-center justify-center px-1.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all border ${isUDDI ? 'bg-[#12C2D3] text-white border-[#12C2D3]' : 'bg-secondary text-secondary-foreground hover:bg-muted border-border'}`} data-testid="toggle-feature-uddi">UDDI</button>
               </div>
               <div className="grid grid-cols-2 gap-1">
-                <button onClick={() => setAnswer('feature-security', !isSecurity ? 'Yes' : 'No')} className={`flex items-center justify-center px-1.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all border ${isSecurity ? 'bg-[#FF585D] text-white border-[#FF585D]' : 'bg-secondary text-secondary-foreground hover:bg-muted border-border'}`} data-testid="toggle-feature-security">Security</button>
+                <button onClick={() => toggleFeature('security')} className={`flex items-center justify-center px-1.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all border ${isSecurity ? 'bg-[#FF585D] text-white border-[#FF585D]' : 'bg-secondary text-secondary-foreground hover:bg-muted border-border'}`} data-testid="toggle-feature-security">Security</button>
                 <button onClick={() => setAnswer('feature-asset insights', !isAsset ? 'Yes' : 'No')} className={`flex items-center justify-center gap-0.5 px-1.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all border ${isAsset ? 'bg-[#7D97F8] text-white border-[#7D97F8]' : 'bg-secondary text-secondary-foreground hover:bg-muted border-border'}`} data-testid="toggle-feature-asset">
                   Asset
                   {isAsset && isNIOS && (<div className="relative group"><Info className="h-2.5 w-2.5" /><div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-popover text-popover-foreground text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-10 shadow-lg border border-border">+Mgmt Tokens Added</div></div>)}
                 </button>
               </div>
-              <button onClick={() => { if (isHybrid) { setAnswer('feature-nios', 'No'); setAnswer('feature-uddi', 'No'); } else { setAnswer('feature-nios', 'Yes'); setAnswer('feature-uddi', 'Yes'); } }} className={`w-full flex items-center justify-center gap-1.5 px-1.5 py-1.5 rounded-lg text-[11px] font-bold transition-all border ${isHybrid ? 'bg-gradient-to-r from-[#00BD4D] to-[#00594C] dark:to-[#12C2D3] text-white shadow-md border-transparent' : 'bg-secondary text-secondary-foreground hover:bg-muted border-dashed border-border'}`} data-testid="toggle-hybrid">
+              <button onClick={() => {
+                const newHybrid = !isHybrid;
+                updateDrawingConfig(activeDrawingId, {
+                  featureNIOS: newHybrid, featureUDDI: newHybrid,
+                  platformMode: newHybrid ? 'Hybrid' : 'NIOS',
+                });
+              }} className={`w-full flex items-center justify-center gap-1.5 px-1.5 py-1.5 rounded-lg text-[11px] font-bold transition-all border ${isHybrid ? 'bg-gradient-to-r from-[#00BD4D] to-[#00594C] dark:to-[#12C2D3] text-white shadow-md border-transparent' : 'bg-secondary text-secondary-foreground hover:bg-muted border-dashed border-border'}`} data-testid="toggle-hybrid">
                 <span>Hybrid</span>{isHybrid && <Check className="h-3 w-3" />}
               </button>
             </div>
