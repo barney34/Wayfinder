@@ -508,19 +508,6 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
   const handleAnswerChange = (questionId, value) => {
     setAnswer(questionId, value);
     onAnswerChange?.(questionId, value);
-    // Reset dependent questions
-    if (questionId === 'beta-enable' && value === 'Yes') {
-      setAnswer('beta-td-nios-section', JSON.stringify({ enabled: false, collapsed: false, tokens: [] }));
-      setAnswer('beta-dossier', JSON.stringify({ enabled: false, quantity: 0 }));
-      setAnswer('beta-lookalike', JSON.stringify({ enabled: false, quantity: 0 }));
-      setAnswer('beta-soc-insights', JSON.stringify({ enabled: false, multiplier: 0.35, overrideMultiplier: false, calculatedTokens: 0 }));
-    }
-    if (questionId === 'beta-enable' && value === 'No') {
-      setAnswer('beta-td-nios-section', JSON.stringify({ enabled: false, collapsed: false, tokens: [] }));
-      setAnswer('beta-dossier', JSON.stringify({ enabled: false, quantity: 0 }));
-      setAnswer('beta-lookalike', JSON.stringify({ enabled: false, quantity: 0 }));
-      setAnswer('beta-soc-insights', JSON.stringify({ enabled: false, multiplier: 0.35, overrideMultiplier: false, calculatedTokens: 0 }));
-    }
   };
 
   const handleSectionToggle = (section, enabled) => {
