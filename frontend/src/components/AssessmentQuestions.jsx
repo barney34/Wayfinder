@@ -919,10 +919,10 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
         let formula = '';
         
         if (q.fieldType === 'dnsAggregateCalculated' && activeIPs > 0) {
-          // Section = Internal DNS: aggregate = IPs × 3500 / 32400 (9hr workday)
+          // Section = Internal DNS: peak aggregate QPS = IPs / 3
           if (q.section === 'Internal DNS' || q.id.startsWith('idns')) {
             autoValue = aggregateQPS.toLocaleString();
-            formula = `${activeIPs.toLocaleString()} IPs × 3,500 QPD ÷ 32,400 sec`;
+            formula = `${activeIPs.toLocaleString()} IPs ÷ 3 (peak) | QPD: ${(queriesPerDay).toLocaleString()}`;
           } else {
             // External DNS aggregate: don't auto-fill — let user enter
             autoValue = '';
@@ -930,11 +930,11 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
           }
         } else if (q.fieldType === 'dnsPerServerCalculated' && activeIPs > 0) {
           if (q.section === 'Internal DNS' || q.id.startsWith('idns')) {
-            // Internal: aggregate / internal DNS site count from sizing
+            // Internal: peak aggregate / internal DNS site count from Sizing
             autoValue = Math.ceil(aggregateQPS / internalDnsServers).toLocaleString();
-            formula = `Aggregate (${aggregateQPS.toLocaleString()}) ÷ ${internalDnsServers} internal DNS server${internalDnsServers !== 1 ? 's' : ''} (from Sizing)`;
+            formula = `Peak (${aggregateQPS.toLocaleString()}) ÷ ${internalDnsServers} DNS server${internalDnsServers !== 1 ? 's' : ''} (from Sizing)`;
           } else {
-            // External: user-entered aggregate / E-letter site count from sizing
+            // External: user-entered aggregate / E-letter site count from Sizing
             const userExtAgg = parseInt(answers['edns-2']) || 0;
             if (userExtAgg > 0) {
               autoValue = Math.ceil(userExtAgg / externalDnsSiteCount).toLocaleString();
