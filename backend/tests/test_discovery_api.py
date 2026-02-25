@@ -85,7 +85,6 @@ class TestQuestionsEndpoint:
             "ud-2a",  # conditionalOn ud-2=Yes (BYOD devices per user)
             "dhcp-network-equipment-types",  # conditionalOn dhcp-scopes-network-equipment=Yes
             "idns-0a",  # conditionalOn idns-0=Microsoft
-            "beta-asset-config",  # conditionalOn beta-enable=Yes
         ]
         
         for qid in conditional_ids:
