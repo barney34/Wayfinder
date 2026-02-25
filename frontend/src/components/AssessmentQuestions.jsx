@@ -871,21 +871,29 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
       case 'ipCalculated':
       case 'dnsAggregateCalculated':
       case 'dnsPerServerCalculated': {
-        // ── DNS QPS Formula (from PDF): ──────────────────────────────────────
-        // activeIPs = KW × 2.5 (use TOP BAR KW only — answers['ud-1'])
-        // total_queries_per_day = activeIPs × 3500
-        // aggregate_QPS = total_qpd ÷ (9hr × 3600s) = activeIPs × 3500 / 32400
+        // ── DNS QPS Formula (Peak — used for sizing): ────────────────────────
+        // activeIPs = TopBar KW × 2.5
+        // peak_aggregate_QPS = activeIPs / 3  (Infoblox standard peak QPS formula)
+        // per_server_QPS = peak_QPS / DNS_server_count
+        // Also compute QPD = IPs × 3500 (shown as informational)
         const topBarKW = parseInt(answers['ud-1']) || 0;
         const topBarIPs = Math.round(topBarKW * (parseFloat(answers['ipam-multiplier']) || 2.5));
-        const aggregateQPS_daily = Math.ceil(topBarIPs * 3500 / 32400); // 9hr workday
-
-        // Fallback: use IPs from IPAM override if available
         const ipCalcManualOverride = answers['ipam-1-override'] === 'true';
         const manualIPs = parseInt(answers['ipam-1']) || 0;
         const activeIPs = ipCalcManualOverride ? manualIPs : topBarIPs;
-        const aggregateQPS = ipCalcManualOverride
-          ? Math.ceil(activeIPs * 3500 / 32400)
-          : aggregateQPS_daily;
+
+        // Peak QPS = IPs / 3 (standard Infoblox peak formula)
+        const aggregateQPS = Math.ceil(activeIPs / 3);
+        // Queries per day (informational only)
+        const queriesPerDay = activeIPs * 3500;
+
+        // DNS server counts — prefer live data from Sizing table (via sizingSummary)
+        // Falls back to idns-servers discovery answer if Sizing table is empty
+        const idnsServersAnswer = parseInt(answers['idns-servers']) || 1;
+        const internalDnsServers = (sizingSummary?.dnsSiteCount && sizingSummary.dnsSiteCount > 1)
+          ? sizingSummary.dnsSiteCount
+          : idnsServersAnswer;
+        const externalDnsSiteCount = sizingSummary?.externalDnsSiteCount || 1;
 
         // Count Internal DNS sites from Sizing (unit letter NOT 'E', role has DNS)
         // Includes DNS, DNS/DHCP, GM+DNS, GMC+DNS, and any multi-protocol role with DNS
