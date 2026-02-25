@@ -151,26 +151,48 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
             </div>
           </div>
 
-          {/* TS stacked */}
+          {/* TS stacked — shows active drawing's target solutions */}
           <div className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg bg-secondary/50">
             <div className="flex items-center gap-1">
               <Target className="h-3 w-3 text-foreground" />
-              <span className="text-[10px] font-semibold text-[#00594C] dark:text-[#FEDD00]">TS</span>
+              <span className="text-[10px] font-semibold text-[#00594C] dark:text-[#FEDD00]">Drawing #{drawings.find(d => d.id === activeDrawingId)?.name || '—'}</span>
             </div>
-            {activeSolutions.length > 0 ? (
-              <div className="flex items-center gap-1">
-                {activeSolutions.map(s => (
-                  <span key={s.key} className="px-1.5 py-0.5 rounded text-[9px] font-semibold" style={{ backgroundColor: s.color + '25', color: s.color }}>
-                    {s.label}
+            <div className="flex items-center gap-1 flex-wrap">
+              {isNIOS && <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-[#00BD4D]/20 text-[#00BD4D]">NIOS</span>}
+              {isUDDI && <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-[#12C2D3]/20 text-[#12C2D3]">UDDI</span>}
+              {isSecurity && <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-[#FF585D]/20 text-[#FF585D]">Sec</span>}
+              {!isNIOS && !isUDDI && !isSecurity && <span className="text-[9px] text-muted-foreground">--</span>}
+            </div>
+          </div>
+
+          {/* Drawing bubbles — each shows drawing name + member count + HA count */}
+          <div className="flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg bg-secondary/50">
+            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Drawings</span>
+            <div className="flex items-center gap-1 flex-wrap max-w-[180px]">
+              {drawings.map(d => {
+                const cfg = getDrawingConfig(d.id);
+                const isActive = d.id === activeDrawingId;
+                // Member count: sum of all sites + dataCenters (shared across drawings)
+                // HA is tracked in siteOverrides per drawing
+                const drawingOverrides = cfg.siteOverrides || {};
+                const haCount = Object.values(drawingOverrides).filter(o => o.haEnabled).length;
+                const memberCount = dataCenters.length + sites.length;
+                const label = haCount > 0 ? `${d.name} (${memberCount} +${haCount} HA)` : `${d.name} (${memberCount})`;
+                return (
+                  <span
+                    key={d.id}
+                    className={`px-1.5 py-0.5 rounded text-[9px] font-bold cursor-pointer transition-colors ${
+                      isActive
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-secondary text-muted-foreground hover:bg-muted'
+                    }`}
+                    title={`Drawing #${d.name}: ${cfg.platformMode || 'NIOS'} mode`}
+                  >
+                    #{label}
                   </span>
-                ))}
-              </div>
-            ) : (
-              <span className="text-[9px] text-muted-foreground font-medium">--</span>
-            )}
-            {isHybrid && (
-              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-gradient-to-r from-[#00BD4D]/25 to-[#00594C] dark:to-[#12C2D3]/25 text-[#00594C] dark:text-[#12C2D3]">Hybrid</span>
-            )}
+                );
+              })}
+            </div>
           </div>
 
           {/* KW / IPs stacked */}
