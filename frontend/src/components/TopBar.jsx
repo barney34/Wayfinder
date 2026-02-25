@@ -58,8 +58,13 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
     }
   }, [customerName, opportunity]);
 
-  const handleAddDC = () => { if (!dcName.trim()) return; addDataCenter(dcName.trim(), parseInt(dcKW) || 0); setDcName(''); setDcKW(''); };
-  const handleAddSite = () => { if (!siteName.trim()) return; addSite(siteName.trim(), '', parseInt(siteKW) || 0); setSiteName(''); setSiteKW(''); };
+  const handleAddDC = () => { if (!dcName.trim()) return; addDataCenter(dcName.trim(), parseInt(dcKW) || 0); setDcName(''); setDcKW(''); setTimeout(() => dcNameRef.current?.focus(), 0); };
+  const handleAddSite = () => { if (!siteName.trim()) return; addSite(siteName.trim(), '', parseInt(siteKW) || 0); setSiteName(''); setSiteKW(''); setTimeout(() => siteNameRef.current?.focus(), 0); };
+
+  const dcNameRef = useRef(null);
+  const dcKWRef = useRef(null);
+  const siteNameRef = useRef(null);
+  const siteKWRef = useRef(null);
 
   const isNIOS = answers['feature-nios'] === 'Yes';
   const isUDDI = answers['feature-uddi'] === 'Yes';
