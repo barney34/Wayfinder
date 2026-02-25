@@ -108,6 +108,7 @@ export function DiscoveryProvider({ children, customerId }) {
       const payload = {
         answers, notes, contextFields, meetingNotes,
         enabledSections, udsMembers, leaseTimeUnits, dataCenters, sites,
+        drawings, activeDrawingId, drawingConfigs,
       };
       apiRequest('PUT', `/api/customers/${customerId}/discovery`, payload)
         .then(() => {
