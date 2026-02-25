@@ -590,8 +590,21 @@ export function TokenCalculatorSummary() {
     return getPartnerSkuFromTokens(totals.totalTokens).sku;
   }, [totals.totalTokens, platformMode]);
 
-  // Update context with sizing summary
+  // Update context with sizing summary — includes DNS server counts for Discovery QPS
   useEffect(() => {
+    // Count DNS-capable sites for Discovery QPS auto-calc
+    const internalDnsSiteCount = Math.max(1, sites.filter(s => {
+      const letter = s.unitLetterOverride || (s.role === 'ExtDNS' ? 'E' : null);
+      const hasDns = s.role === 'DNS' || s.role === 'DNS/DHCP'
+        || s.role?.startsWith('GM+DNS') || s.role?.startsWith('GMC+DNS')
+        || (s.role?.includes('DNS') && s.role !== 'ExtDNS');
+      return hasDns && letter !== 'E';
+    }).length);
+    const externalDnsSiteCount = Math.max(1, sites.filter(s => {
+      const letter = s.unitLetterOverride;
+      return letter === 'E' || s.role === 'ExtDNS';
+    }).length);
+
     setSizingSummary({
       totalTokens: totals.totalTokens, totalIPs: totals.totalIPs,
       partnerSku: partnerSku.sku, siteCount: sites.length,
@@ -599,8 +612,10 @@ export function TokenCalculatorSummary() {
       uddiMgmtTokens: totals.uddiMgmtTokens || 0,
       tokenPack: tokenPacks,
       platformMode: platformMode,
+      dnsSiteCount: internalDnsSiteCount,
+      externalDnsSiteCount,
     });
-  }, [totals, partnerSku.sku, sites.length, tokenPacks, platformMode, setSizingSummary]);
+  }, [totals, partnerSku.sku, sites, tokenPacks, platformMode, setSizingSummary]);
 
   // Reset sort order when switching drawings (siteOrder is now per-drawing, nothing to do)
   useEffect(() => {
