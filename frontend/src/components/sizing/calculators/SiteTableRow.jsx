@@ -109,24 +109,50 @@ export function LocationHeaderRow({ site, onUpdateSite, onDeleteSite, totalColum
 
           {/* Server grouping controls — only show when 2+ servers */}
           {serverCount > 1 && (
-            <div className="flex items-center gap-1.5 ml-2">
-              <span className="text-[10px] text-muted-foreground uppercase tracking-wide">Rows:</span>
-              {/* Each = individual export rows per server */}
+            <div className="flex items-center gap-1.5 ml-2 flex-wrap">
+              <span className="text-[10px] text-muted-foreground uppercase tracking-wide font-semibold">Create Groupings:</span>
+              {/* Individual = each server as its own row */}
               <button
                 onClick={() => { onUpdateSite(site.id, 'groupingMode', 'individual'); onUpdateSite(site.id, 'customGroups', []); setRangeStart(null); }}
                 className={`px-2 py-0.5 text-[10px] font-semibold rounded transition-colors ${grouping === 'individual' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:text-foreground'}`}
                 title="Show each server as its own row"
-              >Each</button>
-              {/* All = combine all into one row */}
+              >Individual</button>
+              {/* Group All = combine all into one row */}
               <button
                 onClick={() => { onUpdateSite(site.id, 'groupingMode', 'combined'); onUpdateSite(site.id, 'customGroups', []); setRangeStart(null); }}
                 className={`px-2 py-0.5 text-[10px] font-semibold rounded transition-colors ${grouping === 'combined' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:text-foreground'}`}
                 title={`Collapse all ${serverCount} servers into 1 row (range 1-${serverCount})`}
-              >All</button>
+              >Group All</button>
+
+              {/* Grouping info tooltip */}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button className="text-muted-foreground hover:text-foreground p-0.5">
+                      <HelpCircle className="h-3.5 w-3.5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="max-w-xs p-3 text-xs leading-relaxed" sideOffset={6}>
+                    <p className="font-semibold mb-1">Custom Number Groupings</p>
+                    <p className="mb-1.5">
+                      <strong>To Group:</strong> Click the first and last numbers of your range
+                      (e.g., 1 then 3 creates Unit 1-3).
+                    </p>
+                    <p className="mb-1.5">
+                      <strong>To Ungroup:</strong> Click <em>Individual</em> for all groups, or click
+                      an existing grouped range to reset those units to individual rows.
+                    </p>
+                    <p>
+                      <strong>To Combine All:</strong> Click <em>Group All</em> to create one continuous
+                      Unit Range covering all servers.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               
               {/* Custom grouping chips: click 2 numbers to merge a range */}
               {grouping !== 'combined' && (
-                <div className="flex items-center gap-0.5 ml-1" title="Click two numbers to group them into a range">
+                <div className="flex items-center gap-0.5 ml-1">
                   {chips.map((chip, idx) => (
                     <button
                       key={idx}
@@ -138,7 +164,7 @@ export function LocationHeaderRow({ site, onUpdateSite, onDeleteSite, totalColum
                             ? 'bg-accent text-accent-foreground ring-2 ring-accent/50'
                             : 'bg-secondary text-muted-foreground hover:bg-muted hover:text-foreground'
                       }`}
-                      title={chip.merged ? `Range ${chip.start}-${chip.end} (click to split)` : rangeStart !== null ? `Click to group ${rangeStart}-${chip.start}` : `Click to start grouping from ${chip.start}`}
+                      title={chip.merged ? `Range ${chip.start}-${chip.end} (click to ungroup)` : rangeStart !== null ? `Click to group ${rangeStart}–${chip.start}` : `Click to start grouping from ${chip.start}`}
                     >
                       {chip.merged && chip.start !== chip.end ? `${chip.start}-${chip.end}` : chip.start}
                     </button>
