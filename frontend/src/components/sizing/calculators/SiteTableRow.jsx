@@ -167,6 +167,13 @@ function calculateTokenPacks(tokens) {
   return Math.ceil(tokens / TOKENS_PER_PACK);
 }
 
+// Format token count nicely (show actual count, not packs)
+function formatTokens(tokens) {
+  if (!tokens || tokens <= 0) return '0';
+  if (tokens >= 1000) return `${(tokens / 1000).toFixed(1).replace(/\.0$/, '')}K`;
+  return tokens.toLocaleString();
+}
+
 export function SiteTableRow({
   site, sites, drawings, activeDrawingId, platformMode, dhcpPercent,
   roleOptions, platformOptions, showHardware, showKW, showServices, exportView,
