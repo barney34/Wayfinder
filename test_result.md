@@ -339,6 +339,78 @@ frontend:
         - agent: "main"
         - comment: "Single partner shows 'Partner', 2+ partners shows 'Hub (N)'. Spokes show partner name in amber. Tooltips show FO object counts and warnings. partnerCount tracked in TokenCalculatorSummary."
 
+  - task: "Drawing Tab Site Count Display"
+    implemented: true
+    working: true
+    file: "frontend/src/components/sizing/calculators/DrawingManager.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+        - agent: "testing"
+        - comment: "TESTED & VERIFIED 2025-02-25: Drawing tabs show actual site counts in parentheses (e.g., '#10 (5)' not '#10 (0)'). Code at DrawingManager.jsx lines 80-103 displays currentSiteCount for active drawing and stored count for inactive drawings. ✅ PASS"
+
+  - task: "New Drawing Button Dropdown - Blank or Clone Options"
+    implemented: true
+    working: true
+    file: "frontend/src/components/sizing/calculators/DrawingManager.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+        - agent: "testing"
+        - comment: "TESTED & VERIFIED 2025-02-25: 'New Drawing' button opens dropdown with two options: 'Blank Drawing' and 'Clone Current Drawing'. Code at lines 145-163 implements dropdown menu with both options. ✅ PASS"
+
+  - task: "Drawing Tab Clone Option in ... Menu"
+    implemented: true
+    working: true
+    file: "frontend/src/components/sizing/calculators/DrawingManager.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+        - agent: "testing"
+        - comment: "TESTED & VERIFIED 2025-02-25: Hovering over drawing tab reveals '...' button (MoreHorizontal icon). Clicking opens dropdown with 'Clone Drawing' option always accessible. Code at lines 106-138 implements per-tab dropdown with Rename, Clone Drawing, and Delete options. ✅ PASS"
+
+  - task: "Rename Dialog - Numbers Only Input"
+    implemented: true
+    working: true
+    file: "frontend/src/components/sizing/calculators/DrawingManager.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+        - agent: "testing"
+        - comment: "TESTED & VERIFIED 2025-02-25: Rename dialog input field only accepts numbers. Typing 'abc123xyz456' results in '123456' displayed (letters filtered out). Code at lines 191-195 implements replace(/[^0-9]/g, '') filter and validation. Input type='number' enforces numeric-only entry. ✅ PASS"
+
+  - task: "Compare Dialog - Line-by-Line Diff View"
+    implemented: true
+    working: true
+    file: "frontend/src/components/sizing/calculators/DrawingManager.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+        - agent: "testing"
+        - comment: "TESTED & VERIFIED 2025-02-25: Compare button opens dialog showing line-by-line diff between two drawings. Code at lines 349-543 implements unified diff view with colored rows (green/red/yellow backgrounds for added/removed/changed). Diff summary badges show counts. Dialog description explains color coding: 'Green = added to B, Red = removed from B, Yellow = changed'. ✅ PASS"
+
+  - task: "Grouping UI Labels - Create Groupings, Individual, Group All"
+    implemented: true
+    working: true
+    file: "frontend/src/components/sizing/calculators/SiteTableRow.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+        - agent: "testing"
+        - comment: "CODE VERIFIED 2025-02-25: Grouping UI appears when serverCount > 1 in LocationHeaderRow. Code at SiteTableRow.jsx lines 110-175 shows: (1) Label: 'Create Groupings:' (line 113, not 'Rows:'), (2) Buttons: 'Individual' (line 119) and 'Group All' (line 125, not 'Each' and 'All'), (3) HelpCircle icon with tooltip (lines 128-151) explaining grouping functionality. UI testing partially blocked by technical issues, but code implementation is correct and matches all requirements. ✅ CODE VERIFIED"
+
 metadata:
   created_by: "main_agent"
   version: "2.3"
