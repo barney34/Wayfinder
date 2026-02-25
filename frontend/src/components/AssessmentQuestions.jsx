@@ -895,26 +895,6 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
           : idnsServersAnswer;
         const externalDnsSiteCount = sizingSummary?.externalDnsSiteCount || 1;
 
-        // Count Internal DNS sites from Sizing (unit letter NOT 'E', role has DNS)
-        // Includes DNS, DNS/DHCP, GM+DNS, GMC+DNS, and any multi-protocol role with DNS
-        const allSizingSites = [...(sites || [])];
-        const internalDnsSiteCount = Math.max(1, allSizingSites.filter(s => {
-          const letter = s.unitLetterOverride || getUnitLetterForRole(s.role);
-          // Any role that serves DNS (not E=external, not CDC/ND/LIC/Reporting)
-          const hasDns = s.role === 'DNS' || s.role === 'DNS/DHCP'
-            || s.role?.startsWith('GM+DNS') || s.role?.startsWith('GMC+DNS')
-            || s.role?.includes('DNS');
-          return hasDns && letter !== 'E';
-        }).length);
-        const externalDnsSiteCount = Math.max(1, allSizingSites.filter(s => {
-          const letter = s.unitLetterOverride || getUnitLetterForRole(s.role);
-          return letter === 'E' || s.role === 'ExtDNS';
-        }).length);
-
-        // Fall back to the old idns-servers answer if no sizing data
-        const idnsServersAnswer = parseInt(answers['idns-servers']) || 1;
-        const internalDnsServers = allSizingSites.length > 0 ? internalDnsSiteCount : idnsServersAnswer;
-
         let autoValue = '';
         let formula = '';
         
