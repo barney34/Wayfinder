@@ -1047,9 +1047,16 @@ export function TokenCalculatorSummary() {
                             </div>
                           </TooltipTrigger>
                           <TooltipContent>
-                            <div className="text-xs">
-                              <div><strong>Total tokens:</strong> {formatNumber(totals.infraTokens)}</div>
-                              <div><strong>Token packs:</strong> {Math.ceil(totals.infraTokens / 500000)} (500K per pack)</div>
+                            <div className="text-xs space-y-1">
+                              <div><strong>Server Tokens (Sizing):</strong> {formatNumber(totals.infraTokens)}</div>
+                              {totals.uddiMgmtTokens > 0 && (
+                                <div><strong>UDDI Mgmt Tokens:</strong> {formatNumber(totals.uddiMgmtTokens)}</div>
+                              )}
+                              {totals.securityTokens > 0 && (
+                                <div><strong>Security Tokens:</strong> {formatNumber(totals.securityTokens)}</div>
+                              )}
+                              <div className="border-t border-border/40 pt-1 font-bold">Total: {formatNumber(totals.totalTokens)}</div>
+                              <div><strong>Token packs:</strong> {Math.ceil(totals.totalTokens / 500000)} (500K per pack)</div>
                             </div>
                           </TooltipContent>
                         </Tooltip>
