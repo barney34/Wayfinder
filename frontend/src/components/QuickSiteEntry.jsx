@@ -100,7 +100,7 @@ export function QuickSiteEntry() {
           type="text"
           value={name}
           onChange={e => setName(e.target.value)}
-          onKeyDown={handleKeyDown}
+          onKeyDown={handleNameKeyDown}
           placeholder={entryType === 'dc' ? 'DC Name' : 'Site Name'}
           className="w-32 h-8 text-sm"
           data-testid="quick-entry-name"
@@ -108,10 +108,11 @@ export function QuickSiteEntry() {
 
         {/* KW Input */}
         <Input
+          ref={kwRef}
           type="number"
           value={kw}
           onChange={e => setKW(e.target.value)}
-          onKeyDown={handleKeyDown}
+          onKeyDown={handleKwKeyDown}
           placeholder="KW"
           className="w-20 h-8 text-sm"
           data-testid="quick-entry-kw"
