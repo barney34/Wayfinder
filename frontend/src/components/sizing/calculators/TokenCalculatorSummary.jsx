@@ -650,17 +650,27 @@ export function TokenCalculatorSummary() {
 
 
   // Update site field — handles both regular sites and expanded server sub-rows
-  const updateSite = useCallback((siteId, field, value) => {
+  // Accepts (siteId, field, value) OR (siteId, { field: value, ... }) for atomic multi-field updates
+  const updateSite = useCallback((siteId, fieldOrUpdates, value) => {
+    // Normalize to updates object for atomic writes
+    const updates = typeof fieldOrUpdates === 'object' && fieldOrUpdates !== null
+      ? fieldOrUpdates
+      : { [fieldOrUpdates]: value };
+
+    // Apply role-related side effects
+    if (updates.role && updates.role !== 'DHCP' && updates.role !== 'DNS/DHCP') {
+      updates.dhcpPartner = null;
+    }
+
     // Check if this is a server sub-row update (id contains __srv__)
     const srvMatch = siteId.match(/^(.+)__srv__(\d+)$/);
     if (srvMatch) {
       const parentId = srvMatch[1];
       const srvIndex = parseInt(srvMatch[2]);
-      // Store in server-level overrides
       setSiteOverrides(prev => {
         const parentOvr = prev[parentId] || {};
         const servers = { ...(parentOvr.servers || {}) };
-        servers[srvIndex] = { ...(servers[srvIndex] || {}), [field]: value };
+        servers[srvIndex] = { ...(servers[srvIndex] || {}), ...updates };
         return { ...prev, [parentId]: { ...parentOvr, servers } };
       });
       return;
@@ -670,29 +680,25 @@ export function TokenCalculatorSummary() {
     const grpMatch = siteId.match(/^(.+)__grp__/);
     if (grpMatch) {
       const parentId = grpMatch[1];
-      const parentSite = sites.find(s => s.id === parentId);
-      if (!parentSite) return;
-      setSiteOverrides(prev => ({ ...prev, [parentId]: { ...prev[parentId], [field]: value } }));
+      setSiteOverrides(prev => ({ ...prev, [parentId]: { ...prev[parentId], ...updates } }));
       return;
     }
 
     const site = sites.find(s => s.id === siteId);
     if (!site) return;
-    let updates = { [field]: value };
-    if (field === 'role' && value !== 'DHCP' && value !== 'DNS/DHCP') updates.dhcpPartner = null;
 
-    // If updating KW, sync to context (which updates TopBar) and DON'T add to local override
-    if (field === 'knowledgeWorkers' && site.sourceType) {
+    // If updating KW, sync to context and DON'T add to local override
+    if ('knowledgeWorkers' in updates && site.sourceType) {
       if (site.sourceType === 'site' && contextUpdateSite) {
-        contextUpdateSite(site.sourceId, { knowledgeWorkers: value });
+        contextUpdateSite(site.sourceId, { knowledgeWorkers: updates.knowledgeWorkers });
         return;
       } else if (site.sourceType === 'dataCenter' && contextUpdateDC) {
-        contextUpdateDC(site.sourceId, { knowledgeWorkers: value });
+        contextUpdateDC(site.sourceId, { knowledgeWorkers: updates.knowledgeWorkers });
         return;
       }
     }
 
-    // All sites (from context) use overrides for non-KW fields
+    // All other fields go into per-drawing siteOverrides — ATOMIC single write
     setSiteOverrides(prev => ({ ...prev, [siteId]: { ...prev[siteId], ...updates } }));
   }, [sites, contextUpdateSite, contextUpdateDC]);
 
