@@ -375,11 +375,20 @@ export function DiscoveryProvider({ children, customerId }) {
 
   const defaultAnswers = getDefaultAnswers();
 
+  // Derive global platformMode from active drawing config (for AssessmentQuestions compatibility)
+  const activeDrawingConfig = drawingConfigs[activeDrawingId] || {};
+  const activePlatformMode = activeDrawingConfig.platformMode || platformMode;
+
   return (
     <DiscoveryContext.Provider value={{
       answers, notes, contextFields, meetingNotes, enabledSections,
-      udsMembers, defaultAnswers, leaseTimeUnits, dataCenters, sites, platformMode, sizingSummary,
+      udsMembers, defaultAnswers, leaseTimeUnits, dataCenters, sites,
+      platformMode: activePlatformMode, sizingSummary,
       isHydrated, isDirty, isSaving, lastSaved,
+      // Drawing management
+      drawings, activeDrawingId, drawingConfigs,
+      getDrawingConfig, updateDrawingConfig,
+      setActiveDrawingId, addDrawing, cloneDrawing, deleteDrawing, renameDrawing,
       setAnswer, setNote, setContextField, setMeetingNotes, updateAnswers,
       toggleSection, enableAllSections, disableAllSections, clearSection, clearAllData,
       addUDSMember, updateUDSMember, deleteUDSMember,
