@@ -147,12 +147,16 @@ export function TokenCalculatorSummary() {
     setShowPlatformAlert(false);
   }, []);
 
+  // ── Per-drawing platform mode (shadows global platformMode) ─────────────────
+  // Each drawing has its own platformMode stored in drawingConfigs
+  const platformMode = activeDrawingConfig.platformMode || 'NIOS';
+  const securityEnabled = activeDrawingConfig.featureSecurity ?? (answers['feature-security'] === 'Yes');
+  const uddiEnabled = activeDrawingConfig.featureUDDI ?? (answers['feature-uddi'] === 'Yes');
+
   // Global settings
   const dhcpPercent = parseInt(answers['dhcp-0-pct']) || 80;
   const leaseTimeSeconds = parseInt(answers['dhcp-3']) || 86400;
   const ipMultiplier = parseFloat(answers['ipam-multiplier']) || 2.5;
-  const securityEnabled = answers['feature-security'] === 'Yes';
-  const uddiEnabled = answers['feature-uddi'] === 'Yes';
 
   // Get the IP Calculator value
   const manualOverride = answers['ipam-1-override'] === 'true';
