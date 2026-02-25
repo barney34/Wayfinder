@@ -364,44 +364,47 @@ function MultiSelectField({ questionId, options, optionsWithPermission = [], opt
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto min-w-[300px] p-3 bg-card border-border" align="start" onInteractOutside={(e) => e.preventDefault()}>
-          {/* 2-column grid for options; fall back to single column if special sub-inputs needed */}
+          {/* 2-column grid for options — with special sub-inputs expanding below when selected */}
           {hasSpecialOptions ? (
-            <div className="space-y-0.5 max-h-[300px] overflow-y-auto mb-2">
-              {options.map(option => {
-                const needsPerm = optionsWithPermission.includes(option);
-                const needsVendor = optionsWithVendor.includes(option);
-                const isSelected = isOptionSelected(option);
-                return (
-                  <div key={option} className="space-y-1">
-                    <label className={`flex items-center gap-2 p-1.5 rounded-lg cursor-pointer transition-colors border whitespace-nowrap ${isSelected ? 'bg-[#12C2D3]/20 border-[#12C2D3] text-foreground' : 'bg-background border-border text-muted-foreground hover:bg-muted hover:text-foreground'}`} data-testid={`multiselect-option-${questionId}-${option.replace(/\s/g, '-')}`}>
-                      <Checkbox checked={isSelected} onCheckedChange={() => toggleOption(option)} className="h-4 w-4 shrink-0" />
-                      <span className={`text-xs flex-1 ${isSelected ? 'font-medium' : ''}`}>{option}</span>
-                      {needsPerm && isSelected && (
-                        <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-                          <Button size="sm" variant={getOptionPermission(option) === 'R/W' ? 'default' : 'outline'} className="h-5 px-1.5 text-[10px]" onClick={() => setPermission(option, 'R/W')}>R/W</Button>
-                          <Button size="sm" variant={getOptionPermission(option) === 'R/O' ? 'default' : 'outline'} className="h-5 px-1.5 text-[10px]" onClick={() => setPermission(option, 'R/O')}>R/O</Button>
-                        </div>
-                      )}
-                    </label>
-                    {needsVendor && isSelected && (
-                      <div className="pl-6 pb-1 space-y-1">
-                        <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
-                          <Input placeholder="Add vendor..." value={vendorInputs[option] || ''} onChange={e => setVendorInputs(p => ({ ...p, [option]: e.target.value }))}
-                            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addVendor(option, vendorInputs[option]); } }} className="flex-1 h-6 text-xs" />
-                          <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => addVendor(option, vendorInputs[option])} disabled={!vendorInputs[option]?.trim()}><Plus className="h-3 w-3" /></Button>
-                        </div>
-                        {getOptionVendors(option).length > 0 && (
-                          <div className="flex flex-wrap gap-1">
-                            {getOptionVendors(option).map(vendor => (
-                              <Badge key={vendor} variant="secondary" className="gap-1 pr-1 text-[10px] h-5">{vendor}<button onClick={e => { e.stopPropagation(); removeVendor(option, vendor); }} className="ml-1 rounded-full hover:bg-muted p-0.5"><X className="h-2 w-2" /></button></Badge>
-                            ))}
+            <div className="mb-2">
+              <div className="grid grid-cols-2 gap-2 max-h-[300px] overflow-y-auto">
+                {options.map(option => {
+                  const needsPerm = optionsWithPermission.includes(option);
+                  const isSelected = isOptionSelected(option);
+                  return (
+                    <div key={option} className="space-y-1">
+                      <label className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors border whitespace-nowrap ${isSelected ? 'bg-[#12C2D3]/20 border-[#12C2D3] text-foreground' : 'bg-background border-border text-muted-foreground hover:bg-muted hover:text-foreground'}`} data-testid={`multiselect-option-${questionId}-${option.replace(/\s/g, '-')}`}>
+                        <Checkbox checked={isSelected} onCheckedChange={() => toggleOption(option)} className="h-4 w-4 shrink-0" />
+                        <span className={`text-xs flex-1 ${isSelected ? 'font-medium' : ''}`}>{option}</span>
+                        {needsPerm && isSelected && (
+                          <div className="flex gap-1 ml-1" onClick={e => e.stopPropagation()}>
+                            <Button size="sm" variant={getOptionPermission(option) === 'R/W' ? 'default' : 'outline'} className="h-5 px-1.5 text-[10px]" onClick={() => setPermission(option, 'R/W')}>R/W</Button>
+                            <Button size="sm" variant={getOptionPermission(option) === 'R/O' ? 'default' : 'outline'} className="h-5 px-1.5 text-[10px]" onClick={() => setPermission(option, 'R/O')}>R/O</Button>
                           </div>
                         )}
-                      </div>
-                    )}
+                      </label>
+                    </div>
+                  );
+                })}
+              </div>
+              {/* Vendor inputs shown below grid for selected items with vendor sub-input */}
+              {options.filter(opt => optionsWithVendor.includes(opt) && isOptionSelected(opt)).map(option => (
+                <div key={`vendor-${option}`} className="mt-2 pl-2 border-l-2 border-[#12C2D3]/30 space-y-1">
+                  <span className="text-[10px] text-muted-foreground font-medium">{option} — vendors:</span>
+                  <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                    <Input placeholder="Add vendor..." value={vendorInputs[option] || ''} onChange={e => setVendorInputs(p => ({ ...p, [option]: e.target.value }))}
+                      onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addVendor(option, vendorInputs[option]); } }} className="flex-1 h-6 text-xs" />
+                    <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => addVendor(option, vendorInputs[option])} disabled={!vendorInputs[option]?.trim()}><Plus className="h-3 w-3" /></Button>
                   </div>
-                );
-              })}
+                  {getOptionVendors(option).length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {getOptionVendors(option).map(vendor => (
+                        <Badge key={vendor} variant="secondary" className="gap-1 pr-1 text-[10px] h-5">{vendor}<button onClick={e => { e.stopPropagation(); removeVendor(option, vendor); }} className="ml-1 rounded-full hover:bg-muted p-0.5"><X className="h-2 w-2" /></button></Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           ) : (
             /* Simple 2-column grid layout for standard options */
