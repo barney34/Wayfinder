@@ -34,6 +34,7 @@ export function UDDIEstimator({ value, onChange, questionId }) {
     updateSite,
     setAnswer,
     answers = {},
+    platformMode = 'NIOS',
   } = useDiscovery();
 
   // ── Management token inputs (stored locally in uddi-estimator JSON) ──────────
