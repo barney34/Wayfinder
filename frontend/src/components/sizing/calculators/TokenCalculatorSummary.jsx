@@ -292,9 +292,11 @@ export function TokenCalculatorSummary() {
       const hardwareOptions = getHardwareSkuOptions(recommendedModel);
       const defaultHardware = getDefaultHardwareSku(recommendedModel);
 
-      const baseTokens = getTokensForModel(recommendedModel, effectivePlatform);
+      // CDC role: no tokens — it's a design reference only, not a token-bearing server
+      const isCDC = site.role === 'CDC';
+      const baseTokens = isCDC ? 0 : getTokensForModel(recommendedModel, effectivePlatform);
       const serviceImpact = getServiceImpact(site.services);
-      const singleServerTokens = Math.ceil(baseTokens * (1 + serviceImpact / 100));
+      const singleServerTokens = isCDC ? 0 : Math.ceil(baseTokens * (1 + serviceImpact / 100));
       
       // HA doubles the SW instances (serverCount * 2 if HA enabled)
       const haMultiplier = site.haEnabled ? 2 : 1;
