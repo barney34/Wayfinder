@@ -1090,8 +1090,11 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
             return { ...q, isConditional, conditionMet, parentQuestion };
           }).filter(Boolean);
 
-          // ALL non-conditional questions go in 3-column grid
-          const gridQuestions = allQuestionsWithMeta.filter(q => !q.isConditional);
+          // ALL non-conditional questions go in 3-column grid (excluding Token Calculator subsection)
+          const gridQuestions = allQuestionsWithMeta.filter(q => !q.isConditional && q.subsection !== 'Token Calculator');
+          
+          // Token Calculator questions for compact mode
+          const tokenCalculatorQuestions = allQuestionsWithMeta.filter(q => q.subsection === 'Token Calculator');
 
           // Split questions into 3 columns
           const col1 = [], col2 = [], col3 = [];
