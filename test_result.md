@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Overhaul sizing calculations based on UDDI/NIOS Sizing PDF and Best Practices PDF: 1) DHCP FO with partner takes whole object count into effect, 2) Add DTC and Syslog to Services with penalties, 3) Fix impact values (SYS 50→90%, NSIP 30→45%, DTC 25→20%), 4) Wire performance features into model selection, 5) Partner→Hub terminology for DHCP FO"
+user_problem_statement: "Multiple improvements: 1) Discovery nav 'Int. DNS'→'Internal DNS', 'Ext. DNS'→'External DNS'. 2) UDDI server tokens not counted correctly - fix management token counting. 3) Sync UDDI servers between Discovery Estimator and Sizing table. 4) Better flow for Tokens - remove multiple enables. 5) SmartFill improvements. 6) Multi-select questions in 2-column grid. 7) CDC sizing reminder when selected. 8) Lease renewal warning. 9) Report redundant questions."
 
 backend:
   # No backend changes needed - all sizing calculations are frontend-only
