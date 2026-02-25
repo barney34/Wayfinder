@@ -38,7 +38,10 @@ export function UDDIEstimator({ value, onChange, questionId }) {
   } = useDiscovery();
 
   // ── Management token inputs (stored locally in uddi-estimator JSON) ──────────
-  const activeIPs = Math.ceil((data.knowledgeWorkers || 0) * (data.devicesPerUser || 2.5));
+  // Use top-bar KW (answers["ud-1"]) as default when local KW is 0
+  const topBarKW = parseInt(answers["ud-1"]) || 0;
+  const effectiveKW = data.knowledgeWorkers || topBarKW;
+  const activeIPs = Math.ceil(effectiveKW * (data.devicesPerUser || 2.5));
   const dhcpClients = Math.ceil(activeIPs * ((data.dhcpPercent || 80) / 100));
   const staticClients = activeIPs - dhcpClients;
   const dnsRecsPerIP = data.dnsRecsPerIP || 2.0;
