@@ -773,6 +773,9 @@ export function TokenCalculatorSummary() {
     updateSite(siteId, 'services', newServices);
   }, [sites, updateSite]);
 
+  // Find active drawing object from drawings array
+  const activeDrawing = drawings.find(d => d.id === activeDrawingId);
+
   // Empty state
   if (sites.length === 0 && dataCenters.length === 0 && contextSites.length === 0) {
     return (
