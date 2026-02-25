@@ -596,9 +596,9 @@ export function TokenCalculatorSummary() {
     });
   }, [totals, partnerSku.sku, sites.length, tokenPacks, platformMode, setSizingSummary]);
 
-  // Reset sort order when switching drawings
+  // Reset sort order when switching drawings (siteOrder is now per-drawing, nothing to do)
   useEffect(() => {
-    setSiteOrder(null);
+    // Intentionally empty — siteOrder is now stored per drawing in drawingConfigs
   }, [activeDrawingId]);
 
   // ── CDC Auto-Sync: svc-3 ↔ CDC role in Sizing ─────────────────────────────
