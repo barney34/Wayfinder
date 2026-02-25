@@ -115,13 +115,13 @@ export function LocationHeaderRow({ site, onUpdateSite, onDeleteSite, totalColum
               <span className="text-[10px] text-muted-foreground uppercase tracking-wide font-semibold">Create Groupings:</span>
               {/* Individual = each server as its own row */}
               <button
-                onClick={() => { onUpdateSite(site.id, 'groupingMode', 'individual'); onUpdateSite(site.id, 'customGroups', []); setRangeStart(null); }}
+                onClick={() => { onUpdateSite(site.id, { groupingMode: 'individual', customGroups: [] }); setRangeStart(null); }}
                 className={`px-2 py-0.5 text-[10px] font-semibold rounded transition-colors ${grouping === 'individual' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:text-foreground'}`}
                 title="Show each server as its own row"
               >Individual</button>
               {/* Group All = combine all into one row */}
               <button
-                onClick={() => { onUpdateSite(site.id, 'groupingMode', 'combined'); onUpdateSite(site.id, 'customGroups', []); setRangeStart(null); }}
+                onClick={() => { onUpdateSite(site.id, { groupingMode: 'combined', customGroups: [] }); setRangeStart(null); }}
                 className={`px-2 py-0.5 text-[10px] font-semibold rounded transition-colors ${grouping === 'combined' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:text-foreground'}`}
                 title={`Collapse all ${serverCount} servers into 1 row (range 1-${serverCount})`}
               >Group All</button>
