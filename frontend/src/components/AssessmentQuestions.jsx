@@ -1406,7 +1406,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
 }
 
 // ===== Render section questions with subsection/group handling =====
-function renderSectionQuestions(sectionQuestions, answers, expandedSubsections, setExpandedSubsections, handleBetaSubsectionToggle, expandedNotes, setExpandedNotes, notes, setNote, renderField) {
+function renderSectionQuestions(sectionQuestions, answers, expandedSubsections, setExpandedSubsections, expandedNotes, setExpandedNotes, notes, setNote, renderField) {
   let lastSubsection = null;
   let lastGroup = null;
 
