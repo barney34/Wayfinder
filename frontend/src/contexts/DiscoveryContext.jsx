@@ -119,7 +119,7 @@ export function DiscoveryProvider({ children, customerId }) {
         .finally(() => setIsSaving(false));
     }, 2000);
     return () => clearTimeout(timer);
-  }, [answers, notes, contextFields, meetingNotes, enabledSections, udsMembers, leaseTimeUnits, dataCenters, sites, customerId, isHydrated, isDirty]);
+  }, [answers, notes, contextFields, meetingNotes, enabledSections, udsMembers, leaseTimeUnits, dataCenters, sites, drawings, activeDrawingId, drawingConfigs, customerId, isHydrated, isDirty]);
 
   const markDirty = useCallback(() => setIsDirty(true), []);
 
