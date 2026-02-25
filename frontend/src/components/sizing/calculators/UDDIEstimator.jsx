@@ -68,14 +68,23 @@ export function UDDIEstimator({ value, onChange, questionId }) {
     });
   }, [contextSites, dataCenters]);
 
-  // Compute server tokens from sizing sites
+  // Compute server tokens from sizing sites — uses model override or auto-recommended model
   const serverTokensFromSizing = useMemo(() => {
     return uddiSizingSites.reduce((sum, s) => {
       const platform = (s.platform || 'NXVS').toUpperCase();
-      const model = s.recommendedModel || s.model || 'S';
       const serverType = platform === 'NXAAS' ? 'NXaaS' : 'NXVS';
+      // Use modelOverride first, else compute recommended model for the site
+      let srvSize = s.modelOverride;
+      if (!srvSize) {
+        try {
+          srvSize = getSiteRecommendedModel(
+            s.numIPs || 500, s.role || 'DNS/DHCP', 'UDDI',
+            s.dhcpPercent || 80, s.leaseTimeSeconds || 86400, s.platform || 'NXVS'
+          );
+        } catch { srvSize = 'S'; }
+      }
       const match = uddiServerTokens.find(t =>
-        t.serverType === serverType && (t.serverSize === model || t.key === `${serverType}-${model}`)
+        t.serverType === serverType && (t.serverSize === srvSize || t.key === `${serverType}-${srvSize}`)
       );
       const tokenCost = match?.tokens || 0;
       const qty = (s.serverCount || 1) * (s.haEnabled ? 2 : 1);
