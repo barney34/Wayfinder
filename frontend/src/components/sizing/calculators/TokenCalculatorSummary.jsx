@@ -156,7 +156,7 @@ export function TokenCalculatorSummary() {
         defaultRole = index === 0 ? 'GM' : 'GMC';
       }
 
-      let role = override.role || defaultRole;
+      let role = override.role || source.role || defaultRole;
       const isGmRole = role === 'GM' || role === 'GMC' || role.startsWith('GM+') || role.startsWith('GMC+');
       const isDisabledInUddi = platformMode === 'UDDI' && (role === 'GM' || role === 'GMC');
       const services = override.services || [];
