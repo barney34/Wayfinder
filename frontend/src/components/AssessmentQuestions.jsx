@@ -521,12 +521,6 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
     if (sectionToDisable) { clearSection(sectionToDisable); toast({ title: "Section Disabled", description: `All data for "${sectionToDisable}" has been cleared.` }); setSectionToDisable(null); }
   };
 
-  const handleBetaSubsectionToggle = (enabled) => {
-    setAnswer('beta-enable', enabled ? 'Yes' : 'No');
-    if (enabled) setExpandedSubsections(p => ({ ...p, 'Token Calculator': true }));
-    else setExpandedSubsections(p => ({ ...p, 'Token Calculator': false }));
-  };
-
   const getLeaseTimeUnit = (qId) => leaseTimeUnits[qId] || 'days';
   const getDisplayLeaseValue = (qId, stored) => {
     const unit = getLeaseTimeUnit(qId); const num = parseFloat(stored);
