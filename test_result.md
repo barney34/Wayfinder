@@ -108,6 +108,66 @@ backend:
   # No backend changes needed - all sizing calculations are frontend-only
 
 frontend:
+  - task: "Discovery nav abbreviations - Internal DNS / External DNS"
+    implemented: true
+    working: true
+    file: "frontend/src/components/AssessmentQuestions.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+        - agent: "testing"
+        - comment: "TESTED & VERIFIED: Navigation pills now display 'Internal DNS' and 'External DNS' (full text, not abbreviated 'Int. DNS' or 'Ext. DNS'). Code shows sectionAbbreviations object with full names. UI confirmed working correctly in Discovery tab."
+
+  - task: "DHCP lease renewal warning"
+    implemented: true
+    working: true
+    file: "frontend/src/components/AssessmentQuestions.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+        - agent: "testing"
+        - comment: "TESTED & VERIFIED: When dhcp-9 'Will update on lease renewal be enabled?' is set to 'Yes', an amber warning box appears with text 'Not recommended. Enabling update-on-lease-renewal significantly increases DDNS update rates and can impact DNS server performance.' Styling uses amber-500/10 background and amber-500/40 border."
+
+  - task: "CDC sizing reminder"
+    implemented: true
+    working: true
+    file: "frontend/src/components/AssessmentQuestions.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+        - agent: "testing"
+        - comment: "TESTED & VERIFIED: When svc-3 'Will the Cloud Data Connector (CDC) be used?' is set to 'Yes', a teal/cyan info box appears with text 'Remember to add a CDC site to your Sizing table (Role = CDC).' Styling uses #12C2D3 color with 10% background opacity and 40% border opacity."
+
+  - task: "Multi-select 2-column grid layout"
+    implemented: true
+    working: true
+    file: "frontend/src/components/AssessmentQuestions.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+        - agent: "testing"
+        - comment: "TESTED & VERIFIED: DHCP vendor question (dhcp-0) 'Who is your current platform/vendor?' uses GridMultiSelect with columns={2}. Dropdown opens showing options (Microsoft, ISC, Bluecat, EIP) in a 2-column grid layout with style 'repeat(2, minmax(0px, auto))'. Grid layout confirmed working."
+
+  - task: "UDDI Estimator sync with Sizing"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/components/sizing/calculators/UDDIEstimator.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "testing"
+        - comment: "NOT VISIBLE IN CURRENT CUSTOMER: UDDI Estimator component exists in code with 'Synced with Sizing' badge (line 179-180), management token inputs, and server breakdown sections. However, component is not visible in Discovery or Tokens tabs for the current test customer. The UDDI section in Tokens tab is enabled but appears empty. Component may require specific data or configuration to render (e.g., UDDI platform mode enabled, NXVS/NXaaS sites in Sizing table). Code implementation is correct per review."
+
   - task: "DHCP FO Object Replication - whole object count"
     implemented: true
     working: true
@@ -182,18 +242,17 @@ frontend:
 
 metadata:
   created_by: "main_agent"
-  version: "2.0"
-  test_sequence: 3
+  version: "2.1"
+  test_sequence: 4
   run_ui: true
 
 test_plan:
   current_focus:
-    - "DHCP FO Object Replication"
-    - "Performance Features in Services"
-    - "Fix Impact Values"
-    - "Wire Perf Features into Model Selection"
-    - "DHCP FO Association Limits"
-    - "Partner/Hub Terminology"
+    - "Discovery nav abbreviations"
+    - "DHCP lease renewal warning"
+    - "CDC sizing reminder"
+    - "Multi-select 2-column grid"
+    - "UDDI Estimator sync"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -201,3 +260,5 @@ test_plan:
 agent_communication:
     - agent: "main"
     - message: "Implemented 6 major sizing calculation enhancements based on UDDI/NIOS Sizing PDF and Best Practices PDF analysis. Key changes: (1) DHCP FO object replication - hub/spoke both get partner DHCP objects for model sizing, (2) Added DTC/Syslog/RPZ/ADP/TI/FP as per-site Performance Features in Services popover with impact on model sizing, (3) Fixed SYS 50→90%, NSIP 30→45%, DTC 25→20%, (4) Wired perfFeatures into getSiteRecommendedModel via calculatePerfImpact multipliers, (5) Added DHCP FO association limits per model with warnings, (6) Partner→Hub terminology (single partner = 'Partner', 2+ = 'Hub(N)'). All changes frontend-only, no backend modifications."
+    - agent: "testing"
+    - message: "Completed testing of 5 requested features. RESULTS: ✅ Discovery nav abbreviations (Internal/External DNS show full text), ✅ DHCP lease renewal warning (amber box with 'Not recommended'), ✅ CDC reminder (teal info box), ✅ Multi-select 2-column grid (dhcp-0 vendor question). ⚠️ UDDI Estimator component code is correct but not visible in current customer - requires UDDI configuration/data to render. Recommend testing with a customer that has UDDI platform mode enabled and NXVS/NXaaS sites configured."
