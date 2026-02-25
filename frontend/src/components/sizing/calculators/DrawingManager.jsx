@@ -226,7 +226,8 @@ export function useDrawings() {
 // ── Diff helpers ──────────────────────────────────────────────────────────────
 
 function siteKey(site) {
-  return `${site.name || '?'}::${site.role || '?'}`;
+  // Use the site's stable id as the primary key for diff matching
+  return site.id || `${site.name || '?'}::${site.role || '?'}`;
 }
 
 function siteLabel(site) {
