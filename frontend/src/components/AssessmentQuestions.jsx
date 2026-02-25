@@ -301,6 +301,8 @@ function SelectWithFreeform({ questionId, options, value, onChange }) {
 }
 
 // ===== MultiSelectField =====
+// Used for multiselects with special options (R/W permissions, vendor sub-inputs).
+// Options are displayed in a 2-column grid inside the popover.
 function MultiSelectField({ questionId, options, optionsWithPermission = [], optionsWithVendor = [], value, onChange, allowFreeform, compact = false }) {
   const [freeformInput, setFreeformInput] = useState('');
   const [isOpen, setIsOpen] = useState(false);
@@ -311,6 +313,7 @@ function MultiSelectField({ questionId, options, optionsWithPermission = [], opt
   const getOptionPermission = (option) => { const m = selectedValues.find(v => v.startsWith(option + ' (')); return m?.includes('(R/W)') ? 'R/W' : m?.includes('(R/O)') ? 'R/O' : null; };
   const getOptionVendors = (option) => { const m = selectedValues.find(v => v.startsWith(option + ' - ')); return m ? m.substring(option.length + 3).split('|').map(v => v.trim()).filter(Boolean) : []; };
   const getFullValue = (option) => selectedValues.find(v => v === option || v.startsWith(option + ' (') || v.startsWith(option + ' - ')) || null;
+  const hasSpecialOptions = optionsWithPermission.length > 0 || optionsWithVendor.length > 0;
 
   const toggleOption = (option) => {
     const currentValue = getFullValue(option);
@@ -337,7 +340,7 @@ function MultiSelectField({ questionId, options, optionsWithPermission = [], opt
           {selectedValues.map(val => (
             <span 
               key={val} 
-              className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] text-foreground border border-border rounded"
+              className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] text-foreground bg-[#12C2D3]/20 border border-[#12C2D3]/50 rounded-full whitespace-nowrap"
             >
               {val}
               <button onClick={() => removeValue(val)} className="ml-0.5 text-muted-foreground hover:text-foreground">
@@ -351,54 +354,82 @@ function MultiSelectField({ questionId, options, optionsWithPermission = [], opt
       {/* Dropdown trigger */}
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" className={`justify-between font-normal border-border ${compact ? 'h-7 text-xs px-2 min-w-[100px]' : 'h-8 text-xs w-full'}`} data-testid={`multiselect-trigger-${questionId}`}>
-            <span className="text-muted-foreground truncate">{selectedValues.length === 0 ? 'Select...' : `+ Add`}</span>
+          <Button
+            variant="outline"
+            className={`justify-between font-normal bg-muted border-border text-muted-foreground hover:bg-secondary hover:text-foreground ${compact ? 'h-7 text-xs px-2 min-w-[100px]' : 'h-8 text-xs min-w-[120px]'}`}
+            data-testid={`multiselect-trigger-${questionId}`}
+          >
+            <span>{selectedValues.length === 0 ? 'Select...' : `${selectedValues.length} selected`}</span>
             <ChevronDown className="h-3 w-3 opacity-50 ml-1" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[320px] p-2" align="start" onInteractOutside={(e) => e.preventDefault()}>
-          <div className="space-y-0.5 max-h-[300px] overflow-y-auto">
-            {options.map(option => {
-              const needsPerm = optionsWithPermission.includes(option);
-              const needsVendor = optionsWithVendor.includes(option);
-              const isSelected = isOptionSelected(option);
-              return (
-                <div key={option} className="space-y-1">
-                  <label className={`flex items-center gap-2 p-1.5 rounded-md cursor-pointer transition-colors ${isSelected ? 'bg-primary/10 hover:bg-primary/15' : 'hover:bg-muted/50'}`} data-testid={`multiselect-option-${questionId}-${option.replace(/\s/g, '-')}`}>
-                    <Checkbox checked={isSelected} onCheckedChange={() => toggleOption(option)} className="h-4 w-4" />
-                    <span className={`text-xs flex-1 ${isSelected ? 'font-medium' : ''}`}>{option}</span>
-                    {needsPerm && isSelected && (
-                      <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-                        <Button size="sm" variant={getOptionPermission(option) === 'R/W' ? 'default' : 'outline'} className="h-5 px-1.5 text-[10px]" onClick={() => setPermission(option, 'R/W')}>R/W</Button>
-                        <Button size="sm" variant={getOptionPermission(option) === 'R/O' ? 'default' : 'outline'} className="h-5 px-1.5 text-[10px]" onClick={() => setPermission(option, 'R/O')}>R/O</Button>
-                      </div>
-                    )}
-                  </label>
-                  {needsVendor && isSelected && (
-                    <div className="pl-6 pb-1 space-y-1">
-                      <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
-                        <Input placeholder="Add vendor..." value={vendorInputs[option] || ''} onChange={e => setVendorInputs(p => ({ ...p, [option]: e.target.value }))}
-                          onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addVendor(option, vendorInputs[option]); } }} className="flex-1 h-6 text-xs" />
-                        <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => addVendor(option, vendorInputs[option])} disabled={!vendorInputs[option]?.trim()}><Plus className="h-3 w-3" /></Button>
-                      </div>
-                      {getOptionVendors(option).length > 0 && (
-                        <div className="flex flex-wrap gap-1">
-                          {getOptionVendors(option).map(vendor => (
-                            <Badge key={vendor} variant="secondary" className="gap-1 pr-1 text-[10px] h-5">{vendor}<button onClick={e => { e.stopPropagation(); removeVendor(option, vendor); }} className="ml-1 rounded-full hover:bg-muted p-0.5"><X className="h-2 w-2" /></button></Badge>
-                          ))}
+        <PopoverContent className="w-auto min-w-[300px] p-3 bg-card border-border" align="start" onInteractOutside={(e) => e.preventDefault()}>
+          {/* 2-column grid for options; fall back to single column if special sub-inputs needed */}
+          {hasSpecialOptions ? (
+            <div className="space-y-0.5 max-h-[300px] overflow-y-auto mb-2">
+              {options.map(option => {
+                const needsPerm = optionsWithPermission.includes(option);
+                const needsVendor = optionsWithVendor.includes(option);
+                const isSelected = isOptionSelected(option);
+                return (
+                  <div key={option} className="space-y-1">
+                    <label className={`flex items-center gap-2 p-1.5 rounded-lg cursor-pointer transition-colors border whitespace-nowrap ${isSelected ? 'bg-[#12C2D3]/20 border-[#12C2D3] text-foreground' : 'bg-background border-border text-muted-foreground hover:bg-muted hover:text-foreground'}`} data-testid={`multiselect-option-${questionId}-${option.replace(/\s/g, '-')}`}>
+                      <Checkbox checked={isSelected} onCheckedChange={() => toggleOption(option)} className="h-4 w-4 shrink-0" />
+                      <span className={`text-xs flex-1 ${isSelected ? 'font-medium' : ''}`}>{option}</span>
+                      {needsPerm && isSelected && (
+                        <div className="flex gap-1" onClick={e => e.stopPropagation()}>
+                          <Button size="sm" variant={getOptionPermission(option) === 'R/W' ? 'default' : 'outline'} className="h-5 px-1.5 text-[10px]" onClick={() => setPermission(option, 'R/W')}>R/W</Button>
+                          <Button size="sm" variant={getOptionPermission(option) === 'R/O' ? 'default' : 'outline'} className="h-5 px-1.5 text-[10px]" onClick={() => setPermission(option, 'R/O')}>R/O</Button>
                         </div>
                       )}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                    </label>
+                    {needsVendor && isSelected && (
+                      <div className="pl-6 pb-1 space-y-1">
+                        <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                          <Input placeholder="Add vendor..." value={vendorInputs[option] || ''} onChange={e => setVendorInputs(p => ({ ...p, [option]: e.target.value }))}
+                            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addVendor(option, vendorInputs[option]); } }} className="flex-1 h-6 text-xs" />
+                          <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => addVendor(option, vendorInputs[option])} disabled={!vendorInputs[option]?.trim()}><Plus className="h-3 w-3" /></Button>
+                        </div>
+                        {getOptionVendors(option).length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {getOptionVendors(option).map(vendor => (
+                              <Badge key={vendor} variant="secondary" className="gap-1 pr-1 text-[10px] h-5">{vendor}<button onClick={e => { e.stopPropagation(); removeVendor(option, vendor); }} className="ml-1 rounded-full hover:bg-muted p-0.5"><X className="h-2 w-2" /></button></Badge>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            /* Simple 2-column grid layout for standard options */
+            <div className="grid grid-cols-2 gap-2 mb-3">
+              {options.map(option => {
+                const isSelected = isOptionSelected(option);
+                return (
+                  <label
+                    key={option}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors border whitespace-nowrap ${
+                      isSelected
+                        ? 'bg-[#12C2D3]/20 border-[#12C2D3] text-foreground'
+                        : 'bg-background border-border text-muted-foreground hover:bg-muted hover:text-foreground'
+                    }`}
+                    data-testid={`multiselect-option-${questionId}-${option.replace(/\s/g, '-')}`}
+                  >
+                    <Checkbox checked={isSelected} onCheckedChange={() => toggleOption(option)} className="h-4 w-4 shrink-0" />
+                    <span className="text-xs font-medium">{option}</span>
+                  </label>
+                );
+              })}
+            </div>
+          )}
           {allowFreeform && (
-            <div className="border-t mt-2 pt-2"><div className="flex gap-1">
-              <Input placeholder="Add other..." value={freeformInput} onChange={e => setFreeformInput(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addFreeformValue(); } }} className="flex-1 h-7 text-xs" data-testid={`multiselect-freeform-${questionId}`} />
-              <Button size="icon" variant="outline" className="h-7 w-7" onClick={addFreeformValue} disabled={!freeformInput.trim()}><Plus className="h-3 w-3" /></Button>
-            </div></div>
+            <div className="border-t mt-2 pt-2 flex gap-2">
+              <Input placeholder="Other..." value={freeformInput} onChange={e => setFreeformInput(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addFreeformValue(); } }} className="flex-1 h-7 text-xs bg-background border-border text-foreground" data-testid={`multiselect-freeform-${questionId}`} />
+              <Button size="icon" variant="outline" className="h-7 w-7 bg-background border-border" onClick={addFreeformValue} disabled={!freeformInput.trim()}><Plus className="h-3 w-3" /></Button>
+            </div>
           )}
           <div className="border-t mt-2 pt-2 flex justify-end">
             <Button size="sm" variant="default" className="h-7 text-xs" onClick={() => setIsOpen(false)}>Done</Button>
