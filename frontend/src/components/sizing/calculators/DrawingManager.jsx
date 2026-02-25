@@ -346,24 +346,26 @@ function diffSiteLabel(a, b) {
 /**
  * CompareDrawingsDialog - Unified diff view of two drawings
  */
-export function CompareDrawingsDialog({ open, onOpenChange, drawings, currentSites = [] }) {
+export function CompareDrawingsDialog({ open, onOpenChange, drawings, currentSites = [], drawingConfigs = {} }) {
   const [selectedA, setSelectedA] = useState(drawings[0]?.id);
   const [selectedB, setSelectedB] = useState(drawings[1]?.id);
 
   const drawingA = drawings.find(d => d.id === selectedA);
   const drawingB = drawings.find(d => d.id === selectedB);
 
-  // Get sites for each drawing
-  // Active drawing uses currentSites (from context), others use stored drawing.sites
-  const getSites = (drawing) => {
-    if (!drawing) return [];
-    if (drawing.sites?.length > 0) return drawing.sites;
-    if (currentSites.length > 0) return currentSites;
-    return [];
+  // Build effective site list for a drawing using its siteOverrides applied to currentSites
+  const getEffectiveSites = (drawingId) => {
+    const overrides = drawingConfigs[drawingId]?.siteOverrides || {};
+    return currentSites.map(s => {
+      const key = `site-${s.sourceId || s.id}`;
+      const dcKey = `dc-${s.sourceId || s.id}`;
+      const ovr = overrides[key] || overrides[dcKey] || overrides[s.id] || {};
+      return { ...s, ...ovr };
+    });
   };
 
-  const sitesA = getSites(drawingA);
-  const sitesB = getSites(drawingB);
+  const sitesA = drawingA ? getEffectiveSites(selectedA) : [];
+  const sitesB = drawingB ? getEffectiveSites(selectedB) : [];
 
   // Build unified diff
   const buildDiff = () => {
