@@ -259,13 +259,14 @@ export function CompareDrawingsDialog({ open, onOpenChange, drawings, currentSit
   const drawingA = drawings.find(d => d.id === selectedA);
   const drawingB = drawings.find(d => d.id === selectedB);
 
-  // Build effective site list for a drawing using its siteOverrides applied to currentSites
+  // Build effective site list for a drawing.
+  // currentSites = processed sites from TokenCalculatorSummary (already has active drawing overrides).
+  // We re-apply each drawing's siteOverrides on top of the base site data.
   const getEffectiveSites = (drawingId) => {
     const overrides = drawingConfigs[drawingId]?.siteOverrides || {};
     return currentSites.map(s => {
-      const key = `site-${s.sourceId || s.id}`;
-      const dcKey = `dc-${s.sourceId || s.id}`;
-      const ovr = overrides[key] || overrides[dcKey] || overrides[s.id] || {};
+      // siteOverrides keys match the computed site's id (e.g. "dc-123", "site-456")
+      const ovr = overrides[s.id] || {};
       return { ...s, ...ovr };
     });
   };
