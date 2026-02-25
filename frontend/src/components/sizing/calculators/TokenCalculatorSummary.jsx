@@ -788,10 +788,12 @@ export function TokenCalculatorSummary() {
             activeDrawingId={activeDrawingId}
             onSelectDrawing={setActiveDrawingId}
             onAddDrawing={addDrawing}
+            onCloneDrawing={copyDrawing}
             onCopyDrawing={copyDrawing}
             onDeleteDrawing={deleteDrawing}
             onRenameDrawing={renameDrawing}
             onCompare={() => setShowCompareDialog(true)}
+            currentSiteCount={sites.length}
           />
 
           {/* Compare Dialog */}
