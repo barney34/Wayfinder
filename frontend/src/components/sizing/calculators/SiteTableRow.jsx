@@ -524,6 +524,9 @@ export function SiteTableRow({
         {site._groupRange ? (
           /* Combined group: show range string like "1-3" */
           <span className="text-sm font-semibold tabular-nums text-primary">{site._groupRange}</span>
+        ) : site._isExpanded && site._serverIndex !== undefined ? (
+          /* Individual server within a multi-server expansion: show 1-based server position */
+          <span className="text-sm font-semibold tabular-nums text-foreground">{site._serverIndex + 1}</span>
         ) : (
           <Input
             type="number" min="1" max="999"
