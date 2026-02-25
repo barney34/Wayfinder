@@ -361,26 +361,31 @@ export function exportForLucid(sites, drawingNum, unitAssignments = {}) {
       // --- Multi-server: individual rows + combined summary ---
       let totalSW = 0;
       let totalHW = 0;
-      let minUnit = Infinity;
-      let maxUnit = -Infinity;
+
+      // For multi-server groups we use SERVER INDICES (1-based position within the group)
+      // NOT the global unit assignment number — keeps display consistent with UI chips.
+      let minServerIdx = Infinity;
+      let maxServerIdx = -Infinity;
 
       // Emit individual rows
       groupSites.forEach(site => {
-        const ua = unitAssignments[site.id];
-        const unitNum = site.unitNumberOverride ?? ua?.unitNumber ?? 1;
         const srvCount = site._serverCount || 1;
         const sw = srvCount * haMultiplier;
         const hw = isVirtual ? 0 : sw;
-        const range = site._groupRange || String(unitNum);
-        
-        // Track range bounds
+
+        let range;
         if (site._groupRange) {
-          const [s, e] = site._groupRange.split('-').map(Number);
-          minUnit = Math.min(minUnit, s);
-          maxUnit = Math.max(maxUnit, e || s);
+          // Grouped range: use server index range directly (e.g. "1-3")
+          range = site._groupRange;
+          const parts = site._groupRange.split('-').map(Number);
+          minServerIdx = Math.min(minServerIdx, parts[0]);
+          maxServerIdx = Math.max(maxServerIdx, parts[1] || parts[0]);
         } else {
-          minUnit = Math.min(minUnit, unitNum);
-          maxUnit = Math.max(maxUnit, unitNum);
+          // Individual row within multi-server site: use 1-based server position
+          const serverPos = (site._serverIndex ?? 0) + 1;
+          range = String(serverPos);
+          minServerIdx = Math.min(minServerIdx, serverPos);
+          maxServerIdx = Math.max(maxServerIdx, serverPos);
         }
 
         totalSW += sw;
@@ -388,8 +393,10 @@ export function exportForLucid(sites, drawingNum, unitAssignments = {}) {
         rows.push(makeRow(site, unitGroup, range, sw, hw, buildDesc(site)));
       });
 
-      // Emit combined summary row
-      const combinedRange = minUnit === maxUnit ? String(minUnit) : `${minUnit}-${maxUnit}`;
+      // Emit combined summary row spanning full server index range
+      const combinedRange = minServerIdx === maxServerIdx
+        ? String(minServerIdx)
+        : `${minServerIdx}-${maxServerIdx}`;
       const combinedDesc = buildDesc(firstSite, `${totalSW} total instances`);
       rows.push(makeRow(firstSite, unitGroup, combinedRange, totalSW, totalHW, combinedDesc));
     }
