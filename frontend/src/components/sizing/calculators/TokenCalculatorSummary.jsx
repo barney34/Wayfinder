@@ -1040,7 +1040,7 @@ export function TokenCalculatorSummary() {
                         <Tooltip>
                           <TooltipTrigger className="cursor-help">
                             <div className="flex items-center justify-end gap-1">
-                              <span className="font-bold">{Math.ceil(totals.totalTokens / 500000)}</span>
+                              <span className="font-bold">{formatNumber(totals.totalTokens)}</span>
                               <Info className="h-3 w-3 text-muted-foreground" />
                             </div>
                           </TooltipTrigger>
