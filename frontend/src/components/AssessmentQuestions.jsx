@@ -21,6 +21,7 @@ import {
   SiteConfiguration,
 } from "./sizing";
 import { sizingDefaults } from "@/lib/tokenData";
+import { getUnitLetterForRole } from "./sizing/calculators/unitDesignations";
 
 // ===== GridMultiSelect (dropdown with grid options, selected as bubbles below) =====
 function GridMultiSelect({ questionId, options, value, onChange, allowFreeform, columns = 2 }) {
