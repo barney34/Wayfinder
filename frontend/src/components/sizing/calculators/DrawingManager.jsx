@@ -237,17 +237,22 @@ function siteLabel(site) {
 }
 
 function diffSiteLabel(a, b) {
-  // Return fields that changed
-  const fields = ['role', 'recommendedModel', 'platform', 'numIPs', 'haEnabled', 'serverCount'];
+  const fields = [
+    { key: 'role',             label: 'Role' },
+    { key: 'recommendedModel', label: 'Model' },
+    { key: 'platform',         label: 'Platform' },
+    { key: 'numIPs',           label: 'IPs' },
+    { key: 'haEnabled',        label: 'HA' },
+    { key: 'serverCount',      label: 'Servers' },
+    { key: 'groupingMode',     label: 'Grouping' },
+  ];
   const changed = [];
-  fields.forEach(f => {
-    const va = a?.[f] ?? '—';
-    const vb = b?.[f] ?? '—';
-    if (String(va) !== String(vb)) {
-      changed.push(`${f}: ${va} → ${vb}`);
-    }
+  fields.forEach(({ key, label }) => {
+    const va = String(a?.[key] ?? '—');
+    const vb = String(b?.[key] ?? '—');
+    if (va !== vb) changed.push(`${label}: ${va} → ${vb}`);
   });
-  return changed.join(', ') || '(no field differences)';
+  return changed.join(' | ') || '(values differ)';
 }
 
 /**
