@@ -51,15 +51,19 @@ export function LocationHeaderRow({ site, onUpdateSite, onDeleteSite, totalColum
     }
   }
 
-  // Handle chip click for custom grouping
+  // Handle chip click for custom grouping — uses ATOMIC single call to avoid race condition
   const [rangeStart, setRangeStart] = React.useState(null);
   
   const handleChipClick = (chip) => {
     if (chip.merged) {
-      // Split back to individual
+      // Split back to individual — remove this group
       const newGroups = (customGroups || []).filter(([s, e]) => !(s === chip.start && e === chip.end));
-      onUpdateSite(site.id, 'customGroups', newGroups);
-      if (newGroups.length === 0) onUpdateSite(site.id, 'groupingMode', 'individual');
+      if (newGroups.length === 0) {
+        // Atomic: clear groups + reset mode in one call
+        onUpdateSite(site.id, { groupingMode: 'individual', customGroups: [] });
+      } else {
+        onUpdateSite(site.id, { customGroups: newGroups, groupingMode: 'custom' });
+      }
       setRangeStart(null);
       return;
     }
@@ -67,16 +71,14 @@ export function LocationHeaderRow({ site, onUpdateSite, onDeleteSite, totalColum
     if (rangeStart === null) {
       setRangeStart(chip.start);
     } else {
-      // Create range from rangeStart to this chip
       const start = Math.min(rangeStart, chip.start);
       const end = Math.max(rangeStart, chip.start);
       if (start !== end) {
         const newGroups = [...(customGroups || []).filter(([s, e]) => {
-          // Remove any groups that overlap with the new range
           return !(s >= start && e <= end);
         }), [start, end]];
-        onUpdateSite(site.id, 'customGroups', newGroups);
-        onUpdateSite(site.id, 'groupingMode', 'custom');
+        // Atomic: set both customGroups + groupingMode in one call
+        onUpdateSite(site.id, { customGroups: newGroups, groupingMode: 'custom' });
       }
       setRangeStart(null);
     }
