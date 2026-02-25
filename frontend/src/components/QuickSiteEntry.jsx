@@ -28,6 +28,7 @@ export function QuickSiteEntry() {
   const [name, setName] = useState('');
   const [kw, setKW] = useState('');
   const nameRef = useRef(null);
+  const kwRef = useRef(null);
 
   const handleAdd = useCallback(() => {
     if (!name.trim()) return;
@@ -41,15 +42,28 @@ export function QuickSiteEntry() {
     
     setName('');
     setKW('');
-    nameRef.current?.focus();
+    // After adding, focus back to Name for quick sequential entry
+    setTimeout(() => nameRef.current?.focus(), 0);
   }, [name, kw, entryType, addDataCenter, addSite]);
 
-  const handleKeyDown = useCallback((e) => {
-    if (e.key === 'Enter' && name.trim()) {
+  // Name field: Enter → move focus to KW (don't submit yet)
+  const handleNameKeyDown = useCallback((e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (name.trim()) {
+        kwRef.current?.focus();
+        kwRef.current?.select();
+      }
+    }
+  }, [name]);
+
+  // KW field: Enter → submit and jump back to Name
+  const handleKwKeyDown = useCallback((e) => {
+    if (e.key === 'Enter') {
       e.preventDefault();
       handleAdd();
     }
-  }, [name, handleAdd]);
+  }, [handleAdd]);
 
   const formatKW = (n) => {
     if (n === undefined || n === null) return '0';
