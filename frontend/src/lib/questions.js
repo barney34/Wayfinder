@@ -672,25 +672,12 @@ export const discoveryQuestions = [
     "technicalOnly": false
   },
   {
-    "id": "beta-enable",
-    "section": "Security",
-    "subsection": "Token Calculator",
-    "question": "Enable",
-    "technicalOnly": true,
-    "fieldType": "enableSwitch",
-    "defaultValue": "No"
-  },
-  {
     "id": "beta-asset-config",
     "section": "Security",
     "subsection": "Token Calculator",
     "question": "TD Cloud",
     "technicalOnly": true,
-    "fieldType": "assetConfigInput",
-    "conditionalOn": {
-      "questionId": "beta-enable",
-      "value": "Yes"
-    }
+    "fieldType": "assetConfigInput"
   },
   {
     "id": "beta-td-nios-section",
@@ -698,11 +685,7 @@ export const discoveryQuestions = [
     "subsection": "Token Calculator",
     "question": "TD for NIOS",
     "technicalOnly": true,
-    "fieldType": "tdNiosSection",
-    "conditionalOn": {
-      "questionId": "beta-enable",
-      "value": "Yes"
-    }
+    "fieldType": "tdNiosSection"
   },
   {
     "id": "beta-reporting",
@@ -710,11 +693,7 @@ export const discoveryQuestions = [
     "subsection": "Token Calculator",
     "question": "Reporting",
     "technicalOnly": true,
-    "fieldType": "reportingInput",
-    "conditionalOn": {
-      "questionId": "beta-enable",
-      "value": "Yes"
-    }
+    "fieldType": "reportingInput"
   },
   {
     "id": "beta-dossier",
@@ -723,11 +702,7 @@ export const discoveryQuestions = [
     "group": "Add-Ons",
     "question": "Dossier (25 Queries per day)",
     "technicalOnly": true,
-    "fieldType": "dossierInput",
-    "conditionalOn": {
-      "questionId": "beta-enable",
-      "value": "Yes"
-    }
+    "fieldType": "dossierInput"
   },
   {
     "id": "beta-lookalike",
@@ -737,10 +712,6 @@ export const discoveryQuestions = [
     "question": "Lookalike Monitoring (25 Domains)",
     "technicalOnly": true,
     "fieldType": "lookalikeInput",
-    "conditionalOn": {
-      "questionId": "beta-enable",
-      "value": "Yes"
-    },
     "tooltip": "Are you interested in lookalike domain monitoring? This helps detect typosquatting and brand impersonation."
   },
   {
@@ -750,11 +721,7 @@ export const discoveryQuestions = [
     "group": "Add-Ons",
     "question": "Domain Takedown Service (packs of 100)",
     "technicalOnly": true,
-    "fieldType": "domainTakedownInput",
-    "conditionalOn": {
-      "questionId": "beta-enable",
-      "value": "Yes"
-    }
+    "fieldType": "domainTakedownInput"
   },
   {
     "id": "beta-soc-insights",
@@ -763,11 +730,7 @@ export const discoveryQuestions = [
     "group": "Add-Ons",
     "question": "SOC Insights",
     "technicalOnly": true,
-    "fieldType": "socInsightsInput",
-    "conditionalOn": {
-      "questionId": "beta-enable",
-      "value": "Yes"
-    }
+    "fieldType": "socInsightsInput"
   },
   {
     "id": "beta-security-tokens-total",
@@ -775,11 +738,7 @@ export const discoveryQuestions = [
     "subsection": "Token Calculator",
     "question": "Summary Token Count",
     "technicalOnly": true,
-    "fieldType": "tokenTotal",
-    "conditionalOn": {
-      "questionId": "beta-enable",
-      "value": "Yes"
-    }
+    "fieldType": "tokenTotal"
   },
   {
     "id": "uddi-estimator",
