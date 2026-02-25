@@ -179,14 +179,6 @@ export const discoveryQuestions = [
     }
   },
   {
-    "id": "ipam-4",
-    "section": "IPAM",
-    "question": "Percentage of DHCP",
-    "technicalOnly": true,
-    "fieldType": "number",
-    "defaultValue": "80"
-  },
-  {
     "id": "ipam-5",
     "section": "IPAM",
     "question": "What is your IP plan for the future?",
