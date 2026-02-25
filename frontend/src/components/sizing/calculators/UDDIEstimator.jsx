@@ -136,7 +136,16 @@ export function UDDIEstimator({ value, onChange, questionId }) {
   };
 
   // ── Helper: get size from site ────────────────────────────────────────────────
-  const getSiteSize = (site) => site.modelOverride || site.recommendedModel || 'S';
+  const getSiteSize = (site) => {
+    if (site.modelOverride) return site.modelOverride;
+    // Auto-compute
+    try {
+      return getSiteRecommendedModel(
+        site.numIPs || 500, site.role || 'DNS/DHCP', 'UDDI',
+        site.dhcpPercent || 80, site.leaseTimeSeconds || 86400, site.platform || 'NXVS'
+      );
+    } catch { return 'S'; }
+  };
   const getSiteType = (site) => {
     const p = (site.platform || 'NXVS').toUpperCase();
     return p === 'NXAAS' ? 'NXaaS' : 'NXVS';
