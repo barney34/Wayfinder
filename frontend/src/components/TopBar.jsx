@@ -191,8 +191,12 @@ export function TopBar({ customerName, opportunity, onNameChange, onOpportunityC
               </div>
             )}
             <div className="flex gap-1.5 mt-auto">
-              <input value={dcName} onChange={e => setDcName(e.target.value)} placeholder="Name" className="flex-1 min-w-0 h-7 px-2 text-xs rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20" onKeyDown={e => e.key === 'Enter' && handleAddDC()} data-testid="dc-name-input" />
-              <input type="number" value={dcKW} onChange={e => setDcKW(e.target.value)} placeholder="KW" className="w-14 h-7 px-2 text-xs rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" onKeyDown={e => e.key === 'Enter' && handleAddDC()} data-testid="dc-kw-input" />
+              <input ref={dcNameRef} value={dcName} onChange={e => setDcName(e.target.value)} placeholder="Name" className="flex-1 min-w-0 h-7 px-2 text-xs rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
+                onKeyDown={e => { if (e.key === 'Enter' && dcName.trim()) { e.preventDefault(); dcKWRef.current?.focus(); dcKWRef.current?.select(); } }}
+                data-testid="dc-name-input" />
+              <input ref={dcKWRef} type="number" value={dcKW} onChange={e => setDcKW(e.target.value)} placeholder="KW" className="w-14 h-7 px-2 text-xs rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddDC(); } }}
+                data-testid="dc-kw-input" />
               <button onClick={handleAddDC} disabled={!dcName.trim()} className="shrink-0 h-7 w-7 rounded-lg bg-primary hover:bg-primary/90 disabled:bg-muted flex items-center justify-center text-white disabled:text-muted-foreground" data-testid="dc-add-btn"><Plus className="h-3.5 w-3.5" /></button>
             </div>
           </div>
