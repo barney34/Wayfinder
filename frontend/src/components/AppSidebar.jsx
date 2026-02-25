@@ -238,48 +238,53 @@ export function AppSidebar({
                 ))}
               </div>
 
-              {/* Tokens Summary - Management / Server / Security breakdown */}
+              {/* Token Packs Needed — Management / Server / Security, NOT cumulative */}
               {!collapsed && sizingSummary && (
                 <>
                   <Separator className="my-3" />
                   <div className="bg-muted/50 rounded-lg p-3 space-y-2">
-                    <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Token Summary</div>
+                    <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Token Packs Needed</div>
                     {sizingSummary.platformMode !== 'NIOS' ? (
-                      <div className="space-y-1.5 text-xs">
-                        {/* Management Tokens: value / 1000 = packs */}
+                      <div className="space-y-2 text-xs">
+                        {/* Management Tokens: raw tokens / 1000 = packs to order */}
                         {(sizingSummary.uddiMgmtTokens || 0) > 0 && (
-                          <div className="flex items-center justify-between gap-1">
-                            <span className="text-muted-foreground text-[11px]">Mgmt Tokens</span>
-                            <span className="font-mono text-[11px] text-foreground">
-                              {formatKW(sizingSummary.uddiMgmtTokens)} / 1K = <strong>{Math.ceil((sizingSummary.uddiMgmtTokens||0)/1000)}</strong>
-                            </span>
+                          <div className="space-y-0.5">
+                            <div className="flex items-center justify-between gap-1">
+                              <span className="text-muted-foreground text-[11px]">Mgmt Tokens</span>
+                              <span className="font-mono text-[11px] text-foreground">
+                                {formatKW(sizingSummary.uddiMgmtTokens)} / 1K
+                              </span>
+                            </div>
+                            <div className="flex justify-end">
+                              <span className="font-bold text-[#12C2D3] text-sm">
+                                {Math.ceil((sizingSummary.uddiMgmtTokens || 0) / 1000).toLocaleString()} packs
+                              </span>
+                            </div>
                           </div>
                         )}
-                        {/* Server Tokens: value / 500 = packs */}
+                        {/* Server Tokens: raw tokens / 500 = packs to order */}
                         {(sizingSummary.infraTokens || 0) > 0 && (
-                          <div className="flex items-center justify-between gap-1">
-                            <span className="text-muted-foreground text-[11px]">Server Tokens</span>
-                            <span className="font-mono text-[11px] text-foreground">
-                              {formatKW(sizingSummary.infraTokens)} / 500 = <strong>{Math.ceil((sizingSummary.infraTokens||0)/500)}</strong>
-                            </span>
+                          <div className="space-y-0.5">
+                            <div className="flex items-center justify-between gap-1">
+                              <span className="text-muted-foreground text-[11px]">Server Tokens</span>
+                              <span className="font-mono text-[11px] text-foreground">
+                                {formatKW(sizingSummary.infraTokens)} / 500
+                              </span>
+                            </div>
+                            <div className="flex justify-end">
+                              <span className="font-bold text-[#12C2D3] text-sm">
+                                {Math.ceil((sizingSummary.infraTokens || 0) / 500).toLocaleString()} packs
+                              </span>
+                            </div>
                           </div>
                         )}
-                        {/* Security Tokens: raw value */}
+                        {/* Security Tokens: shown as raw value only */}
                         {(sizingSummary.securityTokens || 0) > 0 && (
-                          <div className="flex items-center justify-between gap-1">
-                            <span className="text-muted-foreground text-[11px]">Security</span>
-                            <span className="font-mono font-bold text-[11px] text-[#FF585D]">
+                          <div className="flex items-center justify-between gap-1 pt-0.5 border-t border-border/30">
+                            <span className="text-muted-foreground text-[11px]">Security Tokens</span>
+                            <span className="font-bold text-[11px] text-[#FF585D]">
                               {formatKW(sizingSummary.securityTokens)}
                             </span>
-                          </div>
-                        )}
-                        <div className="border-t border-border/40 pt-1.5 flex items-center justify-between">
-                          <span className="text-muted-foreground text-[11px] font-semibold">Total</span>
-                          <span className="font-bold text-[#12C2D3] text-sm">{formatKW(sizingSummary.totalTokens)}</span>
-                        </div>
-                        {sizingSummary.tokenPack && (
-                          <div className="flex justify-end">
-                            <Badge variant="outline" className="text-[10px]">{sizingSummary.tokenPack}</Badge>
                           </div>
                         )}
                       </div>
