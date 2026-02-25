@@ -46,25 +46,45 @@ export function TokenCalculatorSummary() {
     dataCenters = [], sites: contextSites = [], answers = {}, setAnswer, platformMode, setPlatformMode, setSizingSummary,
     updateSite: contextUpdateSite, updateDataCenter: contextUpdateDC, addDataCenter: contextAddDC, addSite: contextAddSite,
     deleteSite: contextDeleteSite, deleteDataCenter: contextDeleteDC,
-    saveToServer
+    saveToServer,
+    // Drawing management from context
+    drawings, activeDrawingId, drawingConfigs,
+    getDrawingConfig, updateDrawingConfig,
+    setActiveDrawingId, addDrawing, cloneDrawing: ctxCloneDrawing, deleteDrawing, renameDrawing,
   } = useDiscovery();
 
-  // Site overrides state (manual sites now use context via addSite)
-  const [siteOverrides, setSiteOverrides] = useState({});
+  // Get active drawing config — all per-drawing state lives here
+  const activeDrawingConfig = getDrawingConfig(activeDrawingId);
+  const siteOverrides = activeDrawingConfig.siteOverrides || {};
+  const siteOrder = activeDrawingConfig.siteOrder || null;
 
-  // Multiple drawings management
-  const {
-    drawings,
-    activeDrawing,
-    activeDrawingId,
-    setActiveDrawingId,
-    addDrawing,
-    copyDrawing,
-    deleteDrawing,
-    renameDrawing,
-    updateDrawingSites,
-    copySiteToDrawing,
-  } = useDrawings([]);
+  // Setters that write to active drawing config
+  const setSiteOverrides = useCallback((updater) => {
+    const current = getDrawingConfig(activeDrawingId).siteOverrides || {};
+    const next = typeof updater === 'function' ? updater(current) : updater;
+    updateDrawingConfig(activeDrawingId, { siteOverrides: next });
+  }, [activeDrawingId, getDrawingConfig, updateDrawingConfig]);
+
+  const setSiteOrder = useCallback((order) => {
+    updateDrawingConfig(activeDrawingId, { siteOrder: order });
+  }, [activeDrawingId, updateDrawingConfig]);
+
+  // Drawing clone/copy adapters
+  const copyDrawing = useCallback((drawingId) => {
+    ctxCloneDrawing(drawingId);
+  }, [ctxCloneDrawing]);
+
+  const copySiteToDrawing = useCallback((site, targetDrawingId) => {
+    // Store a copy of the site's override in the target drawing
+    const srcOverrideKey = `site-${site.sourceId}` || site.id;
+    const srcOverride = siteOverrides[srcOverrideKey] || {};
+    updateDrawingConfig(targetDrawingId, {
+      siteOverrides: {
+        ...(getDrawingConfig(targetDrawingId).siteOverrides || {}),
+        [srcOverrideKey]: { ...srcOverride },
+      }
+    });
+  }, [siteOverrides, getDrawingConfig, updateDrawingConfig]);
 
   // Compare dialog state
   const [showCompareDialog, setShowCompareDialog] = useState(false);
@@ -75,14 +95,9 @@ export function TokenCalculatorSummary() {
 
   // UI toggle for Hardware SKU column
   const [showHardware, setShowHardware] = useState(false);
-  // UI toggle for KW column (hidden by default like Hardware SKU)
   const [showKW, setShowKW] = useState(false);
-  // UI toggle for Services column (hidden by default)
   const [showServices, setShowServices] = useState(false);
-  // "Export View" mode - shows only exportable columns
   const [exportView, setExportView] = useState(false);
-  // Manual draw order: array of site IDs. null = natural order.
-  const [siteOrder, setSiteOrder] = useState(null);
 
   // "Why this model?" dialog state
   const [showModelDialog, setShowModelDialog] = useState(false);
@@ -100,21 +115,32 @@ export function TokenCalculatorSummary() {
   );
 
   // Handle platform mode change with confirmation for non-recommended
+  // Now updates ACTIVE DRAWING config only (not global)
   const handlePlatformModeChange = useCallback((newMode) => {
     if (!newMode) return;
     if (newMode !== recommendedMode && platformMode === recommendedMode) {
       setPendingPlatformChange(newMode);
       setShowPlatformAlert(true);
     } else {
-      setPlatformMode(newMode);
+      updateDrawingConfig(activeDrawingId, {
+        platformMode: newMode,
+        featureNIOS: newMode === 'NIOS' || newMode === 'Hybrid',
+        featureUDDI: newMode === 'UDDI' || newMode === 'Hybrid',
+      });
     }
-  }, [recommendedMode, platformMode, setPlatformMode]);
+  }, [recommendedMode, platformMode, updateDrawingConfig, activeDrawingId]);
 
   const confirmPlatformChange = useCallback(() => {
-    if (pendingPlatformChange) setPlatformMode(pendingPlatformChange);
+    if (pendingPlatformChange) {
+      updateDrawingConfig(activeDrawingId, {
+        platformMode: pendingPlatformChange,
+        featureNIOS: pendingPlatformChange === 'NIOS' || pendingPlatformChange === 'Hybrid',
+        featureUDDI: pendingPlatformChange === 'UDDI' || pendingPlatformChange === 'Hybrid',
+      });
+    }
     setPendingPlatformChange(null);
     setShowPlatformAlert(false);
-  }, [pendingPlatformChange, setPlatformMode]);
+  }, [pendingPlatformChange, updateDrawingConfig, activeDrawingId]);
 
   const cancelPlatformChange = useCallback(() => {
     setPendingPlatformChange(null);
