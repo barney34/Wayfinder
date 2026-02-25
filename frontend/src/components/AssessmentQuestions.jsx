@@ -619,8 +619,8 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
   // Abbreviated section names for nav pills
   const sectionAbbreviations = {
     'IPAM': 'IPAM',
-    'Internal DNS': 'Int. DNS',
-    'External DNS': 'Ext. DNS',
+    'Internal DNS': 'Internal DNS',
+    'External DNS': 'External DNS',
     'DHCP': 'DHCP',
     'Overlay': 'Overlay',
     'Services': 'Services',
