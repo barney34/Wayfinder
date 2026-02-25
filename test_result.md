@@ -347,12 +347,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Token Column Display - Show Actual Token Numbers"
-    - "Totals Row Tooltip - Token SKU Display"
-    - "Sidebar Token Display - Total Count and SKU"
-    - "CDC Auto-Sync - Discovery to Sizing"
-    - "DFP Auto-Discovery - Sizing to Discovery"
-    - "UDDI Estimator sync with Sizing"
+    - "CDC Token Fix - Show 0 tokens for CDC role"
+    - "Quick Entry Keyboard Flow - TopBar DC/Site inputs"
+    - "No Duplicate CDC on Navigation - Discovery ↔ Sizing"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
