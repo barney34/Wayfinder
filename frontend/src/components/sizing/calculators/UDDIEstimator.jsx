@@ -65,9 +65,14 @@ export function UDDIEstimator({ value, onChange, questionId }) {
     ];
     return allSites.filter(s => {
       const platform = (s.platform || '').toUpperCase();
-      return platform === 'NXVS' || platform === 'NXAAS';
+      const isExplicitUddi = platform === 'NXVS' || platform === 'NXAAS';
+      const isImplicitUddi = (platformMode === 'UDDI' || platformMode === 'Hybrid')
+        && s.role !== 'GM' && s.role !== 'GMC'
+        && !s.role?.startsWith('GM+') && !s.role?.startsWith('GMC+')
+        && s.role !== 'Reporting' && s.role !== 'ND' && s.role !== 'LIC';
+      return isExplicitUddi || isImplicitUddi;
     });
-  }, [contextSites, dataCenters]);
+  }, [contextSites, dataCenters, platformMode]);
 
   // Compute server tokens from sizing sites — uses model override or auto-recommended model
   const serverTokensFromSizing = useMemo(() => {
