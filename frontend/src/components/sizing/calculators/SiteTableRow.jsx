@@ -1280,7 +1280,7 @@ export function SiteTableRow({
         </TableCell>
       )}
 
-      {/* Token Packs - only show for non-NIOS modes */}
+      {/* Token Count - only show for non-NIOS modes */}
       {showTokens && (
         <TableCell className="p-1 text-right tabular-nums font-medium text-sm">
           {site.isDisabledInUddi ? (
@@ -1290,14 +1290,13 @@ export function SiteTableRow({
               <Tooltip>
                 <TooltipTrigger className="cursor-help">
                   <div className="flex items-center justify-end gap-1">
-                    <span className="font-bold">{calculateTokenPacks(site.tokens)}</span>
+                    <span className="font-bold">{formatTokens(site.tokens)}</span>
                     <Info className="h-3 w-3 text-muted-foreground" />
                   </div>
                 </TooltipTrigger>
                 <TooltipContent className="max-w-xs">
                   <div className="space-y-1 text-xs">
-                    <div><strong>Tokens:</strong> {formatNumber(site.tokens || 0)}</div>
-                    <div><strong>Token packs:</strong> {calculateTokenPacks(site.tokens)} (500K per pack)</div>
+                    <div><strong>Tokens:</strong> {(site.tokens || 0).toLocaleString()}</div>
                     {site.serverCount > 1 && <div><strong>Servers:</strong> x{site.serverCount}</div>}
                     {site.haEnabled && <div className="text-primary"><strong>HA:</strong> Enabled (×2 SW instances)</div>}
                     {(site.serviceImpact || 0) > 0 && <div><strong>Service overhead:</strong> +{site.serviceImpact}%</div>}
