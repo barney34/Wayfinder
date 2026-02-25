@@ -9,6 +9,7 @@ import { uddiServerTokens, nxvsServers, nxaasServers, uddiManagementTokenRates }
 import { safeParseUDDI } from '../parsers';
 import { defaultUDDIData } from '../constants';
 import { useDiscovery } from "@/contexts/DiscoveryContext";
+import { getSiteRecommendedModel } from "../calculations";
 
 /**
  * UDDIEstimator — Discovery-side UDDI token estimator
