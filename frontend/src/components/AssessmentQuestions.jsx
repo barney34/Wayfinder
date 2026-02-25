@@ -878,22 +878,55 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
         const calculatedIPs = Math.round(kwNum * ipMultiplier);
         const manualIPs = parseInt(answers['ipam-1']) || 0;
         const activeIPs = ipCalcManualOverride ? manualIPs : calculatedIPs;
-        const dnsServers = parseInt(answers['idns-servers']) || 1;
+
+        // Count Internal DNS sites from Sizing (unit letter NOT 'E', role has DNS)
+        // Count External DNS sites (unit letter = 'E')
+        const allSizingSites = [...(sites || [])];
+        const internalDnsSiteCount = Math.max(1, allSizingSites.filter(s => {
+          const letter = s.unitLetterOverride || getUnitLetterForRole(s.role);
+          const hasDns = s.role?.includes('DNS') || letter === 'B' || letter === 'D' || letter === 'F';
+          return hasDns && letter !== 'E';
+        }).length);
+        const externalDnsSiteCount = Math.max(1, allSizingSites.filter(s => {
+          const letter = s.unitLetterOverride || getUnitLetterForRole(s.role);
+          return letter === 'E' || s.role === 'ExtDNS';
+        }).length);
+
+        // Fall back to the old idns-servers answer if no sizing data
+        const idnsServersAnswer = parseInt(answers['idns-servers']) || 1;
+        const internalDnsServers = allSizingSites.length > 0 ? internalDnsSiteCount : idnsServersAnswer;
+
         let autoValue = '';
         let formula = '';
         
         if (q.fieldType === 'dnsAggregateCalculated' && activeIPs > 0) {
-          autoValue = Math.ceil(activeIPs / AUTO_CALC_DEFAULTS.peakQpsDivisor).toLocaleString();
-          formula = `${activeIPs.toLocaleString()} IPs \u00f7 3`;
+          // Section = Internal DNS: aggregate = IPs / 3
+          if (q.section === 'Internal DNS' || q.id.startsWith('idns')) {
+            autoValue = Math.ceil(activeIPs / AUTO_CALC_DEFAULTS.peakQpsDivisor).toLocaleString();
+            formula = `${activeIPs.toLocaleString()} IPs ÷ 3`;
+          } else {
+            // External DNS aggregate: don't auto-fill — let user enter
+            autoValue = '';
+            formula = '';
+          }
         } else if (q.fieldType === 'dnsPerServerCalculated' && activeIPs > 0) {
           const aggregateQPS = Math.ceil(activeIPs / AUTO_CALC_DEFAULTS.peakQpsDivisor);
-          autoValue = Math.ceil(aggregateQPS / dnsServers).toLocaleString();
-          formula = `Aggregate (${aggregateQPS.toLocaleString()}) \u00f7 ${dnsServers} servers`;
+          if (q.section === 'Internal DNS' || q.id.startsWith('idns')) {
+            // Internal: aggregate / internal DNS site count from sizing
+            autoValue = Math.ceil(aggregateQPS / internalDnsServers).toLocaleString();
+            formula = `Aggregate (${aggregateQPS.toLocaleString()}) ÷ ${internalDnsServers} internal DNS server${internalDnsServers !== 1 ? 's' : ''} (from Sizing)`;
+          } else {
+            // External: user-entered aggregate / E-letter site count from sizing
+            const userExtAgg = parseInt(answers['edns-2']) || 0;
+            if (userExtAgg > 0) {
+              autoValue = Math.ceil(userExtAgg / externalDnsSiteCount).toLocaleString();
+              formula = `User aggregate (${userExtAgg.toLocaleString()}) ÷ ${externalDnsSiteCount} external DNS server${externalDnsSiteCount !== 1 ? 's' : ''} (from Sizing)`;
+            }
+          }
         } else if (q.fieldType === 'ipCalculated') {
           autoValue = activeIPs.toLocaleString();
         }
         
-        const displayValue = currentValue || autoValue;
         const isAutoFilled = !currentValue && autoValue;
         
         return (
@@ -903,10 +936,10 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
               value={currentValue || ''} 
               onChange={e => handleAnswerChange(q.id, e.target.value)} 
               className={compact ? "w-24 h-7 text-xs" : "max-w-xs"} 
-              placeholder={autoValue || "Auto"} 
+              placeholder={autoValue || "Enter..."} 
               data-testid={`input-answer-${q.id}`} 
             />
-            {isAutoFilled && activeIPs > 0 && (
+            {isAutoFilled && (
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger>
