@@ -1069,6 +1069,46 @@ export function TokenCalculatorSummary() {
             </Table>
           </div>
 
+          {/* UDDI Management Token Summary — shown when mgmt tokens are calculated */}
+          {uddiEnabled && totals.uddiMgmtTokens > 0 && (
+            <div className="mx-4 lg:mx-6 mt-3 p-3 bg-[#12C2D3]/5 border border-[#12C2D3]/20 rounded-lg">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold text-[#12C2D3]">UDDI Token Breakdown</span>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Info className="h-3.5 w-3.5 text-[#12C2D3]/60" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <div className="text-xs space-y-1">
+                          <p>Server tokens come from NXVS/NXaaS rows in the Sizing table.</p>
+                          <p>Management tokens come from the UDDI Estimator in Discovery (DDI objects, IPs, assets).</p>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <div className="flex items-center gap-4 text-xs">
+                  <span className="text-muted-foreground">
+                    Server: <span className="font-mono font-semibold text-foreground">{formatNumber(totals.infraTokens)}</span>
+                  </span>
+                  <span className="text-muted-foreground">
+                    Mgmt: <span className="font-mono font-semibold text-foreground">{formatNumber(totals.uddiMgmtTokens)}</span>
+                  </span>
+                  {totals.securityTokens > 0 && (
+                    <span className="text-muted-foreground">
+                      Security: <span className="font-mono font-semibold text-foreground">{formatNumber(totals.securityTokens)}</span>
+                    </span>
+                  )}
+                  <span className="font-bold text-[#12C2D3]">
+                    Total: {formatNumber(totals.totalTokens)} ({Math.ceil(totals.totalTokens / 500000)} packs)
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Add Site / Add Data Center Buttons */}
           <div className="flex items-center justify-between mt-4 lg:mt-6">
             <div className="flex items-center gap-2">
