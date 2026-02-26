@@ -56,7 +56,7 @@ function GridMultiSelect({ questionId, options, value, onChange, allowFreeform, 
         <PopoverTrigger asChild>
           <Button 
             variant="outline" 
-            className="h-8 text-xs px-3 min-w-[120px] justify-between font-normal bg-muted border-border text-muted-foreground hover:bg-secondary hover:text-foreground"
+            className="h-8 text-xs px-3 min-w-[140px] justify-between font-normal bg-muted border-border text-muted-foreground hover:bg-secondary hover:text-foreground"
             data-testid={`grid-trigger-${questionId}`}
           >
             <span>{selectedValues.length === 0 ? 'Select...' : `${selectedValues.length} selected`}</span>
