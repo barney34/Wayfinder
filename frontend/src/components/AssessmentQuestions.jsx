@@ -357,7 +357,7 @@ function MultiSelectField({ questionId, options, optionsWithPermission = [], opt
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className={`justify-between font-normal bg-muted border-border text-muted-foreground hover:bg-secondary hover:text-foreground ${compact ? 'h-7 text-xs px-2 min-w-[100px]' : 'h-8 text-xs min-w-[120px]'}`}
+            className={`justify-between font-normal bg-muted border-border text-muted-foreground hover:bg-secondary hover:text-foreground ${compact ? 'h-7 text-xs px-2 min-w-[140px]' : 'h-8 text-xs px-3 min-w-[140px]'}`}
             data-testid={`multiselect-trigger-${questionId}`}
           >
             <span>{selectedValues.length === 0 ? 'Select...' : `${selectedValues.length} selected`}</span>
