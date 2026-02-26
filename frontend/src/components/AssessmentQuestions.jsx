@@ -296,7 +296,7 @@ function SelectWithFreeform({ questionId, options, value, onChange }) {
           <SelectItem value="__custom__">Other (enter value)</SelectItem>
         </SelectContent>
       </Select>
-      {isCustom && <Input type="text" value={value} onChange={e => onChange(e.target.value)} placeholder="Enter..." className="w-24" data-testid={`input-custom-${questionId}`} />}
+      {isCustom && <Input type="text" value={value} onChange={e => onChange(e.target.value)} placeholder="Enter..." className="w-28 text-right px-3" data-testid={`input-custom-${questionId}`} />}
     </div>
   );
 }
