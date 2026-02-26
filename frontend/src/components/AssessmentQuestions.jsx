@@ -1459,7 +1459,7 @@ function renderSectionQuestions(sectionQuestions, answers, expandedSubsections, 
             {sitesQs.map(sq => (
               <div key={sq.id} className="flex items-center gap-2">
                 <Label className="text-sm whitespace-nowrap">{sq.question}</Label>
-                <Input type="number" value={answers[sq.id] || ''} onChange={e => renderField.__handleAnswerChange?.(sq.id, e.target.value) || null} className="w-20 h-8" data-testid={`input-answer-${sq.id}`} />
+                <Input type="number" value={answers[sq.id] || ''} onChange={e => renderField.__handleAnswerChange?.(sq.id, e.target.value) || null} className="w-28 h-8 text-right px-3" data-testid={`input-answer-${sq.id}`} />
               </div>
             ))}
           </div>
