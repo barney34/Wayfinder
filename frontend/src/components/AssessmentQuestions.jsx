@@ -808,9 +808,9 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
       case 'leaseTime':
         return (
           <div className="flex items-center gap-1">
-            <Input type="number" step="any" value={getDisplayLeaseValue(q.id, currentValue)} onChange={e => handleLeaseTimeChange(q.id, e.target.value)} className={compact ? "w-14 h-7 text-xs" : "w-24"} data-testid={`input-answer-${q.id}`} />
+            <Input type="number" step="any" value={getDisplayLeaseValue(q.id, currentValue)} onChange={e => handleLeaseTimeChange(q.id, e.target.value)} className={compact ? "w-28 h-7 text-xs text-right px-3" : "w-28 text-right px-3"} data-testid={`input-answer-${q.id}`} />
             <Select value={getLeaseTimeUnit(q.id)} onValueChange={v => setLeaseTimeUnit(q.id, v)}>
-              <SelectTrigger className={compact ? "w-16 h-7 text-xs" : "w-28"}><SelectValue /></SelectTrigger>
+              <SelectTrigger className={compact ? "min-w-[140px] h-7 text-xs" : "min-w-[140px]"}><SelectValue /></SelectTrigger>
               <SelectContent><SelectItem value="seconds">sec</SelectItem><SelectItem value="minutes">min</SelectItem><SelectItem value="hours">hr</SelectItem><SelectItem value="days">day</SelectItem></SelectContent>
             </Select>
           </div>
