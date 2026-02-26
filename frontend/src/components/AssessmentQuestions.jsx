@@ -135,7 +135,7 @@ function SyncedNumberField({ questionId, value, onChange, syncValue, syncLabel }
         onChange={e => onChange(e.target.value)}
         onBlur={e => onChange(e.target.value)}
         onKeyDown={e => e.key === 'Enter' && e.target.blur()}
-        className={`w-20 h-8 text-xs ${hasMismatch ? 'border-[#FEDD00] bg-[#FEDD00]/10' : 'bg-background border-border'}`}
+        className={`w-28 h-8 text-xs text-right px-3 ${hasMismatch ? 'border-[#FEDD00] bg-[#FEDD00]/10' : 'bg-background border-border'}`}
         placeholder="0"
         data-testid={`input-answer-${questionId}`}
       />
