@@ -914,7 +914,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
               type="text" 
               value={currentValue || ''} 
               onChange={e => handleAnswerChange(q.id, e.target.value)} 
-              className={compact ? "w-24 h-7 text-xs" : "max-w-xs"} 
+              className={compact ? "w-28 h-7 text-xs text-right px-3" : "w-28 text-right px-3"} 
               placeholder={autoValue || "Enter..."} 
               data-testid={`input-answer-${q.id}`} 
             />
