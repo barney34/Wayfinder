@@ -974,7 +974,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
               type="number"
               value={numPart}
               onChange={e => handleAnswerChange(q.id, hasPrefix ? `${prefix}${e.target.value}` : e.target.value)}
-              className={compact ? "w-16 h-7 text-xs" : "w-20"}
+              className={compact ? "w-28 h-7 text-xs text-right px-3" : "w-28 text-right px-3"}
               data-testid={`input-answer-${q.id}`}
             />
           </div>
