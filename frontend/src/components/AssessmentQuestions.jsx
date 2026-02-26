@@ -290,7 +290,7 @@ function SelectWithFreeform({ questionId, options, value, onChange }) {
         if (val === '__custom__') { setIsCustom(true); onChange(''); }
         else { setIsCustom(false); onChange(val); }
       }}>
-        <SelectTrigger data-testid={`select-answer-${questionId}`} className="flex-1"><SelectValue placeholder="Select..." /></SelectTrigger>
+        <SelectTrigger data-testid={`select-answer-${questionId}`} className="min-w-[140px]"><SelectValue placeholder="Select..." /></SelectTrigger>
         <SelectContent>
           {options.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
           <SelectItem value="__custom__">Other (enter value)</SelectItem>
