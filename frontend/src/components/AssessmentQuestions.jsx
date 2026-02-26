@@ -645,8 +645,8 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
   const renderField = (q) => {
     const fieldType = detectFieldType(q);
     const currentValue = answers[q.id] ?? q.defaultValue ?? '';
-    const inputClass = compact ? "h-8 text-sm" : "";
-    const selectClass = compact ? "h-8 text-sm" : "";
+    const inputClass = compact ? "w-28 h-8 text-sm text-right px-3" : "w-28 text-right px-3";
+    const selectClass = compact ? "min-w-[140px] h-8 text-sm" : "min-w-[140px]";
 
     // Special cases for specific question IDs
     // Platform Vendor (ipam-0) - 2-row grid layout
