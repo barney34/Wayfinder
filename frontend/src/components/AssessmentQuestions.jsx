@@ -804,7 +804,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
         // In compact mode, use dropdown with checkboxes that stays open
         return <MultiSelectField questionId={q.id} options={q.options || []} optionsWithPermission={q.optionsWithPermission} optionsWithVendor={q.optionsWithVendor} value={currentValue} onChange={v => handleAnswerChange(q.id, v)} allowFreeform={q.allowFreeform} compact={compact} />;
       case 'number':
-        return <Input type="number" value={currentValue} onChange={e => handleAnswerChange(q.id, e.target.value)} className={`${compact ? 'w-16 h-7 text-xs' : 'max-w-xs'}`} placeholder="0" data-testid={`input-answer-${q.id}`} />;
+        return <Input type="number" value={currentValue} onChange={e => handleAnswerChange(q.id, e.target.value)} className={`${compact ? 'w-28 h-7 text-xs text-right px-3' : 'w-28 text-right px-3'}`} placeholder="0" data-testid={`input-answer-${q.id}`} />;
       case 'leaseTime':
         return (
           <div className="flex items-center gap-1">
