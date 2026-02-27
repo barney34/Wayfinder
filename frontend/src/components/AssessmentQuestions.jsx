@@ -1203,7 +1203,11 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                         <label className="text-sm font-semibold text-foreground block mb-2">
                           {cq.question}
                         </label>
-                        {renderField(cq)}
+                        {/* dhcp-7a: vendor tag input using GridMultiSelect */}
+                        {cq.id === 'dhcp-7a'
+                          ? <GridMultiSelect questionId={cq.id} options={cq.options || []} value={answers[cq.id] ?? ''} onChange={v => handleAnswerChange(cq.id, v)} allowFreeform={true} columns={3} />
+                          : renderField(cq)
+                        }
                         {/* Warning shown when answer matches warningCondition */}
                         {cq.warningCondition && answers[cq.id] === cq.warningCondition.value && (
                           <div className="mt-2 flex items-start gap-1.5 text-amber-600 dark:text-amber-400">
