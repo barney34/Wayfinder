@@ -1021,6 +1021,7 @@ export function TokenCalculatorSummary() {
                 showHardware={showHardware} 
                 showKW={showKW && !exportView} 
                 showServices={showServices && !exportView}
+                showDescription={showDescription && !exportView}
                 platformMode={platformMode}
                 exportView={exportView}
               />
