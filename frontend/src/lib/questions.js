@@ -478,7 +478,18 @@ export const discoveryQuestions = [
     "id": "dhcp-7",
     "section": "DHCP",
     "question": "Will DHCP update DNS on another platform?",
-    "technicalOnly": true
+    "technicalOnly": true,
+    "fieldType": "yesno"
+  },
+  {
+    "id": "dhcp-7a",
+    "section": "DHCP",
+    "question": "Which DNS platform(s) will be updated?",
+    "technicalOnly": true,
+    "fieldType": "multiselect",
+    "options": ["Microsoft DNS", "BIND", "PowerDNS", "Route53", "Cloudflare", "NS1"],
+    "allowFreeform": true,
+    "conditionalOn": { "questionId": "dhcp-7", "value": "Yes" }
   },
   {
     "id": "dhcp-8",
