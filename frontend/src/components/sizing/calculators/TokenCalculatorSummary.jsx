@@ -189,6 +189,8 @@ export function TokenCalculatorSummary() {
       const doubleKey = type === 'dataCenter' ? `dc-${source.id}` : `site-${source.id}`;
       // Try single-prefix first (new format), fall back to double-prefix (old format)
       const override = siteOverrides[singleKey] || siteOverrides[doubleKey] || {};
+      // Use single-key format for id (consistent going forward)
+      const key = singleKey;
       // KW comes directly from source (context) - not from override
       const kw = source.knowledgeWorkers || 0;
 
