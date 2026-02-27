@@ -735,7 +735,7 @@ export function TokenCalculatorSummary() {
       const doubleKey = siteId.startsWith('site-') ? `site-${siteId}` : (siteId.startsWith('dc-') ? `dc-${siteId}` : null);
       const hasDoubleKey = doubleKey && prev[doubleKey];
       const effectiveKey = hasDoubleKey ? doubleKey : siteId;
-      console.log('updateSite:', { siteId, doubleKey, hasDoubleKey, effectiveKey, updates, prevKeys: Object.keys(prev).slice(0, 5) });
+      console.log('updateSite WRITE:', { effectiveKey, updates: JSON.stringify(updates), prevValue: JSON.stringify(prev[effectiveKey]) });
       return { ...prev, [effectiveKey]: { ...prev[effectiveKey], ...updates } };
     });
   }, [sites, contextUpdateSite, contextUpdateDC]);
