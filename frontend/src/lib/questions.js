@@ -197,6 +197,7 @@ export const discoveryQuestions = [
     "id": "ipam-7",
     "section": "IPAM",
     "question": "Will you leverage a single, unified management platform (like a portal) for all DDI across hybrid, multi-cloud?",
+    "valueDiscovery": true,
     "technicalOnly": false
   },
   {
