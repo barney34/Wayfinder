@@ -318,11 +318,14 @@ export function TokenCalculatorSummary() {
         ? [...basePerfFeatures, 'DHCP-FO']
         : basePerfFeatures;
 
-      const recommendedModel = getSiteRecommendedModel(
+      const autoRecommendedModel = getSiteRecommendedModel(
         site.numIPs, site.role, platformMode, site.dhcpPercent,
         leaseTimeSeconds, effectivePlatform,
         { isSpoke, hubLPS, foObjects, perfFeatures: effectivePerfFeatures }
       );
+      // Apply user model override if set (stored in siteOverrides)
+      const modelOverride = site.modelOverride || null;
+      const recommendedModel = modelOverride || autoRecommendedModel;
 
       // Validate DHCP FO association limits
       let foWarning = null;
