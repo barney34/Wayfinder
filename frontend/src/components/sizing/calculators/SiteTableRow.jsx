@@ -16,6 +16,7 @@ import { formatNumber } from "@/lib/utils";
 import { ADDITIONAL_SERVICES, SW_ADDONS, HW_ADDONS, SFP_OPTIONS, RPT_QUANTITIES, PERFORMANCE_FEATURES, getAvailableSwAddons, getAvailableHwAddons, getAvailablePerfFeatures } from "./platformConfig";
 import { getSiteWorkloadDetails } from "../calculations";
 import { CopySiteToDrawingMenu } from "./DrawingManager";
+import { niosServerGuardrails, nxvsServers, nxaasServers } from "@/lib/tokenData";
 
 /**
  * LocationHeaderRow — visual separator showing location name + server controls + grouping
