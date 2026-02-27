@@ -1270,10 +1270,6 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
 
               {/* 3-Column Grid for ALL Questions - REFACTORED: softer dividers, better spacing */}
               <div className={`transition-all duration-300 overflow-hidden ${!isCollapsed && isSectionEnabled ? 'max-h-[5000px] opacity-100' : 'max-h-0 opacity-0'}`}>
-                {/* Conversational Value Discovery at top of section */}
-                <div className="px-5 pt-4 pb-2">
-                  <ChatValueDiscovery section={section} />
-                </div>
                 {gridQuestions.length > 0 && (
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-px bg-border/20">
                     {/* Column 1 */}
