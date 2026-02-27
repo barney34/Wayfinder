@@ -562,6 +562,7 @@ export const discoveryQuestions = [
     "id": "svc-8",
     "section": "Services",
     "question": "Are you considering an \"as-a-service\" (SaaS) delivery model for DNS/DHCP to reduce infrastructure overhead?",
+    "valueDiscovery": true,
     "technicalOnly": false
   },
   {
