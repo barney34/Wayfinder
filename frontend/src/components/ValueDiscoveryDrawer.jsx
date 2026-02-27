@@ -240,14 +240,14 @@ export function ValueDiscoveryDrawer({ onClose, defaultDriver = 'optimize' }) {
         </div>
       )}
 
-      {/* Driver description */}
-      <div className="px-3 py-1.5 border-b">
-        <p className="text-[11px] text-muted-foreground italic">{driver.description}</p>
-      </div>
-
-      {/* Chat — reuses existing ChatValueDiscovery, shares same storage key */}
+      {/* Chat — auto-expanded, contextual opener based on detected triggers */}
       <div className="flex-1 overflow-hidden">
-        <ChatValueDiscovery section={driver.chatSection} key={activeDriver} />
+        <ChatValueDiscovery
+          section={driver.chatSection}
+          key={activeDriver}
+          defaultExpanded={true}
+          contextualOpener={contextualOpener}
+        />
       </div>
     </div>
   );
