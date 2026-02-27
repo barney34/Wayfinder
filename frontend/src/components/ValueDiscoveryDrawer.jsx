@@ -103,6 +103,57 @@ function TriggerChip({ label, color }) {
   );
 }
 
+// ── Contextual opener builder ─────────────────────────────────────────────────
+// Generates a specific, trigger-aware opening question based on what was detected
+function buildContextualOpener(driverKey, answers) {
+  if (driverKey === 'optimize') {
+    const hasSpreadsheets = tryIncludes(answers['ipam-0'], 'Spreadsheets');
+    const hasMsIpam     = tryIncludes(answers['ipam-0'], 'Microsoft');
+    const hasMsDns      = tryIncludes(answers['idns-0'], 'Microsoft');
+    const hasMsDhcp     = tryIncludes(answers['dhcp-0'], 'Microsoft');
+
+    if (hasSpreadsheets)
+      return `You're managing IP space with spreadsheets — let's make that pain tangible. Walk me through what happens when two teams claim the same subnet at the same time. What's the fallout, and how long does it take to sort out?`;
+    if (hasMsIpam || hasMsDns)
+      return `You're running Microsoft DNS${hasMsDhcp ? ' and DHCP' : ''}. At scale that creates real friction — change windows, single-pane visibility, auditing. What's the biggest headache with it today?`;
+    if (hasMsDhcp)
+      return `You're using Microsoft DHCP. Multi-site failover and scope exhaustion are common pain points there. How are you managing DHCP availability across your ${answers['ud-5'] || 'multiple'} data centers today?`;
+    return `Let's explore how your critical network services are holding up. Walk me through a situation recently where DNS, DHCP, or IP management slowed you down or created risk.`;
+  }
+
+  if (driverKey === 'accelerate') {
+    const cloudVal = answers['ipam-9'] || '';
+    const integVal = answers['ipam-11'] || '';
+    const automVal = answers['ipam-13'] || '';
+    const hasCloud  = hasValues(cloudVal);
+    const hasInteg  = hasValues(integVal);
+    const hasAutom  = hasValues(automVal);
+
+    if (hasCloud) {
+      const cloudList = cloudVal.split(',').map(v => v.trim()).filter(Boolean).join(' and ');
+      return `You're running on ${cloudList}. How consistent is your DNS and DHCP policy between those cloud environments and on-prem today? Where does configuration drift or blind spots show up?`;
+    }
+    if (hasInteg) {
+      const tools = integVal.split(',').map(v => v.trim()).filter(Boolean).slice(0, 2).join(' and ');
+      return `You've got ${tools} in your stack. How much manual effort does your team spend keeping DDI data in sync with those security tools? What breaks when that sync falls behind?`;
+    }
+    if (hasAutom) {
+      const tools = automVal.split(',').map(v => v.trim()).filter(Boolean).join(' and ');
+      return `You're using ${tools} for automation. Is DNS and DHCP provisioning fully part of those pipelines today, or is it still a manual step that slows deployments down?`;
+    }
+    return `Let's talk about your DDI strategy as you scale. What's the biggest obstacle to moving faster on cloud adoption or infrastructure automation right now?`;
+  }
+
+  if (driverKey === 'protect') {
+    const ni3 = parseInt(answers['ni-3'] || '0');
+    if (ni3 > 0)
+      return `You have ${ni3.toLocaleString()} SNMP/SSH devices in your environment. How confident are you that's the complete picture — including IoT, OT, and shadow devices that never got properly inventoried? What would a blind spot there cost you?`;
+    return `DNS is the most exploited attack vector in most networks, yet it's often the least monitored. Walk me through your current visibility into DNS-based threats. What's your biggest concern right now?`;
+  }
+
+  return null;
+}
+
 // ── Main Drawer ───────────────────────────────────────────────────────────────
 export function ValueDiscoveryDrawer({ onClose, defaultDriver = 'optimize' }) {
   const { answers } = useDiscovery();
@@ -118,6 +169,12 @@ export function ValueDiscoveryDrawer({ onClose, defaultDriver = 'optimize' }) {
     });
     return result;
   }, [answers]);
+
+  // Build a contextual opener for the active driver
+  const contextualOpener = useMemo(
+    () => buildContextualOpener(activeDriver, answers),
+    [activeDriver, answers]
+  );
 
   const driver = DRIVERS.find(d => d.key === activeDriver);
 
