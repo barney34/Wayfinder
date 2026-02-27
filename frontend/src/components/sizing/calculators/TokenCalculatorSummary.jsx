@@ -1070,6 +1070,7 @@ export function TokenCalculatorSummary() {
                         showHardware={showHardware}
                         showKW={showKW && !exportView}
                         showServices={showServices && !exportView}
+                        showDescription={showDescription && !exportView}
                         exportView={exportView}
                         onUpdateSite={updateSite}
                         onToggleService={(srvId, svcVal) => {
