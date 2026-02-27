@@ -104,9 +104,9 @@ function TriggerChip({ label, color }) {
 }
 
 // ── Main Drawer ───────────────────────────────────────────────────────────────
-export function ValueDiscoveryDrawer({ onClose }) {
+export function ValueDiscoveryDrawer({ onClose, defaultDriver = 'optimize' }) {
   const { answers } = useDiscovery();
-  const [activeDriver, setActiveDriver] = useState('optimize');
+  const [activeDriver, setActiveDriver] = useState(defaultDriver);
 
   // Detect triggers per driver
   const triggersByDriver = useMemo(() => {
