@@ -487,7 +487,7 @@ export const discoveryQuestions = [
     "question": "Which DNS platform(s) will be updated?",
     "technicalOnly": true,
     "fieldType": "multiselect",
-    "options": ["Microsoft DNS", "BIND", "PowerDNS", "Route53", "Cloudflare", "NS1"],
+    "options": ["Microsoft DNS", "BIND"],
     "allowFreeform": true,
     "hidden": true,
     "conditionalOn": { "questionId": "dhcp-7", "value": "Yes" }
