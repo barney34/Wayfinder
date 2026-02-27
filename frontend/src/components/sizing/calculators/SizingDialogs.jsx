@@ -219,7 +219,7 @@ export function WhyThisModelDialog({ open, onOpenChange, site, platformMode, dhc
               <div className="p-3 bg-muted/30 rounded">
                 <div className="text-muted-foreground">DNS Objects</div>
                 <div className="font-medium">{formatNumber(workload.dnsObjects)}</div>
-                <div className="text-xs text-muted-foreground">DHCP x 3 + Static x 2</div>
+                <div className="text-xs text-muted-foreground">{isUDDI ? 'DHCP x 4 + Static x 2' : 'DHCP x 3 + Static x 2'}</div>
               </div>
               <div className="p-3 bg-muted/30 rounded">
                 <div className="text-muted-foreground">DHCP Lease Objects</div>
