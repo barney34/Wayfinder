@@ -133,7 +133,9 @@ export function AppSidebar({
   onExport,
   saving,
   activeTab,
-  onTabChange
+  onTabChange,
+  onOpenValueDiscovery,
+  valueDrawerOpen,
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const [customersOpen, setCustomersOpen] = useState(true);
