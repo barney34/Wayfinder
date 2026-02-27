@@ -22,7 +22,7 @@ function HeaderWithTooltip({ children, tooltip, className = "" }) {
   );
 }
 
-export function SizingTableHeader({ showHardware, showKW, showServices, platformMode, exportView }) {
+export function SizingTableHeader({ showHardware, showKW, showServices, showDescription = true, platformMode, exportView }) {
   const showTokens = platformMode !== 'NIOS'; // Hide tokens for NIOS-only mode
   
   // Export view - show all columns matching Lucidchart export format
