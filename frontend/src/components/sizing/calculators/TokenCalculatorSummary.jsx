@@ -102,6 +102,7 @@ export function TokenCalculatorSummary() {
   const [showHardware, setShowHardware] = useState(false);
   const [showKW, setShowKW] = useState(false);
   const [showServices, setShowServices] = useState(false);
+  const [showDescription, setShowDescription] = useState(true);
   const [exportView, setExportView] = useState(false);
 
   // "Why this model?" dialog state
