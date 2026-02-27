@@ -204,7 +204,7 @@ function formatTokens(tokens) {
 
 export function SiteTableRow({
   site, sites, drawings, activeDrawingId, platformMode, dhcpPercent,
-  roleOptions, platformOptions, showHardware, showKW, showServices, exportView,
+  roleOptions, platformOptions, showHardware, showKW, showServices, showDescription = true, exportView,
   onUpdateSite, onToggleService, onTogglePerfFeature, onDeleteSite, onOpenModelDialog, onCopySiteToDrawing,
   unitAssignment, onMoveUp, onMoveDown,
 }) {
