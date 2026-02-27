@@ -729,7 +729,8 @@ export function SiteTableRow({
         })()}
       </TableCell>
 
-      {/* Description — click to open editor popover */}
+      {/* Description — click to open editor popover (conditionally shown) */}
+      {showDescription && (
       <TableCell className="p-1 lg:p-2">
         <Popover>
           <PopoverTrigger asChild>
@@ -760,6 +761,7 @@ export function SiteTableRow({
           </PopoverContent>
         </Popover>
       </TableCell>
+      )}
 
       {/* Services (conditional) */}
       {showServices && (
