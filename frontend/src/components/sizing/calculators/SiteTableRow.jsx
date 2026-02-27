@@ -516,7 +516,7 @@ export function SiteTableRow({
                         platform: 'NIOS-V',
                         hwAddons: [],
                         sfpAddons: {},
-                        rptQuantity: '500GB'
+                        rptQuantity: '500MB'
                       });
                     } else if (letter === 'LIC' && site.role !== 'LIC') {
                       onUpdateSite(site.id, { unitLetterOverride: letter, role: 'LIC' });
