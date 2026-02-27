@@ -543,6 +543,7 @@ export const discoveryQuestions = [
     "id": "svc-5",
     "section": "Services",
     "question": "What is your strategy for centralizing and unifying DDI management across your NIOS Grid and cloud environments?",
+    "valueDiscovery": true,
     "technicalOnly": false
   },
   {
