@@ -650,7 +650,7 @@ export const discoveryQuestions = [
     "section": "Asset/ Network Insight",
     "question": "What is the total number of active devices (including IoT/OT and cloud workloads) across your entire hybrid environment?",
     "technicalOnly": true,
-    "fieldType": "ipCalculated"
+    "fieldType": "number"
   },
   {
     "id": "ni-3",
