@@ -44,15 +44,16 @@ export function calculateSiteQPS(numIPs, isUDDI = false) {
 }
 
 // Calculate object count for a site
-export function calculateSiteObjects(numIPs, dhcpPercent, role) {
+export function calculateSiteObjects(numIPs, dhcpPercent, role, isUDDI = false) {
   const dhcpClients = Math.ceil(numIPs * (dhcpPercent / 100));
   const staticClients = numIPs - dhcpClients;
   
   // DHCP Lease Objects = clients × 2
   const dhcpObjects = dhcpClients * niosGridConstants.dhcpLeaseObjectsPerClient;
   
-  // DNS Objects = DHCP clients × 3 + static × 2
-  const dnsObjects = (dhcpClients * niosGridConstants.dnsRecordsPerDhcpClient) + 
+  // DNS Objects: UDDI uses ×4 for DHCP (Kea DHCID in reverse zone), NIOS uses ×3
+  const dhcpDnsMultiplier = isUDDI ? niosGridConstants.dnsRecordsPerDhcpClientUDDI : niosGridConstants.dnsRecordsPerDhcpClient;
+  const dnsObjects = (dhcpClients * dhcpDnsMultiplier) + 
                      (staticClients * niosGridConstants.dnsRecordsPerStaticClient);
   
   // Return based on role
