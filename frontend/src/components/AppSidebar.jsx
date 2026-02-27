@@ -141,6 +141,7 @@ export function AppSidebar({
   // Use optional hook
   const discoveryContext = useDiscoveryOptional();
   const sizingSummary = discoveryContext?.sizingSummary;
+  const answers = discoveryContext?.answers || {};
 
   // Fetch all customers
   const { data: customers = [] } = useQuery({
