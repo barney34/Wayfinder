@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { apiRequest } from "@/lib/queryClient";
 import { useDiscoveryOptional } from "@/contexts/DiscoveryContext";
+import { ValueStoryPanel } from "./ValueStoryPanel";
 
 // Format numbers
 const formatKW = (n) => {
