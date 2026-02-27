@@ -596,7 +596,7 @@ function CustomerDetailContent({
       />
 
       {/* Value Discovery Drawer — slides in next to sidebar */}
-      {valueDrawerOpen && <ValueDiscoveryDrawer onClose={() => setValueDrawerOpen(false)} />}
+      {valueDrawerOpen && <ValueDiscoveryDrawer onClose={() => setValueDrawerOpen(false)} defaultDriver={drawerDriver} />}
 
       {/* Gap between sidebar/drawer and content */}
       <div className="w-3 bg-muted/50" />
