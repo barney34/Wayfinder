@@ -131,10 +131,10 @@ const DEFAULT_SECTION = {
   contextHints: []
 };
 
-export function ChatValueDiscovery({ section }) {
+export function ChatValueDiscovery({ section, defaultExpanded = false, contextualOpener = null }) {
   const { answers, setAnswer } = useDiscovery();
   const { toast } = useToast();
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(defaultExpanded);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [conversation, setConversation] = useState([]);
