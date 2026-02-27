@@ -102,6 +102,14 @@ Updated export with columns: `Drawing #`, `Unit Group`, `Unit #/Range`, `Solutio
   - SmartFill input ("+ Add response" button with textarea)
   - 3rd Party Integrations and Orchestration Tools dropdowns
 
+## What's Been Fixed (Feb 2026)
+
+### P0 Bug Fixes
+- **UDDI DDI x4 Multiplier**: `getSiteWorkloadDetails()` in `calculations.js` now uses x4 DNS record multiplier for DHCP clients in UDDI mode (Kea creates DHCID in both forward and reverse zones). NIOS mode remains x3.
+- **SizingDialogs label fix**: "Why This Model?" dialog now shows correct label "DHCP x 4 + Static x 2" for UDDI mode (was always showing x3).
+- **ND ↔ ni-3 Bidirectional Sync**: Sizing ND site `numIPs` ↔ Discovery question `ni-3` (SNMP/SSH device count) now sync in both directions.
+- **Unit Letter 'N' auto-selects ND role**: Selecting 'N' as unit letter in Sizing tab automatically sets site role to 'ND'.
+
 ## Known Issues
 1. **Static Question File**: Frontend uses `/frontend/src/lib/questions.js` instead of fetching from API. Must sync manually with `/backend/data/questions.py`
 2. **External DNS QPS Auto-Calculation**: May not work reliably (needs verification)
