@@ -652,10 +652,8 @@ export function SiteTableRow({
           const isGmRow = site.role?.startsWith('GM') || site.role?.startsWith('GMC');
           return (
             <Select value={site.role} onValueChange={v => {
-                console.log('Role changed:', site.id, 'to', v);
                 // When changing to Reporting, set all fields in a single atomic update
                 if (v === 'Reporting') {
-                  console.log('Setting Reporting defaults for', site.id);
                   onUpdateSite(site.id, {
                     role: v,
                     platform: 'NIOS-V',
