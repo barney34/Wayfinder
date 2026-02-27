@@ -308,7 +308,8 @@ export function AppSidebar({
         <ValueStoryPanel
           answers={answers}
           collapsed={collapsed}
-          onOpen={() => onTabChange?.('discovery')}
+          onOpen={onOpenValueDiscovery || (() => onTabChange?.('discovery'))}
+          isDrawerOpen={valueDrawerOpen}
         />
       )}
 
