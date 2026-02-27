@@ -668,7 +668,12 @@ export const discoveryQuestions = [
     "options": [
       "Cisco",
       "Palo",
-      "Juniper"
+      "Juniper",
+      "HP",
+      "Aruba",
+      "Extreme",
+      "Meraki",
+      "Huawei"
     ],
     "allowFreeform": true
   },
