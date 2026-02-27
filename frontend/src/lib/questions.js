@@ -459,6 +459,7 @@ export const discoveryQuestions = [
     "id": "dhcp-5",
     "section": "DHCP",
     "question": "What is the average lease time for IoT/OT devices, and how do you secure them without an agent?",
+    "valueDiscovery": true,
     "technicalOnly": false
   },
   {
