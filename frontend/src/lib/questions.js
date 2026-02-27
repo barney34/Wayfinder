@@ -161,6 +161,7 @@ export const discoveryQuestions = [
     "id": "ipam-2",
     "section": "IPAM",
     "question": "Beyond sizing, what are your plans and challenges for securing and managing IPv6 application controls?",
+    "valueDiscovery": true,
     "technicalOnly": false,
     "conditionalOn": {
       "questionId": "ipam-2-toggle",
