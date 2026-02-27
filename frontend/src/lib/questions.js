@@ -241,6 +241,7 @@ export const discoveryQuestions = [
     "question": "How many forests?",
     "technicalOnly": true,
     "fieldType": "number",
+    "defaultValue": "1",
     "conditionalOn": {
       "questionId": "idns-0",
       "value": "Microsoft"
