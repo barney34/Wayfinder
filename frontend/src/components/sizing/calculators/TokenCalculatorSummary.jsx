@@ -361,6 +361,8 @@ export function TokenCalculatorSummary() {
         ...site,
         platform: effectivePlatform,
         recommendedModel,
+        autoRecommendedModel,
+        isModelOverridden: !!modelOverride,
         hardwareSku: siteOverrides[site.id]?.hardwareSku || defaultHardware,
         hardwareOptions, tokens: adjustedTokens, tokensPerServer: singleServerTokens,
         serviceImpact, isHub, isSpoke, hubLPS, foObjects, partnerCount, foWarning,
