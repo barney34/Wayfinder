@@ -545,9 +545,14 @@ function CustomerDetailContent({
         saving={saving}
         activeTab={activeTab}
         onTabChange={setActiveTab}
+        onOpenValueDiscovery={() => setValueDrawerOpen(v => !v)}
+        valueDrawerOpen={valueDrawerOpen}
       />
 
-      {/* Gap between sidebar and content */}
+      {/* Value Discovery Drawer — slides in next to sidebar */}
+      {valueDrawerOpen && <ValueDiscoveryDrawer onClose={() => setValueDrawerOpen(false)} />}
+
+      {/* Gap between sidebar/drawer and content */}
       <div className="w-3 bg-muted/50" />
 
       {/* Main Content */}
