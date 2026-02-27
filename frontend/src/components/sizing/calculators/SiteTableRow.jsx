@@ -647,9 +647,11 @@ export function SiteTableRow({
           const isGmRow = site.role?.startsWith('GM') || site.role?.startsWith('GMC');
           return (
             <Select value={site.role} onValueChange={v => {
+                console.log('Role changed:', site.id, 'to', v);
                 onUpdateSite(site.id, 'role', v);
                 // Reporting → force NIOS Virtual platform + clear HW + set default storage
                 if (v === 'Reporting') {
+                  console.log('Setting Reporting defaults for', site.id);
                   onUpdateSite(site.id, 'platform', 'NIOS-V');
                   onUpdateSite(site.id, 'hwAddons', []);
                   onUpdateSite(site.id, 'sfpAddons', {});
