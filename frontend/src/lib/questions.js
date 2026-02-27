@@ -681,6 +681,7 @@ export const discoveryQuestions = [
     "id": "sec-4",
     "section": "Security",
     "question": "How do you reduce SOC alert noise and ensure fast mean-time-to-respond (MTTR) to DNS-related security incidents?",
+    "valueDiscovery": true,
     "technicalOnly": false
   },
   {
