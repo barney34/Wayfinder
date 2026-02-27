@@ -619,6 +619,18 @@ function CustomerDetailContent({
             {/* Discovery Tab */}
             {activeTab === 'discovery' && (
               <div className="space-y-4" data-testid="tab-content-discovery">
+                {/* Phase 3: Trigger banner — slides in when a value signal fires */}
+                {activeTrigger && (
+                  <TriggerBanner
+                    trigger={activeTrigger}
+                    onExplore={() => {
+                      setDrawerDriver(activeTrigger.driver);
+                      setValueDrawerOpen(true);
+                      setActiveTrigger(null);
+                    }}
+                    onDismiss={() => setActiveTrigger(null)}
+                  />
+                )}
                 <AssessmentQuestions questions={discoveryTabQuestions} compact={true} />
               </div>
             )}
