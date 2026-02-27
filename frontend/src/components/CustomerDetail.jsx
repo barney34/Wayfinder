@@ -476,6 +476,7 @@ function CustomerDetailContent({
   const discoveryContext = useDiscovery();
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
+  const [valueDrawerOpen, setValueDrawerOpen] = useState(false);
 
   // Save handler
   const handleSave = async () => {
