@@ -210,6 +210,7 @@ export const discoveryQuestions = [
     "id": "ipam-10",
     "section": "IPAM",
     "question": "What specific IT/Security systems (e.g., SIEM/SOAR/ITSM) do you need seamless, automated DDI/Security integration with?",
+    "valueDiscovery": true,
     "technicalOnly": false
   },
   {
