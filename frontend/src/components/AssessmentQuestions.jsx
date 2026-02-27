@@ -1199,6 +1199,13 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                           {cq.question}
                         </label>
                         {renderField(cq)}
+                        {/* Warning shown when answer matches warningCondition */}
+                        {cq.warningCondition && answers[cq.id] === cq.warningCondition.value && (
+                          <div className="mt-2 flex items-start gap-1.5 text-amber-600 dark:text-amber-400">
+                            <Info className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                            <span className="text-xs font-medium">{cq.warningCondition.message}</span>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
