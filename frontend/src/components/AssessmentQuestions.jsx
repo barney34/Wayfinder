@@ -460,7 +460,7 @@ function detectFieldType(question) {
 
 // ===== Main AssessmentQuestions =====
 export function AssessmentQuestions({ questions, onAnswerChange, compact = false }) {
-  const { answers, notes, defaultAnswers, setAnswer, setNote, enabledSections, toggleSection, enableAllSections, disableAllSections, clearSection, leaseTimeUnits, setLeaseTimeUnit, platformMode, dataCenters, sites, sizingSummary } = useDiscovery();
+  const { answers, notes, defaultAnswers, setAnswer, setNote, enabledSections, toggleSection, enableAllSections, disableAllSections, clearSection, leaseTimeUnits, setLeaseTimeUnit, platformMode, dataCenters, sites, sizingSummary, updateAnswers } = useDiscovery();
   const [expandedNotes, setExpandedNotes] = useState({});
   const [sectionToDisable, setSectionToDisable] = useState(null);
   const [expandedSubsections, setExpandedSubsections] = useState({});
