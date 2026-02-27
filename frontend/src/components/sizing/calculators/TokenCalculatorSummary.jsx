@@ -934,53 +934,54 @@ export function TokenCalculatorSummary() {
 
           {/* Table Controls */}
             <div className="flex items-center justify-between mb-3 gap-4 flex-wrap">
-            <div className="flex items-center gap-4 flex-wrap">
-              {/* Export View Toggle */}
-              <label className="flex items-center gap-2 text-sm cursor-pointer">
-                <Checkbox
-                  checked={exportView}
-                  onCheckedChange={(v) => {
-                    setExportView(v);
-                    if (v) {
-                      // In export view, hide non-export columns
-                      setShowKW(false);
-                      setShowServices(false);
-                    }
-                  }}
-                  data-testid="export-view-toggle"
-                />
-                <span className="text-muted-foreground font-medium">Export View</span>
-              </label>
+            <div className="flex items-center gap-2 flex-wrap">
 
+              {/* Export View — pill toggle button */}
+              <Button
+                variant={exportView ? "default" : "outline"}
+                size="sm"
+                className="text-xs h-8 px-3"
+                onClick={() => {
+                  const v = !exportView;
+                  setExportView(v);
+                  if (v) { setShowKW(false); setShowServices(false); }
+                }}
+                data-testid="export-view-toggle"
+              >
+                Export View
+              </Button>
+
+              {/* Columns dropdown — hidden in export view */}
               {!exportView && (
-                <>
-                  <label className="flex items-center gap-2 text-sm cursor-pointer">
-                    <Checkbox
-                      checked={showKW}
-                      onCheckedChange={setShowKW}
-                      data-testid="show-kw-toggle"
-                    />
-                    <span className="text-muted-foreground">KW</span>
-                  </label>
-
-                  <label className="flex items-center gap-2 text-sm cursor-pointer">
-                    <Checkbox
-                      checked={showServices}
-                      onCheckedChange={setShowServices}
-                      data-testid="show-services-toggle"
-                    />
-                    <span className="text-muted-foreground">Services</span>
-                  </label>
-
-                  <label className="flex items-center gap-2 text-sm cursor-pointer">
-                    <Checkbox
-                      checked={showHardware}
-                      onCheckedChange={setShowHardware}
-                      data-testid="show-hardware-toggle"
-                    />
-                    <span className="text-muted-foreground">HW SKU</span>
-                  </label>
-                </>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm" className="text-xs h-8 px-3 gap-1.5" data-testid="columns-dropdown-trigger">
+                      <Columns3 className="h-3.5 w-3.5" />
+                      Columns
+                      <ChevronDown className="h-3 w-3 opacity-60" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-44 p-3" align="start">
+                    <div className="space-y-2.5">
+                      <label className="flex items-center gap-2 text-sm cursor-pointer">
+                        <Checkbox checked={showDescription} onCheckedChange={setShowDescription} data-testid="show-description-toggle" />
+                        <span className="text-foreground font-medium">Description</span>
+                      </label>
+                      <label className="flex items-center gap-2 text-sm cursor-pointer">
+                        <Checkbox checked={showKW} onCheckedChange={setShowKW} data-testid="show-kw-toggle" />
+                        <span className="text-muted-foreground">KW</span>
+                      </label>
+                      <label className="flex items-center gap-2 text-sm cursor-pointer">
+                        <Checkbox checked={showServices} onCheckedChange={setShowServices} data-testid="show-services-toggle" />
+                        <span className="text-muted-foreground">Services</span>
+                      </label>
+                      <label className="flex items-center gap-2 text-sm cursor-pointer">
+                        <Checkbox checked={showHardware} onCheckedChange={setShowHardware} data-testid="show-hardware-toggle" />
+                        <span className="text-muted-foreground">HW SKU</span>
+                      </label>
+                    </div>
+                  </PopoverContent>
+                </Popover>
               )}
             </div>
 
