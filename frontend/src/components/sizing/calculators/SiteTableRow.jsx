@@ -494,7 +494,14 @@ export function SiteTableRow({
               {['A','B','C','D','E','F','G','M','N'].map(letter => (
                 <button
                   key={letter}
-                  onClick={() => onUpdateSite(site.id, 'unitLetterOverride', letter)}
+                  onClick={() => {
+                    // N is hard-tied to ND role
+                    if (letter === 'N' && site.role !== 'ND') {
+                      onUpdateSite(site.id, { unitLetterOverride: letter, role: 'ND' });
+                    } else {
+                      onUpdateSite(site.id, 'unitLetterOverride', letter);
+                    }
+                  }}
                   className={`px-1 py-1 text-xs font-bold rounded transition-colors ${
                     (unitAssignment?.unitLetter || getUnitGroup(site.role, site.services)) === letter
                       ? 'bg-primary text-primary-foreground' : 'bg-secondary hover:bg-muted'
