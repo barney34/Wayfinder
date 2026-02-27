@@ -195,7 +195,9 @@ export function getSiteRecommendedModel(numIPs, role, platform, dhcpPercent, lea
   // Calculate base workload metrics
   let qps = Math.ceil(numIPs / (isUDDI ? 50 : niosGridConstants.peakQpsDivisor));
   let lps = Math.max(1, Math.ceil(dhcpClients / niosGridConstants.lpsAggregateSeconds));
-  const dnsObjects = (dhcpClients * niosGridConstants.dnsRecordsPerDhcpClient) + 
+  // DNS Objects: UDDI uses ×4 for DHCP (Kea DHCID in reverse zone), NIOS uses ×3
+  const dhcpDnsMultiplier = isUDDI ? niosGridConstants.dnsRecordsPerDhcpClientUDDI : niosGridConstants.dnsRecordsPerDhcpClient;
+  const dnsObjects = (dhcpClients * dhcpDnsMultiplier) + 
                      (staticClients * niosGridConstants.dnsRecordsPerStaticClient);
   const dhcpObjects = dhcpClients * niosGridConstants.dhcpLeaseObjectsPerClient;
   
