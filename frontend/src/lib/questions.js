@@ -489,6 +489,7 @@ export const discoveryQuestions = [
     "fieldType": "multiselect",
     "options": ["Microsoft DNS", "BIND", "PowerDNS", "Route53", "Cloudflare", "NS1"],
     "allowFreeform": true,
+    "hidden": true,
     "conditionalOn": { "questionId": "dhcp-7", "value": "Yes" }
   },
   {
