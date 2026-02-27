@@ -183,6 +183,7 @@ export const discoveryQuestions = [
     "id": "ipam-5",
     "section": "IPAM",
     "question": "What is your IP plan for the future?",
+    "valueDiscovery": true,
     "technicalOnly": true
   },
   {
