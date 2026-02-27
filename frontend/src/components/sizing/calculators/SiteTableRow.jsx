@@ -659,7 +659,7 @@ export function SiteTableRow({
                     platform: 'NIOS-V',
                     hwAddons: [],
                     sfpAddons: {},
-                    rptQuantity: '500GB'
+                    rptQuantity: '500MB'
                   });
                 } else {
                   onUpdateSite(site.id, 'role', v);
