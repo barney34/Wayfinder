@@ -49,6 +49,15 @@ Migration and enhancement of a "Sizing" calculator application for infrastructur
 
 ## What's Been Implemented
 
+### February 2026
+
+#### Value Discovery Phase 2 (COMPLETED)
+- 13 non-technical value questions removed from Discovery form (flagged `valueDiscovery:true`) — IPAM (ipam-2,6,7,10,12), DHCP (dhcp-5), Services (svc-2,5,8), Security (sec-1,2,3,4)
+- Security section tab removed from Discovery (was empty after removal)
+- `ValueDiscoveryDrawer.jsx` — 360px slide-out panel from left sidebar with 3 driver tabs (Optimize/Accelerate/Protect), live context chips from technical answers, ChatValueDiscovery per driver
+- VALUE STORY panel in sidebar now toggles drawer open/closed with live badge counts per driver
+- Kea DHCP Impact diff indicator in "Why This Model?" dialog for UDDI mode
+
 ### December 2025 (Latest Session)
 
 #### Multiple Drawings System (COMPLETED)
