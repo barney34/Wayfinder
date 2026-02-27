@@ -79,8 +79,10 @@ export function SizingTableHeader({ showHardware, showKW, showServices, showDesc
         {/* Role → maps to Description in export */}
         <TableHead className="w-24 text-xs lg:text-sm">Role</TableHead>
         
-        {/* Description — free text, maps to export Description */}
-        <TableHead className="w-32 text-xs lg:text-sm">Description</TableHead>
+        {/* Description — conditionally shown */}
+        {showDescription && (
+          <TableHead className="w-32 text-xs lg:text-sm">Description</TableHead>
+        )}
         
         {/* Services (conditional, hidden by default) */}
         {showServices && (
