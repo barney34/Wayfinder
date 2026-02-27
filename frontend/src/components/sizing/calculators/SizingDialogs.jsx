@@ -227,6 +227,43 @@ export function WhyThisModelDialog({ open, onOpenChange, site, platformMode, dhc
                 <div className="text-xs text-muted-foreground">Clients x 2</div>
               </div>
             </div>
+
+            {/* UDDI vs NIOS impact comparison — only shown in UDDI mode */}
+            {isUDDI && workload.dhcpClients > 0 && (
+              <div className="mt-3 p-3 rounded-lg border border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-950/40">
+                <div className="text-xs font-semibold text-blue-700 dark:text-blue-300 mb-2 uppercase tracking-wide">
+                  Kea DHCP Impact (UDDI vs NIOS)
+                </div>
+                <div className="grid grid-cols-3 gap-2 text-xs">
+                  <div className="text-center">
+                    <div className="text-muted-foreground">NIOS equivalent</div>
+                    <div className="font-medium text-foreground">
+                      {formatNumber((workload.dhcpClients * 3) + (workload.staticClients * 2))}
+                    </div>
+                    <div className="text-muted-foreground">DHCP x 3</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-muted-foreground">This UDDI config</div>
+                    <div className="font-semibold text-blue-700 dark:text-blue-300">
+                      {formatNumber(workload.dnsObjects)}
+                    </div>
+                    <div className="text-muted-foreground">DHCP x 4</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-muted-foreground">Extra objects</div>
+                    <div className="font-semibold text-amber-600 dark:text-amber-400">
+                      +{formatNumber(workload.dhcpClients)}
+                    </div>
+                    <div className="text-muted-foreground">
+                      +{Math.round((workload.dhcpClients / ((workload.dhcpClients * 3) + (workload.staticClients * 2))) * 100)}%
+                    </div>
+                  </div>
+                </div>
+                <p className="text-[10px] text-muted-foreground mt-2">
+                  Kea DHCP (UDDI) creates a DHCID record in both the forward and reverse zones, adding 1 extra DNS record per DHCP client vs NIOS.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Server Specs */}
