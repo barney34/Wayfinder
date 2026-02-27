@@ -152,10 +152,14 @@ export function ValueStoryPanel({ answers = {}, onOpen, collapsed = false, isDra
         <button
           onClick={onOpen}
           data-testid="value-story-open-btn"
-          className="w-full text-[11px] text-primary hover:text-primary/80 flex items-center justify-center gap-1.5 py-1 rounded-md hover:bg-primary/5 transition-colors border border-primary/20 hover:border-primary/40"
+          className={`w-full text-[11px] flex items-center justify-center gap-1.5 py-1 rounded-md transition-colors border ${
+            isDrawerOpen
+              ? 'text-primary bg-primary/10 border-primary/40'
+              : 'text-primary hover:text-primary/80 hover:bg-primary/5 border-primary/20 hover:border-primary/40'
+          }`}
         >
           <MessageSquare className="h-3 w-3" />
-          Open Value Discovery
+          {isDrawerOpen ? 'Close Value Discovery' : 'Open Value Discovery'}
         </button>
       </div>
     </div>
