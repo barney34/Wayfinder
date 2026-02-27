@@ -72,13 +72,19 @@ function hasValues(val) {
 }
 
 function cloudLabel(a) {
-  try { const arr = JSON.parse(a['ipam-9'] || '[]'); return `Cloud: ${arr.join(', ')}`; } catch { return 'Cloud detected'; }
+  const val = a['ipam-9'] || '';
+  try { const arr = JSON.parse(val); return `Cloud: ${arr.join(', ')}`; } catch { return val.trim() ? `Cloud: ${val}` : 'Cloud detected'; }
 }
 function integLabel(a) {
-  try { const arr = JSON.parse(a['ipam-11'] || '[]'); return `Integrations: ${arr.slice(0, 2).join(', ')}${arr.length > 2 ? '…' : ''}`; } catch { return 'Integrations'; }
+  const val = a['ipam-11'] || '';
+  try { const arr = JSON.parse(val); return `Integrations: ${arr.slice(0, 2).join(', ')}${arr.length > 2 ? '…' : ''}`; } catch {
+    const parts = val.split(',').map(v => v.trim()).filter(Boolean);
+    return `Integrations: ${parts.slice(0, 2).join(', ')}${parts.length > 2 ? '…' : ''}`;
+  }
 }
 function automLabel(a) {
-  try { const arr = JSON.parse(a['ipam-13'] || '[]'); return arr.join(', '); } catch { return 'Automation'; }
+  const val = a['ipam-13'] || '';
+  try { const arr = JSON.parse(val); return arr.join(', '); } catch { return val || 'Automation'; }
 }
 
 function resolveLabel(trigger, answers) {
