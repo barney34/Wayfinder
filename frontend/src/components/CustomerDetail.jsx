@@ -25,6 +25,7 @@ import { SizingMathHelp } from "./SizingMathHelp";
 import { VersionControl } from "./VersionControl";
 import { ImportExportSection } from "./ImportExportSection";
 import { ValueDiscoveryDrawer } from "./ValueDiscoveryDrawer";
+import { TriggerBanner } from "./TriggerBanner";
 import { addDynamicRevision, formatRevisionDate } from "@/lib/revisionHelpers";
 import yaml from "js-yaml";
 
