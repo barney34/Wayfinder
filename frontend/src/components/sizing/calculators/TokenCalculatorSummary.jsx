@@ -181,7 +181,10 @@ export function TokenCalculatorSummary() {
   // Build sites from Quick Capture + manual
   const sites = useMemo(() => {
     const buildBasicSite = (source, index, type) => {
-      const key = type === 'dataCenter' ? `dc-${source.id}` : `site-${source.id}`;
+      // Don't double-prefix: context IDs already have site-/dc- prefix
+      const key = source.id.startsWith('site-') || source.id.startsWith('dc-') 
+        ? source.id 
+        : (type === 'dataCenter' ? `dc-${source.id}` : `site-${source.id}`);
       const override = siteOverrides[key] || {};
       // KW comes directly from source (context) - not from override
       const kw = source.knowledgeWorkers || 0;
