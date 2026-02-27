@@ -1047,36 +1047,78 @@ export function SiteTableRow({
         </Select>
       </TableCell>
 
-      {/* Model */}
+      {/* Model — dropdown with auto-recommended + not-recommended options */}
       <TableCell className="p-1">
-        <div className="flex items-center gap-1">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className="cursor-help">
-                  <Badge variant={site.isDisabledInUddi ? "secondary" : "outline"} className="font-mono text-xs" data-testid={`site-model-${site.id}`}>
-                    {site.isDisabledInUddi ? '\u2014' : (site.recommendedModel || '').replace(/^TE-/, '')}
-                  </Badge>
-                </span>
-              </TooltipTrigger>
-              <TooltipContent className="max-w-sm">
-                {site.isDisabledInUddi ? (
-                  <div className="text-xs">GM/GMC not available in UDDI mode</div>
-                ) : (
-                  <ModelTooltipContent site={site} platformMode={platformMode} dhcpPercent={dhcpPercent} />
-                )}
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <Button
-            variant="ghost" size="icon" className="h-6 w-6 shrink-0"
-            onClick={() => onOpenModelDialog(site)}
-            disabled={site.isDisabledInUddi}
-            data-testid={`why-model-${site.id}`}
-          >
-            <HelpCircle className="h-3.5 w-3.5 text-muted-foreground hover:text-accent" />
-          </Button>
-        </div>
+        {site.isDisabledInUddi ? (
+          <span className="text-muted-foreground text-xs">&mdash;</span>
+        ) : (() => {
+          // Build model list for this role/platform
+          const isNIOS = site.platform === 'NIOS' || site.platform === 'NIOS-V'
+            || site.platform === 'NIOS-PHA' || site.platform === 'NIOS-VHA';
+          const isNXVS = site.platform === 'NXVS' || site.platform === 'NX-P';
+          const isNXaaS = site.platform === 'NXaaS';
+          const isND = site.role === 'ND';
+          const isRPT = site.role === 'Reporting';
+
+          let modelOptions = [];
+          if (isND) {
+            modelOptions = ['ND-906','ND-1606','ND-2306','ND-4106'];
+          } else if (isRPT) {
+            modelOptions = ['TR-5005'];
+          } else if (isNIOS) {
+            modelOptions = niosServerGuardrails.map(s => s.model);
+          } else if (isNXVS) {
+            modelOptions = nxvsServers.map(s => s.serverSize);
+          } else if (isNXaaS) {
+            modelOptions = nxaasServers.map(s => s.serverSize);
+          } else {
+            modelOptions = [site.recommendedModel].filter(Boolean);
+          }
+
+          const auto = site.autoRecommendedModel;
+          const current = site.recommendedModel;
+          const isOverridden = site.isModelOverridden;
+
+          return (
+            <div className="flex items-center gap-1">
+              <Select
+                value={current}
+                onValueChange={v => onUpdateSite(site.id, 'modelOverride', v === auto ? null : v)}
+                disabled={modelOptions.length <= 1}
+                data-testid={`site-model-${site.id}`}
+              >
+                <SelectTrigger
+                  className={`h-7 text-xs font-mono w-20 ${isOverridden ? 'border-amber-400 text-amber-600 dark:text-amber-400' : ''}`}
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {modelOptions.map(m => {
+                    const isRecommended = m === auto;
+                    return (
+                      <SelectItem key={m} value={m}
+                        className={!isRecommended ? 'text-amber-600 dark:text-amber-400' : ''}
+                      >
+                        <span className="font-mono">{m}</span>
+                        {isRecommended
+                          ? <span className="ml-1.5 text-[10px] text-[#00BD4D]">recommended</span>
+                          : <span className="ml-1.5 text-[10px]">⚠ not recommended</span>
+                        }
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+              <Button
+                variant="ghost" size="icon" className="h-6 w-6 shrink-0"
+                onClick={() => onOpenModelDialog(site)}
+                data-testid={`why-model-${site.id}`}
+              >
+                <HelpCircle className="h-3.5 w-3.5 text-muted-foreground hover:text-accent" />
+              </Button>
+            </div>
+          );
+        })()}
       </TableCell>
 
       {/* Hardware SKU (conditional) */}
