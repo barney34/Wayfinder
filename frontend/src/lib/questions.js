@@ -674,6 +674,7 @@ export const discoveryQuestions = [
     "id": "sec-3",
     "section": "Security",
     "question": "Are you concerned about lookalike domains (typosquatting), and what is your takedown strategy?",
+    "valueDiscovery": true,
     "technicalOnly": false
   },
   {
