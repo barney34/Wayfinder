@@ -667,6 +667,7 @@ export const discoveryQuestions = [
     "id": "sec-2",
     "section": "Security",
     "question": "How do you ensure your security tools are not overwhelmed by false positives and are using the earliest possible threat intelligence?",
+    "valueDiscovery": true,
     "technicalOnly": false
   },
   {
