@@ -69,7 +69,7 @@ function scoreDriver(driver, answers) {
 }
 
 // ── Collapsed icon ────────────────────────────────────────────────────────────
-function CollapsedButton({ totalCaptured, onClick }) {
+function CollapsedButton({ totalCaptured, onClick, isDrawerOpen }) {
   return (
     <div className="px-1.5 py-2 border-t">
       <TooltipProvider>
@@ -78,7 +78,7 @@ function CollapsedButton({ totalCaptured, onClick }) {
             <button
               onClick={onClick}
               data-testid="value-story-collapsed-btn"
-              className="w-full p-2 rounded-md hover:bg-muted flex justify-center transition-colors"
+              className={`w-full p-2 rounded-md flex justify-center transition-colors ${isDrawerOpen ? 'bg-primary/10' : 'hover:bg-muted'}`}
             >
               <div className="relative">
                 <Compass className="h-5 w-5 text-muted-foreground" />
