@@ -677,6 +677,37 @@ export function TokenCalculatorSummary() {
     }
   }, [sites.map(s => `${s.platform}:${(s.services||[]).join('-')}`).join(','), answers['svc-7'], answers['svc-9']]);
 
+  // ni-3 (Discovery) → ND sites (Sizing) sync
+  // When user enters SNMP/SSH devices count in Discovery, distribute to ND sites
+  const ni3Value = answers['ni-3'];
+  useEffect(() => {
+    const ndSites = sites.filter(s => s.role === 'ND');
+    if (ndSites.length === 0 || !ni3Value) return;
+    
+    const targetTotal = parseInt(ni3Value) || 0;
+    const currentTotal = ndSites.reduce((sum, s) => sum + (s.numIPs || 0), 0);
+    
+    // Only sync if Discovery value differs from current Sizing total
+    // This prevents infinite loops and unnecessary updates
+    if (targetTotal !== currentTotal && targetTotal > 0) {
+      // Distribute evenly to all ND sites, first site gets remainder
+      const perSite = Math.floor(targetTotal / ndSites.length);
+      const remainder = targetTotal % ndSites.length;
+      
+      ndSites.forEach((site, i) => {
+        const newIPs = perSite + (i === 0 ? remainder : 0);
+        if (site.numIPs !== newIPs) {
+          setSiteOverrides(prev => {
+            const key = site.id;
+            const doubleKey = key.startsWith('site-') ? `site-${key}` : null;
+            const effectiveKey = (doubleKey && prev[doubleKey]) ? doubleKey : key;
+            return { ...prev, [effectiveKey]: { ...prev[effectiveKey], numIPs: newIPs } };
+          });
+        }
+      });
+    }
+  }, [ni3Value, sites.filter(s => s.role === 'ND').length]);
+
 
 
   // Update site field — handles both regular sites and expanded server sub-rows
