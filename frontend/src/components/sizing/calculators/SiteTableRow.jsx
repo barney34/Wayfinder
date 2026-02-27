@@ -648,14 +648,18 @@ export function SiteTableRow({
           return (
             <Select value={site.role} onValueChange={v => {
                 console.log('Role changed:', site.id, 'to', v);
-                onUpdateSite(site.id, 'role', v);
-                // Reporting → force NIOS Virtual platform + clear HW + set default storage
+                // When changing to Reporting, set all fields in a single atomic update
                 if (v === 'Reporting') {
                   console.log('Setting Reporting defaults for', site.id);
-                  onUpdateSite(site.id, 'platform', 'NIOS-V');
-                  onUpdateSite(site.id, 'hwAddons', []);
-                  onUpdateSite(site.id, 'sfpAddons', {});
-                  onUpdateSite(site.id, 'rptQuantity', '500GB'); // Default to 500GB storage
+                  onUpdateSite(site.id, {
+                    role: v,
+                    platform: 'NIOS-V',
+                    hwAddons: [],
+                    sfpAddons: {},
+                    rptQuantity: '500GB'
+                  });
+                } else {
+                  onUpdateSite(site.id, 'role', v);
                 }
               }} disabled={site.isDisabledInUddi}>
               <SelectTrigger className="h-8 text-xs" data-testid={`site-role-${site.id}`}>
