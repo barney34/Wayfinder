@@ -484,7 +484,19 @@ export const discoveryQuestions = [
     "id": "dhcp-8",
     "section": "DHCP",
     "question": "Will lease scavenging be enabled?",
-    "technicalOnly": true
+    "technicalOnly": true,
+    "fieldType": "yesno"
+  },
+  {
+    "id": "dhcp-8a",
+    "section": "DHCP",
+    "question": "Scavenging initiated by",
+    "technicalOnly": true,
+    "fieldType": "select",
+    "options": ["Server", "Client"],
+    "defaultValue": "Server",
+    "conditionalOn": { "questionId": "dhcp-8", "value": "Yes" },
+    "warningCondition": { "value": "Client", "message": "Not Advised — Clients may leave stale records and weaken security." }
   },
   {
     "id": "dhcp-9",
