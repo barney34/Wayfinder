@@ -754,7 +754,12 @@ export function SiteTableRow({
               {site.description ? (
                 <span>{site.description}</span>
               ) : (
-                <span className="text-muted-foreground">{getDescription().replace(/\n/g, ', ')}</span>
+                <span className="text-muted-foreground">
+                  {/* Strip Physical/Virtual prefix for display — export view uses full content */}
+                  {getDescription().split('\n').filter(l =>
+                    l !== 'Physical Member' && l !== 'Virtual Member'
+                  ).join(', ')}
+                </span>
               )}
             </button>
           </PopoverTrigger>
