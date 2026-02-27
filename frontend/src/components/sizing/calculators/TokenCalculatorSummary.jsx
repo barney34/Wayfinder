@@ -7,7 +7,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Server, Plus, Info, FileSpreadsheet, ArrowUpDown, ChevronUp, ChevronDown } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Server, Plus, Info, FileSpreadsheet, ArrowUpDown, ChevronUp, ChevronDown, Columns3 } from "lucide-react";
 import { formatNumber } from "@/lib/utils";
 import {
   getSiteRecommendedModel,
