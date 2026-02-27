@@ -160,7 +160,15 @@ export function ChatValueDiscovery({ section, defaultExpanded = false, contextua
       try {
         const parsed = JSON.parse(savedConvo);
         if (parsed.messages && parsed.messages.length > 0) {
-          setConversation(parsed.messages);
+          const msgs = parsed.messages;
+          // If a contextual opener is provided AND the conversation has no user replies yet
+          // (just the system opener), replace the opener with the contextual one
+          const hasUserReplies = msgs.some(m => m.role === 'user');
+          if (contextualOpener && !hasUserReplies) {
+            setConversation([{ role: 'system', content: contextualOpener, timestamp: Date.now(), topic: 'current-state' }]);
+          } else {
+            setConversation(msgs);
+          }
           setTopicQuestionCounts(parsed.topicQuestionCounts || {});
           setCurrentTopic(parsed.currentTopic || 'current-state');
           setMode(parsed.mode || 'guided');
@@ -174,7 +182,7 @@ export function ChatValueDiscovery({ section, defaultExpanded = false, contextua
     setConversation(getInitialConversation());
     setTopicQuestionCounts({ 'current-state': 1 });
     setCurrentTopic('current-state');
-  }, [section, storageKey, getInitialConversation]);
+  }, [section, storageKey, getInitialConversation]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Save conversation to answers context
   useEffect(() => {
