@@ -733,7 +733,9 @@ export function TokenCalculatorSummary() {
     setSiteOverrides(prev => {
       // Check if data exists under double-prefix key (old format: site-site-xxx or dc-dc-xxx)
       const doubleKey = siteId.startsWith('site-') ? `site-${siteId}` : (siteId.startsWith('dc-') ? `dc-${siteId}` : null);
-      const effectiveKey = (doubleKey && prev[doubleKey]) ? doubleKey : siteId;
+      const hasDoubleKey = doubleKey && prev[doubleKey];
+      const effectiveKey = hasDoubleKey ? doubleKey : siteId;
+      console.log('updateSite:', { siteId, doubleKey, hasDoubleKey, effectiveKey, updates, prevKeys: Object.keys(prev).slice(0, 5) });
       return { ...prev, [effectiveKey]: { ...prev[effectiveKey], ...updates } };
     });
   }, [sites, contextUpdateSite, contextUpdateDC]);
