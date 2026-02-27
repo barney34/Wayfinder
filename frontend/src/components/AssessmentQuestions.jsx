@@ -735,7 +735,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
         </div>
       );
       if (currentValue === 'Yes') {
-        const platformOptions = ["Microsoft DNS", "BIND", "PowerDNS", "Route53", "Cloudflare", "NS1"];
+        const platformOptions = ["Microsoft DNS", "BIND"];
         return (
           <div className="space-y-3">
             {yesNoEl}
