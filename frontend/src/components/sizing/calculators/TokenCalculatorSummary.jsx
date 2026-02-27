@@ -729,7 +729,13 @@ export function TokenCalculatorSummary() {
     }
 
     // All other fields go into per-drawing siteOverrides — ATOMIC single write
-    setSiteOverrides(prev => ({ ...prev, [siteId]: { ...prev[siteId], ...updates } }));
+    // Handle backward compatibility: if there's existing data with double-prefix key, use that
+    setSiteOverrides(prev => {
+      // Check if data exists under double-prefix key (old format: site-site-xxx or dc-dc-xxx)
+      const doubleKey = siteId.startsWith('site-') ? `site-${siteId}` : (siteId.startsWith('dc-') ? `dc-${siteId}` : null);
+      const effectiveKey = (doubleKey && prev[doubleKey]) ? doubleKey : siteId;
+      return { ...prev, [effectiveKey]: { ...prev[effectiveKey], ...updates } };
+    });
   }, [sites, contextUpdateSite, contextUpdateDC]);
 
   // Add manual site - uses context to persist across navigation
