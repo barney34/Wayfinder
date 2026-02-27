@@ -147,10 +147,11 @@ export function ChatValueDiscovery({ section, defaultExpanded = false, contextua
   const sectionConfig = SECTION_TOPICS[section] || DEFAULT_SECTION;
   const storageKey = `vd-chat-${section.replace(/\s/g, '-')}`;
 
-  // Initialize conversation with opener
+  // Initialize conversation with opener — uses contextualOpener if provided (no saved convo)
   const getInitialConversation = useCallback(() => {
-    return [{ role: 'system', content: sectionConfig.opener, timestamp: Date.now(), topic: 'current-state' }];
-  }, [sectionConfig.opener]);
+    const opener = contextualOpener || sectionConfig.opener;
+    return [{ role: 'system', content: opener, timestamp: Date.now(), topic: 'current-state' }];
+  }, [sectionConfig.opener, contextualOpener]);
 
   // Load conversation from answers context on mount
   useEffect(() => {
