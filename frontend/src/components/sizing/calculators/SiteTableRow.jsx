@@ -1340,10 +1340,8 @@ export function SiteTableRow({
                       <Select
                         value={site.hardwareSku || ''}
                         onValueChange={v => {
-                          onUpdateSite(site.id, 'hardwareSku', v);
-                          // Clear PSU/SFP selections when variant changes
-                          onUpdateSite(site.id, 'hwAddons', []);
-                          onUpdateSite(site.id, 'sfpAddons', {});
+                          // Atomic update — clears PSU/SFP when variant changes
+                          onUpdateSite(site.id, { hardwareSku: v, hwAddons: [], sfpAddons: {} });
                         }}
                       >
                         <SelectTrigger className="h-7 text-xs font-mono">
