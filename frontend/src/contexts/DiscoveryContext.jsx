@@ -124,7 +124,13 @@ export function DiscoveryProvider({ children, customerId }) {
   const markDirty = useCallback(() => setIsDirty(true), []);
 
   const setAnswer = useCallback((questionId, answer) => {
-    setAnswers(prev => ({ ...prev, [questionId]: answer }));
+    setAnswers(prev => {
+      const updates = { [questionId]: answer };
+      // Bidirectional sync: 3rd Party Integrations between IPAM and PS
+      if (questionId === 'ipam-11') updates['ps-3'] = answer;
+      if (questionId === 'ps-3') updates['ipam-11'] = answer;
+      return { ...prev, ...updates };
+    });
     markDirty();
   }, [markDirty]);
 
