@@ -106,7 +106,7 @@ export function ValueStoryPanel({ answers = {}, onOpen, collapsed = false, isDra
   const totalPossible = scores.reduce((s, d) => s + d.total, 0);
 
   if (collapsed) {
-    return <CollapsedButton totalCaptured={totalCaptured} onClick={onOpen} />;
+    return <CollapsedButton totalCaptured={totalCaptured} onClick={onOpen} isDrawerOpen={isDrawerOpen} />;
   }
 
   return (
