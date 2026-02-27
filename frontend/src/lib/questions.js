@@ -660,6 +660,7 @@ export const discoveryQuestions = [
     "id": "sec-1",
     "section": "Security",
     "question": "What visibility and controls do you have to detect and block advanced threats (like ransomware or C2) that exploit the DNS layer?",
+    "valueDiscovery": true,
     "technicalOnly": false
   },
   {
