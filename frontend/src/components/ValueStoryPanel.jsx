@@ -100,7 +100,7 @@ function CollapsedButton({ totalCaptured, onClick }) {
 }
 
 // ── Main panel ────────────────────────────────────────────────────────────────
-export function ValueStoryPanel({ answers = {}, onOpen, collapsed = false }) {
+export function ValueStoryPanel({ answers = {}, onOpen, collapsed = false, isDrawerOpen = false }) {
   const scores = DRIVERS.map(d => ({ ...d, ...scoreDriver(d, answers) }));
   const totalCaptured = scores.reduce((s, d) => s + d.captured, 0);
   const totalPossible = scores.reduce((s, d) => s + d.total, 0);
