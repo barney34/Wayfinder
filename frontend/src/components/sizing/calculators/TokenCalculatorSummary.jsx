@@ -181,11 +181,14 @@ export function TokenCalculatorSummary() {
   // Build sites from Quick Capture + manual
   const sites = useMemo(() => {
     const buildBasicSite = (source, index, type) => {
-      // Don't double-prefix: context IDs already have site-/dc- prefix
-      const key = source.id.startsWith('site-') || source.id.startsWith('dc-') 
-        ? source.id 
-        : (type === 'dataCenter' ? `dc-${source.id}` : `site-${source.id}`);
-      const override = siteOverrides[key] || {};
+      // Handle both old format (double prefix) and new format (single prefix)
+      // Old data has keys like "site-site-xxx" or "dc-dc-xxx"
+      // New data has keys like "site-xxx" or "dc-xxx"
+      const hasPrefix = source.id.startsWith('site-') || source.id.startsWith('dc-');
+      const singleKey = hasPrefix ? source.id : (type === 'dataCenter' ? `dc-${source.id}` : `site-${source.id}`);
+      const doubleKey = type === 'dataCenter' ? `dc-${source.id}` : `site-${source.id}`;
+      // Try single-prefix first (new format), fall back to double-prefix (old format)
+      const override = siteOverrides[singleKey] || siteOverrides[doubleKey] || {};
       // KW comes directly from source (context) - not from override
       const kw = source.knowledgeWorkers || 0;
 
