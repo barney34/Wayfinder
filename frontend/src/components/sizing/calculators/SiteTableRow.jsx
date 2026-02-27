@@ -676,55 +676,67 @@ export function SiteTableRow({
         </TableCell>
       )}
 
-      {/* Role */}
+      {/* Role — with description subtitle in normal view */}
       <TableCell className="p-1 lg:p-2">
         {(() => {
           const isGmRow = site.role?.startsWith('GM') || site.role?.startsWith('GMC');
+          // Build display subtitle: strip Physical/Virtual prefix, show first 2 meaningful lines
+          const descLines = getDescription().split('\n').filter(l =>
+            l !== 'Physical Member' && l !== 'Virtual Member'
+          );
+          const subtitle = descLines.slice(0, 2).join(' · ');
           return (
-            <Select value={site.role} onValueChange={v => {
-                // When changing to Reporting, set all fields in a single atomic update
-                if (v === 'Reporting') {
-                  onUpdateSite(site.id, {
-                    role: v,
-                    platform: 'NIOS-V',
-                    hwAddons: [],
-                    sfpAddons: {},
-                    rptQuantity: '500MB'
-                  });
-                } else {
-                  onUpdateSite(site.id, 'role', v);
-                }
-              }} disabled={site.isDisabledInUddi}>
-              <SelectTrigger className="h-8 text-xs" data-testid={`site-role-${site.id}`}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {/* Member roles — always visible */}
-                {roleOptions.filter(o => !o.group).map(o => (
-                  <SelectItem key={o.value} value={o.value} title={o.description}>
-                    {o.label}
-                  </SelectItem>
-                ))}
-                {/* Grid Manager roles — only shown on GM/GMC rows */}
-                {isGmRow && roleOptions.some(o => o.group === 'Grid Manager') && (
-                  <>
-                    <div className="px-2 py-1 text-[10px] text-muted-foreground uppercase tracking-wide border-t mt-1 pt-2">
-                      Grid Manager
-                    </div>
-                    {roleOptions.filter(o => o.group === 'Grid Manager').map(o => (
-                      <SelectItem
-                        key={o.value}
-                        value={o.value}
-                        title={o.description}
-                        className={o.notRecommended ? 'text-amber-600 dark:text-amber-400' : ''}
-                      >
-                        {o.label}{o.notRecommended && ' ⚠️'}
-                      </SelectItem>
-                    ))}
-                  </>
-                )}
-              </SelectContent>
-            </Select>
+            <div className="space-y-0.5">
+              <Select value={site.role} onValueChange={v => {
+                  // When changing to Reporting, set all fields in a single atomic update
+                  if (v === 'Reporting') {
+                    onUpdateSite(site.id, {
+                      role: v,
+                      platform: 'NIOS-V',
+                      hwAddons: [],
+                      sfpAddons: {},
+                      rptQuantity: '500MB'
+                    });
+                  } else {
+                    onUpdateSite(site.id, 'role', v);
+                  }
+                }} disabled={site.isDisabledInUddi}>
+                <SelectTrigger className="h-8 text-xs" data-testid={`site-role-${site.id}`}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {/* Member roles — always visible */}
+                  {roleOptions.filter(o => !o.group).map(o => (
+                    <SelectItem key={o.value} value={o.value} title={o.description}>
+                      {o.label}
+                    </SelectItem>
+                  ))}
+                  {/* Grid Manager roles — only shown on GM/GMC rows */}
+                  {isGmRow && roleOptions.some(o => o.group === 'Grid Manager') && (
+                    <>
+                      <div className="px-2 py-1 text-[10px] text-muted-foreground uppercase tracking-wide border-t mt-1 pt-2">
+                        Grid Manager
+                      </div>
+                      {roleOptions.filter(o => o.group === 'Grid Manager').map(o => (
+                        <SelectItem
+                          key={o.value}
+                          value={o.value}
+                          title={o.description}
+                          className={o.notRecommended ? 'text-amber-600 dark:text-amber-400' : ''}
+                        >
+                          {o.label}{o.notRecommended && ' ⚠️'}
+                        </SelectItem>
+                      ))}
+                    </>
+                  )}
+                </SelectContent>
+              </Select>
+              {subtitle && (
+                <div className="text-[10px] text-muted-foreground truncate leading-tight px-0.5" title={descLines.join(' · ')}>
+                  {subtitle}
+                </div>
+              )}
+            </div>
           );
         })()}
       </TableCell>
