@@ -301,6 +301,15 @@ export function AppSidebar({
         </div>
       </ScrollArea>
 
+      {/* Value Story Panel — only when customer is selected */}
+      {currentCustomer && (
+        <ValueStoryPanel
+          answers={answers}
+          collapsed={collapsed}
+          onOpen={() => onTabChange?.('discovery')}
+        />
+      )}
+
       {/* Footer with Save/Export */}
       {currentCustomer && (
         <div className={`p-3 border-t ${collapsed ? 'space-y-1' : 'flex gap-2'}`}>
