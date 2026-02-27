@@ -721,6 +721,41 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
       return yesNoField;
     }
 
+    // dhcp-7: "Will DHCP update DNS on another platform?" - Yes/No + vendor tag grid when Yes
+    if (q.id === 'dhcp-7') {
+      const yesNoEl = compact ? (
+        <div className="flex items-center gap-0.5" data-testid="yesno-dhcp-7">
+          <button onClick={() => handleAnswerChange('dhcp-7', 'Yes')} className={`px-2 py-0.5 text-[11px] font-medium rounded-l-full border transition-colors ${currentValue === 'Yes' ? 'bg-primary text-primary-foreground border-primary' : 'bg-background text-muted-foreground border-border hover:bg-muted'}`} data-testid="btn-yes-dhcp-7">Yes</button>
+          <button onClick={() => handleAnswerChange('dhcp-7', 'No')} className={`px-2 py-0.5 text-[11px] font-medium rounded-r-full border-y border-r transition-colors ${currentValue === 'No' ? 'bg-primary text-primary-foreground border-primary' : 'bg-background text-muted-foreground border-border hover:bg-muted'}`} data-testid="btn-no-dhcp-7">No</button>
+        </div>
+      ) : (
+        <div className="flex items-center gap-2">
+          <Button variant={currentValue === 'Yes' ? 'default' : 'outline'} size="sm" onClick={() => handleAnswerChange('dhcp-7', 'Yes')} data-testid="btn-yes-dhcp-7">Yes</Button>
+          <Button variant={currentValue === 'No' ? 'default' : 'outline'} size="sm" onClick={() => handleAnswerChange('dhcp-7', 'No')} data-testid="btn-no-dhcp-7">No</Button>
+        </div>
+      );
+      if (currentValue === 'Yes') {
+        const platformOptions = ["Microsoft DNS", "BIND", "PowerDNS", "Route53", "Cloudflare", "NS1"];
+        return (
+          <div className="space-y-3">
+            {yesNoEl}
+            <div>
+              <div className="text-xs text-[#00BD4D] mb-1.5 uppercase tracking-wide font-medium">Which platform(s)?</div>
+              <GridMultiSelect
+                questionId="dhcp-7a"
+                options={platformOptions}
+                value={answers['dhcp-7a'] ?? ''}
+                onChange={v => handleAnswerChange('dhcp-7a', v)}
+                allowFreeform={true}
+                columns={3}
+              />
+            </div>
+          </div>
+        );
+      }
+      return yesNoEl;
+    }
+
     // dhcp-9: "Will update on lease renewal be enabled?" - warn if Yes (not recommended)
     if (q.id === 'dhcp-9') {
       const yesNoField = compact ? (
