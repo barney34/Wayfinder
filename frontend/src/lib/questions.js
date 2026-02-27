@@ -217,6 +217,7 @@ export const discoveryQuestions = [
     "id": "ipam-12",
     "section": "IPAM",
     "question": "What tools and processes do you use for continuous, real-time asset discovery (including cloud and IoT devices) across your entire network?",
+    "valueDiscovery": true,
     "technicalOnly": false
   },
   {
