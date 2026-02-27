@@ -24,6 +24,7 @@ import { TopBar } from "./TopBar";
 import { SizingMathHelp } from "./SizingMathHelp";
 import { VersionControl } from "./VersionControl";
 import { ImportExportSection } from "./ImportExportSection";
+import { ValueDiscoveryDrawer } from "./ValueDiscoveryDrawer";
 import { addDynamicRevision, formatRevisionDate } from "@/lib/revisionHelpers";
 import yaml from "js-yaml";
 
