@@ -425,7 +425,8 @@ export function CustomerDetail({ customer, onBack }) {
     q.id !== 'ud-1' && q.id !== 'ipam-1' &&
     q.section !== 'Users - Devices - Sites' &&
     !(q.section === 'Security' && q.subsection === 'Token Calculator') &&
-    q.section !== 'Sizing Data' && q.section !== 'UDDI'
+    q.section !== 'Sizing Data' && q.section !== 'UDDI' &&
+    !q.valueDiscovery  // ← value questions now live in Value Discovery drawer
   );
   // Cloud Management questions are now in discoveryTabQuestions (section: "Cloud Management")
   const sizingTabQuestions = discoveryQuestions.filter(q => q.section === 'Sizing Data');
