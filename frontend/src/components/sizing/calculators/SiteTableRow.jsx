@@ -275,61 +275,84 @@ export function SiteTableRow({
     return `${model}-HW-AC`;
   };
 
-  // Build description from name, role, and services
+  // Build description from platform (Physical/Virtual), unit letter, role, and add-ons
   const getDescription = () => {
-    // Return user-entered description if present, else auto-generate
+    // Return user-entered description if present
     if (site.description?.trim()) return site.description.trim();
-    
-    const descParts = [];
+
     const role = site.role || '';
     const swAddonsArr = site.swAddons || [];
-    const perfFeats = site.effectivePerfFeatures || site.perfFeatures || [];
-    
+
+    // Line 1: Physical Member / Virtual Member (based on platform)
+    const prefix = isPhysicalPlatform ? 'Physical Member' : 'Virtual Member';
+
+    // Effective unit letter — from assignment (which honours override) or derived from role
+    const unitLetter = unitAssignment?.unitLetter || getUnitGroup(role, site.services);
+
+    const lines = [prefix];
+
     if (role === 'GM' || role.startsWith('GM+')) {
-      descParts.push('HA Grid Manager');
-      if (swAddonsArr.includes('CNA')) descParts.push('Cloud Network Automation');
-      if (role.includes('DNS')) descParts.push('DNS Services');
-      if (role.includes('DHCP')) descParts.push('DHCP Services');
-    } else if (role === 'GMC' || role.startsWith('GMC+')) {
-      descParts.push('Grid Manager Candidate');
-      if (swAddonsArr.includes('CNA')) descParts.push('Cloud Network Automation');
-    } else if (role === 'DNS/DHCP') {
-      if (site.isHub) {
-        descParts.push('DNS and DHCP Services');
-        descParts.push('DHCP Failover Hub');
-      } else if (site.isSpoke) {
-        descParts.push('DNS and DHCP Services');
-        descParts.push('DHCP Failover');
-      } else {
-        descParts.push('Int. Auth DNS, DHCP');
+      lines.push('Grid Manager');
+      lines.push('Central Management');
+      if (role.includes('DNS') || role.includes('DHCP')) {
+        lines.push('Int Auth DNS');
+        lines.push('DHCP with Failover');
       }
-    } else if (role === 'DNS') {
-      descParts.push('Int. Auth. DNS');
-      if (perfFeats.includes('ADP')) descParts.push('Advanced DNS Protection');
-      if (perfFeats.includes('DTC')) descParts.push('Global Server Load Balancing');
-    } else if (role === 'DHCP') {
-      descParts.push('Core DHCP Services');
-      if (site.isHub || site.isSpoke) descParts.push('Failover redundancy');
+    } else if (role === 'GMC' || role.startsWith('GMC+')) {
+      lines.push('Grid Manager Candidate');
+      lines.push('Backup Management');
+      if (role.includes('DNS') || role.includes('DHCP')) {
+        lines.push('Int Auth DNS');
+        lines.push('DHCP with Failover');
+      }
     } else if (role === 'ND') {
-      descParts.push('Network Insight');
-      descParts.push('Automated Discovery');
+      lines.push('Network Insight');
+      lines.push('Automated Discovery');
+      lines.push('Authoritative IPAM');
     } else if (role === 'Reporting') {
-      descParts.push('Reporting Virtual Server');
-      descParts.push('Scheduled Reports');
+      lines.push('Reporting Server');
+      lines.push('Scheduled Reports');
+      lines.push('Automated Data Collection');
+      const size = site.rptQuantity || '500MB';
+      lines.push(`${size} Daily`);
     } else if (role === 'CDC') {
-      descParts.push('Cloud Data Connector');
+      lines.push('Cloud Data Connector');
     } else if (role === 'LIC') {
-      descParts.push(site.name || 'License');
+      lines.push(site.name || 'License');
     } else {
-      descParts.push(site.name || role);
+      // DNS / DHCP roles — description driven by unit letter
+      switch (unitLetter) {
+        case 'B': // Internal Auth DNS (with or without DHCP)
+          lines.push('Int. Auth. DNS');
+          lines.push('Grid Secondary');
+          lines.push('DHCP With Failover');
+          break;
+        case 'C': // DHCP
+        case 'D': // Edge / Remote DHCP
+          lines.push('DHCP With Failover');
+          break;
+        case 'E': // External / Authoritative DNS
+          lines.push('Ext. Auth. DNS');
+          lines.push('Grid Secondary');
+          lines.push('Recursion disabled');
+          break;
+        case 'F': // Cache / Forwarder / DMZ
+          lines.push('Cache Forwarder');
+          break;
+        default:
+          lines.push('Int. Auth. DNS');
+          lines.push('Grid Secondary');
+          lines.push('DHCP With Failover');
+      }
     }
-    
-    if (swAddonsArr.includes('DDIMSGD') || swAddonsArr.includes('MS')) descParts.push('Microsoft Sync');
-    if (swAddonsArr.includes('ADNS')) descParts.push('Advanced DNS');
-    if (swAddonsArr.includes('SECECO')) descParts.push('Security Ecosystem');
-    if (swAddonsArr.includes('TA')) descParts.push('Threat Analytics');
-    
-    return descParts.join('\n');
+
+    // SW add-ons that append to description
+    if (swAddonsArr.includes('DDIMSGD') || swAddonsArr.includes('MS')) lines.push('Microsoft Sync');
+    if (swAddonsArr.includes('ADNS')) lines.push('Advanced DNS');
+    if (swAddonsArr.includes('SECECO')) lines.push('Security Ecosystem');
+    if (swAddonsArr.includes('TA')) lines.push('Threat Analytics');
+
+    return lines.join('\n');
   };
 
   // SW Add-ons from site.swAddons array (selected by user)
