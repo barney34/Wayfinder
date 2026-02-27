@@ -690,8 +690,8 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
     }
 
     // DHCP updates another DNS platform (dhcp-7a) - freeform tag input
-    if (q.id === 'dhcp-7a' && q.options) {
-      return <GridMultiSelect questionId={q.id} options={q.options} value={currentValue} onChange={v => handleAnswerChange(q.id, v)} allowFreeform={true} columns={3} />;
+    if (q.id === 'dhcp-7a') {
+      return <GridMultiSelect questionId={q.id} options={q.options || []} value={currentValue} onChange={v => handleAnswerChange(q.id, v)} allowFreeform={true} columns={3} />;
     }
 
     // L2/3 device types (ni-3a) - 2-column grid layout
