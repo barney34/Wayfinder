@@ -58,12 +58,17 @@ const TRIGGERS = [
 
 function tryIncludes(val, str) {
   if (!val) return false;
-  try { const arr = JSON.parse(val); return Array.isArray(arr) && arr.some(v => v.includes(str)); } catch { return false; }
+  try { const arr = JSON.parse(val); return Array.isArray(arr) && arr.some(v => v.includes(str)); } catch {
+    // GridMultiSelect stores as CSV string — fall back to CSV check
+    return val.split(',').some(v => v.trim().includes(str));
+  }
 }
 
 function hasValues(val) {
   if (!val) return false;
-  try { const arr = JSON.parse(val); return Array.isArray(arr) && arr.length > 0; } catch { return false; }
+  try { const arr = JSON.parse(val); return Array.isArray(arr) && arr.length > 0; } catch {
+    return val.trim().length > 0;
+  }
 }
 
 function cloudLabel(a) {
