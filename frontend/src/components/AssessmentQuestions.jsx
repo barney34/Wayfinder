@@ -1381,9 +1381,31 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                     value={sectionResponses[section] || ''}
                     onChange={v => setSectionResponses(p => ({ ...p, [section]: v }))}
                     onExamine={async (text, ctx) => {
-                      // SmartFill: examine text and fill answers
-                      toast({ title: "Examining content...", description: `Analyzing response for ${section}` });
-                      // This would integrate with the AI SmartFill feature
+                      if (!text?.trim()) return;
+                      toast({ title: "Examining...", description: `Analyzing your notes for ${ctx}` });
+                      try {
+                        const res = await fetch(`${API_URL}/api/analyze-notes`, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ notes: text }),
+                        });
+                        const data = await res.json();
+                        const matches = data.matches || [];
+                        if (matches.length === 0) {
+                          toast({ title: "No matches found", description: "Try adding more detail to your notes." });
+                          return;
+                        }
+                        // Apply all matched answers at once
+                        const newAnswers = {};
+                        matches.forEach(m => { if (m.questionId && m.answer) newAnswers[m.questionId] = m.answer; });
+                        updateAnswers(newAnswers);
+                        toast({
+                          title: `${matches.length} field${matches.length > 1 ? 's' : ''} populated`,
+                          description: `High confidence: ${matches.filter(m => m.confidence === 'high').length}, Medium: ${matches.filter(m => m.confidence === 'medium').length}`,
+                        });
+                      } catch (err) {
+                        toast({ title: "Error", description: "Failed to analyze notes.", variant: "destructive" });
+                      }
                     }}
                     sectionContext={section}
                   />
