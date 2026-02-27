@@ -506,7 +506,21 @@ export function SiteTableRow({
               {['RPT','LIC','CDC'].map(letter => (
                 <button
                   key={letter}
-                  onClick={() => onUpdateSite(site.id, 'unitLetterOverride', letter)}
+                  onClick={() => {
+                    onUpdateSite(site.id, 'unitLetterOverride', letter);
+                    // Auto-set role when selecting special unit letters
+                    if (letter === 'RPT' && site.role !== 'Reporting') {
+                      onUpdateSite(site.id, 'role', 'Reporting');
+                      onUpdateSite(site.id, 'platform', 'NIOS-V');
+                      onUpdateSite(site.id, 'hwAddons', []);
+                      onUpdateSite(site.id, 'sfpAddons', {});
+                      onUpdateSite(site.id, 'rptQuantity', '500GB');
+                    } else if (letter === 'LIC' && site.role !== 'LIC') {
+                      onUpdateSite(site.id, 'role', 'LIC');
+                    } else if (letter === 'CDC' && site.role !== 'CDC') {
+                      onUpdateSite(site.id, 'role', 'CDC');
+                    }
+                  }}
                   className={`px-1 py-1 text-[10px] font-bold rounded transition-colors ${
                     (unitAssignment?.unitLetter || getUnitGroup(site.role, site.services)) === letter
                       ? 'bg-primary text-primary-foreground' : 'bg-secondary hover:bg-muted'
