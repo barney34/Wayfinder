@@ -318,7 +318,9 @@ export const discoveryQuestions = [
     "id": "idns-7",
     "section": "Internal DNS",
     "question": "Is MS Secure Dynamic Update (GSS-TSIG) currently implemented?",
-    "technicalOnly": true
+    "technicalOnly": true,
+    "fieldType": "yesno",
+    "defaultValue": "No"
   },
   {
     "id": "edns-0",
