@@ -478,6 +478,51 @@ function CustomerDetailContent({
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
   const [valueDrawerOpen, setValueDrawerOpen] = useState(false);
+  const [drawerDriver, setDrawerDriver] = useState('optimize');
+
+  // ── Phase 3: Trigger detection ───────────────────────────────────────────
+  const [seenTriggers, setSeenTriggers] = useState(new Set());
+  const [activeTrigger, setActiveTrigger] = useState(null);
+  const answers = discoveryContext.answers || {};
+
+  // Definitions: fires once per session when a tech answer hits a value trigger
+  const TRIGGERS = [
+    { id: 'spreadsheets', driver: 'optimize', color: '#12C2D3',
+      message: 'Spreadsheets detected for IP management — want to explore the real cost?',
+      detect: (a) => (a['ipam-0'] || '').includes('Spreadsheets') },
+    { id: 'ms-dns', driver: 'optimize', color: '#12C2D3',
+      message: 'Microsoft DNS/IPAM detected — common pain points identified.',
+      detect: (a) => (a['ipam-0'] || '').includes('Microsoft') || (a['idns-0'] || '').includes('Microsoft') },
+    { id: 'cloud', driver: 'accelerate', color: '#00BD4D',
+      message: 'Cloud environments detected — how consistent is your DDI policy across clouds?',
+      detect: (a) => (a['ipam-9'] || '').trim().length > 0 },
+    { id: 'integrations', driver: 'accelerate', color: '#00BD4D',
+      message: 'Security integrations detected — are they getting full DDI context?',
+      detect: (a) => (a['ipam-11'] || '').trim().length > 0 },
+    { id: 'automation', driver: 'accelerate', color: '#00BD4D',
+      message: 'Automation tools detected — is DNS/DHCP provisioning fully automated yet?',
+      detect: (a) => (a['ipam-13'] || '').trim().length > 0 },
+    { id: 'iot', driver: 'protect', color: '#FF585D',
+      message: 'Network devices detected — how confident are you in your device inventory?',
+      detect: (a) => parseInt(a['ni-3'] || '0') > 0 },
+  ];
+
+  // Watch only the specific keys that can fire triggers
+  const triggerWatchStr = [
+    answers['ipam-0'], answers['ipam-9'], answers['ipam-11'],
+    answers['ipam-13'], answers['idns-0'], answers['ni-3'],
+  ].join('|');
+
+  useEffect(() => {
+    if (activeTrigger) return; // Don't queue while one is already showing
+    for (const t of TRIGGERS) {
+      if (!seenTriggers.has(t.id) && t.detect(answers)) {
+        setActiveTrigger(t);
+        setSeenTriggers(prev => new Set([...prev, t.id]));
+        break;
+      }
+    }
+  }, [triggerWatchStr]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Save handler
   const handleSave = async () => {
