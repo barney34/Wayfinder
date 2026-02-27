@@ -676,19 +676,16 @@ export function SiteTableRow({
         </TableCell>
       )}
 
-      {/* Role — with description subtitle in normal view */}
-      <TableCell className="p-1 lg:p-2">
+      {/* Role — compact dropdown + description first-line subtitle (hover=full, click=edit) */}
+      <TableCell className="p-1 lg:p-1.5">
         {(() => {
           const isGmRow = site.role?.startsWith('GM') || site.role?.startsWith('GMC');
-          // Build display subtitle: strip Physical/Virtual prefix, show first 2 meaningful lines
-          const descLines = getDescription().split('\n').filter(l =>
-            l !== 'Physical Member' && l !== 'Virtual Member'
-          );
-          const subtitle = descLines.slice(0, 2).join(' · ');
+          const allDescLines = getDescription().split('\n');
+          const firstLine = allDescLines[0]; // "Physical Member" / "Virtual Member"
+          const fullDesc = allDescLines.join('\n');
           return (
             <div className="space-y-0.5">
               <Select value={site.role} onValueChange={v => {
-                  // When changing to Reporting, set all fields in a single atomic update
                   if (v === 'Reporting') {
                     onUpdateSite(site.id, {
                       role: v,
@@ -701,17 +698,15 @@ export function SiteTableRow({
                     onUpdateSite(site.id, 'role', v);
                   }
                 }} disabled={site.isDisabledInUddi}>
-                <SelectTrigger className="h-8 text-xs" data-testid={`site-role-${site.id}`}>
+                <SelectTrigger className="h-7 text-xs" data-testid={`site-role-${site.id}`}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {/* Member roles — always visible */}
                   {roleOptions.filter(o => !o.group).map(o => (
                     <SelectItem key={o.value} value={o.value} title={o.description}>
                       {o.label}
                     </SelectItem>
                   ))}
-                  {/* Grid Manager roles — only shown on GM/GMC rows */}
                   {isGmRow && roleOptions.some(o => o.group === 'Grid Manager') && (
                     <>
                       <div className="px-2 py-1 text-[10px] text-muted-foreground uppercase tracking-wide border-t mt-1 pt-2">
@@ -731,10 +726,36 @@ export function SiteTableRow({
                   )}
                 </SelectContent>
               </Select>
-              {subtitle && (
-                <div className="text-[10px] text-muted-foreground truncate leading-tight px-0.5" title={descLines.join(' · ')}>
-                  {subtitle}
-                </div>
+
+              {/* Subtitle: first line only, hover=full stack, click=edit description */}
+              {firstLine && (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button
+                      className="text-[10px] text-muted-foreground w-full text-left leading-tight px-0.5 hover:text-primary truncate cursor-pointer"
+                      title={fullDesc}
+                      disabled={site.isDisabledInUddi}
+                    >
+                      {firstLine}
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-72 p-3" align="start">
+                    <div className="space-y-2">
+                      <div className="font-medium text-sm">Description</div>
+                      <div className="text-xs text-muted-foreground whitespace-pre-line bg-muted/40 rounded px-2 py-1.5 border border-border">
+                        {fullDesc}
+                      </div>
+                      <textarea
+                        value={site.description || ''}
+                        onChange={e => onUpdateSite(site.id, 'description', e.target.value)}
+                        placeholder={getDescription()}
+                        className="w-full min-h-[60px] text-sm rounded border border-border bg-background px-2 py-1.5 resize-y focus:outline-none focus:ring-1 focus:ring-primary"
+                        rows={3}
+                      />
+                      <p className="text-[10px] text-muted-foreground">Override auto-generated description for export.</p>
+                    </div>
+                  </PopoverContent>
+                </Popover>
               )}
             </div>
           );
