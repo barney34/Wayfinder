@@ -70,8 +70,9 @@ export const niosGridConstants = {
   maxDbUtilizationPercent: 60,        // Target no more than 60% capacity at rollout
   bufferPercent: 10,                  // 10% buffer for grid objects (110%)
   dhcpLeaseObjectsPerClient: 2,       // DHCP lease objects = clients × 2
-  dnsRecordsPerDhcpClient: 3,         // DNS records per DHCP client (dynamic)
-  dnsRecordsPerStaticClient: 2,       // DNS records per static client
+  dnsRecordsPerDhcpClient: 3,         // NIOS: DNS records per DHCP client (A + DHCID + PTR)
+  dnsRecordsPerDhcpClientUDDI: 4,     // UDDI: DNS records per DHCP client (A + 2×DHCID + PTR) - Kea creates DHCID in reverse zone too
+  dnsRecordsPerStaticClient: 2,       // DNS records per static client (A + PTR)
   discoveryAssetPercent: 5,           // Discovery assets as % of active IPs
   leaseTimeframeMinutes: 15,          // Lease timeframe for LPS calculation
   peakQpsDivisor: 3,                  // Peak QPS = active IPs / 3
