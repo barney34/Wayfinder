@@ -728,6 +728,18 @@ export function TokenCalculatorSummary() {
       }
     }
 
+    // ND ↔ ni-3 sync: When ND site's numIPs changes, update Discovery answer
+    // ni-3 = "What is the total number of SNMP/SSH devices that will be managed/interrogated?"
+    if ('numIPs' in updates && site.role === 'ND') {
+      // Sum all ND sites' numIPs to get total for ni-3
+      const ndSites = sites.filter(s => s.role === 'ND');
+      const currentTotal = ndSites.reduce((sum, s) => {
+        if (s.id === siteId) return sum + (updates.numIPs || 0);
+        return sum + (s.numIPs || 0);
+      }, 0);
+      setAnswer('ni-3', String(currentTotal));
+    }
+
     // All other fields go into per-drawing siteOverrides — ATOMIC single write
     // Handle backward compatibility: if there's existing data with double-prefix key, use that
     setSiteOverrides(prev => {
