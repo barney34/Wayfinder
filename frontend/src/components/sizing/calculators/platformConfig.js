@@ -13,20 +13,20 @@ export const PLATFORM_MODES = [
 // Platform options per mode - Physical/Virtual for both NIOS and NIOS-X
 export const PLATFORM_OPTIONS_BY_MODE = {
   NIOS: [
-    { value: 'NIOS', label: 'NIOS Physical' },
-    { value: 'NIOS-V', label: 'NIOS Virtual' },
+    { value: 'NIOS',   label: 'Physical' },
+    { value: 'NIOS-V', label: 'Virtual' },
   ],
   UDDI: [
-    { value: 'NX-P', label: 'NIOS-X Physical' },
-    { value: 'NXVS', label: 'NIOS-X Virtual' },
-    { value: 'NXaaS', label: 'NXaaS' },
+    { value: 'NX-P',   label: 'NX Physical' },
+    { value: 'NXVS',   label: 'NX Virtual' },
+    { value: 'NXaaS',  label: 'NXaaS' },
   ],
   Hybrid: [
-    { value: 'NIOS', label: 'NIOS Physical' },
-    { value: 'NIOS-V', label: 'NIOS Virtual' },
-    { value: 'NX-P', label: 'NIOS-X Physical' },
-    { value: 'NXVS', label: 'NIOS-X Virtual' },
-    { value: 'NXaaS', label: 'NXaaS' },
+    { value: 'NIOS',   label: 'Physical' },
+    { value: 'NIOS-V', label: 'Virtual' },
+    { value: 'NX-P',   label: 'NX Physical' },
+    { value: 'NXVS',   label: 'NX Virtual' },
+    { value: 'NXaaS',  label: 'NXaaS' },
   ],
 };
 
