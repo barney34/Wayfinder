@@ -524,6 +524,7 @@ export const discoveryQuestions = [
     "id": "svc-2",
     "section": "Services",
     "question": "How will you centralize network data and DNS threat intelligence for your security ecosystem?",
+    "valueDiscovery": true,
     "technicalOnly": false
   },
   {
