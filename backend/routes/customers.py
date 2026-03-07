@@ -6,21 +6,15 @@ import uuid
 from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, status
 
+from database import customers_collection, discovery_collection
 from models.schemas import CustomerCreate, CustomerUpdate, customer_doc_to_response
 
 router = APIRouter(prefix="/api/customers", tags=["customers"])
 
 
-def get_collections():
-    """Get database collections - imported at runtime to avoid circular imports"""
-    from server import customers_collection, discovery_collection
-    return customers_collection, discovery_collection
-
-
 @router.get("")
 async def get_customers():
     """Get all customers"""
-    customers_collection, _ = get_collections()
     cursor = customers_collection.find({}, {"_id": 0})
     customers = await cursor.to_list(length=1000)
     return [customer_doc_to_response(c) for c in customers]
@@ -29,7 +23,6 @@ async def get_customers():
 @router.get("/{customer_id}")
 async def get_customer(customer_id: str):
     """Get a single customer by ID"""
-    customers_collection, _ = get_collections()
     customer = await customers_collection.find_one({"id": customer_id}, {"_id": 0})
     if not customer:
         raise HTTPException(status_code=404, detail="Customer not found")
@@ -39,7 +32,6 @@ async def get_customer(customer_id: str):
 @router.post("", status_code=status.HTTP_201_CREATED)
 async def create_customer(customer: CustomerCreate):
     """Create a new customer"""
-    customers_collection, _ = get_collections()
     now = datetime.now(timezone.utc)
     customer_doc = {
         "id": str(uuid.uuid4()),
@@ -60,7 +52,6 @@ async def create_customer(customer: CustomerCreate):
 @router.patch("/{customer_id}")
 async def update_customer(customer_id: str, updates: CustomerUpdate):
     """Update a customer"""
-    customers_collection, _ = get_collections()
     # Find existing customer first
     existing = await customers_collection.find_one({"id": customer_id})
     if not existing:
@@ -98,7 +89,6 @@ async def update_customer(customer_id: str, updates: CustomerUpdate):
 @router.delete("/{customer_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_customer(customer_id: str):
     """Delete a customer"""
-    customers_collection, discovery_collection = get_collections()
     result = await customers_collection.delete_one({"id": customer_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Customer not found")

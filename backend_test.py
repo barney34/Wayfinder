@@ -4,6 +4,7 @@ Backend API Testing for DiscoveryTrackAI
 Tests all CRUD operations and AI endpoints
 """
 
+import os
 import requests
 import json
 import sys
@@ -11,7 +12,7 @@ from datetime import datetime
 import uuid
 
 class DiscoveryTrackAPITester:
-    def __init__(self, base_url="https://uddi-config.preview.emergentagent.com"):
+    def __init__(self, base_url=os.environ.get("BACKEND_URL", "http://localhost:8001")):
         self.base_url = base_url
         self.tests_run = 0
         self.tests_passed = 0

@@ -5,21 +5,15 @@ Discovery Data Routes
 from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException
 
+from database import customers_collection, discovery_collection
 from models.schemas import DiscoveryData
 
 router = APIRouter(prefix="/api/customers", tags=["discovery"])
 
 
-def get_collections():
-    """Get database collections - imported at runtime to avoid circular imports"""
-    from server import customers_collection, discovery_collection
-    return customers_collection, discovery_collection
-
-
 @router.get("/{customer_id}/discovery")
 async def get_discovery_data(customer_id: str):
     """Get discovery data for a customer"""
-    customers_collection, discovery_collection = get_collections()
     
     # Verify customer exists
     customer = await customers_collection.find_one({"id": customer_id})
@@ -47,8 +41,6 @@ async def get_discovery_data(customer_id: str):
 @router.put("/{customer_id}/discovery")
 async def save_discovery_data(customer_id: str, data: DiscoveryData):
     """Save discovery data for a customer"""
-    customers_collection, discovery_collection = get_collections()
-    
     # Verify customer exists
     customer = await customers_collection.find_one({"id": customer_id})
     if not customer:

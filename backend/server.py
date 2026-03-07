@@ -11,25 +11,25 @@ Refactored modular architecture:
 """
 
 import os
-import sys
+from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# Add backend directory to path for module imports
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from motor.motor_asyncio import AsyncIOMotorClient
+from database import ensure_indexes
 
-# ========== Configuration ==========
-MONGO_URL = os.environ.get("MONGO_URL", "mongodb://localhost:27017")
-DB_NAME = os.environ.get("DB_NAME", "discovery_track_ai")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await ensure_indexes()
+    yield
+
 
 # ========== App Setup ==========
-app = FastAPI(title="DiscoveryTrackAI API", version="1.0.0")
+app = FastAPI(title="DiscoveryTrackAI API", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -38,12 +38,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# ========== Database Connection ==========
-client = AsyncIOMotorClient(MONGO_URL)
-db = client[DB_NAME]
-customers_collection = db["customers"]
-discovery_collection = db["discovery_data"]
 
 # ========== Health Check ==========
 @app.get("/api/health")
@@ -56,10 +50,19 @@ async def health_check():
 from routes.customers import router as customers_router
 from routes.discovery import router as discovery_router
 from routes.ai import router as ai_router
+from routes.revisions import router as revisions_router
+try:
+    from routes.meetings import router as meetings_router
+    _meetings_available = True
+except Exception:
+    _meetings_available = False
 
 app.include_router(customers_router)
 app.include_router(discovery_router)
 app.include_router(ai_router)
+app.include_router(revisions_router)
+if _meetings_available:
+    app.include_router(meetings_router)
 
 
 if __name__ == "__main__":

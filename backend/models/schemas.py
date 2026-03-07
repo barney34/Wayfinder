@@ -3,7 +3,7 @@ Pydantic Models for the Discovery API
 """
 
 from datetime import datetime, timezone
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, Field
 
 
@@ -67,6 +67,10 @@ class GenerateContextRequest(BaseModel):
     answers: Dict[str, str]
     notes: Dict[str, str] = {}
     meetingNotes: str = ""
+    customerName: str = ""
+    opportunityName: str = ""
+    platformMode: str = ""
+    sizingSummary: Dict[str, Any] = {}
 
 
 class GenerateContextResponse(BaseModel):
@@ -96,12 +100,37 @@ class ValueDiscoveryChatRequest(BaseModel):
     requiredTopics: List[TopicConfig] = []
     contextHints: List[str] = []
     mode: str = 'guided'  # 'guided' or 'free'
+    discoveryAnswers: Dict[str, str] = {}  # existing form answers for context
 
 
 class ValueDiscoveryChatResponse(BaseModel):
     response: str
     topic: str = ''
     suggestedNextTopic: Optional[str] = None
+    topicComplete: bool = False
+    questionDepth: int = 1  # 1=L1, 2=L2, 3=L3
+    suggestedBridgeQuestion: Optional[str] = None
+
+
+# ========== Revision Models ==========
+class RevisionEntry(BaseModel):
+    id: str
+    name: str
+    exportedAt: str
+    format: str = "save"
+    payload: str
+
+class AddRevisionRequest(BaseModel):
+    name: str
+    exportedAt: str
+    format: str = "save"
+    payload: str
+
+class PromoteRevisionRequest(BaseModel):
+    name: str
+
+class RenameRevisionRequest(BaseModel):
+    name: str
 
 
 # ========== Discovery Data Models ==========
