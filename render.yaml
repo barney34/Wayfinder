@@ -7,11 +7,11 @@ services:
     startCommand: uvicorn server:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: MONGO_URL
-        value: mongodb+srv://barney34_db_user:oFjzmwWITsDiHjyg@wayfinder.tffcti1.mongodb.net/?appName=Wayfinder
+        sync: false
       - key: DB_NAME
         value: discovery_track_ai
       - key: GOOGLE_API_KEY
-        value: AIzaSyArnnpNBLfuBsOOjW0PqiIAqBHtRTYAwlM
+        sync: false
       - key: GEMINI_MODEL
         value: gemini-2.5-flash
 
@@ -27,7 +27,7 @@ services:
         fromService:
           name: wayfinder-backend
           type: web
-          property: host
+          envVarKey: RENDER_EXTERNAL_URL
     routes:
       - type: rewrite
         source: /*
