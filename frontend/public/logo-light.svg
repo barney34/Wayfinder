@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="#005C25" style="background-color:transparent">
+  <!-- 8 spokes: vertical rect rotated in 45° increments, knob circles at outer ends -->
+  <rect x="95.5" y="16" width="9" height="68" rx="4.5"/>
+  <rect x="95.5" y="16" width="9" height="68" rx="4.5" transform="rotate(45 100 100)"/>
+  <rect x="95.5" y="16" width="9" height="68" rx="4.5" transform="rotate(90 100 100)"/>
+  <rect x="95.5" y="16" width="9" height="68" rx="4.5" transform="rotate(135 100 100)"/>
+  <rect x="95.5" y="16" width="9" height="68" rx="4.5" transform="rotate(180 100 100)"/>
+  <rect x="95.5" y="16" width="9" height="68" rx="4.5" transform="rotate(225 100 100)"/>
+  <rect x="95.5" y="16" width="9" height="68" rx="4.5" transform="rotate(270 100 100)"/>
+  <rect x="95.5" y="16" width="9" height="68" rx="4.5" transform="rotate(315 100 100)"/>
+  <!-- Knob balls at spoke ends -->
+  <circle cx="100" cy="10" r="7"/>
+  <circle cx="100" cy="10" r="7" transform="rotate(45 100 100)"/>
+  <circle cx="100" cy="10" r="7" transform="rotate(90 100 100)"/>
+  <circle cx="100" cy="10" r="7" transform="rotate(135 100 100)"/>
+  <circle cx="100" cy="10" r="7" transform="rotate(180 100 100)"/>
+  <circle cx="100" cy="10" r="7" transform="rotate(225 100 100)"/>
+  <circle cx="100" cy="10" r="7" transform="rotate(270 100 100)"/>
+  <circle cx="100" cy="10" r="7" transform="rotate(315 100 100)"/>
+  <!-- Outer ring -->
+  <circle cx="100" cy="100" r="64" fill="none" stroke="#005C25" stroke-width="10"/>
+  <!-- Center diamond -->
+  <rect x="80" y="80" width="40" height="40" rx="3" transform="rotate(45 100 100)"/>
+</svg>
