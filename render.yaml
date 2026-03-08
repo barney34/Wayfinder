@@ -20,6 +20,7 @@ services:
     runtime: static
     rootDir: frontend
     buildCommand: npm install --legacy-peer-deps && npm run build
+    nodeVersion: 22
     staticPublishPath: dist
     envVars:
       - key: VITE_BACKEND_URL
