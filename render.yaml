@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: wayfinder-backend
+    name: wayfinder-api
     runtime: python
     rootDir: backend
     buildCommand: pip install -r requirements-prod.txt
@@ -16,7 +16,7 @@ services:
         value: gemini-2.5-flash
 
   - type: web
-    name: wayfinder-frontend
+    name: wayfinder
     runtime: static
     rootDir: frontend
     buildCommand: npm install --legacy-peer-deps && npm run build
@@ -24,7 +24,7 @@ services:
     envVars:
       - key: VITE_BACKEND_URL
         fromService:
-          name: wayfinder-backend
+          name: wayfinder-api
           type: web
           envVarKey: RENDER_EXTERNAL_URL
     routes:
