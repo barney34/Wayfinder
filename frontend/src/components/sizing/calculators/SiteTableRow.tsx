@@ -1582,6 +1582,9 @@ export const SiteTableRow = React.memo(function SiteTableRow({
 
       {/* HA toggle */}
       <TableCell className="p-1 text-center">
+        {site.platform === 'NXVS' || site.platform === 'NX-P' || site.platform === 'NXaaS' ? (
+          <span className="text-muted-foreground text-xs">N/A</span>
+        ) : (
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -1616,6 +1619,7 @@ export const SiteTableRow = React.memo(function SiteTableRow({
             <TooltipContent>{site.haEnabled ? 'HA enabled' : 'HA disabled'}</TooltipContent>
           </Tooltip>
         </TooltipProvider>
+        )}
       </TableCell>
 
       {/* Platform */}
