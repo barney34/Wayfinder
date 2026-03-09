@@ -16,6 +16,22 @@ router = APIRouter(prefix="/api", tags=["ai"])
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY", "")
 
 
+@router.get("/ai-health")
+async def ai_health():
+    """Quick check: is the Gemini API key set and can we reach the model?"""
+    if not GOOGLE_API_KEY:
+        return {"status": "error", "detail": "GOOGLE_API_KEY not set"}
+    try:
+        response = await llm_send(
+            prompt="Reply with exactly: OK",
+            system_message="You are a health-check bot. Reply with exactly one word.",
+            api_key=GOOGLE_API_KEY,
+        )
+        return {"status": "ok", "model_response": response.strip()}
+    except Exception as e:
+        return {"status": "error", "detail": f"{type(e).__name__}: {e}"}
+
+
 @router.get("/questions")
 async def get_questions():
     """Get all discovery questions"""

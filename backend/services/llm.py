@@ -4,11 +4,14 @@ Provides a single async helper so routes stay decoupled from the SDK
 and the model can be swapped via the GEMINI_MODEL environment variable.
 """
 
+import logging
 import os
 from typing import Optional
 
 from google import genai
 from google.genai import types
+
+logger = logging.getLogger(__name__)
 
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
 
@@ -45,11 +48,17 @@ async def send_message(
     """
     client = _get_client(api_key)
     model_name = model or GEMINI_MODEL
-    response = await client.aio.models.generate_content(
-        model=model_name,
-        contents=prompt,
-        config=types.GenerateContentConfig(
-            system_instruction=system_message,
-        ),
-    )
-    return response.text
+    logger.info(f"Gemini request: model={model_name}, prompt_len={len(prompt)}")
+    try:
+        response = await client.aio.models.generate_content(
+            model=model_name,
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                system_instruction=system_message,
+            ),
+        )
+        logger.info(f"Gemini response OK: {len(response.text)} chars")
+        return response.text
+    except Exception as e:
+        logger.error(f"Gemini API error: {type(e).__name__}: {e}")
+        raise
