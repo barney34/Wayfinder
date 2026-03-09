@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Sparkles, ChevronRight, ChevronDown, MessageSquare, TrendingUp, Lightbulb } from "lucide-react";
 import { useDiscovery } from "@/contexts/DiscoveryContext";
+import { getApiUrl } from "@/lib/queryClient";
 
 // Map discovery sections to VF tags (section-specific tags)
 const SECTION_TO_TAGS = {
@@ -128,14 +129,13 @@ export function ValueFrameworkInjection({ section }) {
   const { answers, setAnswer } = useDiscovery();
   const [framework, setFramework] = useState(null);
   const [expanded, setExpanded] = useState(true);
-  const API_URL = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
-    fetch(`${API_URL}/api/value-framework`)
+    fetch(getApiUrl('/api/value-framework'))
       .then(r => r.json())
       .then(setFramework)
       .catch(() => {});
-  }, [API_URL]);
+  }, []);
 
   if (!framework) return null;
 

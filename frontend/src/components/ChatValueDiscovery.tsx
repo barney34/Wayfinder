@@ -12,8 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Send, ChevronDown, ChevronRight, CheckCircle2, Loader2, MessageSquare, RotateCcw, Compass, MessageCircleQuestion, ArrowRight, StickyNote } from "lucide-react";
 import { useDiscovery } from "@/contexts/DiscoveryContext";
 import { useToast } from "@/hooks/use-toast";
+import { getApiUrl } from "@/lib/queryClient";
 
-const API_URL = import.meta.env.VITE_BACKEND_URL;
 const MAX_QUESTIONS_PER_TOPIC = 3;
 
 // Topic opener questions for when user clicks a topic pill
@@ -286,7 +286,7 @@ export function ChatValueDiscovery({ section, defaultExpanded = false, contextua
         Object.entries(answers).filter(([k]) => !k.startsWith('vd-'))
       );
 
-      const response = await fetch(`${API_URL}/api/value-discovery-chat`, {
+      const response = await fetch(getApiUrl('/api/value-discovery-chat'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
