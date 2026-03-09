@@ -1,14 +1,15 @@
 services:
   - type: web
-    name: wayfinder
+    name: wayfinder-staging
     runtime: docker
+    branch: staging
     dockerfilePath: ./backend/Dockerfile
     dockerContext: .
     envVars:
       - key: MONGO_URL
         sync: false
       - key: DB_NAME
-        value: discovery_track_ai
+        value: discovery_track_ai_staging
       - key: GOOGLE_API_KEY
         sync: false
       - key: GEMINI_MODEL

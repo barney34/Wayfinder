@@ -8,6 +8,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import * as XLSX from 'xlsx';
 import { useToast } from "@/hooks/use-toast";
 import { useDiscovery } from "@/contexts/DiscoveryContext";
+import { getApiUrl } from "@/lib/queryClient";
 
 interface MeetingNotesAIProps {
   customerName?: string;
@@ -25,7 +26,6 @@ export function MeetingNotesAI({ customerName = '', opportunityName = '' }: Meet
   const fileInputRef = useRef(null);
   const textareaRef = useRef(null);
   const { toast } = useToast();
-  const API_URL = import.meta.env.VITE_BACKEND_URL;
 
   // Summary field config - short, descriptive bullet point style
   const summaryFields = [
@@ -60,7 +60,7 @@ export function MeetingNotesAI({ customerName = '', opportunityName = '' }: Meet
     }
     setGenerating(prev => ({ ...prev, [contextType]: true }));
     try {
-      const res = await fetch(`${API_URL}/api/generate-context`, {
+      const res = await fetch(getApiUrl('/api/generate-context'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -102,7 +102,7 @@ export function MeetingNotesAI({ customerName = '', opportunityName = '' }: Meet
     if (!meetingNotes.trim()) { toast({ title: "No meeting notes", description: "Please enter meeting notes to analyze", variant: "destructive" }); return; }
     setIsProcessing(true);
     try {
-      const response = await fetch(`${API_URL}/api/analyze-notes`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ notes: meetingNotes }) });
+      const response = await fetch(getApiUrl('/api/analyze-notes'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ notes: meetingNotes }) });
       if (!response.ok) throw new Error('Failed to analyze meeting notes');
       const data = await response.json();
       const aiMatches = (data.matches || []).map(match => {

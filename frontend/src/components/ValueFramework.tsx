@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useDiscovery } from "@/contexts/DiscoveryContext";
+import { getApiUrl } from "@/lib/queryClient";
 
 const CATEGORY_ICONS = {
   optimize: ShieldCheck,
@@ -41,11 +42,10 @@ export function ValueFramework() {
   const [expandedCategories, setExpandedCategories] = useState({});
   const [expandedQuestions, setExpandedQuestions] = useState({});
   const { toast } = useToast();
-  const API_URL = import.meta.env.VITE_BACKEND_URL;
 
   // Fetch value framework data
   useEffect(() => {
-    fetch(`${API_URL}/api/value-framework`)
+    fetch(getApiUrl('/api/value-framework'))
       .then(r => r.json())
       .then(data => {
         setFramework(data);
@@ -55,7 +55,7 @@ export function ValueFramework() {
         }
       })
       .catch(err => console.error("Failed to fetch value framework:", err));
-  }, [API_URL]);
+  }, []);
 
   // Update a VF answer
   const updateVfAnswer = (questionId, value) => {
@@ -70,7 +70,7 @@ export function ValueFramework() {
     try {
       // Merge VF answers with main answers
       const allAnswers = { ...answers, ...vfAnswers };
-      const res = await fetch(`${API_URL}/api/generate-value-props`, {
+      const res = await fetch(getApiUrl('/api/generate-value-props'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ contextType: categoryId, answers: allAnswers, notes, meetingNotes }),

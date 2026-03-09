@@ -15,7 +15,6 @@ import { ChevronDown, ChevronUp, ChevronRight, X, Plus, Info, MessageSquare, Che
 import { useDiscovery } from "@/contexts/DiscoveryContext";
 import { useToast } from "@/hooks/use-toast";
 
-const API_URL = import.meta.env.VITE_BACKEND_URL;
 // ChatValueDiscovery moved to ValueDiscoveryDrawer — no longer rendered per-section
 import {
   TDNiosSection, DossierInput, LookalikeInput, AssetConfigInput,

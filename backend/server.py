@@ -13,13 +13,19 @@ Refactored modular architecture:
 import os
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
+from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv()
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from database import ensure_indexes
+
+BASE_DIR = Path(__file__).resolve().parent
+FRONTEND_DIST_DIR = BASE_DIR.parent / "frontend" / "dist"
 
 
 @asynccontextmanager
@@ -63,6 +69,25 @@ app.include_router(ai_router)
 app.include_router(revisions_router)
 if _meetings_available:
     app.include_router(meetings_router)
+
+if FRONTEND_DIST_DIR.exists():
+    app.mount("/assets", StaticFiles(directory=FRONTEND_DIST_DIR / "assets"), name="assets")
+
+
+@app.get("/{full_path:path}", include_in_schema=False)
+async def serve_frontend(full_path: str):
+    if full_path.startswith("api/"):
+        raise HTTPException(status_code=404, detail="Not found")
+
+    requested_path = FRONTEND_DIST_DIR / full_path if full_path else FRONTEND_DIST_DIR / "index.html"
+    if full_path and requested_path.is_file():
+        return FileResponse(requested_path)
+
+    index_file = FRONTEND_DIST_DIR / "index.html"
+    if index_file.exists():
+        return FileResponse(index_file)
+
+    raise HTTPException(status_code=503, detail="Frontend build not found")
 
 
 if __name__ == "__main__":
