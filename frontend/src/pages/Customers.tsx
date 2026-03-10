@@ -24,11 +24,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Search, Loader2, ChevronDown, ChevronRight, X, Pencil, Check, X as XIcon } from "lucide-react";
+import { Plus, Search, Loader2, ChevronDown, ChevronRight, X, Pencil, Check, X as XIcon, Megaphone } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { WhatsNew } from "@/components/WhatsNew";
 import type { Customer } from "@/types";
 
 function formatLastUpdated(date: string | Date): string {
@@ -74,6 +75,7 @@ export default function Customers() {
 
   const [renamingSeGroup, setRenamingSeGroup] = useState<string | null>(null);
   const [renameSeValue, setRenameSeValue] = useState('');
+  const [showWhatsNew, setShowWhatsNew] = useState(false);
 
   // Auto-open new customer dialog when navigated here with ?new=1
   // location in deps ensures this re-runs when already-mounted component gets new route
@@ -495,6 +497,14 @@ export default function Customers() {
           <p className="text-sm text-muted-foreground">Manage customer profiles and assessments</p>
         </div>
         <div className="flex items-center gap-2">
+          <Button
+            variant={showWhatsNew ? "default" : "outline"}
+            size="sm"
+            onClick={() => setShowWhatsNew(!showWhatsNew)}
+          >
+            <Megaphone className="mr-1.5 h-4 w-4" />
+            What's New
+          </Button>
           <ThemeToggle />
           <Button 
             onClick={() => setIsNewCustomerOpen(true)}
@@ -505,6 +515,10 @@ export default function Customers() {
           </Button>
         </div>
       </div>
+
+      {showWhatsNew && (
+        <WhatsNew />
+      )}
 
       {/* Completion pills */}
       {customers.length > 0 && (() => {

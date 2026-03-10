@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { 
   ChevronLeft, ChevronRight, ChevronDown, Users, 
   Save, Download, Home, Search, BarChart3,
-  Ticket, Sparkles, Clock, Plus, Check
+  Ticket, Sparkles, Clock, Plus, Check, Megaphone
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -221,6 +221,14 @@ export function AppSidebar({
             item={{ id: 'dashboard', label: 'Dashboard', icon: Home }} 
             isActive={false} 
             onClick={onBack}
+            collapsed={collapsed}
+          />
+
+          {/* What's New */}
+          <NavItem
+            item={{ id: 'whatsnew', label: "What's New", icon: Megaphone }}
+            isActive={activeTab === 'whatsnew'}
+            onClick={() => onTabChange?.('whatsnew')}
             collapsed={collapsed}
           />
 

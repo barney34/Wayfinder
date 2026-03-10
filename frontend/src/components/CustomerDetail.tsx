@@ -28,6 +28,7 @@ import { VersionControl } from "./VersionControl";
 import { ImportExportSection } from "./ImportExportSection";
 import { ValueDiscoveryDrawer } from "./ValueDiscoveryDrawer";
 import { TriggerBanner } from "./TriggerBanner";
+import { WhatsNew } from "./WhatsNew";
 import { addDynamicRevision, formatRevisionDate } from "@/lib/revisionHelpers";
 import yaml from "js-yaml";
 
@@ -738,6 +739,11 @@ function CustomerDetailContent({
                   <ClearDataButton />
                 </div>
               </div>
+            )}
+
+            {/* What's New Tab */}
+            {activeTab === 'whatsnew' && (
+              <WhatsNew />
             )}
           </div>
         </div>
