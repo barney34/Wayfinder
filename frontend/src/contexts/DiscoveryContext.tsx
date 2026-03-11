@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { apiRequest } from '@/lib/queryClient';
+import { useCustomerSync, type SyncStatus } from '@/hooks/useCustomerSync';
 import type {
   AnswerMap, NoteMap, ContextFieldMap, EnabledSectionMap, LeaseTimeUnitMap,
   DataCenter, Site, Drawing, DrawingConfig, SizingSummary, Question,
@@ -24,6 +25,8 @@ interface DiscoveryContextValue {
   isDirty: boolean;
   isSaving: boolean;
   lastSaved: string | null;
+  syncStatus: SyncStatus;
+  isConnected: boolean;
   questions: Question[];
   drawings: Drawing[];
   activeDrawingId: string;
@@ -105,6 +108,7 @@ export function DiscoveryProvider({ children, customerId }: DiscoveryProviderPro
   const [isDirty, setIsDirty] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [lastSaved, setLastSaved] = useState<string | null>(null);
+  const [lastRemoteUpdate, setLastRemoteUpdate] = useState<string | null>(null);
 
   // ── Per-drawing state: each drawing has its own platformMode, features, siteOverrides, siteOrder ──
   const _defaultDrawingId = `drawing-${Date.now()}-init`;
@@ -169,6 +173,40 @@ export function DiscoveryProvider({ children, customerId }: DiscoveryProviderPro
         setIsHydrated(true);
       });
   }, [customerId, questionsLoaded]);
+
+  // Handle incoming WebSocket data updates from other users
+  const handleRemoteUpdate = useCallback((data: any) => {
+    // Only update if this is a remote change (not our own save)
+    const updateTimestamp = data.lastSaved;
+    if (updateTimestamp && updateTimestamp !== lastRemoteUpdate) {
+      console.log('[DiscoveryContext] Received remote update, refreshing data');
+      setLastRemoteUpdate(updateTimestamp);
+      
+      // Update all state with remote data
+      if (data.answers) setAnswers(data.answers);
+      if (data.notes) setNotes(data.notes);
+      if (data.contextFields) setContextFieldsState(data.contextFields);
+      if (data.meetingNotes !== undefined) setMeetingNotesState(data.meetingNotes);
+      if (data.enabledSections) setEnabledSections(data.enabledSections);
+      if (data.udsMembers) setUdsMembers(data.udsMembers);
+      if (data.leaseTimeUnits) setLeaseTimeUnitsState(data.leaseTimeUnits);
+      if (data.dataCenters) setDataCenters(data.dataCenters);
+      if (data.sites) setSites(data.sites);
+      if (data.drawings) setDrawings(data.drawings);
+      if (data.activeDrawingId) setActiveDrawingIdState(data.activeDrawingId);
+      if (data.drawingConfigs) setDrawingConfigs(data.drawingConfigs);
+      
+      // Show notification to user
+      console.log('[DiscoveryContext] Data updated by another user');
+      // TODO: Add toast notification here
+    }
+  }, [lastRemoteUpdate]);
+
+  // Connect to WebSocket for real-time sync
+  const { syncStatus, isConnected } = useCustomerSync(customerId, {
+    onDataUpdate: handleRemoteUpdate,
+    enabled: isHydrated, // Only connect after initial data load
+  });
 
   // Auto-save to MongoDB when data changes (debounced)
   useEffect(() => {
@@ -474,7 +512,7 @@ export function DiscoveryProvider({ children, customerId }: DiscoveryProviderPro
       answers, notes, contextFields, meetingNotes, enabledSections,
       udsMembers, defaultAnswers, leaseTimeUnits, dataCenters, sites,
       platformMode: activePlatformMode, sizingSummary,
-      isHydrated, isDirty, isSaving, lastSaved, questions,
+      isHydrated, isDirty, isSaving, lastSaved, syncStatus, isConnected, questions,
       // Drawing management
       drawings, activeDrawingId, drawingConfigs,
       getDrawingConfig, updateDrawingConfig,

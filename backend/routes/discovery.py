@@ -7,6 +7,7 @@ from fastapi import APIRouter, HTTPException
 
 from database import customers_collection, discovery_collection
 from models.schemas import DiscoveryData
+from websocket_manager import manager
 
 router = APIRouter(prefix="/api/customers", tags=["discovery"])
 
@@ -77,5 +78,12 @@ async def save_discovery_data(customer_id: str, data: DiscoveryData):
         {"id": customer_id},
         {"$set": {"updatedAt": now}}
     )
+    
+    # Broadcast update to all connected WebSocket clients
+    await manager.broadcast(customer_id, {
+        "type": "discovery_update",
+        "data": discovery_doc,
+        "timestamp": now.isoformat()
+    })
     
     return discovery_doc

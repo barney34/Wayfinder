@@ -473,6 +473,7 @@ function CustomerDetailContent({
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState('discovery');
   const discoveryContext = useDiscovery();
+  const { syncStatus, isConnected } = discoveryContext;
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
   const [valueDrawerOpen, setValueDrawerOpen] = useState(false);
@@ -629,6 +630,21 @@ function CustomerDetailContent({
             setEditDetailsOpen(true);
           }}
         />
+        {/* Connection Status Indicator */}
+        <div className="px-4 py-1 bg-muted/30 border-b flex items-center justify-end gap-2 text-xs">
+          <div className="flex items-center gap-1.5">
+            <div className={`w-2 h-2 rounded-full ${
+              syncStatus === 'connected' ? 'bg-green-500' : 
+              syncStatus === 'connecting' ? 'bg-yellow-500 animate-pulse' : 
+              'bg-red-500'
+            }`} />
+            <span className="text-muted-foreground">
+              {syncStatus === 'connected' ? 'Connected' : 
+               syncStatus === 'connecting' ? 'Connecting...' : 
+               'Disconnected'}
+            </span>
+          </div>
+        </div>
         </div>
 
         {/* Edit Details Dialog */}

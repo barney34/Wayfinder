@@ -18,11 +18,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from database import ensure_indexes
+from database import ensure_indexes, customers_collection
+from websocket_manager import manager
 
 BASE_DIR = Path(__file__).resolve().parent
 FRONTEND_DIST_DIR = BASE_DIR.parent / "frontend" / "dist"
@@ -69,6 +70,44 @@ app.include_router(ai_router)
 app.include_router(revisions_router)
 if _meetings_available:
     app.include_router(meetings_router)
+
+
+# ========== WebSocket Endpoint for Real-Time Sync ==========
+@app.websocket("/ws/customers/{customer_id}")
+async def websocket_endpoint(websocket: WebSocket, customer_id: str):
+    """WebSocket endpoint for real-time customer data synchronization"""
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    # Verify customer exists
+    customer = await customers_collection.find_one({"id": customer_id})
+    if not customer:
+        await websocket.close(code=1008, reason="Customer not found")
+        return
+    
+    # Connect to WebSocket manager
+    await manager.connect(customer_id, websocket)
+    
+    try:
+        while True:
+            # Listen for messages from client (e.g., ping/heartbeat)
+            data = await websocket.receive_json()
+            
+            # Handle ping/pong for connection health
+            if data.get("type") == "ping":
+                await websocket.send_json({
+                    "type": "pong",
+                    "timestamp": datetime.now(timezone.utc).isoformat()
+                })
+                logger.debug(f"Ping received from customer {customer_id}")
+    
+    except WebSocketDisconnect:
+        manager.disconnect(customer_id, websocket)
+        logger.info(f"WebSocket disconnected for customer {customer_id}")
+    except Exception as e:
+        logger.error(f"WebSocket error for customer {customer_id}: {e}")
+        manager.disconnect(customer_id, websocket)
+
 
 if FRONTEND_DIST_DIR.exists():
     app.mount("/assets", StaticFiles(directory=FRONTEND_DIST_DIR / "assets"), name="assets")
