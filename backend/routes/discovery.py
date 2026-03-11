@@ -4,10 +4,13 @@ Discovery Data Routes
 
 from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException
+import logging
 
 from database import customers_collection, discovery_collection
 from models.schemas import DiscoveryData
 from websocket_manager import manager
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/customers", tags=["discovery"])
 
@@ -80,9 +83,6 @@ async def save_discovery_data(customer_id: str, data: DiscoveryData):
     )
     
     # Broadcast update to all connected WebSocket clients
-    import logging
-    from datetime import datetime
-    logger = logging.getLogger(__name__)
     logger.info(f"[BROADCAST] About to broadcast update for customer {customer_id}")
     logger.info(f"[BROADCAST] Active connections: {manager.get_connection_count(customer_id)}")
     
