@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useDiscovery } from "@/contexts/DiscoveryContext";
+import { formatNumber } from "@/lib/utils";
 
 // Editable tag for DC/Site
 function SiteTag({ name, kw, color, onRemove }) {
@@ -64,13 +65,6 @@ export function QuickSiteEntry() {
       handleAdd();
     }
   }, [handleAdd]);
-
-  const formatKW = (n) => {
-    if (n === undefined || n === null) return '0';
-    if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
-    if (n >= 1000) return (n / 1000).toFixed(n >= 10000 ? 0 : 1) + 'K';
-    return n.toString();
-  };
 
   return (
     <div className="bg-muted/30 rounded-lg p-3 space-y-2">
@@ -147,7 +141,7 @@ export function QuickSiteEntry() {
             <SiteTag
               key={dc.id}
               name={dc.name}
-              kw={formatKW(dc.knowledgeWorkers)}
+              kw={formatNumber(dc.knowledgeWorkers)}
               color="blue"
               onRemove={() => deleteDataCenter(dc.id)}
             />
@@ -156,7 +150,7 @@ export function QuickSiteEntry() {
             <SiteTag
               key={site.id}
               name={site.name}
-              kw={formatKW(site.knowledgeWorkers)}
+              kw={formatNumber(site.knowledgeWorkers)}
               color="green"
               onRemove={() => deleteSite(site.id)}
             />

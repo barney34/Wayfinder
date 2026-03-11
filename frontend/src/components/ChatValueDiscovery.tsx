@@ -402,15 +402,15 @@ export function ChatValueDiscovery({ section, defaultExpanded = false, contextua
           className="flex-1 flex items-center justify-between px-4 py-3 rounded-2xl bg-card border border-border transition-all"
         >
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-[#12C2D3]/15 flex items-center justify-center">
-              <MessageSquare className="h-4 w-4 text-[#00594C] dark:text-[#12C2D3]" />
+            <div className="w-8 h-8 rounded-xl bg-accent/15 flex items-center justify-center">
+              <MessageSquare className="h-4 w-4 text-accent" />
             </div>
             <span className="text-sm font-semibold text-foreground">Value Discovery</span>
             {/* Progress indicator */}
             <div className="flex items-center gap-2 ml-2">
               <div className="w-16 h-1.5 bg-border rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-[#00BD4D] transition-all duration-300" 
+                  className="h-full bg-primary transition-all duration-300" 
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
@@ -443,8 +443,8 @@ export function ChatValueDiscovery({ section, defaultExpanded = false, contextua
                 <button
                   onClick={() => setMode('guided')}
                   className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-medium transition-colors ${
-                    mode === 'guided' 
-                      ? 'bg-[#12C2D3] text-white' 
+                    mode === 'guided'
+                      ? 'bg-accent text-accent-foreground'
                       : 'text-secondary-foreground hover:text-foreground hover:bg-muted'
                   }`}
                 >
@@ -454,8 +454,8 @@ export function ChatValueDiscovery({ section, defaultExpanded = false, contextua
                 <button
                   onClick={() => setMode('free')}
                   className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-medium transition-colors ${
-                    mode === 'free' 
-                      ? 'bg-[#12C2D3] text-white' 
+                    mode === 'free'
+                      ? 'bg-accent text-accent-foreground'
                       : 'text-secondary-foreground hover:text-foreground hover:bg-muted'
                   }`}
                 >
@@ -484,11 +484,11 @@ export function ChatValueDiscovery({ section, defaultExpanded = false, contextua
                     disabled={isLoading}
                     className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium transition-all border ${
                       isComplete
-                        ? 'bg-[#00BD4D]/15 text-[#00BD4D] border-[#00BD4D]/30 cursor-default'
+                        ? 'bg-primary/15 text-primary border-primary/30 cursor-default'
                         : isActive
-                          ? 'bg-[#12C2D3]/20 text-[#00594C] dark:text-[#12C2D3] border-[#12C2D3] ring-1 ring-[#12C2D3]/30'
+                          ? 'bg-accent/20 text-accent border-accent ring-1 ring-accent/30'
                           : topic.required
-                            ? 'bg-[#FEDD00]/10 text-[#9A7600] dark:text-[#FEDD00] border-[#FEDD00]/30 hover:bg-[#FEDD00]/20 cursor-pointer'
+                            ? 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/30 hover:bg-yellow-500/20 cursor-pointer'
                             : 'bg-secondary text-secondary-foreground border-border hover:bg-muted hover:text-foreground cursor-pointer'
                     }`}
                     data-testid={`topic-pill-${topic.id}`}
@@ -497,7 +497,7 @@ export function ChatValueDiscovery({ section, defaultExpanded = false, contextua
                       <CheckCircle2 className="h-3 w-3" />
                     ) : levelLabel ? (
                       <span className={`text-[9px] font-bold px-0.5 rounded ${
-                        isActive ? 'text-[#12C2D3]' : 'text-muted-foreground'
+                        isActive ? 'text-accent' : 'text-muted-foreground'
                       }`}>{levelLabel}</span>
                     ) : null}
                     {topic.label}
@@ -514,12 +514,12 @@ export function ChatValueDiscovery({ section, defaultExpanded = false, contextua
                 key={idx}
                 className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <div 
+                <div
                   className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm ${
                     msg.role === 'user'
-                      ? 'bg-[#00BD4D] text-white rounded-br-md'
+                      ? 'bg-primary text-primary-foreground rounded-br-md'
                       : msg.isPivotQuestion
-                        ? 'bg-[#12C2D3]/10 border border-[#12C2D3]/60 text-foreground rounded-bl-md font-medium'
+                        ? 'bg-accent/10 border border-accent/60 text-foreground rounded-bl-md font-medium'
                         : 'bg-secondary border border-border text-foreground rounded-bl-md'
                   }`}
                 >
@@ -537,9 +537,9 @@ export function ChatValueDiscovery({ section, defaultExpanded = false, contextua
             )}
             {/* 3-deep transition gate */}
             {pendingTransition && (
-              <div className="mx-1 mt-2 rounded-xl border border-[#00BD4D]/30 bg-[#00BD4D]/8 p-3 space-y-2">
+              <div className="mx-1 mt-2 rounded-xl border border-primary/30 bg-primary/8 p-3 space-y-2">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-[#00BD4D] shrink-0" />
+                  <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
                   <span className="text-xs font-medium text-foreground">
                     {sectionConfig.topics.find(t => t.id === pendingTransition.completedTopic)?.label || pendingTransition.completedTopic} covered
                   </span>
@@ -553,7 +553,7 @@ export function ChatValueDiscovery({ section, defaultExpanded = false, contextua
                       <Button
                         size="sm"
                         variant="outline"
-                        className="h-6 text-[10px] px-2 shrink-0 border-[#12C2D3] text-[#12C2D3] hover:bg-[#12C2D3]/10"
+                        className="h-6 text-[10px] px-2 shrink-0 border-accent text-accent hover:bg-accent/10"
                         onClick={() => {
                           const q = pendingTransition.bridgeQuestion;
                           setPendingTransition(prev => ({ ...prev, bridgeQuestion: null }));
@@ -576,7 +576,7 @@ export function ChatValueDiscovery({ section, defaultExpanded = false, contextua
                       autoFocus
                     />
                     <div className="flex gap-2">
-                      <Button size="sm" className="h-7 text-xs bg-[#00BD4D] hover:bg-[#00BD4D]/90 text-white" onClick={handleSaveNote} disabled={!noteInput.trim()}>
+                      <Button size="sm" className="h-7 text-xs bg-primary hover:bg-primary/90 text-primary-foreground" onClick={handleSaveNote} disabled={!noteInput.trim()}>
                         Save &amp; {pendingTransition.nextTopic ? 'Continue' : 'Done'}
                       </Button>
                       <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => setShowNoteInput(false)}>Cancel</Button>
@@ -585,7 +585,7 @@ export function ChatValueDiscovery({ section, defaultExpanded = false, contextua
                 ) : (
                   <div className="flex flex-wrap gap-2">
                     {pendingTransition.nextTopic && (
-                      <Button size="sm" className="h-7 text-xs gap-1.5 bg-[#12C2D3] hover:bg-[#12C2D3]/90 text-white" onClick={handleNextTopic}>
+                      <Button size="sm" className="h-7 text-xs gap-1.5 bg-accent hover:bg-accent/90 text-accent-foreground" onClick={handleNextTopic}>
                         <ArrowRight className="h-3 w-3" />
                         Next: {pendingTransition.nextLabel}
                       </Button>
@@ -622,7 +622,7 @@ export function ChatValueDiscovery({ section, defaultExpanded = false, contextua
                 onClick={sendMessage}
                 disabled={!inputValue.trim() || isLoading}
                 size="icon"
-                className="h-10 w-10 rounded-xl bg-[#00BD4D] hover:bg-[#00BD4D]/90 disabled:opacity-50"
+                className="h-10 w-10 rounded-xl bg-primary hover:bg-primary/90 disabled:opacity-50"
                 data-testid={`chat-send-${section.replace(/\s/g, '-')}`}
               >
                 <Send className="h-4 w-4" />

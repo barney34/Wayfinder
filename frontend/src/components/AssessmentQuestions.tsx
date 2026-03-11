@@ -187,15 +187,15 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
 
   // Nav pill colors - Theme-aware with improved light mode contrast
   const sectionPillStyles = {
-    'IPAM':                  { normal: 'bg-card text-foreground border-border ', active: 'bg-[#00BD4D] text-white border-[#00BD4D] ' },
-    'Internal DNS':          { normal: 'bg-card text-foreground border-border ', active: 'bg-[#00BD4D] text-white border-[#00BD4D] ' },
-    'External DNS':          { normal: 'bg-card text-foreground border-border ', active: 'bg-[#00BD4D] text-white border-[#00BD4D] ' },
-    'DHCP':                  { normal: 'bg-card text-foreground border-border ', active: 'bg-[#00BD4D] text-white border-[#00BD4D] ' },
-    'Overlay':               { normal: 'bg-card text-foreground border-border ', active: 'bg-[#00BD4D] text-white border-[#00BD4D] ' },
-    'Services':              { normal: 'bg-card text-foreground border-border ', active: 'bg-[#00BD4D] text-white border-[#00BD4D] ' },
-    'Asset/ Network Insight': { normal: 'bg-card text-foreground border-border ', active: 'bg-[#00BD4D] text-white border-[#00BD4D] ' },
-    'Security':              { normal: 'bg-card text-foreground border-border ', active: 'bg-[#00BD4D] text-white border-[#00BD4D] ' },
-    'Professional Services': { normal: 'bg-card text-foreground border-border ', active: 'bg-[#00BD4D] text-white border-[#00BD4D] ' },
+    'IPAM':                  { normal: 'bg-card text-foreground border-border ', active: 'bg-primary text-primary-foreground border-primary ' },
+    'Internal DNS':          { normal: 'bg-card text-foreground border-border ', active: 'bg-primary text-primary-foreground border-primary ' },
+    'External DNS':          { normal: 'bg-card text-foreground border-border ', active: 'bg-primary text-primary-foreground border-primary ' },
+    'DHCP':                  { normal: 'bg-card text-foreground border-border ', active: 'bg-primary text-primary-foreground border-primary ' },
+    'Overlay':               { normal: 'bg-card text-foreground border-border ', active: 'bg-primary text-primary-foreground border-primary ' },
+    'Services':              { normal: 'bg-card text-foreground border-border ', active: 'bg-primary text-primary-foreground border-primary ' },
+    'Asset/ Network Insight': { normal: 'bg-card text-foreground border-border ', active: 'bg-primary text-primary-foreground border-primary ' },
+    'Security':              { normal: 'bg-card text-foreground border-border ', active: 'bg-primary text-primary-foreground border-primary ' },
+    'Professional Services': { normal: 'bg-card text-foreground border-border ', active: 'bg-primary text-primary-foreground border-primary ' },
   };
 
   // Active section background - NONE, just rely on header styling
@@ -323,7 +323,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
           <div className="space-y-3">
             {yesNoEl}
             <div>
-              <div className="text-xs text-[#00BD4D] mb-1.5 uppercase tracking-wide font-medium">Which platform(s)?</div>
+              <div className="text-xs text-primary mb-1.5 uppercase tracking-wide font-medium">Which platform(s)?</div>
               <GridMultiSelect
                 questionId="dhcp-7a"
                 options={platformOptions}
@@ -385,7 +385,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
         return (
           <div className="space-y-2">
             {yesNoField}
-            <div className="flex items-start gap-2 px-3 py-2 bg-[#12C2D3]/10 border border-[#12C2D3]/40 rounded-lg text-xs text-[#12C2D3]">
+            <div className="flex items-start gap-2 px-3 py-2 bg-accent/10 border border-accent/40 rounded-lg text-xs text-accent">
               <Zap className="h-3.5 w-3.5 mt-0.5 shrink-0" />
               <span>
                 {extRecords > 0
@@ -914,7 +914,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                     {/* Progress bar background */}
                     {!isActive && isSectionEnabled && progress > 0 && (
                       <div 
-                        className="absolute bottom-0 left-0 h-0.5 bg-[#00BD4D] transition-all"
+                        className="absolute bottom-0 left-0 h-0.5 bg-accent transition-all"
                         style={{ width: `${progress}%` }}
                       />
                     )}
@@ -1069,7 +1069,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                       {q.question}
                     </label>
                     {hasNote && (
-                      <span className="text-[10px] text-[#00BD4D] uppercase tracking-wide px-2 py-0.5 rounded-full bg-[#00BD4D]/10">noted</span>
+                      <span className="text-[10px] text-primary uppercase tracking-wide px-2 py-0.5 rounded-full bg-primary/10">noted</span>
                     )}
                   </div>
                   
@@ -1080,7 +1080,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                     </div>
                   ) : (
                     <button 
-                      className="text-sm text-[#00BD4D] hover:text-[#00BD4D]/80 font-medium"
+                      className="text-sm text-primary hover:text-primary/80 font-medium"
                       onClick={(e) => {
                         e.stopPropagation();
                         setExpandedNotes(p => ({ ...p, [q.id]: !p[q.id] }));
@@ -1161,7 +1161,7 @@ export function AssessmentQuestions({ questions, onAnswerChange, compact = false
                           data-testid={`question-${cq.id}`}
                         >
                           {!suppressLabel && (
-                            <div className="text-xs text-[#00BD4D] mb-2 uppercase tracking-wide font-medium">
+                            <div className="text-xs text-primary mb-2 uppercase tracking-wide font-medium">
                               If {cq.conditionalOn.value}
                             </div>
                           )}

@@ -30,6 +30,7 @@ import { ValueDiscoveryDrawer } from "./ValueDiscoveryDrawer";
 import { TriggerBanner } from "./TriggerBanner";
 import { WhatsNew } from "./WhatsNew";
 import { addDynamicRevision, formatRevisionDate } from "@/lib/revisionHelpers";
+import { formatNumber } from "@/lib/utils";
 import yaml from "js-yaml";
 
 // ===== Dynamic Island Tag Component (Responsive) =====
@@ -54,12 +55,6 @@ function DynamicIslandTag({ id, name, kw, color, onUpdate, onDelete }) {
     setIsEditingKW(false);
   };
 
-  const formatKW = (val) => {
-    if (val >= 1000000) return `${(val / 1000000).toFixed(1)}M`;
-    if (val >= 1000) return `${(val / 1000).toFixed(val % 1000 === 0 ? 0 : 1)}K`;
-    return val.toString();
-  };
-
   return (
     <div className={`inline-flex items-center gap-1 px-2 py-1 lg:px-3 lg:py-1.5 rounded-md border text-xs lg:text-sm transition-all duration-150 ${colorClasses}`}>
       {isEditingName ? (
@@ -77,7 +72,7 @@ function DynamicIslandTag({ id, name, kw, color, onUpdate, onDelete }) {
           onKeyDown={e => { if (e.key === 'Enter') handleKWSave(); if (e.key === 'Escape') { setEditKW(kw?.toString() || ''); setIsEditingKW(false); } }}
           className="w-16 lg:w-20 h-5 lg:h-6 px-1 text-xs lg:text-sm bg-background border rounded text-right focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" autoFocus />
       ) : (
-        <span onClick={() => setIsEditingKW(true)} className="tabular-nums cursor-pointer hover:underline">{formatKW(kw || 0)}</span>
+        <span onClick={() => setIsEditingKW(true)} className="tabular-nums cursor-pointer hover:underline">{formatNumber(kw || 0)}</span>
       )}
       <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="ml-1 p-0.5 rounded hover:bg-destructive/20">
         <X className="h-3 w-3 lg:h-4 lg:w-4 text-muted-foreground/50 hover:text-destructive" />
@@ -169,12 +164,6 @@ function QuickCaptureBarInline() {
     if (e.key === 'Enter') { e.preventDefault(); handleAdd(); }
   };
 
-  const formatKW = (val) => {
-    if (val >= 1000000) return `${(val / 1000000).toFixed(1)}M`;
-    if (val >= 1000) return `${(val / 1000).toFixed(val % 1000 === 0 ? 0 : 1)}K`;
-    return val.toString();
-  };
-
   // Platform modes imported from platformConfig.ts
 
   return (
@@ -210,7 +199,7 @@ function QuickCaptureBarInline() {
           />
         ) : (
           <span className="w-20 h-7 flex items-center justify-center bg-primary/10 rounded border border-primary/30 text-sm font-bold tabular-nums text-primary">
-            {formatKW(activeIPs)}
+            {formatNumber(activeIPs)}
           </span>
         )}
         <span className="text-xs text-muted-foreground">IPs</span>
@@ -245,13 +234,13 @@ function QuickCaptureBarInline() {
         <div className="flex items-center gap-3 ml-auto text-xs">
           <div className="flex items-center gap-1">
             <Server className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="font-medium">{formatKW(sizingSummary.totalIPs)} IPs</span>
+            <span className="font-medium">{formatNumber(sizingSummary.totalIPs)} IPs</span>
           </div>
           {sizingSummary.platformMode !== 'NIOS' && (
             <>
               <div className="flex items-center gap-1">
                 <Cpu className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="font-medium">{formatKW(sizingSummary.totalTokens)} Tokens</span>
+                <span className="font-medium">{formatNumber(sizingSummary.totalTokens)} Tokens</span>
               </div>
               <Badge variant="outline" className="text-xs py-0 px-2">{sizingSummary.tokenPack} packs</Badge>
             </>
@@ -490,22 +479,22 @@ function CustomerDetailContent({
 
   // Definitions: fires once per session when a tech answer hits a value trigger
   const TRIGGERS = [
-    { id: 'spreadsheets', driver: 'optimize', color: '#12C2D3',
+    { id: 'spreadsheets', driver: 'optimize', color: 'hsl(var(--accent))',
       message: 'Spreadsheets detected for IP management — want to explore the real cost?',
       detect: (a) => (a['ipam-0'] || '').includes('Spreadsheets') },
-    { id: 'ms-dns', driver: 'optimize', color: '#12C2D3',
+    { id: 'ms-dns', driver: 'optimize', color: 'hsl(var(--accent))',
       message: 'Microsoft DNS/IPAM detected — common pain points identified.',
       detect: (a) => (a['ipam-0'] || '').includes('Microsoft') || (a['idns-0'] || '').includes('Microsoft') },
-    { id: 'cloud', driver: 'accelerate', color: '#00BD4D',
+    { id: 'cloud', driver: 'accelerate', color: 'hsl(var(--primary))',
       message: 'Cloud environments detected — how consistent is your DDI policy across clouds?',
       detect: (a) => (a['ipam-9'] || '').trim().length > 0 },
-    { id: 'integrations', driver: 'accelerate', color: '#00BD4D',
+    { id: 'integrations', driver: 'accelerate', color: 'hsl(var(--primary))',
       message: 'Security integrations detected — are they getting full DDI context?',
       detect: (a) => (a['ipam-11'] || '').trim().length > 0 },
-    { id: 'automation', driver: 'accelerate', color: '#00BD4D',
+    { id: 'automation', driver: 'accelerate', color: 'hsl(var(--primary))',
       message: 'Automation tools detected — is DNS/DHCP provisioning fully automated yet?',
       detect: (a) => (a['ipam-13'] || '').trim().length > 0 },
-    { id: 'iot', driver: 'protect', color: '#FF585D',
+    { id: 'iot', driver: 'protect', color: 'hsl(var(--destructive))',
       message: 'Network devices detected — how confident are you in your device inventory?',
       detect: (a) => parseInt(a['ni-3'] || '0') > 0 },
   ];

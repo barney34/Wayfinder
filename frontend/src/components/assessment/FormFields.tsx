@@ -76,7 +76,7 @@ export function GridMultiSelect({ questionId, options, value, onChange, allowFre
                 key={opt}
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors border whitespace-nowrap ${
                   selectedValues.includes(opt)
-                    ? 'bg-[#12C2D3]/20 border-[#12C2D3] text-foreground'
+                    ? 'bg-accent/20 border-accent text-foreground'
                     : 'bg-background border-border text-muted-foreground hover:bg-muted hover:text-foreground'
                 }`}
                 data-testid={`grid-option-${questionId}-${opt.replace(/\s/g, '-')}`}
@@ -112,7 +112,7 @@ export function GridMultiSelect({ questionId, options, value, onChange, allowFre
           {selectedValues.map(val => (
             <span
               key={val}
-              className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] text-foreground bg-[#12C2D3]/20 border border-[#12C2D3]/50 rounded-full whitespace-nowrap"
+              className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] text-foreground bg-accent/20 border border-accent/50 rounded-full whitespace-nowrap"
             >
               {val}
               <button onClick={() => removeValue(val)} className="ml-0.5 text-muted-foreground hover:text-foreground">
@@ -138,7 +138,7 @@ export function SyncedNumberField({ questionId, value, onChange, syncValue, sync
         onChange={e => onChange((e.target as HTMLInputElement).value)}
         onBlur={e => onChange((e.target as HTMLInputElement).value)}
         onKeyDown={e => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
-        className={hasMismatch ? 'border-[#FEDD00] bg-[#FEDD00]/10' : ''}
+        className={hasMismatch ? 'border-yellow-500 bg-yellow-500/10' : ''}
         placeholder="0"
         data-testid={`input-answer-${questionId}`}
       />
@@ -146,7 +146,7 @@ export function SyncedNumberField({ questionId, value, onChange, syncValue, sync
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger>
-              <Badge variant="outline" className="text-[10px] py-0 px-1.5 bg-[#FEDD00]/10 text-[#9A7600] dark:text-[#FEDD00] border-[#FEDD00]/50">
+              <Badge variant="outline" className="text-[10px] py-0 px-1.5 bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/50">
                 <AlertTriangle className="h-2.5 w-2.5 mr-0.5" />
                 {syncValue} in TopBar
               </Badge>
@@ -180,7 +180,7 @@ export function AddResponseField({ questionId, value, onChange, onExamine, secti
     return (
       <button
         onClick={() => setIsExpanded(true)}
-        className="text-sm text-[#00594C] dark:text-[#12C2D3] hover:text-[#00594C] dark:text-[#12C2D3]/80 flex items-center gap-1"
+        className="text-sm text-primary dark:text-accent hover:text-primary dark:hover:text-accent/80 flex items-center gap-1"
         data-testid={`add-response-btn-${questionId}`}
       >
         <Plus className="h-3 w-3" />
@@ -341,7 +341,7 @@ export function MultiSelectField({ questionId, options, optionsWithPermission = 
           {selectedValues.map(val => (
             <span
               key={val}
-              className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] text-foreground bg-[#12C2D3]/20 border border-[#12C2D3]/50 rounded-full whitespace-nowrap"
+              className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] text-foreground bg-accent/20 border border-accent/50 rounded-full whitespace-nowrap"
             >
               {val}
               <button onClick={() => removeValue(val)} className="ml-0.5 text-muted-foreground hover:text-foreground">
@@ -371,7 +371,7 @@ export function MultiSelectField({ questionId, options, optionsWithPermission = 
                   const isSelected = isOptionSelected(option);
                   return (
                     <div key={option} className="space-y-1">
-                      <label className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors border whitespace-nowrap ${isSelected ? 'bg-[#12C2D3]/20 border-[#12C2D3] text-foreground' : 'bg-background border-border text-muted-foreground hover:bg-muted hover:text-foreground'}`} data-testid={`multiselect-option-${questionId}-${option.replace(/\s/g, '-')}`}>
+                      <label className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors border whitespace-nowrap ${isSelected ? 'bg-accent/20 border-accent text-foreground' : 'bg-background border-border text-muted-foreground hover:bg-muted hover:text-foreground'}`} data-testid={`multiselect-option-${questionId}-${option.replace(/\s/g, '-')}`}>
                         <Checkbox checked={isSelected} onCheckedChange={() => toggleOption(option)} className="h-4 w-4 shrink-0" />
                         <span className={`text-xs flex-1 ${isSelected ? 'font-medium' : ''}`}>{option}</span>
                         {needsPerm && isSelected && (
@@ -386,7 +386,7 @@ export function MultiSelectField({ questionId, options, optionsWithPermission = 
                 })}
               </div>
               {options.filter(opt => optionsWithVendor.includes(opt) && isOptionSelected(opt)).map(option => (
-                <div key={`vendor-${option}`} className="mt-2 pl-2 border-l-2 border-[#12C2D3]/30 space-y-1">
+                <div key={`vendor-${option}`} className="mt-2 pl-2 border-l-2 border-accent/30 space-y-1">
                   <span className="text-[10px] text-muted-foreground font-medium">{option} — vendors:</span>
                   <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
                     <Input placeholder="Add vendor..." value={vendorInputs[option] || ''} onChange={e => setVendorInputs(p => ({ ...p, [option]: e.target.value }))}
@@ -412,7 +412,7 @@ export function MultiSelectField({ questionId, options, optionsWithPermission = 
                     key={option}
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors border whitespace-nowrap ${
                       isSelected
-                        ? 'bg-[#12C2D3]/20 border-[#12C2D3] text-foreground'
+                        ? 'bg-accent/20 border-accent text-foreground'
                         : 'bg-background border-border text-muted-foreground hover:bg-muted hover:text-foreground'
                     }`}
                     data-testid={`multiselect-option-${questionId}-${option.replace(/\s/g, '-')}`}

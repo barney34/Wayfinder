@@ -198,7 +198,7 @@ export function UDDIEstimator({ value, onChange, questionId }) {
         </Button>
 
         <div className="flex items-center gap-1.5 ml-auto">
-          <Badge variant="outline" className="text-xs font-mono text-[#12C2D3] border-[#12C2D3]/40">
+          <Badge variant="outline" className="text-xs font-mono text-accent border-accent/40">
             {bufferedTotal.toLocaleString()} total tokens
           </Badge>
           <TooltipProvider>
@@ -219,7 +219,7 @@ export function UDDIEstimator({ value, onChange, questionId }) {
       </div>
 
       {isExpanded && (
-        <div className="space-y-4 pl-4 border-l-2 border-[#12C2D3]/20">
+        <div className="space-y-4 pl-4 border-l-2 border-accent/20">
 
           {/* ── Mode selector ──────────────────────────────────────────────────── */}
           <div className="flex items-center gap-3">
@@ -296,8 +296,8 @@ export function UDDIEstimator({ value, onChange, questionId }) {
           </div>
 
           {/* ── Token Breakdown ────────────────────────────────────────────────── */}
-          <div className="border border-[#12C2D3]/30 rounded-md p-3 space-y-2 bg-[#12C2D3]/5">
-            <div className="text-xs uppercase tracking-wider font-semibold text-[#12C2D3]/80 mb-2">
+          <div className="border border-accent/30 rounded-md p-3 space-y-2 bg-accent/5">
+            <div className="text-xs uppercase tracking-wider font-semibold text-accent/80 mb-2">
               Token Breakdown
             </div>
             <div className="grid grid-cols-2 gap-2 text-xs">
@@ -315,7 +315,7 @@ export function UDDIEstimator({ value, onChange, questionId }) {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">+{growthBuffer}% Buffer</span>
-                <span className="font-bold text-[#12C2D3]">{bufferedTotal.toLocaleString()}</span>
+                <span className="font-bold text-accent">{bufferedTotal.toLocaleString()}</span>
               </div>
             </div>
           </div>

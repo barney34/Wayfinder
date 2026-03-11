@@ -59,71 +59,71 @@ export function SizingTableHeader({ showHardware, showKW, showServices, showDesc
         <TableHead className="w-6 p-0" />
 
         {/* Unit Group */}
-        <HeaderWithTooltip className="w-14" tooltip="Unit Group: A=GM/GMC, B=DNS, C=DHCP, D=Edge, E=ExtDNS, F=Cache, G=Guest, M=MSSync, N=NI, RPT, LIC, CDC. Click + to add custom.">
+        <HeaderWithTooltip className="w-14 p-1.5" tooltip="Unit Group: A=GM/GMC, B=DNS, C=DHCP, D=Edge, E=ExtDNS, F=Cache, G=Guest, M=MSSync, N=NI, RPT, LIC, CDC. Click + to add custom.">
           Unit
         </HeaderWithTooltip>
         
         {/* Unit #/Range */}
-        <TableHead className="w-12 text-xs lg:text-sm text-center">#/Range</TableHead>
+        <TableHead className="w-12 p-1.5 text-xs lg:text-sm text-center">#/Range</TableHead>
         
         {/* Location — GUI-only, not in export */}
-        <TableHead className="w-24 text-xs lg:text-sm">Location</TableHead>
+        <TableHead className="w-28 p-1.5 text-xs lg:text-sm">Location</TableHead>
 
         {/* KW (conditional) — before IPs */}
         {showKW && (
-          <HeaderWithTooltip className="w-16" tooltip="Knowledge Workers. Syncs with TopBar.">
+          <HeaderWithTooltip className="w-16 p-1.5" tooltip="Knowledge Workers. Syncs with TopBar.">
             KW
           </HeaderWithTooltip>
         )}
         
         {/* # IPs */}
-        <TableHead className="w-20 text-xs lg:text-sm"># IPs</TableHead>
+        <TableHead className="w-20 p-1.5 text-xs lg:text-sm"># IPs</TableHead>
         
         {/* Role → maps to Description in export */}
-        <TableHead className="w-24 text-xs lg:text-sm">Role</TableHead>
+        <TableHead className="w-24 p-1.5 text-xs lg:text-sm">Role</TableHead>
         
         {/* Description — conditionally shown */}
         {showDescription && (
-          <TableHead className="w-32 text-xs lg:text-sm">Description</TableHead>
+          <TableHead className="w-32 p-1.5 text-xs lg:text-sm">Description</TableHead>
         )}
         
         {/* Services (conditional, hidden by default) */}
         {showServices && (
-          <HeaderWithTooltip className="w-20" tooltip="Co-located services. Each adds performance overhead.">
+          <HeaderWithTooltip className="w-20 p-1.5" tooltip="Co-located services. Each adds performance overhead.">
             Services
           </HeaderWithTooltip>
         )}
         
         {/* DHCP Partner */}
-        <HeaderWithTooltip className="w-20" tooltip="NIOS: ISC DHCP Failover Association (FOA) between peers. UDDI/NIOS-X: Kea HA Group. 1 FOA = {name}; 2+ FOAs = Hub(N).">
+        <HeaderWithTooltip className="w-20 p-1.5" tooltip="NIOS: ISC DHCP Failover Association (FOA) between peers. UDDI/NIOS-X: Kea HA Group. 1 FOA = {name}; 2+ FOAs = Hub(N).">
           FO / HA
         </HeaderWithTooltip>
         
         {/* Server Count */}
-        <HeaderWithTooltip className="w-24 text-center" tooltip="Number of Servers at location. Increasing creates a unit range (e.g. B1–B3).">
+        <HeaderWithTooltip className="w-24 p-1.5 text-center" tooltip="Number of Servers at location. Increasing creates a unit range (e.g. B1–B3).">
           Member Count
         </HeaderWithTooltip>
         
         {/* HA */}
-        <TableHead className="w-10 text-xs lg:text-sm text-center">HA</TableHead>
+        <TableHead className="w-10 p-1.5 text-xs lg:text-sm text-center">HA</TableHead>
         
         {/* Solution (was Platform) — maps to export Solution */}
-        <TableHead className="w-24 text-xs lg:text-sm">Solution</TableHead>
+        <TableHead className="w-24 p-1.5 text-xs lg:text-sm">Solution</TableHead>
         
         {/* Model Info — show just number in GUI */}
-        <HeaderWithTooltip className="w-16" tooltip="Recommended model. TE- prefix omitted for brevity — full SKU used in export.">
+        <HeaderWithTooltip className="w-24 p-1.5" tooltip="Recommended model. TE- prefix omitted for brevity — full SKU used in export.">
           Model
         </HeaderWithTooltip>
         
         {/* HW License SKU (conditional) */}
         {showHardware && (
-          <HeaderWithTooltip className="w-28" tooltip="Hardware License SKU for export.">
+          <HeaderWithTooltip className="w-28 p-1.5" tooltip="Hardware License SKU for export.">
             HW SKU
           </HeaderWithTooltip>
         )}
         
         {/* SW Instances */}
-        <HeaderWithTooltip className="w-12 text-center" tooltip="SW Instances: Srv# × (HA ? 2 : 1)">
+        <HeaderWithTooltip className="w-12 p-1.5 text-center" tooltip="SW Instances: Srv# × (HA ? 2 : 1)">
           <div className="flex flex-col leading-tight items-center">
             <span className="text-[9px] text-muted-foreground font-normal">Instances</span>
             <span>SW</span>
@@ -131,7 +131,7 @@ export function SizingTableHeader({ showHardware, showKW, showServices, showDesc
         </HeaderWithTooltip>
         
         {/* HW Count */}
-        <HeaderWithTooltip className="w-16 text-center" tooltip="Hardware unit count. Uncheck for VM (0 HW).">
+        <HeaderWithTooltip className="w-14 p-1.5 text-center" tooltip="Hardware unit count. Uncheck for VM (0 HW).">
           <div className="flex flex-col leading-tight items-center">
             <span className="text-[9px] text-muted-foreground font-normal">Count</span>
             <span>HW</span>
@@ -139,7 +139,7 @@ export function SizingTableHeader({ showHardware, showKW, showServices, showDesc
         </HeaderWithTooltip>
 
         {/* SW Add-ons */}
-        <HeaderWithTooltip className="w-24" tooltip="SW Add-ons: CNA, ADNS, DCA, SECECO, FIPS, TA">
+        <HeaderWithTooltip className="w-24 p-1.5" tooltip="SW Add-ons: CNA, ADNS, DCA, SECECO, FIPS, TA">
           <div className="flex flex-col leading-tight">
             <span className="text-[9px] text-muted-foreground font-normal">Add-ons</span>
             <span>SW</span>
@@ -147,7 +147,7 @@ export function SizingTableHeader({ showHardware, showKW, showServices, showDesc
         </HeaderWithTooltip>
 
         {/* HW Add-ons */}
-        <HeaderWithTooltip className="w-20" tooltip="HW Add-ons: PSU (1506 only), SFP modules (10GE models only)">
+        <HeaderWithTooltip className="w-20 p-1.5" tooltip="HW Add-ons: PSU (1506 only), SFP modules (10GE models only)">
           <div className="flex flex-col leading-tight">
             <span className="text-[9px] text-muted-foreground font-normal">Add-ons</span>
             <span>HW</span>
@@ -156,13 +156,13 @@ export function SizingTableHeader({ showHardware, showKW, showServices, showDesc
         
         {/* Tokens (conditional) */}
         {showTokens && (
-          <HeaderWithTooltip className="w-20 text-right" tooltip="Token packs (500K each).">
+          <HeaderWithTooltip className="w-20 p-1.5 text-right" tooltip="Token packs (500K each).">
             Tokens
           </HeaderWithTooltip>
         )}
         
         {/* Add to Report + BOM — grouped */}
-        <TableHead colSpan={2} className="text-xs text-center p-1">
+        <TableHead colSpan={2} className="text-xs text-center p-1.5">
           <div className="flex flex-col items-center leading-tight gap-0.5">
             <span className="text-[9px] text-muted-foreground font-normal">Add to</span>
             <div className="flex items-center gap-3">
@@ -173,7 +173,7 @@ export function SizingTableHeader({ showHardware, showKW, showServices, showDesc
         </TableHead>
         
         {/* Actions */}
-        <TableHead className="w-10 text-xs"></TableHead>
+        <TableHead className="w-10 p-1.5 text-xs"></TableHead>
       </TableRow>
     </TableHeader>
   );

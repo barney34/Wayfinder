@@ -6,13 +6,7 @@ import { useDiscovery } from "@/contexts/DiscoveryContext";
 import type { DrawingConfig } from "@/types";
 import { SizingMathHelp } from "./SizingMathHelp";
 import { getAssetTier } from "@/lib/tokenData";
-
-const formatKW = (n) => {
-  if (!n) return '0';
-  if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
-  if (n >= 1000) return (n / 1000).toFixed(n >= 10000 ? 0 : 1) + 'K';
-  return n.toString();
-};
+import { formatNumber } from "@/lib/utils";
 
 export function TopBar({ customerName, nickname, opportunity, onNameChange, onNicknameChange, onOpportunityChange, onNameBlur, onNicknameBlur, onOpportunityBlur, onEditRequest }) {
   const {
@@ -215,7 +209,7 @@ export function TopBar({ customerName, nickname, opportunity, onNameChange, onNi
           {/* Data Centers */}
           <div className="bg-card rounded-xl p-3 flex flex-col border border-border">
             <div className="flex items-center gap-2 mb-2">
-              <Building2 className="h-3.5 w-3.5 text-[#00BD4D]" />
+              <Building2 className="h-3.5 w-3.5 text-primary" />
               <span className="text-xs font-semibold text-foreground">Data Centers</span>
               <div className="flex items-center gap-1 ml-auto">
                 <input type="number" value={dcQuickCount} onChange={e => setDcQuickCount(e.target.value)} placeholder="#" className="w-10 h-5 px-1.5 text-[11px] rounded bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" onKeyDown={e => { if (e.key === 'Enter') handleQuickAddDCs(); }} />
@@ -259,7 +253,7 @@ export function TopBar({ customerName, nickname, opportunity, onNameChange, onNi
                 {sites.filter(s => s.dataCenterId !== '__discovery__').map((site) => (
                   <div key={site.id} className="flex items-center bg-secondary border border-border rounded-lg overflow-hidden">
                     <input value={site.name} onChange={e => updateSite(site.id, { name: e.target.value })} className="flex-1 min-w-0 px-1.5 py-1 text-[11px] text-foreground bg-transparent border-0 focus:outline-none focus:bg-muted" />
-                    <input type="number" value={site.knowledgeWorkers || ''} onChange={e => updateSite(site.id, { knowledgeWorkers: parseInt(e.target.value) || 0 })} className="w-12 px-1 py-1 text-[11px] text-[#00594C] dark:text-[#12C2D3] font-semibold bg-transparent border-0 focus:outline-none focus:bg-muted text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+                    <input type="number" value={site.knowledgeWorkers || ''} onChange={e => updateSite(site.id, { knowledgeWorkers: parseInt(e.target.value) || 0 })} className="w-12 px-1 py-1 text-[11px] text-primary dark:text-accent font-semibold bg-transparent border-0 focus:outline-none focus:bg-muted text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
                     <button onClick={() => deleteSite(site.id)} className="px-1 py-1 hover:bg-destructive/20 shrink-0" data-testid={`delete-site-${site.id}`}><X className="h-3 w-3 text-destructive" /></button>
                   </div>
                 ))}
@@ -280,10 +274,10 @@ export function TopBar({ customerName, nickname, opportunity, onNameChange, onNi
           <div className="bg-card rounded-xl p-2.5 border border-border">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-1.5">
-                <Calculator className="h-3.5 w-3.5 text-[#00BD4D]" />
+                <Calculator className="h-3.5 w-3.5 text-primary" />
                 <span className="text-[11px] font-semibold text-foreground">Inputs</span>
               </div>
-              <span className="text-sm font-bold text-[#00BD4D]">{formatKW(activeIPs)} IPs{parseInt(answers['active-ips-override']) ? ' *' : ''}</span>
+              <span className="text-sm font-bold text-primary">{formatNumber(activeIPs)} IPs{parseInt(answers['active-ips-override']) ? ' *' : ''}</span>
             </div>
             <div className="space-y-1.5">
               <div className="flex items-center gap-1.5">
@@ -351,19 +345,19 @@ export function TopBar({ customerName, nickname, opportunity, onNameChange, onNi
             </div>
             <div className="space-y-1">
               <div className="grid grid-cols-2 gap-1">
-                <button onClick={() => toggleFeature('nios')} className={`flex flex-col items-start px-2 py-1.5 rounded-lg text-left transition-all border ${isNIOS ? 'bg-[#00BD4D] text-white border-[#00BD4D]' : 'bg-secondary text-secondary-foreground hover:bg-muted border-border'}`} data-testid="toggle-feature-nios">
+                <button onClick={() => toggleFeature('nios')} className={`flex flex-col items-start px-2 py-1.5 rounded-lg text-left transition-all border ${isNIOS ? 'bg-primary text-white border-primary' : 'bg-secondary text-secondary-foreground hover:bg-muted border-border'}`} data-testid="toggle-feature-nios">
                   <span className="text-[11px] font-bold">NIOS</span>
-                  <span className={`text-[9px] leading-tight ${isNIOS ? 'text-white/80' : 'text-muted-foreground'}`}>Grid + Mgmt tokens</span>
+                  <span className={`text-[9px] leading-tight ${isNIOS ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>Grid + Mgmt tokens</span>
                 </button>
-                <button onClick={() => toggleFeature('uddi')} className={`flex flex-col items-start px-2 py-1.5 rounded-lg text-left transition-all border ${isUDDI ? 'bg-[#12C2D3] text-white border-[#12C2D3]' : 'bg-secondary text-secondary-foreground hover:bg-muted border-border'}`} data-testid="toggle-feature-uddi">
+                <button onClick={() => toggleFeature('uddi')} className={`flex flex-col items-start px-2 py-1.5 rounded-lg text-left transition-all border ${isUDDI ? 'bg-accent text-accent-foreground border-accent' : 'bg-secondary text-secondary-foreground hover:bg-muted border-border'}`} data-testid="toggle-feature-uddi">
                   <span className="text-[11px] font-bold">UDDI</span>
-                  <span className={`text-[9px] leading-tight ${isUDDI ? 'text-white/80' : 'text-muted-foreground'}`}>Native DDI tokens</span>
+                  <span className={`text-[9px] leading-tight ${isUDDI ? 'text-accent-foreground/80' : 'text-muted-foreground'}`}>Native DDI tokens</span>
                 </button>
               </div>
               <div className="grid grid-cols-2 gap-1">
-                <button onClick={() => toggleFeature('security')} className={`flex flex-col items-start px-2 py-1.5 rounded-lg text-left transition-all border ${securityEnabled ? 'bg-[#FF585D] text-white border-[#FF585D]' : 'bg-secondary text-secondary-foreground hover:bg-muted border-border'}`} data-testid="toggle-feature-security">
+                <button onClick={() => toggleFeature('security')} className={`flex flex-col items-start px-2 py-1.5 rounded-lg text-left transition-all border ${securityEnabled ? 'bg-destructive text-destructive-foreground border-destructive' : 'bg-secondary text-secondary-foreground hover:bg-muted border-border'}`} data-testid="toggle-feature-security">
                   <span className="text-[11px] font-bold">Security</span>
-                  <span className={`text-[9px] leading-tight ${securityEnabled ? 'text-white/80' : 'text-muted-foreground'}`}>Threat defense tokens</span>
+                  <span className={`text-[9px] leading-tight ${securityEnabled ? 'text-destructive-foreground/80' : 'text-muted-foreground'}`}>Threat defense tokens</span>
                 </button>
                 <button onClick={() => {
                   const newAsset = !isAsset;
@@ -373,19 +367,19 @@ export function TopBar({ customerName, nickname, opportunity, onNameChange, onNi
                     const src = isHybrid ? 'Both' : isUDDI ? 'Native Asset Insight' : 'NIOS Network Insight';
                     if (!answers['ni-discovered-source']) setAnswer('ni-discovered-source', src);
                   }
-                }} className={`flex flex-col items-start px-2 py-1.5 rounded-lg text-left transition-all border ${isAsset ? 'bg-[#7D97F8] text-white border-[#7D97F8]' : 'bg-secondary text-secondary-foreground hover:bg-muted border-border'}`} data-testid="toggle-feature-asset">
+                }} className={`flex flex-col items-start px-2 py-1.5 rounded-lg text-left transition-all border ${isAsset ? 'bg-chart-5 text-white border-chart-5' : 'bg-secondary text-secondary-foreground hover:bg-muted border-border'}`} data-testid="toggle-feature-asset">
                   <span className="text-[11px] font-bold">Asset</span>
                   <span className={`text-[9px] leading-tight ${isAsset ? 'text-white/80' : 'text-muted-foreground'}`}>
                     {isAsset ? ({ 'Native Asset Insight': 'Asset Insight', 'NIOS Network Insight': 'Net Insight', 'Both': 'NI + AI' }[discoveredSource] || 'Mgmt tokens') : 'Discovered assets'}
                   </span>
                 </button>
               </div>
-              <button onClick={() => { const newHybrid = !isHybrid; updateDrawingConfig(activeDrawingId, { featureNIOS: newHybrid, featureUDDI: newHybrid, platformMode: newHybrid ? 'Hybrid' : 'NIOS', dhcpAssociations: [], siteOverrides: _buildCleanedSiteOverrides() }); }} className={`w-full flex flex-col items-start px-2 py-1.5 rounded-lg transition-all border ${isHybrid ? 'bg-gradient-to-r from-[#00BD4D] to-[#00594C] dark:to-[#12C2D3] text-white border-transparent shadow-sm' : 'bg-secondary text-secondary-foreground hover:bg-muted border-dashed border-border'}`} data-testid="toggle-hybrid">
+              <button onClick={() => { const newHybrid = !isHybrid; updateDrawingConfig(activeDrawingId, { featureNIOS: newHybrid, featureUDDI: newHybrid, platformMode: newHybrid ? 'Hybrid' : 'NIOS', dhcpAssociations: [], siteOverrides: _buildCleanedSiteOverrides() }); }} className={`w-full flex flex-col items-start px-2 py-1.5 rounded-lg transition-all border ${isHybrid ? 'bg-gradient-to-r from-primary to-primary/80 text-primary-foreground border-transparent shadow-sm' : 'bg-secondary text-secondary-foreground hover:bg-muted border-dashed border-border'}`} data-testid="toggle-hybrid">
                 <div className="flex items-center gap-1">
                   <span className="text-[11px] font-bold">Hybrid</span>
                   {isHybrid && <Check className="h-3 w-3" />}
                 </div>
-                <span className={`text-[9px] leading-tight ${isHybrid ? 'text-white/80' : 'text-muted-foreground'}`}>NIOS + UDDI together</span>
+                <span className={`text-[9px] leading-tight ${isHybrid ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>NIOS + UDDI together</span>
               </button>
 
               {/* Discovered asset source — shown when Asset is active */}
@@ -399,7 +393,7 @@ export function TopBar({ customerName, nickname, opportunity, onNameChange, onNi
                         onClick={() => setAnswer('ni-discovered-source', src)}
                         className={`px-1.5 py-1 rounded text-[9px] font-semibold border transition-colors text-center leading-tight ${
                           discoveredSource === src
-                            ? 'bg-[#7D97F8] text-white border-[#7D97F8]'
+                            ? 'bg-chart-5 text-white border-chart-5'
                             : 'bg-secondary text-muted-foreground border-border hover:bg-muted hover:text-foreground'
                         }`}
                       >
@@ -506,7 +500,7 @@ export function TopBar({ customerName, nickname, opportunity, onNameChange, onNi
                   {/* Token rows — flat, consistent depth */}
                   <div className="space-y-0.5 pt-0.5">
                     {/* Server Tokens first — infrastructure/compute */}
-                    {(isUDDI || isHybrid) && <SummaryRow label="Server Tokens" raw={infraRaw} packs={infraPacks} color="text-[#00BD4D]" />}
+                    {(isUDDI || isHybrid) && <SummaryRow label="Server Tokens" raw={infraRaw} packs={infraPacks} color="text-primary" />}
                     {/* MGMT contributors — shown as contributing rows, then combined subtotal */}
                     {(showMgmtTokens || showUddiMgmt) && (() => {
                       const mgmtTotal = (rawMgmtTokens || 0) + (uddiMgmtRaw || 0);
@@ -527,12 +521,12 @@ export function TopBar({ customerName, nickname, opportunity, onNameChange, onNi
                             </div>
                           )}
                           <div className="flex items-center justify-between gap-1 text-[10px] pt-0.5 border-t border-border/30">
-                            <span className="font-semibold text-[#12C2D3]">MGMT Total</span>
+                            <span className="font-semibold text-accent">MGMT Total</span>
                             <div className="flex items-center gap-1.5 shrink-0">
                               {mgmtTotal > 0 ? (
                                 <>
                                   <span className="text-muted-foreground tabular-nums">{mgmtTotal.toLocaleString()}</span>
-                                  <span className="font-bold text-[#12C2D3]">{mgmtPacks}pk</span>
+                                  <span className="font-bold text-accent">{mgmtPacks}pk</span>
                                 </>
                               ) : <span className="text-muted-foreground/40">—</span>}
                             </div>
@@ -542,8 +536,8 @@ export function TopBar({ customerName, nickname, opportunity, onNameChange, onNi
                     })()}
                     {/* Security and Reporting — service layer */}
                     <div className="pt-1 mt-0.5 border-t border-border/40 space-y-0.5">
-                        {securityEnabled && <SummaryRow label="Security" raw={secRaw} packs={secPacks} color="text-[#FF585D]" />}
-                        <SummaryRow label="Reporting" raw={reportingRaw} packs={reportingPacks} color="text-[#7D97F8]" />
+                        {securityEnabled && <SummaryRow label="Security" raw={secRaw} packs={secPacks} color="text-destructive" />}
+                        <SummaryRow label="Reporting" raw={reportingRaw} packs={reportingPacks} color="text-chart-5" />
                       </div>
                   </div>
                   {infraRaw === 0 && uddiMgmtRaw === 0 && secRaw === 0 && !showMgmtTokens && (

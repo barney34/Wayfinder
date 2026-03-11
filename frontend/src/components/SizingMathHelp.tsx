@@ -65,12 +65,12 @@ export function SizingMathHelp() {
             </thead>
             <tbody className="divide-y">
               <tr>
-                <td className="py-1.5 font-semibold text-[#00BD4D]">NIOS</td>
+                <td className="py-1.5 font-semibold text-primary">NIOS</td>
                 <td className="py-1.5 font-mono text-muted-foreground">(DHCP × 3) + (Static × 2)</td>
                 <td className="py-1.5 text-muted-foreground text-[10px]">A + DHCID + PTR</td>
               </tr>
               <tr>
-                <td className="py-1.5 font-semibold text-[#12C2D3]">UDDI</td>
+                <td className="py-1.5 font-semibold text-accent">UDDI</td>
                 <td className="py-1.5 font-mono text-muted-foreground">(DHCP × 4) + (Static × 2)</td>
                 <td className="py-1.5 text-muted-foreground text-[10px]">A + 2×DHCID (fwd+rev) + PTR</td>
               </tr>
@@ -91,14 +91,14 @@ export function SizingMathHelp() {
         </div>
         <div className="p-3 space-y-3">
           <div>
-            <div className="font-semibold mb-1 text-[#00BD4D]">Server Tokens (UDDI/Hybrid only)</div>
+            <div className="font-semibold mb-1 text-primary">Server Tokens (UDDI/Hybrid only)</div>
             <div className="text-muted-foreground text-[10px] space-y-0.5">
               <div>Only <span className="font-mono">NXVS</span> and <span className="font-mono">NXaaS</span> platforms consume server tokens — NIOS appliances do not.</div>
               <div className="font-mono bg-muted/50 px-2 py-1 rounded">1 token pack = 500 tokens</div>
             </div>
           </div>
           <div>
-            <div className="font-semibold mb-1 text-[#12C2D3]">MGMT Tokens</div>
+            <div className="font-semibold mb-1 text-accent">MGMT Tokens</div>
             <table className="w-full text-[11px]">
               <thead className="text-muted-foreground">
                 <tr>

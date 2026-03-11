@@ -15,7 +15,7 @@ const DRIVERS = [
   {
     key: 'optimize',
     label: 'Optimize',
-    color: '#12C2D3',
+    color: 'hsl(var(--accent))',
     Icon: Gauge,
     chatSection: 'IPAM',
     description: 'Critical network services, IP management, visibility',
@@ -23,7 +23,7 @@ const DRIVERS = [
   {
     key: 'accelerate',
     label: 'Accelerate',
-    color: '#00BD4D',
+    color: 'hsl(var(--primary))',
     Icon: Zap,
     chatSection: 'Overlay',
     description: 'Cloud adoption, overlay strategy, automation',
@@ -31,7 +31,7 @@ const DRIVERS = [
   {
     key: 'protect',
     label: 'Protect',
-    color: '#FF585D',
+    color: 'hsl(var(--destructive))',
     Icon: Shield,
     chatSection: 'Security',
     description: 'Threat detection, SOC efficiency, risk reduction',
@@ -187,7 +187,7 @@ export function ValueDiscoveryDrawer({ onClose, defaultDriver = 'optimize' }) {
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b bg-muted/30">
         <div className="flex items-center gap-2">
-          <Compass className="h-4 w-4 text-[#00BD4D]" />
+          <Compass className="h-4 w-4 text-primary" />
           <span className="font-semibold text-sm">Value Discovery</span>
         </div>
         <button

@@ -214,7 +214,7 @@ export function LocationHeaderRow({ site, onUpdateSite, onDeleteSite, totalColum
   
   return (
     <TableRow className="bg-muted/30 border-t-2 border-primary/20">
-      <TableCell colSpan={totalColumns} className="p-1">
+      <TableCell colSpan={totalColumns} className="p-1.5">
         <div className="flex items-center gap-3 flex-wrap">
           {/* Icon + Name + ± controls together */}
           <div className="flex items-center gap-2">
@@ -927,7 +927,7 @@ export const SiteTableRow = React.memo(function SiteTableRow({
       </TableCell>
 
       {/* Unit Group — dropdown with custom option */}
-      <TableCell className="p-1 text-center">
+      <TableCell className="p-1.5 text-center">
         <Popover>
           <PopoverTrigger asChild>
             <button
@@ -1009,7 +1009,7 @@ export const SiteTableRow = React.memo(function SiteTableRow({
       </TableCell>
       
       {/* Unit Number — editable, shows range when combined */}
-      <TableCell className="p-1 lg:p-2 text-center">
+      <TableCell className="p-1.5 text-center">
         {(site._serverCount || 1) > 1 ? (
           /* Combined group: show range string like "1-3" based on unit number */
           <span className="text-sm font-semibold tabular-nums text-primary">{unitRange}</span>
@@ -1044,14 +1044,14 @@ export const SiteTableRow = React.memo(function SiteTableRow({
                 onUpdateSite(site.id, 'unitNumberOverride', undefined);
               }
             }}
-            className="h-8 w-12 text-center text-sm font-semibold px-1 tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            className="h-7 w-12 text-center text-sm font-semibold px-1 tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             disabled={site.isDisabledInUddi}
           />
         )}
       </TableCell>
       
       {/* Location Name */}
-      <TableCell className="p-1">
+      <TableCell className="p-1.5">
         <div className="flex items-center gap-2">
           {site._isExpanded && (
             <span className="text-xs text-muted-foreground shrink-0">Srv {site._serverIndex + 1}</span>
@@ -1078,7 +1078,7 @@ export const SiteTableRow = React.memo(function SiteTableRow({
 
       {/* KW - before IPs */}
       {showKW && (
-        <TableCell className="p-1">
+        <TableCell className="p-1.5">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -1107,7 +1107,7 @@ export const SiteTableRow = React.memo(function SiteTableRow({
       )}
 
       {/* # IPs — not applicable for Reporting; shows "Devices" for ND/ND-X */}
-      <TableCell className="p-1">
+      <TableCell className="p-1.5">
         {isReportingRole ? (
           <span className="text-xs text-muted-foreground">—</span>
         ) : (() => {
@@ -1157,7 +1157,7 @@ export const SiteTableRow = React.memo(function SiteTableRow({
       </TableCell>
 
       {/* Role — compact dropdown + description first-line subtitle (hover=full, click=edit) */}
-      <TableCell className="p-1 lg:p-1.5" colSpan={isDiscoveryRow ? 1 + (showServices ? 1 : 0) + (showDescription ? 1 : 0) : 1}>
+      <TableCell className="p-1.5" colSpan={isDiscoveryRow ? 1 + (showServices ? 1 : 0) + (showDescription ? 1 : 0) : 1}>
         {(() => {
           const isGmRow = site.role?.startsWith('GM') || site.role?.startsWith('GMC');
           const allDescLines = description.split('\n');
@@ -1263,7 +1263,7 @@ export const SiteTableRow = React.memo(function SiteTableRow({
 
       {/* Description — click to open editor popover (conditionally shown; skipped for discovery rows) */}
       {showDescription && !isDiscoveryRow && (
-      <TableCell className="p-1 lg:p-2">
+      <TableCell className="p-1.5">
         <Popover>
           <PopoverTrigger asChild>
             <button
@@ -1297,7 +1297,7 @@ export const SiteTableRow = React.memo(function SiteTableRow({
 
       {/* Services (conditional; skipped for discovery rows — absorbed by Role colspan) */}
       {showServices && !isDiscoveryRow && (
-        <TableCell className="p-1">
+        <TableCell className="p-1.5">
           <Popover>
             <PopoverTrigger asChild>
               <Button
@@ -1465,9 +1465,8 @@ export const SiteTableRow = React.memo(function SiteTableRow({
         </TableCell>
       )}
 
-      {/* FO / HA Association (skipped for discovery rows) */}
-      {!isDiscoveryRow && (
-      <TableCell className="p-1">
+      {/* FO / HA Association */}
+      <TableCell className="p-1.5">
         {(() => {
           const hasDhcp = site.role === 'DHCP' || site.role === 'DNS/DHCP' ||
             site.role.includes('+DHCP') || site.role.includes('+DNS/DHCP');
@@ -1491,10 +1490,9 @@ export const SiteTableRow = React.memo(function SiteTableRow({
           );
         })()}
       </TableCell>
-      )}
 
-      {/* Server Count (Srv#) — number + stacked ±  */}
-      <TableCell className="p-1" colSpan={isDiscoveryRow ? 3 : 1}>
+      {/* Server Count (Member Count) — number + stacked ±  */}
+      <TableCell className="p-1.5">
         {site._isExpanded && site._serverIndex !== 0 ? (
           <span className="text-xs font-semibold text-center block text-muted-foreground">—</span>
         ) : site._isExpanded && site._serverIndex === 0 ? (() => {
@@ -1588,7 +1586,7 @@ export const SiteTableRow = React.memo(function SiteTableRow({
               ) : (
                 <>
                   <div className="text-xs font-medium mb-2 text-muted-foreground">Member Count</div>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center justify-center gap-1.5">
                     <button
                       onClick={() => setPendingCount(p => Math.max(1, p - 1))}
                       disabled={site.isDisabledInUddi || pendingCount <= 1}
@@ -1619,9 +1617,8 @@ export const SiteTableRow = React.memo(function SiteTableRow({
         )}
       </TableCell>
 
-      {/* HA toggle (skipped for discovery rows — absorbed by Srv# colspan) */}
-      {!isDiscoveryRow && (
-      <TableCell className="p-1 text-center">
+      {/* HA toggle */}
+      <TableCell className="p-1.5 text-center">
         {site.platform === 'NXVS' || site.platform === 'NX-P' || site.platform === 'NXaaS' ? (
           <span className="text-muted-foreground text-xs">N/A</span>
         ) : (
@@ -1661,10 +1658,9 @@ export const SiteTableRow = React.memo(function SiteTableRow({
         </TooltipProvider>
         )}
       </TableCell>
-      )}
 
       {/* Platform — discovery rows get restricted options */}
-      <TableCell className="p-1">
+      <TableCell className="p-1.5">
         {(() => {
           const discoveryPlatformOptions = isDiscoveryRow
             ? site.role === 'ND'
@@ -1686,7 +1682,7 @@ export const SiteTableRow = React.memo(function SiteTableRow({
       </TableCell>
 
       {/* Model — dropdown with auto-recommended + not-recommended options */}
-      <TableCell className="p-1">
+      <TableCell className="p-1.5">
         {site.isDisabledInUddi ? (
           <span className="text-muted-foreground text-xs">&mdash;</span>
         ) : (() => {
@@ -1739,7 +1735,7 @@ export const SiteTableRow = React.memo(function SiteTableRow({
                 data-testid={`site-model-${site.id}`}
               >
                 <SelectTrigger
-                  className={`h-7 text-xs font-mono w-20 ${isOverridden ? 'border-amber-400 text-amber-600 dark:text-amber-400' : ''}`}
+                  className={`h-7 text-xs font-mono w-20 px-1.5 ${isOverridden ? 'border-amber-400 text-amber-600 dark:text-amber-400' : ''}`}
                 >
                   <SelectValue>
                     {current ? current.replace(/^TE-/, '') : ''}
@@ -1785,7 +1781,7 @@ export const SiteTableRow = React.memo(function SiteTableRow({
 
       {/* Hardware SKU (conditional) */}
       {showHardware && (
-        <TableCell className="p-1">
+        <TableCell className="p-1.5">
           {isVirtualPlatform ? (
             <span className="text-xs text-muted-foreground">VM</span>
           ) : (
@@ -1804,7 +1800,7 @@ export const SiteTableRow = React.memo(function SiteTableRow({
       )}
 
       {/* SW Instances (auto-calculated: serverCount * (HA ? 2 : 1)) */}
-      <TableCell className="p-1 text-center tabular-nums font-medium text-sm">
+      <TableCell className="p-1.5 text-center tabular-nums font-medium text-sm">
         {site.isDisabledInUddi ? (
           <span className="text-muted-foreground">&mdash;</span>
         ) : (
@@ -1822,7 +1818,7 @@ export const SiteTableRow = React.memo(function SiteTableRow({
       </TableCell>
 
       {/* HW Count — auto 0 for virtual, editable for physical */}
-      <TableCell className="p-1 text-center">
+      <TableCell className="p-1.5 text-center">
         {isVirtualPlatform ? (
           <span className="text-xs text-muted-foreground">0</span>
         ) : (
@@ -1833,7 +1829,7 @@ export const SiteTableRow = React.memo(function SiteTableRow({
               const val = parseInt(e.target.value);
               if (!isNaN(val) && val >= 0) onUpdateSite(site.id, 'hwCount', val);
             }}
-            className="h-8 text-sm w-14 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            className="h-7 text-sm w-14 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             disabled={site.isDisabledInUddi}
             data-testid={`site-hw-count-${site.id}`}
           />
@@ -1842,7 +1838,7 @@ export const SiteTableRow = React.memo(function SiteTableRow({
 
       {/* SW Add-ons — Reporting gets storage+TR-SWTL popover; ND/NX-P/NXVS/NXaaS show —; discovery rows skip entirely */}
       {!exportView && !isDiscoveryRow && (
-        <TableCell className="p-1">
+        <TableCell className="p-1.5">
           {isReportingRole ? (
             /* Reporting: ACTIVATION storage selector only — TR-SWTL is added automatically in export */
             <Popover>
@@ -1912,7 +1908,7 @@ export const SiteTableRow = React.memo(function SiteTableRow({
                       value={site.rptQuantity || ''} 
                       onValueChange={v => onUpdateSite(site.id, 'rptQuantity', v)}
                     >
-                      <SelectTrigger className="h-8 text-xs">
+                      <SelectTrigger className="h-7 text-xs px-2">
                         <SelectValue placeholder="Select GB" />
                       </SelectTrigger>
                       <SelectContent>
@@ -1959,7 +1955,7 @@ export const SiteTableRow = React.memo(function SiteTableRow({
 
       {/* HW Add-ons — hidden for LIC, CDC, NXVS, NXaaS. ND, RPT, NX-P keep it. */}
       {!exportView && (
-        <TableCell className="p-1">
+        <TableCell className="p-1.5">
           {hideHwAddons ? (
             <span className="text-xs text-muted-foreground">—</span>
           ) : (isVirtualPlatform && !isReportingRole) ? (
@@ -1969,7 +1965,7 @@ export const SiteTableRow = React.memo(function SiteTableRow({
               <PopoverTrigger asChild>
                 <Button
                   variant="outline" size="sm"
-                  className="h-8 text-xs w-full justify-between"
+                  className="h-7 text-xs w-full justify-between"
                   disabled={site.isDisabledInUddi}
                   data-testid={`site-hw-addons-${site.id}`}
                 >
@@ -2134,7 +2130,7 @@ export const SiteTableRow = React.memo(function SiteTableRow({
       )}
 
       {/* Add to Report */}
-      <TableCell className="p-1 text-center">
+      <TableCell className="p-1.5 text-center">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -2156,7 +2152,7 @@ export const SiteTableRow = React.memo(function SiteTableRow({
       </TableCell>
 
       {/* Add to BOM */}
-      <TableCell className="p-1 text-center">
+      <TableCell className="p-1.5 text-center">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -2178,7 +2174,7 @@ export const SiteTableRow = React.memo(function SiteTableRow({
       </TableCell>
 
       {/* Actions: Move (grip) + Copy to Drawing + Delete */}
-      <TableCell className="p-1">
+      <TableCell className="p-1.5">
         <div className="flex items-center gap-0.5">
           {/* Copy to another drawing */}
           {drawings && drawings.length > 1 && onCopySiteToDrawing && (

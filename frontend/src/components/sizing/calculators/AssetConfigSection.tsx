@@ -101,7 +101,7 @@ export function AssetConfigInput({ value, onChange, questionId, knowledgeWorkers
             <div className="flex items-center gap-3 pl-4"><span className="text-sm text-muted-foreground min-w-[240px]">Verified</span><span className="text-sm font-semibold">{verifiedAssets.toLocaleString()}</span></div>
             <div className="flex items-center gap-3 pl-4"><span className="text-sm text-muted-foreground min-w-[240px]">Unverified</span><span className="text-sm font-semibold">{unverifiedAssets.toLocaleString()}</span></div>
             <div className="flex items-center gap-3 pl-4"><span className="text-sm text-muted-foreground min-w-[240px]">Assets w/ Buffer ({Math.round(growthBufferPct * 100)}%)</span><span className="text-sm font-semibold text-primary">{bufferedAssets.toLocaleString()}</span><span className="text-xs text-muted-foreground">= {totalAssets.toLocaleString()} × {(1 + growthBufferPct).toFixed(2)}</span></div>
-            <div className="flex items-center gap-3 pl-4"><span className="text-sm text-muted-foreground min-w-[240px]">TD Cloud Tokens</span><span className="text-sm font-semibold text-[#FF585D]">{bufferedTokens.toLocaleString()}</span><span className="text-xs text-muted-foreground">= {bufferedAssets.toLocaleString()} × 3</span></div>
+            <div className="flex items-center gap-3 pl-4"><span className="text-sm text-muted-foreground min-w-[240px]">TD Cloud Tokens</span><span className="text-sm font-semibold text-destructive">{bufferedTokens.toLocaleString()}</span><span className="text-xs text-muted-foreground">= {bufferedAssets.toLocaleString()} × 3</span></div>
           </div>
         </div>
       )}

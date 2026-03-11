@@ -314,7 +314,7 @@ function WorkloadBar({ label, isDriver, value, max, effective, util }) {
   // effective = the actual usable capacity after 60% target + perf penalties
   const effectiveUtil = effective ? Math.round((value / effective) * 100) : 0;
   // Color based on % of total: green (<50%), yellow (50-60%), red (>60%)
-  const barColor = util > 60 ? '[&>div]:bg-destructive' : util > 50 ? '[&>div]:bg-[#FEDD00]' : '';
+  const barColor = util > 60 ? '[&>div]:bg-destructive' : util > 50 ? '[&>div]:bg-yellow-500' : '';
   
   return (
     <div className="space-y-1">

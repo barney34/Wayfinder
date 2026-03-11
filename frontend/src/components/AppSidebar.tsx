@@ -13,17 +13,10 @@ import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { apiRequest } from "@/lib/queryClient";
 import { useDiscoveryOptional } from "@/contexts/DiscoveryContext";
+import { formatNumber } from "@/lib/utils";
 import { ValueStoryPanel } from "./ValueStoryPanel";
 import { WayfinderLogo } from "./WayfinderLogo";
 import { ThemeToggle } from "./ThemeToggle";
-
-// Format numbers
-const formatKW = (n) => {
-  if (!n) return '0';
-  if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
-  if (n >= 1000) return (n / 1000).toFixed(n >= 10000 ? 0 : 1) + 'K';
-  return n.toString();
-};
 
 // Navigation items
 const NAV_ITEMS = [
@@ -168,7 +161,7 @@ export function AppSidebar({
       <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-between'} px-2 py-2 border-b gap-1`}>
         <button onClick={onBack} className="flex items-center gap-1.5 min-w-0 hover:opacity-80 transition-opacity">
           <WayfinderLogo className="h-6 w-6 shrink-0" />
-          {!collapsed && <span className="font-bold text-sm text-[#00BD4D] tracking-wide">WAYFINDER</span>}
+          {!collapsed && <span className="font-bold text-sm text-primary tracking-wide">WAYFINDER</span>}
         </button>
         <div className="flex items-center gap-0.5 shrink-0">
           <ThemeToggle />
@@ -209,8 +202,8 @@ export function AppSidebar({
               )}
               {currentOpportunity && (
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] text-[#00594C] dark:text-[#12C2D3] uppercase tracking-wide shrink-0 font-medium">Opp:</span>
-                  <span className="text-[10px] text-[#00594C] dark:text-[#FEDD00] font-medium truncate">{currentOpportunity}</span>
+                  <span className="text-[10px] text-primary dark:text-accent uppercase tracking-wide shrink-0 font-medium">Opp:</span>
+                  <span className="text-[10px] text-primary dark:text-yellow-500 font-medium truncate">{currentOpportunity}</span>
                 </div>
               )}
             </button>

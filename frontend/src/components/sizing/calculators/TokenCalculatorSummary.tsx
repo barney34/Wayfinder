@@ -1620,7 +1620,9 @@ export function TokenCalculatorSummary() {
                           {showKW && <TableCell className="p-1 w-16 font-semibold">KW</TableCell>}
                           <TableCell className="p-1 w-20 font-semibold">Devices</TableCell>
                           <TableCell className="p-1 w-24 font-semibold" colSpan={1 + (showServices ? 1 : 0) + (showDescription ? 1 : 0)}>Role</TableCell>
-                          <TableCell className="p-1 w-24 text-center font-semibold" colSpan={3}>Srv#</TableCell>
+                          <TableCell className="p-1 w-20 font-semibold">FO / HA</TableCell>
+                          <TableCell className="p-1 w-24 text-center font-semibold">Member Count</TableCell>
+                          <TableCell className="p-1 w-10 text-center font-semibold">HA</TableCell>
                           <TableCell className="p-1 w-24 font-semibold">Platform</TableCell>
                           <TableCell className="p-1 w-16 font-semibold">Model</TableCell>
                           {showHardware && <TableCell className="p-1 w-28 font-semibold">HW SKU</TableCell>}

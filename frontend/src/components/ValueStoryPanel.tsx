@@ -18,7 +18,7 @@ const DRIVERS = [
   {
     key: 'optimize',
     label: 'Optimize',
-    color: '#12C2D3',
+    color: 'hsl(var(--accent))',
     Icon: Gauge,
     // Value-adjacent questions in Discovery
     questionIds: ['ipam-6', 'ipam-7', 'ipam-10', 'ipam-12'],
@@ -28,7 +28,7 @@ const DRIVERS = [
   {
     key: 'accelerate',
     label: 'Accelerate',
-    color: '#00BD4D',
+    color: 'hsl(var(--primary))',
     Icon: Zap,
     questionIds: ['uddi-1', 'svc-5', 'uddi-4', 'svc-6'],
     chatSections: ['Cloud Management', 'Services'],
@@ -36,7 +36,7 @@ const DRIVERS = [
   {
     key: 'protect',
     label: 'Protect',
-    color: '#FF585D',
+    color: 'hsl(var(--destructive))',
     Icon: Shield,
     questionIds: ['sec-1', 'sec-2', 'sec-3', 'sec-4'],
     chatSections: ['Security'],
@@ -83,7 +83,7 @@ function CollapsedButton({ totalCaptured, onClick, isDrawerOpen }) {
               <div className="relative">
                 <Compass className="h-5 w-5 text-muted-foreground" />
                 {totalCaptured > 0 && (
-                  <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#00BD4D] rounded-full text-[8px] text-white flex items-center justify-center font-bold leading-none">
+                  <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-primary rounded-full text-[8px] text-primary-foreground flex items-center justify-center font-bold leading-none">
                     {totalCaptured}
                   </span>
                 )}
