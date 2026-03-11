@@ -129,7 +129,7 @@ export function ChatValueDiscovery({ section, defaultExpanded = false, contextua
     return [{ role: 'system', content: opener, timestamp: Date.now(), topic: 'current-state' }];
   }, [sectionConfig.opener, contextualOpener]);
 
-  // Load conversation from answers context on mount
+  // Load conversation from answers context on mount and when it changes (WebSocket sync)
   useEffect(() => {
     const savedConvo = answers[storageKey];
     if (savedConvo) {
@@ -158,7 +158,7 @@ export function ChatValueDiscovery({ section, defaultExpanded = false, contextua
     setConversation(getInitialConversation());
     setTopicQuestionCounts({ 'current-state': 1 });
     setCurrentTopic('current-state');
-  }, [section, storageKey, getInitialConversation]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [answers[storageKey], section, storageKey, getInitialConversation, contextualOpener]); // React to WebSocket updates
 
   // Save conversation to answers context
   useEffect(() => {
