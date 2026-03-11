@@ -10,7 +10,7 @@ export const whatsNewEntries: WhatsNewEntry[] = [
   {
     date: 'Mar 11, 2025',
     title: 'Auto/Manual Sort Toggle & Unit Numbering',
-    description: 'Added Auto/Manual sort mode toggle for the sizing table. Auto mode ensures contiguous numbering (1,2,3...) within each unit group with automatic renumbering after drag/delete operations. Manual mode preserves custom order and allows gaps. Improved unit number input field with select-all on focus and proper type-to-replace behavior. When editing a number in Auto mode, rows automatically reorder and renumber. All existing drawings retroactively fixed to show proper sequential numbering.',
+    description: '• Auto/Manual sort mode toggle for sizing table with visual indicator\n• Auto mode: ensures contiguous numbering (1,2,3...) within each unit group\n• Automatic renumbering after drag/delete operations\n• Manual mode: preserves custom order and allows gaps\n• Improved unit number input field (select-all on focus, type-to-replace)\n• Manual number editing triggers automatic row reordering\n• Retroactive fix applied to all existing drawings',
     category: 'feature',
   },
   {
