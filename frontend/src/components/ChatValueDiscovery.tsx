@@ -119,6 +119,7 @@ export function ChatValueDiscovery({ section, defaultExpanded = false, contextua
   const [showNoteInput, setShowNoteInput] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+  const prevConvoRef = useRef(null);
   
   const sectionConfig = SECTION_TOPICS[section] || DEFAULT_SECTION;
   const storageKey = `vd-chat-${section.replace(/\s/g, '-')}`;
@@ -132,6 +133,12 @@ export function ChatValueDiscovery({ section, defaultExpanded = false, contextua
   // Load conversation from answers context on mount and when it changes (WebSocket sync)
   useEffect(() => {
     const savedConvo = answers[storageKey];
+    
+    // Skip if this is the same value we just saved (avoid infinite loop)
+    if (savedConvo === prevConvoRef.current) {
+      return;
+    }
+    
     if (savedConvo) {
       try {
         const parsed = JSON.parse(savedConvo);
@@ -143,6 +150,7 @@ export function ChatValueDiscovery({ section, defaultExpanded = false, contextua
           if (contextualOpener && !hasUserReplies) {
             setConversation([{ role: 'system', content: contextualOpener, timestamp: Date.now(), topic: 'current-state' }]);
           } else {
+            console.log('[ChatValueDiscovery] Loading conversation from WebSocket update:', msgs.length, 'messages');
             setConversation(msgs);
           }
           setTopicQuestionCounts(parsed.topicQuestionCounts || {});
@@ -151,24 +159,26 @@ export function ChatValueDiscovery({ section, defaultExpanded = false, contextua
           return;
         }
       } catch (e) {
-        // Fall through to init
+        console.error('[ChatValueDiscovery] Failed to parse saved conversation:', e);
       }
     }
     // Start fresh
     setConversation(getInitialConversation());
     setTopicQuestionCounts({ 'current-state': 1 });
     setCurrentTopic('current-state');
-  }, [answers[storageKey], section, storageKey, getInitialConversation, contextualOpener]); // React to WebSocket updates
+  }, [answers, storageKey, getInitialConversation, contextualOpener]); // Watch entire answers object
 
   // Save conversation to answers context
   useEffect(() => {
     if (conversation.length > 0) {
-      setAnswer(storageKey, JSON.stringify({
+      const serialized = JSON.stringify({
         messages: conversation,
         topicQuestionCounts: topicQuestionCounts,
         currentTopic: currentTopic,
         mode: mode
-      }));
+      });
+      prevConvoRef.current = serialized;
+      setAnswer(storageKey, serialized);
     }
   }, [conversation, topicQuestionCounts, currentTopic, mode, storageKey, setAnswer]);
 
