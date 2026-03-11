@@ -80,10 +80,19 @@ async def save_discovery_data(customer_id: str, data: DiscoveryData):
     )
     
     # Broadcast update to all connected WebSocket clients
-    await manager.broadcast(customer_id, {
-        "type": "discovery_update",
-        "data": discovery_doc,
-        "timestamp": now.isoformat()
-    })
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(f"[BROADCAST] About to broadcast update for customer {customer_id}")
+    logger.info(f"[BROADCAST] Active connections: {manager.get_connection_count(customer_id)}")
+    
+    try:
+        await manager.broadcast(customer_id, {
+            "type": "discovery_update",
+            "data": discovery_doc,
+            "timestamp": now.isoformat()
+        })
+        logger.info(f"[BROADCAST] Successfully broadcasted to customer {customer_id}")
+    except Exception as e:
+        logger.error(f"[BROADCAST] Failed to broadcast: {e}")
     
     return discovery_doc
