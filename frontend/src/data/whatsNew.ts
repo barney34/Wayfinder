@@ -8,6 +8,12 @@ export interface WhatsNewEntry {
 // Newest first
 export const whatsNewEntries: WhatsNewEntry[] = [
   {
+    date: 'Mar 11, 2025',
+    title: 'Auto/Manual Sort Toggle & Unit Numbering',
+    description: 'Added Auto/Manual sort mode toggle for the sizing table. Auto mode ensures contiguous numbering (1,2,3...) within each unit group with automatic renumbering after drag/delete operations. Manual mode preserves custom order and allows gaps. Improved unit number input field with select-all on focus and proper type-to-replace behavior. When editing a number in Auto mode, rows automatically reorder and renumber. All existing drawings retroactively fixed to show proper sequential numbering.',
+    category: 'feature',
+  },
+  {
     date: 'Mar 10, 2025',
     title: 'What\'s New Page',
     description: 'Added a global What\'s New section to track recent updates and changes.',
