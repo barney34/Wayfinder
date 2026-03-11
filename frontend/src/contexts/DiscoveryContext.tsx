@@ -176,31 +176,33 @@ export function DiscoveryProvider({ children, customerId }: DiscoveryProviderPro
 
   // Handle incoming WebSocket data updates from other users
   const handleRemoteUpdate = useCallback((data: any) => {
-    // Only update if this is a remote change (not our own save)
-    const updateTimestamp = data.lastSaved;
-    if (updateTimestamp && updateTimestamp !== lastRemoteUpdate) {
-      console.log('[DiscoveryContext] Received remote update, refreshing data');
-      setLastRemoteUpdate(updateTimestamp);
-      
-      // Update all state with remote data
-      if (data.answers) setAnswers(data.answers);
-      if (data.notes) setNotes(data.notes);
-      if (data.contextFields) setContextFieldsState(data.contextFields);
-      if (data.meetingNotes !== undefined) setMeetingNotesState(data.meetingNotes);
-      if (data.enabledSections) setEnabledSections(data.enabledSections);
-      if (data.udsMembers) setUdsMembers(data.udsMembers);
-      if (data.leaseTimeUnits) setLeaseTimeUnitsState(data.leaseTimeUnits);
-      if (data.dataCenters) setDataCenters(data.dataCenters);
-      if (data.sites) setSites(data.sites);
-      if (data.drawings) setDrawings(data.drawings);
-      if (data.activeDrawingId) setActiveDrawingIdState(data.activeDrawingId);
-      if (data.drawingConfigs) setDrawingConfigs(data.drawingConfigs);
-      
-      // Show notification to user
-      console.log('[DiscoveryContext] Data updated by another user');
-      // TODO: Add toast notification here
+    console.log('[DiscoveryContext] Received WebSocket update:', data.lastSaved);
+    
+    // Update all state with remote data (always apply updates from WebSocket)
+    if (data.answers) {
+      console.log('[DiscoveryContext] Updating answers from remote');
+      setAnswers(data.answers);
     }
-  }, [lastRemoteUpdate]);
+    if (data.notes) setNotes(data.notes);
+    if (data.contextFields) setContextFieldsState(data.contextFields);
+    if (data.meetingNotes !== undefined) setMeetingNotesState(data.meetingNotes);
+    if (data.enabledSections) setEnabledSections(data.enabledSections);
+    if (data.udsMembers) setUdsMembers(data.udsMembers);
+    if (data.leaseTimeUnits) setLeaseTimeUnitsState(data.leaseTimeUnits);
+    if (data.dataCenters) setDataCenters(data.dataCenters);
+    if (data.sites) setSites(data.sites);
+    if (data.drawings) setDrawings(data.drawings);
+    if (data.activeDrawingId) setActiveDrawingIdState(data.activeDrawingId);
+    if (data.drawingConfigs) setDrawingConfigs(data.drawingConfigs);
+    
+    // Update last remote timestamp
+    if (data.lastSaved) {
+      setLastRemoteUpdate(data.lastSaved);
+    }
+    
+    console.log('[DiscoveryContext] Data updated from remote user');
+    // TODO: Add toast notification here
+  }, []);
 
   // Connect to WebSocket for real-time sync
   const { syncStatus, isConnected } = useCustomerSync(customerId, {
