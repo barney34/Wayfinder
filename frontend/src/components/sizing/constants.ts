@@ -25,7 +25,7 @@ export const hardwareSkuMapping: HardwareSkuMappings = {
   'L':   { default: 'TE-1506-HW-AC', alternatives: ['TE-906-HW-2AC', 'TE-906-HW-AC', 'B1-105-HW-AC', 'B1-212-HW-AC'] },
   'XL':  { default: 'TE-1506-HW-AC', alternatives: ['TE-906-HW-2AC', 'TE-906-HW-AC', 'B1-105-HW-AC', 'B1-212-HW-AC'] },
   // NIOS TE-series (software model → hardware chassis options)
-  'TE-926':  { default: 'TE-906-HW-2AC', alternatives: ['TE-906-HW-AC', 'TE-906-HW-DC'] },
+  'TE-926':  { default: 'TE-906-HW-2AC', alternatives: ['TE-906-HW-AC'] },
   'TE-1516': { default: 'TE-1506-HW-AC', alternatives: ['TE-1506-HW-DC', 'TE-1506-10GE-HW-AC', 'TE-1506-10GE-HW-DC'] },
   'TE-1526': { default: 'TE-1606-HW-AC', alternatives: ['TE-1606-HW-DC', 'TE-1606-10GE-HW-AC', 'TE-1606-10GE-HW-DC'] },
   'TE-2326': { default: 'TE-2306-HW-AC', alternatives: ['TE-2306-HW-DC', 'TE-2306-10GE-HW-AC', 'TE-2306-10GE-HW-DC'] },
@@ -35,6 +35,12 @@ export const hardwareSkuMapping: HardwareSkuMappings = {
   'ND-1606': { default: 'ND-1606-HW-AC', alternatives: ['ND-1606-HW-DC'] },
   'ND-2306': { default: 'ND-2306-HW-AC', alternatives: ['ND-2306-HW-DC'] },
   'ND-4106': { default: 'ND-4106-HW-AC', alternatives: ['ND-4106-HW-DC'] },
+  // NIOS-X NDX-series (ND-X Physical appliances) — 906 chassis: 2AC default, no DC; 1506 chassis: all 4 variants
+  'NDX-XS': { default: 'TE-906-HW-2AC', alternatives: ['TE-906-HW-AC'] },
+  'NDX-S':  { default: 'TE-906-HW-2AC', alternatives: ['TE-906-HW-AC'] },
+  'NDX-M':  { default: 'TE-906-HW-2AC', alternatives: ['TE-906-HW-AC'] },
+  'NDX-L':  { default: 'TE-1506-HW-AC', alternatives: ['TE-1506-HW-DC', 'TE-1506-10GE-HW-AC', 'TE-1506-10GE-HW-DC'] },
+  'NDX-XL': { default: 'TE-1506-HW-AC', alternatives: ['TE-1506-HW-DC', 'TE-1506-10GE-HW-AC', 'TE-1506-10GE-HW-DC'] },
   // Reporting Server — physical appliance (auto-driven by rptQuantity threshold)
   'TR-5005': { default: 'TE-1606-HW-AC', alternatives: ['TE-2306-HW-AC'] },
   // Legacy locked models

@@ -39,6 +39,7 @@ export const ROLE_TO_UNIT: Record<string, string> = {
   'Guest':    'G',
   'MSSync':   'M',
   'ND':       'N',  // Network Discovery
+  'ND-X':     'NX', // NIOS-X Network Discovery
   'NI':       'N',  // Network Insight (legacy)
   'Reporting':'RPT',
   'License':  'LIC',
@@ -56,6 +57,7 @@ export const UNIT_OPTIONS: UnitOption[] = [
   { value: 'G',   label: 'G — Guest Network' },
   { value: 'M',   label: 'M — MS Sync' },
   { value: 'N',   label: 'N — Network Insight' },
+  { value: 'NX',  label: 'NX — NIOS-X Discovery' },
   { value: 'RPT', label: 'RPT — Reporting' },
   { value: 'LIC', label: 'LIC — License Only' },
   { value: 'CDC', label: 'CDC — Cloud Data Connector' },
@@ -64,7 +66,7 @@ export const UNIT_OPTIONS: UnitOption[] = [
 // Sort priority — lower number = higher in the table
 export const UNIT_SORT_ORDER: Record<string, number> = {
   'A': 1, 'B': 2, 'C': 3, 'D': 4, 'E': 5, 'F': 6,
-  'G': 7, 'M': 8, 'N': 9, 'RPT': 10, 'LIC': 11, 'CDC': 12,
+  'G': 7, 'M': 8, 'N': 9, 'NX': 10, 'RPT': 11, 'LIC': 12, 'CDC': 13,
 };
 
 /**
@@ -77,6 +79,7 @@ export function getUnitLetterForRole(role: string): string {
   // Check if role starts with GM or GMC (for composite roles like GM+DNS)
   if (role.startsWith('GMC')) return 'A';
   if (role.startsWith('GM')) return 'A';
+  if (role === 'ND-X') return 'NX';
   // Default to B (Internal DNS) for unknown roles
   return 'B';
 }

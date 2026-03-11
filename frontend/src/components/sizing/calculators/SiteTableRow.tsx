@@ -22,7 +22,7 @@ import { formatNumber } from "@/lib/utils";
 import { ADDITIONAL_SERVICES, SW_ADDONS, HW_ADDONS, SFP_OPTIONS, RPT_QUANTITIES, PERFORMANCE_FEATURES, getAvailableSwAddons, getAvailableHwAddons, getAvailablePerfFeatures } from "./platformConfig";
 import { getSiteWorkloadDetails, getDefaultHardwareSku, getDefaultHwAddons } from "../calculations";
 import { CopySiteToDrawingMenu } from "./DrawingManager";
-import { niosServerGuardrails, nxvsServers, nxaasServers } from "@/lib/tokenData";
+import { niosServerGuardrails, nxvsServers, nxaasServers, ndxServerGuardrails } from "@/lib/tokenData";
 import type { RoleOption, PlatformOption } from "./platformConfig";
 import type { UnitAssignment } from "./unitDesignations";
 
@@ -617,6 +617,8 @@ export const SiteTableRow = React.memo(function SiteTableRow({
   const getUnitGroup = (role, services = []) => {
     if (role === 'GM') return 'A';
     if (role === 'GMC') return 'A';
+    if (role === 'ND') return 'N';
+    if (role === 'ND-X') return 'NX';
     if (role === 'DNS' || role === 'DNS/DHCP' || role?.includes('DNS')) return 'B';
     if (role === 'DHCP') return 'C';
     if (role?.toLowerCase()?.includes('edge') || role?.toLowerCase()?.includes('remote')) return 'D';
@@ -641,6 +643,7 @@ export const SiteTableRow = React.memo(function SiteTableRow({
   const getSwBaseSku = (model) => {
     if (!model) return '';
     if (model.startsWith('ND-'))    return `${model}-SWBSUB`;
+    if (model.startsWith('NDX-'))  return `${model}-SWSUB`;
     if (model === 'TR-5005')        return 'TR-SWBSUB-5005';
     if (model.startsWith('NXVS-') || model.startsWith('NXaaS-')) return `${model}-SWSUB`;
     return `${model}-SWSUB`; // TE-xxx-SWSUB default
@@ -649,7 +652,8 @@ export const SiteTableRow = React.memo(function SiteTableRow({
   // Helper to get SW Package from role (with ACTIVATION for Reporting)
   const getSwPackage = (role, hasDiscovery) => {
     if (role === 'Reporting') return site.rptQuantity ? `ACTIVATION-${site.rptQuantity}` : 'ACTIVATION';
-    if (role === 'ND')  return 'NIGD';
+    if (role === 'ND')   return 'NIGD';
+    if (role === 'ND-X') return 'NDX';
     if (role === 'LIC') return 'LIC';
     if (role === 'CDC') return 'CDC';
     if (role === 'GM' || role === 'GMC' || role?.startsWith('GM+') || role?.startsWith('GMC+')) return 'DDI';
@@ -705,6 +709,10 @@ export const SiteTableRow = React.memo(function SiteTableRow({
       lines.push('Network Insight');
       lines.push('Automated Discovery');
       lines.push('Authoritative IPAM');
+    } else if (role === 'ND-X') {
+      lines.push('NIOS-X Network Discovery');
+      lines.push('L2/L3 Device Discovery');
+      lines.push('Automated Network Insight');
     } else if (role === 'Reporting') {
       lines.push('Reporting Server');
       lines.push('Scheduled Reports');
@@ -782,9 +790,10 @@ export const SiteTableRow = React.memo(function SiteTableRow({
   // Use hardwareSku (e.g. 'TE-1506-HW-AC') not recommendedModel (e.g. 'TE-1516') — HW addons match on hardware SKU
   const availableHwAddons = getAvailableHwAddons(site.hardwareSku, site.platform);
   const isReportingRole = site.role === 'Reporting';
+  const isDiscoveryRow = site.role === 'ND' || site.role === 'ND-X';
 
   // Roles/platforms that have no SW add-ons
-  const hideSwAddons = site.role === 'Reporting' || site.role === 'ND' || site.role === 'LIC' || site.role === 'CDC'
+  const hideSwAddons = site.role === 'Reporting' || site.role === 'ND' || site.role === 'ND-X' || site.role === 'LIC' || site.role === 'CDC'
     || site.platform === 'NXVS' || site.platform === 'NXaaS';
   // Roles/platforms with no HW add-ons popover
   // ND DOES have HW (variant selector AC/DC). NX-P and RPT now have hardware — show popover.
@@ -948,13 +957,15 @@ export const SiteTableRow = React.memo(function SiteTableRow({
                 >{letter}</button>
               ))}
             </div>
-            <div className="grid grid-cols-3 gap-1 mb-2">
-              {['RPT','LIC','CDC'].map(letter => (
+            <div className="grid grid-cols-4 gap-1 mb-2">
+              {['NX','RPT','LIC','CDC'].map(letter => (
                 <button
                   key={letter}
                   onClick={() => {
                     // Auto-set role when selecting special unit letters
-                    if (letter === 'RPT' && site.role !== 'Reporting') {
+                    if (letter === 'NX' && site.role !== 'ND-X') {
+                      onUpdateSite(site.id, { unitLetterOverride: letter, role: 'ND-X', platform: 'NXVS' });
+                    } else if (letter === 'RPT' && site.role !== 'Reporting') {
                       // Atomic update for all Reporting fields
                       onUpdateSite(site.id, {
                         unitLetterOverride: letter,
@@ -1081,17 +1092,22 @@ export const SiteTableRow = React.memo(function SiteTableRow({
         </TableCell>
       )}
 
-      {/* # IPs — not applicable for Reporting */}
+      {/* # IPs — not applicable for Reporting; shows "Devices" for ND/ND-X */}
       <TableCell className="p-1">
         {isReportingRole ? (
           <span className="text-xs text-muted-foreground">—</span>
         ) : (() => {
+          const isDiscoveryRole = site.role === 'ND' || site.role === 'ND-X';
           const isEmpty = !site.numIPs || site.numIPs === 0;
           const autoIPs = site.numIPsAuto || 0;
-          const deviates = autoIPs > 0 && !isEmpty &&
+          const deviates = !isDiscoveryRole && autoIPs > 0 && !isEmpty &&
             Math.abs(site.numIPs - autoIPs) / autoIPs > 0.20;
           const needsHighlight = (isEmpty || deviates) && !site.isDisabledInUddi;
-          const ipTooltip = isEmpty
+          const ipTooltip = isDiscoveryRole
+            ? (isEmpty
+              ? { title: 'Device count not entered', body: site.role === 'ND-X' ? 'Enter the number of L2/L3 devices (switches & routers) to calculate sizing.' : 'Enter the number of managed IPs/devices.' }
+              : null)
+            : isEmpty
             ? { title: 'IP count not entered', body: 'Enter the number of managed IPs to calculate sizing.' }
             : deviates
             ? { title: `Deviates from auto (${autoIPs.toLocaleString()})`, body: `Your value differs by more than 20% from the auto-calculated ${autoIPs.toLocaleString()} IPs. Verify this is intentional.` }
@@ -1103,8 +1119,9 @@ export const SiteTableRow = React.memo(function SiteTableRow({
                   <TooltipTrigger asChild>
                     <Input
                       type="number"
-                      value={site.numIPs}
+                      value={site.numIPs || ''}
                       onChange={e => onUpdateSite(site.id, 'numIPs', parseInt(e.target.value) || 0)}
+                      placeholder={isDiscoveryRole ? 'Devices' : '0'}
                       className={`h-7 text-sm w-20 lg:w-24 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${
                         needsHighlight ? 'ring-1 ring-amber-400 border-amber-400' : ''
                       }`}
@@ -1126,12 +1143,18 @@ export const SiteTableRow = React.memo(function SiteTableRow({
       </TableCell>
 
       {/* Role — compact dropdown + description first-line subtitle (hover=full, click=edit) */}
-      <TableCell className="p-1 lg:p-1.5">
+      <TableCell className="p-1 lg:p-1.5" colSpan={isDiscoveryRow ? 1 + (showServices ? 1 : 0) + (showDescription ? 1 : 0) : 1}>
         {(() => {
           const isGmRow = site.role?.startsWith('GM') || site.role?.startsWith('GMC');
           const allDescLines = description.split('\n');
           const firstLine = allDescLines[0]; // "Physical Member" / "Virtual Member"
           const fullDesc = description;
+
+          // Discovery rows: lock role to ND or ND-X only
+          const discoveryRoleOptions = isDiscoveryRow
+            ? [{ value: site.role, label: site.role, description: site.role === 'ND' ? 'Network Discovery Appliance' : 'NIOS-X Network Discovery' }]
+            : null;
+
           return (
             <div className="space-y-0.5">
               <Select value={site.role} onValueChange={v => {
@@ -1146,17 +1169,17 @@ export const SiteTableRow = React.memo(function SiteTableRow({
                   } else {
                     onUpdateSite(site.id, 'role', v);
                   }
-                }} disabled={site.isDisabledInUddi}>
+                }} disabled={site.isDisabledInUddi || isDiscoveryRow}>
                 <SelectTrigger className="h-7 text-xs" data-testid={`site-role-${site.id}`}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {roleOptions.filter(o => !o.group).map(o => (
+                  {(discoveryRoleOptions || roleOptions.filter(o => !o.group)).map(o => (
                     <SelectItem key={o.value} value={o.value} title={o.description}>
                       {o.label}
                     </SelectItem>
                   ))}
-                  {isGmRow && roleOptions.some(o => o.group === 'Grid Manager') && (
+                  {!isDiscoveryRow && isGmRow && roleOptions.some(o => o.group === 'Grid Manager') && (
                     <>
                       <div className="px-2 py-1 text-[10px] text-muted-foreground uppercase tracking-wide border-t mt-1 pt-2">
                         Grid Manager
@@ -1224,8 +1247,8 @@ export const SiteTableRow = React.memo(function SiteTableRow({
         })()}
       </TableCell>
 
-      {/* Description — click to open editor popover (conditionally shown) */}
-      {showDescription && (
+      {/* Description — click to open editor popover (conditionally shown; skipped for discovery rows) */}
+      {showDescription && !isDiscoveryRow && (
       <TableCell className="p-1 lg:p-2">
         <Popover>
           <PopoverTrigger asChild>
@@ -1258,8 +1281,8 @@ export const SiteTableRow = React.memo(function SiteTableRow({
       </TableCell>
       )}
 
-      {/* Services (conditional) */}
-      {showServices && (
+      {/* Services (conditional; skipped for discovery rows — absorbed by Role colspan) */}
+      {showServices && !isDiscoveryRow && (
         <TableCell className="p-1">
           <Popover>
             <PopoverTrigger asChild>
@@ -1428,7 +1451,8 @@ export const SiteTableRow = React.memo(function SiteTableRow({
         </TableCell>
       )}
 
-      {/* FO / HA Association */}
+      {/* FO / HA Association (skipped for discovery rows) */}
+      {!isDiscoveryRow && (
       <TableCell className="p-1">
         {(() => {
           const hasDhcp = site.role === 'DHCP' || site.role === 'DNS/DHCP' ||
@@ -1453,9 +1477,10 @@ export const SiteTableRow = React.memo(function SiteTableRow({
           );
         })()}
       </TableCell>
+      )}
 
       {/* Server Count (Srv#) — number + stacked ±  */}
-      <TableCell className="p-1">
+      <TableCell className="p-1" colSpan={isDiscoveryRow ? 3 : 1}>
         {site._isExpanded && site._serverIndex !== 0 ? (
           <span className="text-xs font-semibold text-center block text-muted-foreground">—</span>
         ) : site._isExpanded && site._serverIndex === 0 ? (() => {
@@ -1580,7 +1605,8 @@ export const SiteTableRow = React.memo(function SiteTableRow({
         )}
       </TableCell>
 
-      {/* HA toggle */}
+      {/* HA toggle (skipped for discovery rows — absorbed by Srv# colspan) */}
+      {!isDiscoveryRow && (
       <TableCell className="p-1 text-center">
         {site.platform === 'NXVS' || site.platform === 'NX-P' || site.platform === 'NXaaS' ? (
           <span className="text-muted-foreground text-xs">N/A</span>
@@ -1621,17 +1647,28 @@ export const SiteTableRow = React.memo(function SiteTableRow({
         </TooltipProvider>
         )}
       </TableCell>
+      )}
 
-      {/* Platform */}
+      {/* Platform — discovery rows get restricted options */}
       <TableCell className="p-1">
-        <Select value={site.platform} onValueChange={v => onUpdateSite(site.id, 'platform', v)} disabled={site.isDisabledInUddi}>
-          <SelectTrigger className="h-7 text-xs" data-testid={`site-platform-${site.id}`}>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {platformOptions.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
-          </SelectContent>
-        </Select>
+        {(() => {
+          const discoveryPlatformOptions = isDiscoveryRow
+            ? site.role === 'ND'
+              ? [{ value: 'NIOS-V', label: 'Virtual' }, { value: 'NIOS', label: 'Physical' }]
+              : [{ value: 'NXVS', label: 'NX Virtual' }, { value: 'NX-P', label: 'NX Physical' }]
+            : null;
+          const opts = discoveryPlatformOptions || platformOptions;
+          return (
+            <Select value={site.platform} onValueChange={v => onUpdateSite(site.id, 'platform', v)} disabled={site.isDisabledInUddi}>
+              <SelectTrigger className="h-7 text-xs" data-testid={`site-platform-${site.id}`}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {opts.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          );
+        })()}
       </TableCell>
 
       {/* Model — dropdown with auto-recommended + not-recommended options */}
@@ -1647,9 +1684,13 @@ export const SiteTableRow = React.memo(function SiteTableRow({
           const isND = site.role === 'ND';
           const isRPT = site.role === 'Reporting';
 
+          const isNDX = site.role === 'ND-X';
+
           let modelOptions = [];
           if (isND) {
             modelOptions = ['ND-906','ND-1606','ND-2306','ND-4106'];
+          } else if (isNDX) {
+            modelOptions = ndxServerGuardrails.map(s => s.model);
           } else if (isRPT) {
             modelOptions = ['TR-5005'];
           } else if (isNIOS) {
@@ -1785,8 +1826,8 @@ export const SiteTableRow = React.memo(function SiteTableRow({
         )}
       </TableCell>
 
-      {/* SW Add-ons — Reporting gets storage+TR-SWTL popover; ND/NX-P/NXVS/NXaaS show — */}
-      {!exportView && (
+      {/* SW Add-ons — Reporting gets storage+TR-SWTL popover; ND/NX-P/NXVS/NXaaS show —; discovery rows skip entirely */}
+      {!exportView && !isDiscoveryRow && (
         <TableCell className="p-1">
           {isReportingRole ? (
             /* Reporting: ACTIVATION storage selector only — TR-SWTL is added automatically in export */
@@ -2017,10 +2058,15 @@ export const SiteTableRow = React.memo(function SiteTableRow({
                         </p>
                       )}
                       <div className="space-y-1.5">
-                        {SFP_OPTIONS.map(sfp => {
-                          const qty = (site.sfpAddons || {})[sfp.value] || 0;
+                        {(() => {
+                          const sfpAddons = site.sfpAddons || {};
+                          const totalSfpUsed = Object.values(sfpAddons).reduce((sum: number, v) => sum + ((v as number) || 0), 0);
+                          const MAX_SFP_PER_BOX = 4;
+                          return SFP_OPTIONS.map(sfp => {
+                          const qty = sfpAddons[sfp.value] || 0;
                           const serverCount = site._serverCount || 1;
                           const total = qty * serverCount;
+                          const atMax = totalSfpUsed >= MAX_SFP_PER_BOX && qty === 0;
                           return (
                             <div key={sfp.value} className="flex items-center gap-2">
                               {/* − qty + stepper */}
@@ -2028,7 +2074,7 @@ export const SiteTableRow = React.memo(function SiteTableRow({
                                 <button
                                   onClick={() => {
                                     if (qty > 0) {
-                                      const updated = { ...(site.sfpAddons || {}), [sfp.value]: qty - 1 };
+                                      const updated = { ...sfpAddons, [sfp.value]: qty - 1 };
                                       if (updated[sfp.value] <= 0) delete updated[sfp.value];
                                       onUpdateSite(site.id, 'sfpAddons', updated);
                                     }
@@ -2039,10 +2085,13 @@ export const SiteTableRow = React.memo(function SiteTableRow({
                                 <span className="text-[10px] font-semibold w-5 text-center tabular-nums">{qty}</span>
                                 <button
                                   onClick={() => {
-                                    const updated = { ...(site.sfpAddons || {}), [sfp.value]: qty + 1 };
-                                    onUpdateSite(site.id, 'sfpAddons', updated);
+                                    if (totalSfpUsed < MAX_SFP_PER_BOX) {
+                                      const updated = { ...sfpAddons, [sfp.value]: qty + 1 };
+                                      onUpdateSite(site.id, 'sfpAddons', updated);
+                                    }
                                   }}
-                                  className="h-full w-5 flex items-center justify-center text-muted-foreground hover:bg-muted text-[10px] border-l border-border"
+                                  disabled={totalSfpUsed >= MAX_SFP_PER_BOX}
+                                  className="h-full w-5 flex items-center justify-center text-muted-foreground hover:bg-muted disabled:opacity-30 text-[10px] border-l border-border"
                                 >+</button>
                               </div>
                               {/* SKU label + total */}
@@ -2054,7 +2103,8 @@ export const SiteTableRow = React.memo(function SiteTableRow({
                               </div>
                             </div>
                           );
-                        })}
+                        });
+                        })()}
                       </div>
                     </div>
                   )}

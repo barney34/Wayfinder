@@ -95,18 +95,18 @@ export function TopBar({ customerName, nickname, opportunity, onNameChange, onNi
     prevCloudMgmt.current = cloudMgmtActive;
   }, [cloudMgmtActive, uddiEnabled, updateDrawingConfig, activeDrawingId, niosEnabled]);
 
-  const handleAddDC = () => { if (!dcName.trim()) return; addDataCenter(dcName.trim(), parseInt(dcKW) || 0); setDcName(''); setDcKW(''); setTimeout(() => dcNameRef.current?.focus(), 0); };
-  const handleAddSite = () => { if (!siteName.trim()) return; addSite(siteName.trim(), '', parseInt(siteKW) || 0); setSiteName(''); setSiteKW(''); setTimeout(() => siteNameRef.current?.focus(), 0); };
+  const handleAddDC = () => { if (!dcName.trim()) return; addDataCenter(dcName.trim(), parseInt(dcKW) || kw || 0); setDcName(''); setDcKW(''); setTimeout(() => dcNameRef.current?.focus(), 0); };
+  const handleAddSite = () => { if (!siteName.trim()) return; addSite(siteName.trim(), '', parseInt(siteKW) || kw || 0); setSiteName(''); setSiteKW(''); setTimeout(() => siteNameRef.current?.focus(), 0); };
   const handleQuickAddDCs = () => {
     const n = parseInt(dcQuickCount);
     if (!n || n < 1) return;
-    for (let i = 1; i <= n; i++) addDataCenter(`DC ${dataCenters.length + i}`, 0);
+    for (let i = 1; i <= n; i++) addDataCenter(`DC ${dataCenters.length + i}`, kw || 0);
     setDcQuickCount('');
   };
   const handleQuickAddSites = () => {
     const n = parseInt(siteQuickCount);
     if (!n || n < 1) return;
-    for (let i = 1; i <= n; i++) addSite(`Site ${sites.length + i}`, '', 0);
+    for (let i = 1; i <= n; i++) addSite(`Site ${sites.length + i}`, '', kw || 0);
     setSiteQuickCount('');
   };
 
@@ -227,7 +227,7 @@ export function TopBar({ customerName, nickname, opportunity, onNameChange, onNi
                 {dataCenters.map((dc) => (
                   <div key={dc.id} className="flex items-center bg-secondary border border-border rounded-lg overflow-hidden">
                     <input value={dc.name} onChange={e => updateDataCenter(dc.id, { name: e.target.value })} className="flex-1 min-w-0 px-1.5 py-1 text-[11px] text-foreground bg-transparent border-0 focus:outline-none focus:bg-muted" />
-                    <input type="number" value={dc.knowledgeWorkers || ''} onChange={e => updateDataCenter(dc.id, { knowledgeWorkers: parseInt(e.target.value) || 0 })} className="w-12 px-1 py-1 text-[11px] text-[#00BD4D] font-semibold bg-transparent border-0 focus:outline-none focus:bg-muted text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+                    <input type="number" value={dc.knowledgeWorkers || ''} onChange={e => updateDataCenter(dc.id, { knowledgeWorkers: parseInt(e.target.value) || 0 })} placeholder={kw > 0 ? String(kw) : '0'} className="w-12 px-1 py-1 text-[11px] text-foreground font-semibold bg-transparent border-0 focus:outline-none focus:bg-muted text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
                     <button onClick={() => deleteDataCenter(dc.id)} className="px-1 py-1 hover:bg-destructive/20 shrink-0" data-testid={`delete-dc-${dc.id}`}><X className="h-3 w-3 text-destructive" /></button>
                   </div>
                 ))}
@@ -235,9 +235,9 @@ export function TopBar({ customerName, nickname, opportunity, onNameChange, onNi
             )}
             <div className="flex gap-1.5 mt-auto">
               <input ref={dcNameRef} value={dcName} onChange={e => setDcName(e.target.value)} placeholder="Name" className="flex-1 min-w-0 h-7 px-2 text-xs rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
-                onKeyDown={e => { if (e.key === 'Enter' && dcName.trim()) { e.preventDefault(); dcKWRef.current?.focus(); dcKWRef.current?.select(); } }}
+                onKeyDown={e => { if (e.key === 'Enter' && dcName.trim()) { e.preventDefault(); handleAddDC(); } }}
                 data-testid="dc-name-input" />
-              <input ref={dcKWRef} type="number" value={dcKW} onChange={e => setDcKW(e.target.value)} placeholder="KW" className="w-14 h-7 px-2 text-xs rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              <input ref={dcKWRef} type="number" value={dcKW} onChange={e => setDcKW(e.target.value)} placeholder={kw > 0 ? String(kw) : 'KW'} className="w-14 h-7 px-2 text-xs rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddDC(); } }}
                 data-testid="dc-kw-input" />
               <button onClick={handleAddDC} disabled={!dcName.trim()} className="shrink-0 h-7 w-7 rounded-lg bg-primary hover:bg-primary/90 disabled:bg-muted flex items-center justify-center text-white disabled:text-muted-foreground" data-testid="dc-add-btn"><Plus className="h-3.5 w-3.5" /></button>
@@ -254,9 +254,9 @@ export function TopBar({ customerName, nickname, opportunity, onNameChange, onNi
                 <button onClick={handleQuickAddSites} disabled={!siteQuickCount} className="h-5 px-1.5 text-[10px] rounded bg-primary hover:bg-primary/90 disabled:bg-muted text-white disabled:text-muted-foreground shrink-0">Add</button>
               </div>
             </div>
-            {sites.length > 0 && (
+            {sites.filter(s => s.dataCenterId !== '__discovery__').length > 0 && (
               <div className="grid grid-cols-2 gap-1.5 mb-2">
-                {sites.map((site) => (
+                {sites.filter(s => s.dataCenterId !== '__discovery__').map((site) => (
                   <div key={site.id} className="flex items-center bg-secondary border border-border rounded-lg overflow-hidden">
                     <input value={site.name} onChange={e => updateSite(site.id, { name: e.target.value })} className="flex-1 min-w-0 px-1.5 py-1 text-[11px] text-foreground bg-transparent border-0 focus:outline-none focus:bg-muted" />
                     <input type="number" value={site.knowledgeWorkers || ''} onChange={e => updateSite(site.id, { knowledgeWorkers: parseInt(e.target.value) || 0 })} className="w-12 px-1 py-1 text-[11px] text-[#00594C] dark:text-[#12C2D3] font-semibold bg-transparent border-0 focus:outline-none focus:bg-muted text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
@@ -267,9 +267,9 @@ export function TopBar({ customerName, nickname, opportunity, onNameChange, onNi
             )}
             <div className="flex gap-1.5 mt-auto">
               <input ref={siteNameRef} value={siteName} onChange={e => setSiteName(e.target.value)} placeholder="Name" className="flex-1 min-w-0 h-7 px-2 text-xs rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
-                onKeyDown={e => { if (e.key === 'Enter' && siteName.trim()) { e.preventDefault(); siteKWRef.current?.focus(); siteKWRef.current?.select(); } }}
+                onKeyDown={e => { if (e.key === 'Enter' && siteName.trim()) { e.preventDefault(); handleAddSite(); } }}
                 data-testid="site-name-input" />
-              <input ref={siteKWRef} type="number" value={siteKW} onChange={e => setSiteKW(e.target.value)} placeholder="KW" className="w-14 h-7 px-2 text-xs rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              <input ref={siteKWRef} type="number" value={siteKW} onChange={e => setSiteKW(e.target.value)} placeholder={kw > 0 ? String(kw) : 'KW'} className="w-14 h-7 px-2 text-xs rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddSite(); } }}
                 data-testid="site-kw-input" />
               <button onClick={handleAddSite} disabled={!siteName.trim()} className="shrink-0 h-7 w-7 rounded-lg bg-primary hover:bg-primary/90 disabled:bg-muted flex items-center justify-center text-white disabled:text-muted-foreground" data-testid="site-add-btn"><Plus className="h-3.5 w-3.5" /></button>

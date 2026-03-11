@@ -131,6 +131,7 @@ export const ROLE_OPTIONS_BY_MODE: Record<string, RoleOption[]> = {
     { value: 'DNS',      label: 'DNS',      description: 'DNS Only' },
     { value: 'DHCP',     label: 'DHCP',     description: 'DHCP Only' },
     { value: 'DNS/DHCP', label: 'DNS/DHCP', description: 'DNS + DHCP' },
+    { value: 'ND-X',     label: 'ND-X',     description: 'NIOS-X Network Discovery' },
     { value: 'CDC',      label: 'CDC',      description: 'Cloud Data Connector' },
   ],
   Hybrid: [
@@ -138,6 +139,7 @@ export const ROLE_OPTIONS_BY_MODE: Record<string, RoleOption[]> = {
     { value: 'DHCP',     label: 'DHCP',     description: 'DHCP Only' },
     { value: 'DNS/DHCP', label: 'DNS/DHCP', description: 'DNS + DHCP' },
     { value: 'ND',       label: 'ND',       description: 'Network Discovery Appliance' },
+    { value: 'ND-X',     label: 'ND-X',     description: 'NIOS-X Network Discovery' },
     { value: 'Reporting',label: 'Reporting',description: 'Reporting Server (RPT)' },
     { value: 'LIC',      label: 'LIC',      description: 'License-only line item' },
     { value: 'CDC',      label: 'CDC',      description: 'Cloud Data Connector' },

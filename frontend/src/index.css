@@ -36,7 +36,7 @@ code {
         --destructive: 358 100% 67%;        /* Coral #FF585D */
         --destructive-foreground: 0 0% 100%;
         --border: 210 12% 80%;             /* Cool neutral border */
-        --input: 210 10% 86%;
+        --input: 210 12% 78%;
         --ring: 144 100% 37%;              /* Green focus ring */
         --chart-1: 144 100% 37%;           /* Green */
         --chart-2: 183 100% 46%;           /* Teal */
@@ -118,6 +118,17 @@ code {
     border-color: hsl(var(--primary) / 0.4);
 }
 
+
+/* Global input affordance — white bg = editable, gray = disabled (industry standard) */
+input:not([type="checkbox"]):not([type="radio"]):not([disabled]):not([readonly]),
+textarea:not([disabled]):not([readonly]) {
+    background-color: hsl(var(--background)) !important;
+}
+input[disabled],
+textarea[disabled],
+button[disabled] {
+    background-color: hsl(var(--muted)) !important;
+}
 
 /* Custom border widths for discovery UI */
 .border-l-3 {

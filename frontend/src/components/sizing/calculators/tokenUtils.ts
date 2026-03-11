@@ -57,7 +57,7 @@ export function getSkuDescription(sku: string): string {
   const descriptions: Record<string, string> = {
     // TE hardware chassis
     'TE-906-HW-AC':       'TE-926 (AC)',
-    'TE-906-HW-DC':       'TE-926 (DC)',
+    // TE-906-HW-DC does not exist — 906 chassis is AC only
     'TE-906-HW-2AC':      'TE-926 (Dual AC)',
     'TE-1506-HW-AC':      'TE-1516 (AC)',
     'TE-1506-HW-DC':      'TE-1516 (DC)',

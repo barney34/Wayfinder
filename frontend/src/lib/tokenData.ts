@@ -44,6 +44,27 @@ export const niosServerGuardrails: NiosServerGuardrail[] = [
   { model: 'TE-4126', appSize: 4126, tokens: 17010, maxDbObj: 24000000, maxQPS: 450000, maxLPS: 1500, maxGridMembers: 500, maxRPZRecords: 4000000, physicalOrVirtual: 'Both', key: 'TE-4126' },
 ];
 
+// NIOS-X Network Discovery (ND-X) Virtual Servers — sized by L2/L3 device count
+export interface NdxServerGuardrail {
+  model: string;
+  size: string;
+  vCPU: number;
+  ramGB: number;
+  storageGB: number;
+  maxDevices: number;
+  maxInterfaces: number;
+  tokens: number;
+  key: string;
+}
+
+export const ndxServerGuardrails: NdxServerGuardrail[] = [
+  { model: 'NDX-XS', size: 'XS', vCPU: 8,  ramGB: 16,  storageGB: 100,  maxDevices: 200,   maxInterfaces: 20000,    tokens: 0, key: 'NDX-XS' },
+  { model: 'NDX-S',  size: 'S',  vCPU: 8,  ramGB: 32,  storageGB: 200,  maxDevices: 1200,  maxInterfaces: 120000,   tokens: 0, key: 'NDX-S' },
+  { model: 'NDX-M',  size: 'M',  vCPU: 16, ramGB: 32,  storageGB: 300,  maxDevices: 2750,  maxInterfaces: 275000,   tokens: 0, key: 'NDX-M' },
+  { model: 'NDX-L',  size: 'L',  vCPU: 16, ramGB: 64,  storageGB: 500,  maxDevices: 5000,  maxInterfaces: 500000,   tokens: 0, key: 'NDX-L' },
+  { model: 'NDX-XL', size: 'XL', vCPU: 24, ramGB: 128, storageGB: 1000, maxDevices: 10000, maxInterfaces: 1000000,  tokens: 0, key: 'NDX-XL' },
+];
+
 // NIOS-X Virtual Servers
 export interface NiosxServerGuardrail {
   model: string;

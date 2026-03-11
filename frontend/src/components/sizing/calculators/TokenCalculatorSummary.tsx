@@ -318,20 +318,21 @@ export function TokenCalculatorSummary() {
         if (platform === 'NIOS' || platform === 'NIOS-V' || platform === 'NIOS-PHA' || platform === 'NIOS-VHA') platform = 'NXVS';
       }
 
+      // Per-DC/Site IP calculation uses its own KW, not global KW
+      const dcSiteAutoIPs = Math.round(kw * ipMultiplier);
       let numIPs;
       if (type === 'dataCenter') {
-        numIPs = override.numIPs !== undefined ? override.numIPs : ipCalcValue;
+        numIPs = override.numIPs !== undefined ? override.numIPs : dcSiteAutoIPs;
         const serviceIPs = (role === 'GM' || role === 'GMC' || role.startsWith('GM+') || role.startsWith('GMC+')) ? services.length * 100 : 0;
         numIPs += serviceIPs;
       } else {
-        const baseIPs = Math.round(kw * ipMultiplier);
-        numIPs = override.numIPs !== undefined ? override.numIPs : baseIPs;
+        numIPs = override.numIPs !== undefined ? override.numIPs : dcSiteAutoIPs;
       }
 
       return {
         id: key, sourceId: source.id, sourceType: type,
-        name: override.name || source.name || `${type === 'dataCenter' ? 'DC' : 'Site'} ${index + 1}`,
-        numIPs, numIPsAuto: type === 'dataCenter' ? ipCalcValue : Math.round(kw * ipMultiplier),
+        name: source.name || override.name || `${type === 'dataCenter' ? 'DC' : 'Site'} ${index + 1}`,
+        numIPs, numIPsAuto: dcSiteAutoIPs,
         knowledgeWorkers: kw, role, services, platform,
         dhcpPercent: override.dhcpPercent ?? dhcpPercent,
         dhcpPartner: override.dhcpPartner || null,
@@ -370,6 +371,24 @@ export function TokenCalculatorSummary() {
     } else {
       allBasicSites = naturalOrder;
     }
+
+    // Always keep DC/GM rows (unit A) at the top, sorted by their current order
+    // Enforce: A1 = GM, A2+ = GMC (preserves composite roles like GM+DNS → GMC+DNS)
+    const isUnitA = (s) => s.sourceType === 'dataCenter' || s.role === 'GM' || s.role === 'GMC' || s.role?.startsWith('GM+') || s.role?.startsWith('GMC+');
+    const aRows = allBasicSites.filter(s => isUnitA(s));
+    const nonARows = allBasicSites.filter(s => !isUnitA(s));
+    // Re-assign GM/GMC based on position: first = GM, rest = GMC
+    aRows.forEach((s, i) => {
+      if (platformMode === 'UDDI') return; // No GM/GMC in UDDI mode
+      const isComposite = s.role?.includes('+');
+      const suffix = isComposite ? s.role.replace(/^GM\+|^GMC\+/, '') : '';
+      if (i === 0) {
+        s.role = suffix ? `GM+${suffix}` : 'GM';
+      } else {
+        s.role = suffix ? `GMC+${suffix}` : 'GMC';
+      }
+    });
+    allBasicSites = [...aRows, ...nonARows];
 
     // === DHCP FO / HA: Compute hub LPS, FO objects, partner counts from effectiveAssociations ===
     const HUB_FAILOVER_CAPACITY = 0.5;
@@ -459,11 +478,11 @@ export function TokenCalculatorSummary() {
         ? (RPT_LARGE_QUANTITIES.includes(site.rptQuantity || '') ? 'TE-2306-HW-AC' : 'TE-1606-HW-AC')
         : getDefaultHardwareSku(recommendedModel);
 
-      // CDC role: no tokens — it's a design reference only, not a token-bearing server
-      const isCDC = site.role === 'CDC';
-      const baseTokens = isCDC ? 0 : getTokensForModel(recommendedModel, effectivePlatform);
+      // Zero-token roles: CDC (design reference), ND/ND-X (discovery appliances)
+      const isZeroTokenRole = site.role === 'CDC' || site.role === 'ND-X' || site.role === 'ND';
+      const baseTokens = isZeroTokenRole ? 0 : getTokensForModel(recommendedModel, effectivePlatform);
       const serviceImpact = getServiceImpact(site.services);
-      const singleServerTokens = isCDC ? 0 : Math.ceil(baseTokens * (1 + serviceImpact / 100));
+      const singleServerTokens = isZeroTokenRole ? 0 : Math.ceil(baseTokens * (1 + serviceImpact / 100));
       
       // HA doubles the SW instances (serverCount * 2 if HA enabled)
       const haMultiplier = site.haEnabled ? 2 : 1;
@@ -729,7 +748,9 @@ export function TokenCalculatorSummary() {
   const gmSizing = useMemo(() => {
     if (platformMode === 'UDDI') return null;
     const discoveryEnabled = answers['feature-discovery'] === 'Yes';
-    const gmObjects = calculateGMObjects(sites, dhcpPercent, discoveryEnabled);
+    // Discovery objects only apply to NIOS sites — NIOS-X platforms don't support NIOS-style discovery
+    const niosSitesForGM = sites.filter(s => s.platform !== 'NXVS' && s.platform !== 'NXaaS' && s.platform !== 'NX-P');
+    const gmObjects = calculateGMObjects(niosSitesForGM, dhcpPercent, discoveryEnabled);
     const recommendedGM = findMinimumGMModel(gmObjects.totalObjects);
     const gmSites = sites.filter(s => s.role === 'GM' || s.role === 'GMC');
     const serviceWarnings = gmSites
@@ -908,15 +929,28 @@ export function TokenCalculatorSummary() {
     const site = sites.find(s => s.id === siteId);
     if (!site) return;
 
-    // If updating KW, sync to context and DON'T add to local override
-    if ('knowledgeWorkers' in updates && site.sourceType) {
+    // If updating name or KW, sync to context (TopBar) and DON'T add to local override
+    if (('knowledgeWorkers' in updates || 'name' in updates) && site.sourceType) {
+      const contextUpdates: Record<string, unknown> = {};
+      if ('knowledgeWorkers' in updates) contextUpdates.knowledgeWorkers = updates.knowledgeWorkers;
+      if ('name' in updates) contextUpdates.name = updates.name;
       if (site.sourceType === 'site' && contextUpdateSite) {
-        contextUpdateSite(site.sourceId, { knowledgeWorkers: updates.knowledgeWorkers });
-        return;
+        contextUpdateSite(site.sourceId, contextUpdates);
       } else if (site.sourceType === 'dataCenter' && contextUpdateDC) {
-        contextUpdateDC(site.sourceId, { knowledgeWorkers: updates.knowledgeWorkers });
-        return;
+        contextUpdateDC(site.sourceId, contextUpdates);
       }
+      // If ONLY name/KW were updated, we're done — don't store in siteOverrides
+      const { knowledgeWorkers: _kw, name: _nm, ...remaining } = updates;
+      if (Object.keys(remaining).length === 0) return;
+      // Otherwise fall through to store remaining fields in siteOverrides
+      // (use remaining instead of updates for the rest of the function)
+      setSiteOverrides(prev => {
+        const doubleKey = siteId.startsWith('site-') ? `site-${siteId}` : (siteId.startsWith('dc-') ? `dc-${siteId}` : null);
+        const hasDoubleKey = doubleKey && prev[doubleKey];
+        const effectiveKey = hasDoubleKey ? doubleKey : siteId;
+        return { ...prev, [effectiveKey]: { ...prev[effectiveKey], ...remaining } };
+      });
+      return;
     }
 
     // ND ↔ ni-3 sync: When ND site's numIPs changes, update Discovery answer
@@ -931,6 +965,35 @@ export function TokenCalculatorSummary() {
       setAnswer('ni-3', String(currentTotal));
     }
 
+    // When an A-row unit number changes, reorder all A rows and renumber sequentially
+    if ('unitNumberOverride' in updates) {
+      const isARow = (s) => s.sourceType === 'dataCenter' || s.role === 'GM' || s.role === 'GMC' || s.role?.startsWith('GM+') || s.role?.startsWith('GMC+');
+      if (site && isARow(site)) {
+        const aRows = sites.filter(s => isARow(s));
+        // Apply the new number to this site, then sort all A rows by number
+        const numbered = aRows.map(s => ({
+          id: s.id,
+          num: s.id === siteId ? (updates.unitNumberOverride ?? 999) : (s.unitNumberOverride ?? 999),
+        }));
+        numbered.sort((a, b) => a.num - b.num);
+        // Renumber sequentially starting from 1
+        setSiteOverrides(prev => {
+          const next = { ...prev };
+          numbered.forEach((item, i) => {
+            const key = item.id;
+            const doubleKey = key.startsWith('site-') ? `site-${key}` : (key.startsWith('dc-') ? `dc-${key}` : null);
+            const effectiveKey = (doubleKey && next[doubleKey]) ? doubleKey : key;
+            next[effectiveKey] = { ...next[effectiveKey], unitNumberOverride: i + 1 };
+          });
+          return next;
+        });
+        // Update site order so A rows reflect the new sequence
+        const nonAIds = sites.filter(s => !isARow(s)).map(s => s.id);
+        setSiteOrder([...numbered.map(n => n.id), ...nonAIds]);
+        return;
+      }
+    }
+
     // All other fields go into per-drawing siteOverrides — ATOMIC single write
     // Handle backward compatibility: if there's existing data with double-prefix key, use that
     setSiteOverrides(prev => {
@@ -940,7 +1003,7 @@ export function TokenCalculatorSummary() {
       const effectiveKey = hasDoubleKey ? doubleKey : siteId;
       return { ...prev, [effectiveKey]: { ...prev[effectiveKey], ...updates } };
     });
-  }, [sites, contextUpdateSite, contextUpdateDC]);
+  }, [sites, contextUpdateSite, contextUpdateDC, setSiteOrder]);
 
   // Add manual site - uses context to persist across navigation
   const addManualSite = useCallback(() => {
@@ -949,9 +1012,9 @@ export function TokenCalculatorSummary() {
     if (contextAddSite) {
       // Add to the first data center if one exists, otherwise create without parent
       const parentDcId = dataCenters.length > 0 ? dataCenters[0].id : null;
-      contextAddSite(newSiteName, parentDcId, 0); // name, dataCenterId, knowledgeWorkers
+      contextAddSite(newSiteName, parentDcId, kwNum || 0); // name, dataCenterId, knowledgeWorkers (global KW)
     }
-  }, [sites.length, dataCenters, contextAddSite]);
+  }, [sites.length, dataCenters, contextAddSite, kwNum]);
 
   // Add manual data center - syncs to TopBar and updates Discovery # of Data Centers
   // Uses async/await to ensure state is persisted before any navigation
@@ -959,9 +1022,9 @@ export function TokenCalculatorSummary() {
     const currentDCCount = dataCenters.length;
     const newDCName = `Data Center ${currentDCCount + 1}`;
     
-    // Add to context (shows in TopBar)
+    // Add to context (shows in TopBar) — pre-fill with global KW
     if (contextAddDC) {
-      contextAddDC(newDCName, 0); // name, knowledgeWorkers
+      contextAddDC(newDCName, kwNum || 0); // name, knowledgeWorkers (global KW)
     }
     
     // Update "# of Data Centers" answer (ud-5) to match the new count
@@ -978,7 +1041,30 @@ export function TokenCalculatorSummary() {
       }
     }
     
-  }, [dataCenters.length, contextAddDC, setAnswer, saveToServer]);
+  }, [dataCenters.length, contextAddDC, setAnswer, saveToServer, kwNum]);
+
+  // Add discovery site — ND for NIOS mode, ND-X for UDDI/Hybrid
+  const addDiscoverySite = useCallback(() => {
+    const isNiosOnly = platformMode === 'NIOS';
+    const role = isNiosOnly ? 'ND' : 'ND-X';
+    const platform = isNiosOnly ? 'NIOS-V' : 'NXVS';
+    const unitLetter = isNiosOnly ? 'N' : 'NX';
+    // Count existing discovery rows of the same type to get next number (don't renumber on delete)
+    const sameTypeCount = sites.filter(s => s.role === role).length;
+    const newSiteName = `${unitLetter} ${sameTypeCount + 1}`;
+    if (contextAddSite) {
+      // Discovery rows: blank location (no parent DC), marked _type='discovery' so TopBar can filter them out
+      const newId = (contextAddSite as (...args: unknown[]) => string)(newSiteName, '__discovery__', 0);
+      // Set role + platform override immediately so it renders as discovery
+      if (newId) {
+        const key = newId.startsWith('site-') ? newId : `site-${newId}`;
+        setSiteOverrides(prev => ({
+          ...prev,
+          [key]: { ...prev[key], role, platform, unitLetterOverride: isNiosOnly ? 'N' : 'NX' },
+        }));
+      }
+    }
+  }, [platformMode, sites, dataCenters, contextAddSite, setSiteOverrides]);
 
   // Delete site - removes from context and local overrides
   const deleteSite = useCallback((siteId) => {
@@ -1234,10 +1320,16 @@ export function TokenCalculatorSummary() {
                   // tokens column removed — handled by Token Calculator section
                   totalCols += 3; // Rpt, BOM, Actions
                   
+                  // Split servers into main rows and discovery rows (ND/ND-X)
+                  const isDiscoveryRole = (role: string) => role === 'ND' || role === 'ND-X';
+                  const mainServers = expandedServers.filter(srv => !isDiscoveryRole(srv.role));
+                  const discoveryServers = expandedServers.filter(srv => isDiscoveryRole(srv.role));
+
                   const rows = [];
                   let lastParentId = null;
                   
-                  expandedServers.forEach((srv, idx) => {
+                  // ── Main rows (DNS, DHCP, GM, etc.) ──
+                  mainServers.forEach((srv, idx) => {
                     const parentSite = sites.find(s => s.id === srv._parentSiteId);
                     
                     // Show location header when entering a new location group with multiple servers
@@ -1384,6 +1476,100 @@ export function TokenCalculatorSummary() {
                       }
                     }
                   });
+
+                  // ── Network Discovery section header + column headers + rows (ND / ND-X) ──
+                  if (discoveryServers.length > 0 || !exportView) {
+                    // Section title row
+                    rows.push(
+                      <TableRow key="discovery-section-header" className="bg-muted/40 border-t-2 border-primary/20">
+                        <TableCell colSpan={totalCols} className="py-1.5 px-3">
+                          <div className="flex items-center gap-3">
+                            <span className="font-semibold text-sm">Network Discovery</span>
+                            <span className="text-xs text-muted-foreground">{discoveryServers.length} member{discoveryServers.length !== 1 ? 's' : ''}</span>
+                            <span className="text-[10px] text-muted-foreground italic ml-auto">Devices = L2/L3 switches &amp; routers</span>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                    // Discovery-specific column headers (compact — no Services, FO/HA, HA, SW Add-ons)
+                    if (!exportView) {
+                      rows.push(
+                        <TableRow key="discovery-col-headers" className="bg-muted/30 text-[10px] text-muted-foreground uppercase tracking-wide">
+                          <TableCell className="p-1 w-6" />{/* drag handle */}
+                          <TableCell className="p-1 w-14 text-center font-semibold">Unit</TableCell>
+                          <TableCell className="p-1 w-12 text-center font-semibold">#</TableCell>
+                          <TableCell className="p-1 font-semibold">Location</TableCell>
+                          {showKW && <TableCell className="p-1 w-16 font-semibold">KW</TableCell>}
+                          <TableCell className="p-1 w-20 font-semibold">Devices</TableCell>
+                          <TableCell className="p-1 w-24 font-semibold" colSpan={1 + (showServices ? 1 : 0) + (showDescription ? 1 : 0)}>Role</TableCell>
+                          <TableCell className="p-1 w-24 text-center font-semibold" colSpan={3}>Srv#</TableCell>
+                          <TableCell className="p-1 w-24 font-semibold">Platform</TableCell>
+                          <TableCell className="p-1 w-16 font-semibold">Model</TableCell>
+                          {showHardware && <TableCell className="p-1 w-28 font-semibold">HW SKU</TableCell>}
+                          <TableCell className="p-1 w-12 text-center font-semibold">SW#</TableCell>
+                          <TableCell className="p-1 w-16 text-center font-semibold">HW#</TableCell>
+                          <TableCell className="p-1 w-20 font-semibold">HW Add-ons</TableCell>
+                          <TableCell className="p-1 w-8 text-center font-semibold">Rpt</TableCell>
+                          <TableCell className="p-1 w-8 text-center font-semibold">BOM</TableCell>
+                          <TableCell className="p-1 w-10" />
+                        </TableRow>
+                      );
+                    }
+
+                    let lastDiscParent = null;
+                    discoveryServers.forEach((srv) => {
+                      const parentSite = sites.find(s => s.id === srv._parentSiteId);
+                      if (srv._isExpanded && srv._parentSiteId !== lastDiscParent && parentSite) {
+                        rows.push(
+                          <LocationHeaderRow
+                            key={`disc-header-${srv._parentSiteId}`}
+                            site={parentSite}
+                            onUpdateSite={updateSite}
+                            onDeleteSite={deleteSite}
+                            totalColumns={totalCols}
+                          />
+                        );
+                      }
+                      lastDiscParent = srv._parentSiteId;
+
+                      rows.push(
+                        <SiteTableRow
+                          key={srv.id}
+                          site={srv}
+                          sites={sites}
+                          drawings={drawings}
+                          activeDrawingId={activeDrawingId}
+                          platformMode={platformMode}
+                          dhcpPercent={dhcpPercent}
+                          roleOptions={roleOptions}
+                          platformOptions={platformOptions}
+                          showHardware={showHardware}
+                          showKW={showKW && !exportView}
+                          showServices={showServices && !exportView}
+                          showDescription={showDescription && !exportView}
+                          exportView={exportView}
+                          onUpdateSite={updateSite}
+                          onToggleService={() => {}}
+                          onTogglePerfFeature={() => {}}
+                          onDeleteSite={deleteSite}
+                          onOpenModelDialog={openModelDialog}
+                          onCopySiteToDrawing={copySiteToDrawing}
+                          unitAssignment={unitAssignments[srv.id]}
+                          isDragging={dragSourceId === srv.id}
+                          isDragOver={dragOverId === srv.id && dragSourceId !== srv.id}
+                          onDragStart={!srv._isExpanded ? () => handleDragStart(srv.id) : undefined}
+                          onDragOver={!srv._isExpanded ? () => handleDragOver(srv.id) : undefined}
+                          onDrop={!srv._isExpanded ? () => handleDrop(srv.id) : undefined}
+                          onDragEnd={!srv._isExpanded ? handleDragEnd : undefined}
+                          dhcpAssociations={[]}
+                          onAddAssociation={addAssociation}
+                          onRemoveAssociation={removeAssociation}
+                          unitAssignments={unitAssignments}
+                        />
+                      );
+                    });
+                  }
+
                   return rows;
                 })()}
               </TableBody>
@@ -1398,6 +1584,9 @@ export function TokenCalculatorSummary() {
               </Button>
               <Button variant="ghost" size="sm" className="h-7 text-xs px-2 text-muted-foreground hover:text-foreground" onClick={addManualDataCenter} data-testid="add-dc-button">
                 <Plus className="h-3 w-3 mr-1" /> Add DC
+              </Button>
+              <Button variant="ghost" size="sm" className="h-7 text-xs px-2 text-muted-foreground hover:text-foreground" onClick={addDiscoverySite} data-testid="add-discovery-button">
+                <Plus className="h-3 w-3 mr-1" /> Add Discovery
               </Button>
             </div>
           )}

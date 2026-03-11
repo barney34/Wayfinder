@@ -101,6 +101,9 @@ export function useSiteSizing() {
       if (platformMode === 'UDDI' && !isGmRole) {
         if (platform === 'NIOS' || platform === 'NIOS-V' || platform === 'NIOS-PHA' || platform === 'NIOS-VHA') platform = 'NXVS';
       }
+      // ND defaults to NIOS-V (Virtual), ND-X defaults to NXVS (NX Virtual)
+      if (role === 'ND' && !override.platform) platform = 'NIOS-V';
+      if (role === 'ND-X') platform = 'NXVS';
 
       let numIPs: number;
       if (type === 'dataCenter') {
@@ -114,7 +117,7 @@ export function useSiteSizing() {
 
       return {
         id: key, sourceId: source.id, sourceType: type,
-        name: override.name || source.name || `${type === 'dataCenter' ? 'DC' : 'Site'} ${index + 1}`,
+        name: source.name || override.name || `${type === 'dataCenter' ? 'DC' : 'Site'} ${index + 1}`,
         numIPs, numIPsAuto: type === 'dataCenter' ? ipCalcValue : Math.round(kw * ipMultiplier),
         knowledgeWorkers: kw, role, services, platform,
         dhcpPercent: override.dhcpPercent ?? dhcpPercent,
@@ -224,10 +227,10 @@ export function useSiteSizing() {
       const hardwareOptions = getHardwareSkuOptions(recommendedModel);
       const defaultHardware = getDefaultHardwareSku(recommendedModel);
 
-      const isCDC = site.role === 'CDC';
-      const baseTokens = isCDC ? 0 : getTokensForModel(recommendedModel, effectivePlatform);
+      const isZeroTokenRole = site.role === 'CDC' || site.role === 'ND-X' || site.role === 'ND';
+      const baseTokens = isZeroTokenRole ? 0 : getTokensForModel(recommendedModel, effectivePlatform);
       const serviceImpact = getServiceImpact(site.services);
-      const singleServerTokens = isCDC ? 0 : Math.ceil(baseTokens * (1 + serviceImpact / 100));
+      const singleServerTokens = isZeroTokenRole ? 0 : Math.ceil(baseTokens * (1 + serviceImpact / 100));
 
       const haMultiplier = site.haEnabled ? 2 : 1;
       const swInstances = site.serverCount * haMultiplier;
@@ -447,7 +450,9 @@ export function useSiteSizing() {
   const gmSizing = useMemo(() => {
     if (platformMode === 'UDDI') return null;
     const discoveryEnabled = answers['feature-discovery'] === 'Yes';
-    const gmObjects = calculateGMObjects(sites, dhcpPercent, discoveryEnabled);
+    // Discovery objects only apply to NIOS sites — NIOS-X platforms don't support NIOS-style discovery
+    const niosSitesForGM = sites.filter(s => s.platform !== 'NXVS' && s.platform !== 'NXaaS' && s.platform !== 'NX-P');
+    const gmObjects = calculateGMObjects(niosSitesForGM, dhcpPercent, discoveryEnabled);
     const recommendedGM = findMinimumGMModel(gmObjects.totalObjects);
     const gmSites = sites.filter(s => s.role === 'GM' || s.role === 'GMC');
     const serviceWarnings = gmSites

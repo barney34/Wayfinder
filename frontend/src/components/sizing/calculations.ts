@@ -4,6 +4,7 @@ import {
   nxvsServers, nxaasServers,
   x6ServerGuardrails,
   niosServerGuardrails, niosGridConstants,
+  ndxServerGuardrails,
   canGMRunServices,
   dhcpFoAssociationLimits,
 } from '@/lib/tokenData';
@@ -231,6 +232,14 @@ export function getSiteRecommendedModel(
     if (numIPs <= 40000) return 'ND-2306';
     return 'ND-4106';
   }
+
+  // NIOS-X Network Discovery role → size by device count using NDX virtual appliances
+  if (role === 'ND-X') {
+    for (const tier of ndxServerGuardrails) {
+      if (numIPs <= tier.maxDevices) return tier.model;
+    }
+    return 'NDX-XL';
+  }
   
   const isUDDI = sitePlatform
     ? (sitePlatform === 'NXVS' || sitePlatform === 'NXaaS' || sitePlatform === 'NX-P')
@@ -408,7 +417,7 @@ export function isHardwareSkuLocked(softwareModel: string): boolean {
 }
 
 export function getDefaultHwAddons(hardwareSku: string): string[] {
-  if (hardwareSku === 'TE-1506-HW-AC' || hardwareSku === 'TE-1506-HW-DC') return ['PSU'];
+  if (hardwareSku && hardwareSku.startsWith('TE-1506')) return ['PSU'];
   return [];
 }
 
