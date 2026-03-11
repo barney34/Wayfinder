@@ -25,7 +25,7 @@ export function WhatsNew() {
                   </Badge>
                 </div>
                 <h3 className="text-sm font-medium">{entry.title}</h3>
-                <p className="text-sm text-muted-foreground mt-1">{entry.description}</p>
+                <p className="text-sm text-muted-foreground mt-1 whitespace-pre-line">{entry.description}</p>
               </CardContent>
             </Card>
           );
