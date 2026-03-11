@@ -47,6 +47,7 @@ export interface DrawingConfig {
   platformMode?: PlatformMode;
   siteOverrides?: Record<string, SiteOverride>;
   siteOrder?: string[];
+  sortMode?: 'auto' | 'manual';
   dhcpAssociations?: unknown[];
 }
 

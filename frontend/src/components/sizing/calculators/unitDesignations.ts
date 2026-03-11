@@ -90,49 +90,34 @@ export function getUnitLetterForRole(role: string): string {
  * 
  * Rules:
  * - A1 = always GM, A2+ = GMC
- * - Numbers increment per letter across the entire drawing
+ * - Numbers increment per letter based on the INPUT ORDER (respects drag/sort)
  * - Grouped rows (e.g., 1-3) advance the counter by their server count
- * - Sort: A1, A2, B1, B2, B3, C1, etc.
+ * - Sequential numbering within each unit group: A1, A2, B1, B2, B3, C1, etc.
  */
 export function computeUnitAssignments(servers: Server[]): Record<string, UnitAssignment> {
-  // Group by unit letter
-  const letterGroups: Record<string, Server[]> = {};
+  // Track counters for each unit letter
+  const letterCounters: Record<string, number> = {};
+  
+  // Assign numbers in the order servers are provided (respects siteOrder)
+  const assignments: Record<string, UnitAssignment> = {};
   
   servers.forEach(srv => {
     const letter = srv.unitLetterOverride || getUnitLetterForRole(srv.role);
-    if (!letterGroups[letter]) letterGroups[letter] = [];
-    letterGroups[letter].push(srv);
+    
+    // Initialize counter for this letter if not seen yet
+    if (letterCounters[letter] === undefined) {
+      letterCounters[letter] = 1;
+    }
+    
+    assignments[srv.id] = {
+      unitLetter: letter,
+      unitNumber: letterCounters[letter],
+    };
+    
+    // Advance counter by server count (or +2 for Reporting to account for TR-SWTL)
+    const advance = (srv.role === 'Reporting') ? 2 : (srv._serverCount || 1);
+    letterCounters[letter] += advance;
   });
-
-  // For A units: GM first (A1), then GMC (A2+)
-  if (letterGroups['A']) {
-    letterGroups['A'].sort((a, b) => {
-      const aIsGM = a.role === 'GM' || a.role?.startsWith('GM+');
-      const bIsGM = b.role === 'GM' || b.role?.startsWith('GM+');
-      if (aIsGM && !bIsGM) return -1;
-      if (!aIsGM && bIsGM) return 1;
-      return 0;
-    });
-  }
-
-  // Assign numbers within each letter group
-  // Grouped rows (with _serverCount > 1) advance the counter by their count
-  // Reporting rows advance by serverCount + 1 (extra slot for TR-SWTL companion)
-  const assignments: Record<string, UnitAssignment> = {};
-  Object.keys(letterGroups)
-    .sort((a, b) => (UNIT_SORT_ORDER[a] || 99) - (UNIT_SORT_ORDER[b] || 99))
-    .forEach(letter => {
-      let counter = 1;
-      letterGroups[letter].forEach((srv) => {
-        assignments[srv.id] = {
-          unitLetter: letter,
-          unitNumber: counter,
-        };
-        // Reporting: +1 for TR-SWTL companion. Others: advance by server count.
-        const advance = (srv.role === 'Reporting') ? 2 : (srv._serverCount || 1);
-        counter += advance;
-      });
-    });
 
   return assignments;
 }

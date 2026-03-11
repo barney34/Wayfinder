@@ -65,6 +65,7 @@ export function TokenCalculatorSummary() {
     [activeDrawingId, drawingConfigs]
   );
   const siteOrder = activeDrawingConfig.siteOrder || null;
+  const sortMode = activeDrawingConfig.sortMode || 'auto'; // 'auto' or 'manual'
 
   // Setters that write to active drawing config
   const setSiteOverrides = useCallback((updater) => {
@@ -75,6 +76,10 @@ export function TokenCalculatorSummary() {
 
   const setSiteOrder = useCallback((order) => {
     updateDrawingConfig(activeDrawingId, { siteOrder: order });
+  }, [activeDrawingId, updateDrawingConfig]);
+
+  const setSortMode = useCallback((mode: 'auto' | 'manual') => {
+    updateDrawingConfig(activeDrawingId, { sortMode: mode });
   }, [activeDrawingId, updateDrawingConfig]);
 
   // dhcpAssociations: drawing-level store for NIOS FOAs and UDDI HA groups
@@ -535,7 +540,56 @@ export function TokenCalculatorSummary() {
       return na - nb;
     });
     setSiteOrder(sorted.map(s => s.id));
-  }, [sites]);
+  }, [sites, setSiteOrder]);
+
+  // Toggle sort mode and trigger auto-sort when switching to auto
+  const toggleSortMode = useCallback(() => {
+    if (sortMode === 'manual') {
+      // Switching to auto: clear all unitNumberOverride values and trigger sort
+      setSiteOverrides(prev => {
+        const next = { ...prev };
+        Object.keys(next).forEach(key => {
+          if (next[key]?.unitNumberOverride !== undefined) {
+            const updated = { ...next[key] };
+            delete updated.unitNumberOverride;
+            next[key] = updated;
+          }
+        });
+        return next;
+      });
+      setSortMode('auto');
+      sortByUnit();
+    } else {
+      // Switching to manual: preserve current order
+      setSortMode('manual');
+    }
+  }, [sortMode, setSortMode, sortByUnit, setSiteOverrides]);
+
+  // One-time cleanup: clear all unitNumberOverride values when in auto mode
+  // This ensures existing drawings with legacy overrides get contiguous numbering
+  useEffect(() => {
+    if (sortMode === 'auto') {
+      const hasAnyOverrides = Object.values(siteOverrides).some(
+        (override: any) => override?.unitNumberOverride !== undefined
+      );
+      
+      if (hasAnyOverrides) {
+        setSiteOverrides(prev => {
+          const next = { ...prev };
+          let changed = false;
+          Object.keys(next).forEach(key => {
+            if (next[key]?.unitNumberOverride !== undefined) {
+              const updated = { ...next[key] };
+              delete updated.unitNumberOverride;
+              next[key] = updated;
+              changed = true;
+            }
+          });
+          return changed ? next : prev;
+        });
+      }
+    }
+  }, [sortMode, siteOverrides, setSiteOverrides]);
 
   const [dragSourceId, setDragSourceId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
@@ -560,6 +614,9 @@ export function TokenCalculatorSummary() {
     newOrder.splice(sourceIdx, 1);
     newOrder.splice(targetIdx, 0, dragSourceId);
     setSiteOrder(newOrder);
+    
+    // In auto mode, the drag position is preserved, and unit numbers are auto-assigned
+    // based on the new order (no re-sort needed, just renumbering happens via unitAssignments)
   }, [dragSourceId, siteOrder, sites, setSiteOrder]);
 
   const handleDragEnd = useCallback(() => {
@@ -965,31 +1022,88 @@ export function TokenCalculatorSummary() {
       setAnswer('ni-3', String(currentTotal));
     }
 
-    // When an A-row unit number changes, reorder all A rows and renumber sequentially
-    if ('unitNumberOverride' in updates) {
-      const isARow = (s) => s.sourceType === 'dataCenter' || s.role === 'GM' || s.role === 'GMC' || s.role?.startsWith('GM+') || s.role?.startsWith('GMC+');
-      if (site && isARow(site)) {
-        const aRows = sites.filter(s => isARow(s));
-        // Apply the new number to this site, then sort all A rows by number
-        const numbered = aRows.map(s => ({
-          id: s.id,
-          num: s.id === siteId ? (updates.unitNumberOverride ?? 999) : (s.unitNumberOverride ?? 999),
-        }));
-        numbered.sort((a, b) => a.num - b.num);
-        // Renumber sequentially starting from 1
+    // When unit number changes in auto mode, reorder rows within that unit group
+    if ('unitNumberOverride' in updates && sortMode === 'auto') {
+      if (site) {
+        const targetUnitLetter = site.unitLetterOverride || getUnitLetterForRole(site.role);
+        const targetNumber = updates.unitNumberOverride;
+        
+        // If user cleared the number (undefined/null), just clear the override and let auto-assignment handle it
+        if (targetNumber === undefined || targetNumber === null) {
+          setSiteOverrides(prev => {
+            const doubleKey = siteId.startsWith('site-') ? `site-${siteId}` : (siteId.startsWith('dc-') ? `dc-${siteId}` : null);
+            const hasDoubleKey = doubleKey && prev[doubleKey];
+            const effectiveKey = hasDoubleKey ? doubleKey : siteId;
+            const updated = { ...prev[effectiveKey] };
+            delete updated.unitNumberOverride;
+            return { ...prev, [effectiveKey]: updated };
+          });
+          return;
+        }
+        
+        // Get all rows in the same unit group
+        const sameUnitRows = sites.filter(s => {
+          const letter = s.unitLetterOverride || getUnitLetterForRole(s.role);
+          return letter === targetUnitLetter;
+        });
+        
+        // Find current position of the site being changed
+        const currentIdx = sameUnitRows.findIndex(s => s.id === siteId);
+        if (currentIdx === -1) return;
+        
+        // Calculate target position (0-indexed, but user sees 1-indexed)
+        const targetIdx = Math.max(0, Math.min(targetNumber - 1, sameUnitRows.length - 1));
+        
+        // Reorder within the unit group
+        const reordered = [...sameUnitRows];
+        const [movedRow] = reordered.splice(currentIdx, 1);
+        reordered.splice(targetIdx, 0, movedRow);
+        
+        // Clear all unitNumberOverride for this unit group (let auto-assignment handle numbering)
         setSiteOverrides(prev => {
           const next = { ...prev };
-          numbered.forEach((item, i) => {
-            const key = item.id;
+          reordered.forEach(s => {
+            const key = s.id;
             const doubleKey = key.startsWith('site-') ? `site-${key}` : (key.startsWith('dc-') ? `dc-${key}` : null);
             const effectiveKey = (doubleKey && next[doubleKey]) ? doubleKey : key;
-            next[effectiveKey] = { ...next[effectiveKey], unitNumberOverride: i + 1 };
+            if (next[effectiveKey]?.unitNumberOverride !== undefined) {
+              const updated = { ...next[effectiveKey] };
+              delete updated.unitNumberOverride;
+              next[effectiveKey] = updated;
+            }
           });
           return next;
         });
-        // Update site order so A rows reflect the new sequence
-        const nonAIds = sites.filter(s => !isARow(s)).map(s => s.id);
-        setSiteOrder([...numbered.map(n => n.id), ...nonAIds]);
+        
+        // Update site order: replace the unit group with reordered version
+        const otherRows = sites.filter(s => {
+          const letter = s.unitLetterOverride || getUnitLetterForRole(s.role);
+          return letter !== targetUnitLetter;
+        });
+        
+        // Rebuild order: maintain relative positions of other unit groups
+        const currentOrder = siteOrder || sites.map(s => s.id);
+        const newOrder = [];
+        const reorderedIds = new Set(reordered.map(r => r.id));
+        const otherIds = new Set(otherRows.map(r => r.id));
+        
+        let reorderedInserted = false;
+        currentOrder.forEach(id => {
+          if (reorderedIds.has(id) && !reorderedInserted) {
+            // Insert all reordered rows at the position of the first one
+            newOrder.push(...reordered.map(r => r.id));
+            reorderedInserted = true;
+          } else if (otherIds.has(id)) {
+            newOrder.push(id);
+          }
+        });
+        
+        // If reordered group wasn't inserted yet, append it
+        if (!reorderedInserted) {
+          newOrder.push(...reordered.map(r => r.id));
+        }
+        
+        setSiteOrder(newOrder);
         return;
       }
     }
@@ -1086,7 +1200,10 @@ export function TokenCalculatorSummary() {
         contextDeleteSite(site.sourceId);
       }
     }
-  }, [sites, contextDeleteDC, contextDeleteSite]);
+    
+    // In auto mode, renumbering happens automatically via unitAssignments based on remaining order
+    // No need to re-sort, just let the unit assignment logic handle sequential numbering
+  }, [sites, contextDeleteDC, contextDeleteSite, setDhcpAssociations, setSiteOverrides]);
 
   // Toggle service
   const toggleService = useCallback((siteId, serviceValue) => {
@@ -1277,13 +1394,14 @@ export function TokenCalculatorSummary() {
                 )}
 
                 <Button
-                  variant="outline" size="sm"
-                  onClick={sortByUnit}
+                  variant={sortMode === 'auto' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={toggleSortMode}
                   className="text-xs h-7 px-2"
-                  title="Sort rows by Unit Group"
+                  title={sortMode === 'auto' ? 'Auto-sort enabled (click for manual)' : 'Manual sort (click for auto-sort)'}
                 >
                   <ArrowUpDown className="h-3 w-3 mr-1" />
-                  Sort
+                  {sortMode === 'auto' ? 'Auto' : 'Manual'}
                 </Button>
 
                 <Button

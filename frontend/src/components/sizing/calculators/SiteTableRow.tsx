@@ -1020,15 +1020,29 @@ export const SiteTableRow = React.memo(function SiteTableRow({
           <Input
             type="number" min="1" max="999"
             value={site.unitNumberOverride ?? unitAssignment?.unitNumber ?? 1}
+            onFocus={e => {
+              // Select all text on focus for easy replacement
+              e.target.select();
+            }}
             onChange={e => {
               const raw = e.target.value;
-              if (raw === '') { onUpdateSite(site.id, 'unitNumberOverride', ''); return; }
+              // Allow empty during typing, but will be validated on blur
+              if (raw === '') {
+                onUpdateSite(site.id, 'unitNumberOverride', null);
+                return;
+              }
               const val = parseInt(raw);
-              if (!isNaN(val) && val >= 0) onUpdateSite(site.id, 'unitNumberOverride', val);
+              if (!isNaN(val) && val >= 1) {
+                onUpdateSite(site.id, 'unitNumberOverride', val);
+              }
             }}
             onBlur={e => {
-              const val = parseInt(e.target.value);
-              if (isNaN(val) || val < 1) onUpdateSite(site.id, 'unitNumberOverride', undefined);
+              const raw = e.target.value;
+              const val = parseInt(raw);
+              // If empty or invalid, clear override to use auto-assigned number
+              if (raw === '' || isNaN(val) || val < 1) {
+                onUpdateSite(site.id, 'unitNumberOverride', undefined);
+              }
             }}
             className="h-8 w-12 text-center text-sm font-semibold px-1 tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             disabled={site.isDisabledInUddi}
