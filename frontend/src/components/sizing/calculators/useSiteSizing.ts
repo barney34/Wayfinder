@@ -93,7 +93,7 @@ export function useSiteSizing() {
       const isDisabledInUddi = platformMode === 'UDDI' && (role === 'GM' || role === 'GMC');
       const services = override.services || [];
 
-      let defaultPlatform = 'NIOS';
+      let defaultPlatform = 'NIOS-V';
       if (platformMode === 'UDDI') defaultPlatform = 'NXVS';
       else if (platformMode === 'Hybrid' && type !== 'dataCenter') defaultPlatform = 'NXVS';
 
@@ -105,10 +105,13 @@ export function useSiteSizing() {
       if (role === 'ND' && !override.platform) platform = 'NIOS-V';
       if (role === 'ND-X') platform = 'NXVS';
 
+      // serviceIPs: user-entered IPs for DNS/DHCP services running on a composite GM/GMC
+      const isCompositeGm = role.startsWith('GM+') || role.startsWith('GMC+');
+      const serviceIPs = isCompositeGm ? (override.serviceIPs || 0) : 0;
+
       let numIPs: number;
       if (type === 'dataCenter') {
         numIPs = override.numIPs !== undefined ? override.numIPs : ipCalcValue;
-        const serviceIPs = (role === 'GM' || role === 'GMC' || role.startsWith('GM+') || role.startsWith('GMC+')) ? services.length * 100 : 0;
         numIPs += serviceIPs;
       } else {
         const baseIPs = Math.round(kw * ipMultiplier);
@@ -138,6 +141,7 @@ export function useSiteSizing() {
         customGroups: override.customGroups || [],
         description: override.description || '',
         modelOverride: override.modelOverride || null,
+        serviceIPs,
         isDisabledInUddi, originalRole: role,
       };
     };
@@ -167,7 +171,7 @@ export function useSiteSizing() {
     allBasicSites.forEach(site => {
       if (site.dhcpPartner) {
         const spokeLPS = calculateSiteLPS(site.numIPs, site.dhcpPercent, site.role);
-        const spokeDhcpObjs = calculateSiteDhcpObjects(site.numIPs, site.dhcpPercent);
+        const spokeDhcpObjs = calculateSiteDhcpObjects(site.numIPs, site.dhcpPercent, site.role);
         hubLPSMap[site.dhcpPartner] = (hubLPSMap[site.dhcpPartner] || 0) + Math.ceil(spokeLPS * HUB_FAILOVER_CAPACITY);
         foObjectsMap[site.dhcpPartner] = (foObjectsMap[site.dhcpPartner] || 0) + spokeDhcpObjs;
         partnerCountMap[site.dhcpPartner] = (partnerCountMap[site.dhcpPartner] || 0) + 1;
@@ -178,7 +182,7 @@ export function useSiteSizing() {
       if (site.dhcpPartner) {
         const partnerSite = allBasicSites.find(s => s.id === site.dhcpPartner);
         if (partnerSite) {
-          const partnerDhcpObjs = calculateSiteDhcpObjects(partnerSite.numIPs, partnerSite.dhcpPercent);
+          const partnerDhcpObjs = calculateSiteDhcpObjects(partnerSite.numIPs, partnerSite.dhcpPercent, partnerSite.role);
           foObjectsMap[site.id] = (foObjectsMap[site.id] || 0) + partnerDhcpObjs;
         }
       }

@@ -13,6 +13,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { DiscoveryProvider, useDiscovery } from "@/contexts/DiscoveryContext";
 import type { Customer, Question } from "@/types";
@@ -27,7 +28,6 @@ import { SizingMathHelp } from "./SizingMathHelp";
 import { VersionControl } from "./VersionControl";
 import { ImportExportSection } from "./ImportExportSection";
 import { ValueDiscoveryDrawer } from "./ValueDiscoveryDrawer";
-import { TriggerBanner } from "./TriggerBanner";
 import { WhatsNew } from "./WhatsNew";
 import { addDynamicRevision, formatRevisionDate } from "@/lib/revisionHelpers";
 import { formatNumber } from "@/lib/utils";
@@ -474,7 +474,6 @@ function CustomerDetailContent({
 
   // ── Phase 3: Trigger detection ───────────────────────────────────────────
   const [seenTriggers, setSeenTriggers] = useState(new Set());
-  const [activeTrigger, setActiveTrigger] = useState(null);
   const answers = discoveryContext.answers || {};
 
   // Definitions: fires once per session when a tech answer hits a value trigger
@@ -506,11 +505,27 @@ function CustomerDetailContent({
   ].join('|');
 
   useEffect(() => {
-    if (activeTrigger) return; // Don't queue while one is already showing
     for (const t of TRIGGERS) {
       if (!seenTriggers.has(t.id) && t.detect(answers)) {
-        setActiveTrigger(t);
         setSeenTriggers(prev => new Set([...prev, t.id]));
+        if (valueDrawerOpen) {
+          // Drawer already open — just switch driver tab silently
+          setDrawerDriver(t.driver);
+        } else {
+          // Drawer closed — toast with Explore action to open drawer
+          toast({
+            title: "Value insight detected",
+            description: t.message,
+            action: (
+              <ToastAction altText="Explore" onClick={() => {
+                setDrawerDriver(t.driver);
+                setValueDrawerOpen(true);
+              }}>
+                Explore →
+              </ToastAction>
+            ),
+          });
+        }
         break;
       }
     }
@@ -690,19 +705,6 @@ function CustomerDetailContent({
         {/* Discovery Tab — manages its own internal scroll via AssessmentQuestions */}
         {activeTab === 'discovery' && (
           <div className="flex-1 overflow-hidden flex flex-col min-h-0" data-testid="tab-content-discovery">
-            {activeTrigger && (
-              <div className="px-4 pt-4 flex-shrink-0">
-                <TriggerBanner
-                  trigger={activeTrigger}
-                  onExplore={() => {
-                    setDrawerDriver(activeTrigger.driver);
-                    setValueDrawerOpen(true);
-                    setActiveTrigger(null);
-                  }}
-                  onDismiss={() => setActiveTrigger(null)}
-                />
-              </div>
-            )}
             <AssessmentQuestions questions={discoveryTabQuestions} compact={true} />
           </div>
         )}

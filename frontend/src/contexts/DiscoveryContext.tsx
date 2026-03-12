@@ -55,7 +55,7 @@ interface DiscoveryContextValue {
   addDataCenter: (name: string, knowledgeWorkers?: number) => void;
   updateDataCenter: (id: string, updates: Partial<DataCenter>) => void;
   deleteDataCenter: (id: string) => void;
-  addSite: (name: string, dataCenterId: string, knowledgeWorkers?: number) => void;
+  addSite: (name: string, dataCenterId: string | null, knowledgeWorkers?: number) => string;
   updateSite: (id: string, updates: Partial<Site>) => void;
   deleteSite: (id: string) => void;
   setPlatformMode: (mode: PlatformMode) => void;
@@ -193,7 +193,22 @@ export function DiscoveryProvider({ children, customerId }: DiscoveryProviderPro
     if (data.sites) setSites(data.sites);
     if (data.drawings) setDrawings(data.drawings);
     if (data.activeDrawingId) setActiveDrawingIdState(data.activeDrawingId);
-    if (data.drawingConfigs) setDrawingConfigs(data.drawingConfigs);
+    if (data.drawingConfigs) {
+      // Merge remote drawing configs with local — preserve local siteOverrides
+      // to prevent WebSocket round-trips from wiping unsaved local changes
+      setDrawingConfigs(prev => {
+        const merged = { ...data.drawingConfigs };
+        Object.keys(prev).forEach(drawingId => {
+          if (merged[drawingId] && prev[drawingId]?.siteOverrides) {
+            merged[drawingId] = {
+              ...merged[drawingId],
+              siteOverrides: { ...merged[drawingId].siteOverrides, ...prev[drawingId].siteOverrides },
+            };
+          }
+        });
+        return merged;
+      });
+    }
     
     // Update last remote timestamp
     if (data.lastSaved) {

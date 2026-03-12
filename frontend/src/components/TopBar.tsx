@@ -90,7 +90,7 @@ export function TopBar({ customerName, nickname, opportunity, onNameChange, onNi
   }, [cloudMgmtActive, uddiEnabled, updateDrawingConfig, activeDrawingId, niosEnabled]);
 
   const handleAddDC = () => { if (!dcName.trim()) return; addDataCenter(dcName.trim(), parseInt(dcKW) || kw || 0); setDcName(''); setDcKW(''); setTimeout(() => dcNameRef.current?.focus(), 0); };
-  const handleAddSite = () => { if (!siteName.trim()) return; addSite(siteName.trim(), '', parseInt(siteKW) || kw || 0); setSiteName(''); setSiteKW(''); setTimeout(() => siteNameRef.current?.focus(), 0); };
+  const handleAddSite = () => { if (!siteName.trim()) return; addSite(siteName.trim(), '', parseInt(siteKW) || 0); setSiteName(''); setSiteKW(''); setTimeout(() => siteNameRef.current?.focus(), 0); };
   const handleQuickAddDCs = () => {
     const n = parseInt(dcQuickCount);
     if (!n || n < 1) return;
@@ -100,7 +100,7 @@ export function TopBar({ customerName, nickname, opportunity, onNameChange, onNi
   const handleQuickAddSites = () => {
     const n = parseInt(siteQuickCount);
     if (!n || n < 1) return;
-    for (let i = 1; i <= n; i++) addSite(`Site ${sites.length + i}`, '', kw || 0);
+    for (let i = 1; i <= n; i++) addSite(`Site ${sites.length + i}`, '', 0);
     setSiteQuickCount('');
   };
 
@@ -263,7 +263,7 @@ export function TopBar({ customerName, nickname, opportunity, onNameChange, onNi
               <input ref={siteNameRef} value={siteName} onChange={e => setSiteName(e.target.value)} placeholder="Name" className="flex-1 min-w-0 h-7 px-2 text-xs rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
                 onKeyDown={e => { if (e.key === 'Enter' && siteName.trim()) { e.preventDefault(); handleAddSite(); } }}
                 data-testid="site-name-input" />
-              <input ref={siteKWRef} type="number" value={siteKW} onChange={e => setSiteKW(e.target.value)} placeholder={kw > 0 ? String(kw) : 'KW'} className="w-14 h-7 px-2 text-xs rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              <input ref={siteKWRef} type="number" value={siteKW} onChange={e => setSiteKW(e.target.value)} placeholder="KW" className="w-14 h-7 px-2 text-xs rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddSite(); } }}
                 data-testid="site-kw-input" />
               <button onClick={handleAddSite} disabled={!siteName.trim()} className="shrink-0 h-7 w-7 rounded-lg bg-primary hover:bg-primary/90 disabled:bg-muted flex items-center justify-center text-white disabled:text-muted-foreground" data-testid="site-add-btn"><Plus className="h-3.5 w-3.5" /></button>

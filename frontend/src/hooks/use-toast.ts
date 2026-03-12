@@ -24,7 +24,7 @@ export type ToastActionType =
   | { type: "REMOVE_TOAST"; toastId?: string }
 
 const TOAST_LIMIT = 1
-const TOAST_REMOVE_DELAY = 1000000
+const TOAST_REMOVE_DELAY = 8000
 
 let count = 0
 

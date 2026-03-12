@@ -438,7 +438,7 @@ export function SiteConfiguration({ value, onChange, questionId }) {
         </CardHeader>
         <CardContent className="py-2 text-xs text-muted-foreground space-y-1">
           <p>• IPs auto-calculated as: Users × {ipMultiplier} (Devices per User)</p>
-          <p>• GM/GMC are sized for total grid objects ({niosGridConstants.maxDbUtilizationPercent}% utilization target)</p>
+          <p>• GM/GMC are sized for total grid objects ({niosGridConstants.niosUtilPercent}% NIOS / {niosGridConstants.uddiUtilPercent}% NIOS-X utilization target)</p>
           <p>• DNS/DHCP members sized by peak QPS (IPs ÷ {niosGridConstants.peakQpsDivisor}) and LPS</p>
           <p>• DHCP %: {dhcpPercent}% | Lease Time: {Math.round(leaseTimeSeconds / 3600)}h</p>
         </CardContent>

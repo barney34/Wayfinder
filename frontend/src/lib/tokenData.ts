@@ -127,7 +127,9 @@ export function getDefaultEnabledFeatures(role: string): string[] {
 
 // NIOS Grid Sizing Constants
 export const niosGridConstants = {
-  maxDbUtilizationPercent: 60,        // Target no more than 60% capacity at rollout
+  maxDbUtilizationPercent: 60,        // Legacy — use getUtilizationTarget() for platform-aware value
+  niosUtilPercent: 60,               // NIOS: target no more than 60% capacity at rollout
+  uddiUtilPercent: 80,               // NIOS-X/UDDI: target no more than 80% capacity at rollout
   bufferPercent: 10,                  // 10% buffer for grid objects (110%)
   dhcpLeaseObjectsPerClient: 2,       // DHCP lease objects = clients × 2
   dnsRecordsPerDhcpClient: 3,         // NIOS: DNS records per DHCP client (A + DHCID + PTR)
@@ -145,6 +147,72 @@ export const niosGridConstants = {
   hubSpokeHubPenalty: 0,              // Hub takes aggregate LPS from spokes (no penalty, just summed)
   hubSpokeSpokePenalty: 50,           // Spoke DHCP forwarding: 50% performance reduction (2x sizing)
 };
+
+// Platform-aware utilization target: NIOS = 60%, UDDI/NIOS-X = 80%
+export function getUtilizationTarget(platform: string | null | undefined): number {
+  if (!platform) return niosGridConstants.niosUtilPercent / 100;
+  const p = platform.toUpperCase();
+  if (p === 'NXVS' || p === 'NX-P' || p === 'NXAAS' || p.includes('UDDI')) {
+    return niosGridConstants.uddiUtilPercent / 100;
+  }
+  return niosGridConstants.niosUtilPercent / 100;
+}
+
+// Max Knowledge Workers per model (derived from xlsx: "Calculate Users per Model")
+// Formula: Target Obj → IPs → IPs / 2.5 = KW
+export interface ModelKWCapacity {
+  model: string;
+  platform: 'NIOS' | 'NIOS-X';
+  maxObjects: number;
+  targetObjects: number;
+  maxIPs: number;
+  maxKW: number;
+}
+
+export const modelKWCapacity: ModelKWCapacity[] = [
+  // NIOS models (60% target)
+  { model: 'TE-926',  platform: 'NIOS',   maxObjects: 110000,   targetObjects: 66000,    maxIPs: 25300,   maxKW: 10120 },
+  { model: 'TE-1516', platform: 'NIOS',   maxObjects: 440000,   targetObjects: 264000,   maxIPs: 101200,  maxKW: 40480 },
+  { model: 'TE-1526', platform: 'NIOS',   maxObjects: 880000,   targetObjects: 528000,   maxIPs: 202400,  maxKW: 80960 },
+  { model: 'TE-2326', platform: 'NIOS',   maxObjects: 4500000,  targetObjects: 2700000,  maxIPs: 1035000, maxKW: 414000 },
+  { model: 'TE-4126', platform: 'NIOS',   maxObjects: 24000000, targetObjects: 14400000, maxIPs: 5520000, maxKW: 2208000 },
+  // NIOS-X models (80% target)
+  { model: '2XS',     platform: 'NIOS-X', maxObjects: 3000,     targetObjects: 2400,     maxIPs: 780,     maxKW: 312 },
+  { model: 'XS',      platform: 'NIOS-X', maxObjects: 7500,     targetObjects: 6000,     maxIPs: 1950,    maxKW: 780 },
+  { model: 'S',       platform: 'NIOS-X', maxObjects: 29000,    targetObjects: 23200,    maxIPs: 7540,    maxKW: 3016 },
+  { model: 'M',       platform: 'NIOS-X', maxObjects: 110000,   targetObjects: 88000,    maxIPs: 28600,   maxKW: 11440 },
+  { model: 'L',       platform: 'NIOS-X', maxObjects: 440000,   targetObjects: 352000,   maxIPs: 114400,  maxKW: 45760 },
+  { model: 'XL',      platform: 'NIOS-X', maxObjects: 880000,   targetObjects: 704000,   maxIPs: 228800,  maxKW: 91520 },
+];
+
+export function getMaxKWForModel(model: string): number {
+  const entry = modelKWCapacity.find(m => m.model === model);
+  return entry?.maxKW || 0;
+}
+
+export function getMaxIPsForModel(model: string): number {
+  const entry = modelKWCapacity.find(m => m.model === model);
+  return entry?.maxIPs || 0;
+}
+
+// Tokens-per-user reference (from xlsx right-side calculation)
+// Formula: (# devices * 2) + (# devices * DHCP% * 2) simplified
+export interface TokensPerUserRef {
+  dhcpPercent: number;
+  dnsRecsPerDevice: number;
+  tokensPerUser: number;
+}
+
+export const tokensPerUserReference: TokensPerUserRef[] = [
+  { dhcpPercent: 100, dnsRecsPerDevice: 4.0, tokensPerUser: 8.09 },
+  { dhcpPercent: 0,   dnsRecsPerDevice: 2.0, tokensPerUser: 7.70 },
+  { dhcpPercent: 70,  dnsRecsPerDevice: 3.4, tokensPerUser: 7.98 },
+];
+
+export function estimateTokensPerUser(dhcpPercent: number): number {
+  // Interpolate from reference data — tokens/user ≈ 7.7 + (dhcpPercent/100 * 0.39)
+  return 7.70 + (dhcpPercent / 100) * 0.39;
+}
 
 // UDDI/NIOS-X Feature Performance Impacts (from Best Practices)
 export interface UddiFeatureImpact {

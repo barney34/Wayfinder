@@ -3,8 +3,21 @@
  * Extracted from TokenCalculatorSummary.jsx for better organization
  */
 
-import { niosServerGuardrails, uddiServerTokens, tokenModels } from "@/lib/tokenData";
+import { niosServerGuardrails, uddiServerTokens, tokenModels, getMaxKWForModel, getMaxIPsForModel, estimateTokensPerUser, niosGridConstants } from "@/lib/tokenData";
 import { ADDITIONAL_SERVICES } from "./platformConfig";
+
+// Re-export for convenience
+export { getMaxKWForModel, getMaxIPsForModel, estimateTokensPerUser };
+
+// Get utilization % label for display (e.g. "60%" or "80%")
+export function getUtilizationLabel(platform: string | null | undefined): string {
+  if (!platform) return '60%';
+  const p = (platform || '').toUpperCase();
+  if (p === 'NXVS' || p === 'NX-P' || p === 'NXAAS' || p.includes('UDDI')) {
+    return `${niosGridConstants.uddiUtilPercent}%`;
+  }
+  return `${niosGridConstants.niosUtilPercent}%`;
+}
 
 export interface PartnerSku {
   sku: string;

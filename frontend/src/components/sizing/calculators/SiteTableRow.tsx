@@ -4,14 +4,14 @@
  */
 import React from "react";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Trash2, Info, Settings2, Server, Copy, Plus, Minus, MapPin, Building2, GripVertical, FileText, Package, Layers, X } from "lucide-react";
+import { Trash2, Info, Settings2, Server, Copy, Plus, Minus, MapPin, Building2, GripVertical, FileText, Package, Layers, X, Link2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,7 +22,7 @@ import { formatNumber } from "@/lib/utils";
 import { ADDITIONAL_SERVICES, SW_ADDONS, HW_ADDONS, SFP_OPTIONS, RPT_QUANTITIES, PERFORMANCE_FEATURES, getAvailableSwAddons, getAvailableHwAddons, getAvailablePerfFeatures } from "./platformConfig";
 import { getSiteWorkloadDetails, getDefaultHardwareSku, getDefaultHwAddons } from "../calculations";
 import { CopySiteToDrawingMenu } from "./DrawingManager";
-import { niosServerGuardrails, nxvsServers, nxaasServers, ndxServerGuardrails } from "@/lib/tokenData";
+import { niosServerGuardrails, nxvsServers, nxaasServers, ndxServerGuardrails, getMaxKWForModel, getUtilizationTarget } from "@/lib/tokenData";
 import type { RoleOption, PlatformOption } from "./platformConfig";
 import type { UnitAssignment } from "./unitDesignations";
 
@@ -81,6 +81,7 @@ interface SiteRow {
   hardwareOptions?: string[];
   tokens?: number;
   tokensPerServer?: number;
+  serviceIPs?: number;
   serviceImpact?: number;
   isHub?: boolean;
   isSpoke?: boolean;
@@ -402,7 +403,7 @@ function FoAssocCell({ site, sites, dhcpAssociations, onAddAssociation, onRemove
                 {(() => {
                   const rootLabel = isUddi ? 'HA Group' : 'FOA';
                   if (partnerCount === 0) {
-                    return <span className="text-muted-foreground">—</span>;
+                    return <Link2 className="h-3.5 w-3.5 text-muted-foreground" />;
                   }
                   const myLbl = unitLabel(site.id, site.name);
                   const pairs = myAssociations.map(a => {
@@ -943,9 +944,17 @@ export const SiteTableRow = React.memo(function SiteTableRow({
                 <button
                   key={letter}
                   onClick={() => {
-                    // N is hard-tied to ND role
-                    if (letter === 'N' && site.role !== 'ND') {
-                      onUpdateSite(site.id, { unitLetterOverride: letter, role: 'ND' });
+                    const dcRows = sites.filter(s => s.sourceType === 'dataCenter');
+                    const dcIndex = dcRows.findIndex(s => s.id === site.id);
+                    const letterDefaultRole: Record<string, string> = {
+                      A: dcIndex <= 0 ? 'GM' : 'GMC',
+                      B: 'DNS/DHCP', C: 'DHCP', D: 'DNS/DHCP',
+                      E: 'DNS', F: 'DNS', G: 'DNS/DHCP', M: 'DNS/DHCP', N: 'ND',
+                    };
+                    const nextRole = letter === 'A' && platformMode === 'UDDI'
+                      ? site.role : (letterDefaultRole[letter] || site.role);
+                    if (nextRole !== site.role) {
+                      onUpdateSite(site.id, { unitLetterOverride: letter, role: nextRole });
                     } else {
                       onUpdateSite(site.id, 'unitLetterOverride', letter);
                     }
@@ -1126,31 +1135,54 @@ export const SiteTableRow = React.memo(function SiteTableRow({
             : deviates
             ? { title: `Deviates from auto (${autoIPs.toLocaleString()})`, body: `Your value differs by more than 20% from the auto-calculated ${autoIPs.toLocaleString()} IPs. Verify this is intentional.` }
             : null;
+          const isCompositeGm = site.role?.startsWith('GM+') || site.role?.startsWith('GMC+');
           return (
-            <div className="flex items-center gap-1">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Input
-                      type="number"
-                      value={site.numIPs || ''}
-                      onChange={e => onUpdateSite(site.id, 'numIPs', parseInt(e.target.value) || 0)}
-                      placeholder={isDiscoveryRole ? 'Devices' : '0'}
-                      className={`h-7 text-sm w-20 lg:w-24 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${
-                        needsHighlight ? 'ring-1 ring-amber-400 border-amber-400' : ''
-                      }`}
-                      disabled={site.isDisabledInUddi}
-                      data-testid={`site-ips-${site.id}`}
-                    />
-                  </TooltipTrigger>
-                  {ipTooltip && (
+            <div className="flex flex-col gap-0.5">
+              <div className="flex items-center gap-1">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Input
+                        type="number"
+                        value={site.numIPs || ''}
+                        onChange={e => onUpdateSite(site.id, 'numIPs', parseInt(e.target.value) || 0)}
+                        placeholder={isDiscoveryRole ? 'Devices' : '0'}
+                        className={`h-7 text-sm w-20 lg:w-24 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${
+                          needsHighlight ? 'ring-1 ring-amber-400 border-amber-400' : ''
+                        }`}
+                        disabled={site.isDisabledInUddi}
+                        data-testid={`site-ips-${site.id}`}
+                      />
+                    </TooltipTrigger>
+                    {ipTooltip && (
+                      <TooltipContent side="top" className="text-xs bg-popover text-popover-foreground border border-border max-w-[220px]">
+                        <div className="font-medium text-amber-500">{ipTooltip.title}</div>
+                        <div className="text-muted-foreground mt-0.5">{ipTooltip.body}</div>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              {isCompositeGm && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Input
+                        type="number"
+                        value={site.serviceIPs || ''}
+                        onChange={e => onUpdateSite(site.id, 'serviceIPs', parseInt(e.target.value) || 0)}
+                        placeholder="Svc IPs"
+                        className="h-6 text-[11px] w-20 lg:w-24 text-teal-600 dark:text-teal-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        data-testid={`site-svc-ips-${site.id}`}
+                      />
+                    </TooltipTrigger>
                     <TooltipContent side="top" className="text-xs bg-popover text-popover-foreground border border-border max-w-[220px]">
-                      <div className="font-medium text-amber-500">{ipTooltip.title}</div>
-                      <div className="text-muted-foreground mt-0.5">{ipTooltip.body}</div>
+                      <div className="font-medium">Service IPs</div>
+                      <div className="text-muted-foreground mt-0.5">Local DNS/DHCP IPs at this DC. Added to KW\u00d72.5 base for model sizing.</div>
                     </TooltipContent>
-                  )}
-                </Tooltip>
-              </TooltipProvider>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
             </div>
           );
         })()}
@@ -1159,7 +1191,10 @@ export const SiteTableRow = React.memo(function SiteTableRow({
       {/* Role — compact dropdown + description first-line subtitle (hover=full, click=edit) */}
       <TableCell className="p-1.5" colSpan={isDiscoveryRow ? 1 + (showServices ? 1 : 0) + (showDescription ? 1 : 0) : 1}>
         {(() => {
-          const isGmRow = site.role?.startsWith('GM') || site.role?.startsWith('GMC');
+          const isGmcRow = site.role?.startsWith('GMC');
+          const isGmRow = !isGmcRow && site.role?.startsWith('GM');
+          const isGmFamily = isGmRow || isGmcRow;
+          const gmPrefix = isGmcRow ? 'GMC' : 'GM';
           const allDescLines = description.split('\n');
           const firstLine = allDescLines[0]; // "Physical Member" / "Virtual Member"
           const fullDesc = description;
@@ -1178,34 +1213,59 @@ export const SiteTableRow = React.memo(function SiteTableRow({
                       platform: 'NIOS-V',
                       hwAddons: [],
                       sfpAddons: {},
-                      rptQuantity: '500MB'
+                      rptQuantity: '500MB',
+                      perfFeatures: [] // Clear all perf features for reporting
                     });
                   } else {
-                    onUpdateSite(site.id, 'role', v);
+                    // When changing role, filter out any currently selected perf features that are no longer valid for the new role
+                    const validFeaturesForNewRole = getAvailablePerfFeatures(v).map(f => f.value);
+                    const currentFeatures = site.perfFeatures || [];
+                    const newFeatures = currentFeatures.filter(f => validFeaturesForNewRole.includes(f));
+                    
+                    // Also filter out any SW Add-ons that are no longer valid
+                    const validSwAddonsForNewRole = getAvailableSwAddons(v, site.platform).map(a => a.value);
+                    const currentSwAddons = site.swAddons || [];
+                    const newSwAddons = currentSwAddons.filter(a => validSwAddonsForNewRole.includes(a));
+                    
+                    if (newFeatures.length !== currentFeatures.length || newSwAddons.length !== currentSwAddons.length) {
+                      onUpdateSite(site.id, { role: v, perfFeatures: newFeatures, swAddons: newSwAddons });
+                    } else {
+                      onUpdateSite(site.id, 'role', v);
+                    }
                   }
                 }} disabled={site.isDisabledInUddi || isDiscoveryRow}>
                 <SelectTrigger className="h-7 text-xs" data-testid={`site-role-${site.id}`}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {(discoveryRoleOptions || roleOptions.filter(o => !o.group)).map(o => (
+                  {(discoveryRoleOptions || roleOptions.filter(o => !o.group && !isGmFamily)).map(o => (
                     <SelectItem key={o.value} value={o.value} title={o.description}>
                       {o.label}
                     </SelectItem>
                   ))}
-                  {!isDiscoveryRow && isGmRow && roleOptions.some(o => o.group === 'Grid Manager') && (
+                  {!isDiscoveryRow && isGmFamily && roleOptions.some(o => o.group === 'Grid Manager') && (
                     <>
-                      <div className="px-2 py-1 text-[10px] text-muted-foreground uppercase tracking-wide border-t mt-1 pt-2">
-                        Grid Manager
+                      <SelectSeparator className="mt-1" />
+                      <div className="px-2 py-1 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
+                        {gmPrefix}
                       </div>
-                      {roleOptions.filter(o => o.group === 'Grid Manager').map(o => (
+                      {roleOptions.filter(o => o.group === 'Grid Manager' && !o.notRecommended && o.value.startsWith(gmPrefix) && (o.value === gmPrefix || o.value.startsWith(gmPrefix + '+'))).map(o => (
+                        <SelectItem key={o.value} value={o.value} title={o.description}>
+                          {o.label}
+                        </SelectItem>
+                      ))}
+                      <SelectSeparator className="my-1" />
+                      <div className="px-2 py-1 text-center text-[10px] font-semibold text-amber-600 dark:text-amber-400 border-t border-b border-amber-300/30 dark:border-amber-700/30 bg-amber-50/50 dark:bg-amber-950/20">
+                        Services on {gmPrefix} not recommended
+                      </div>
+                      {roleOptions.filter(o => o.group === 'Grid Manager' && o.notRecommended && o.value.startsWith(gmPrefix + '+')).map(o => (
                         <SelectItem
                           key={o.value}
                           value={o.value}
                           title={o.description}
-                          className={o.notRecommended ? 'text-amber-600 dark:text-amber-400' : ''}
+                          className="text-amber-700 focus:bg-amber-100 focus:text-amber-950 data-[highlighted]:bg-amber-100 data-[highlighted]:text-amber-950 data-[state=checked]:bg-amber-100 data-[state=checked]:text-amber-950 dark:text-amber-300 dark:focus:bg-amber-950/70 dark:focus:text-amber-50 dark:data-[highlighted]:bg-amber-950/70 dark:data-[highlighted]:text-amber-50 dark:data-[state=checked]:bg-amber-950/70 dark:data-[state=checked]:text-amber-50"
                         >
-                          {o.label}{o.notRecommended && ' ⚠️'}
+                          {o.label}
                         </SelectItem>
                       ))}
                     </>
@@ -1465,7 +1525,8 @@ export const SiteTableRow = React.memo(function SiteTableRow({
         </TableCell>
       )}
 
-      {/* FO / HA Association */}
+      {/* FO / HA Association (hidden for discovery rows) */}
+      {!isDiscoveryRow && (
       <TableCell className="p-1.5">
         {(() => {
           const hasDhcp = site.role === 'DHCP' || site.role === 'DNS/DHCP' ||
@@ -1490,9 +1551,10 @@ export const SiteTableRow = React.memo(function SiteTableRow({
           );
         })()}
       </TableCell>
+      )}
 
       {/* Server Count (Member Count) — number + stacked ±  */}
-      <TableCell className="p-1.5">
+      <TableCell className={`p-1.5 ${isDiscoveryRow ? 'text-center' : ''}`} colSpan={isDiscoveryRow ? 3 : 1}>
         {site._isExpanded && site._serverIndex !== 0 ? (
           <span className="text-xs font-semibold text-center block text-muted-foreground">—</span>
         ) : site._isExpanded && site._serverIndex === 0 ? (() => {
@@ -1617,7 +1679,8 @@ export const SiteTableRow = React.memo(function SiteTableRow({
         )}
       </TableCell>
 
-      {/* HA toggle */}
+      {/* HA toggle (hidden for discovery rows) */}
+      {!isDiscoveryRow && (
       <TableCell className="p-1.5 text-center">
         {site.platform === 'NXVS' || site.platform === 'NX-P' || site.platform === 'NXaaS' ? (
           <span className="text-muted-foreground text-xs">N/A</span>
@@ -1658,6 +1721,7 @@ export const SiteTableRow = React.memo(function SiteTableRow({
         </TooltipProvider>
         )}
       </TableCell>
+      )}
 
       {/* Platform — discovery rows get restricted options */}
       <TableCell className="p-1.5">

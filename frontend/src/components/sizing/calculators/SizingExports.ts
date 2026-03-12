@@ -3,7 +3,8 @@
  * Handles CSV, YAML, Excel, PDF, and Drawing exports
  */
 import { formatNumber } from "@/lib/utils";
-import { getSwBaseSku, getSwPackage, getHwSkuInfo, getUnitGroup } from "@/lib/tokenData";
+import { getSwBaseSku, getSwPackage, getUnitGroup, getUtilizationTarget, niosServerGuardrails, nxvsServers } from "@/lib/tokenData";
+import { getSiteWorkloadDetails } from "../calculations";
 
 export interface Site {
   id: string;
@@ -21,8 +22,11 @@ export interface Site {
   swAddons?: string[];
   effectivePerfFeatures?: string[];
   perfFeatures?: string[];
+  dhcpPercent?: number;
   isHub?: boolean;
   isSpoke?: boolean;
+  hubLPS?: number;
+  foObjects?: number;
   rptQuantity?: string;
   _serverCount?: number;
   serverCount?: number;
@@ -156,6 +160,7 @@ export async function exportExcel(sites: Site[], totals: Totals, bom: BomItem[],
     ['Partner SKU', partnerSku.sku],
     ['Partner SKU Description', partnerSku.description],
     ['Platform Mode', platformMode],
+    ['Utilization Target', platformMode === 'NIOS' ? '60% (NIOS)' : platformMode === 'UDDI' ? '80% (NIOS-X)' : '60% NIOS / 80% NIOS-X'],
     ['Generated', new Date().toISOString()]
   ];
 
@@ -169,33 +174,156 @@ export async function exportExcel(sites: Site[], totals: Totals, bom: BomItem[],
   XLSX.writeFile(wb, 'site-sizing-export.xlsx');
 }
 
-export async function exportPDF(sites: Site[], totals: Totals, bom: BomItem[], partnerSku: PartnerSku, platformMode: string, securityEnabled: boolean, uddiEnabled: boolean): Promise<void> {
+export async function exportPDF(sites: Site[], totals: Totals, bom: BomItem[], partnerSku: PartnerSku, platformMode: string, securityEnabled: boolean, uddiEnabled: boolean, customerName?: string): Promise<void> {
   const { jsPDF } = await import('jspdf');
   const { autoTable } = await import('jspdf-autotable');
   const doc = new jsPDF('landscape');
   const pageWidth = doc.internal.pageSize.getWidth();
+  const rpzFeatureCodes = new Set(['RPZ', 'NSIP', 'TI']);
+  const niosNeedsRpz = platformMode === 'NIOS' && sites.some(site =>
+    (site.effectivePerfFeatures || site.perfFeatures || []).some(feature => rpzFeatureCodes.has(feature))
+  );
+  // Only show tokens when UDDI or Hybrid mode, or if RPZ/Security is enabled
+  const showTokens = (platformMode === 'UDDI' || platformMode === 'Hybrid') || niosNeedsRpz || securityEnabled;
+  const utilLabel = platformMode === 'NIOS' ? '60% (NIOS)' : platformMode === 'UDDI' ? '80% (NIOS-X)' : '60% NIOS / 80% NIOS-X';
+  const partnerSkuValue = totals.totalTokens > 0 ? partnerSku.sku : '—';
+  const securityStatus = platformMode === 'NIOS' && niosNeedsRpz
+    ? 'RPZ required'
+    : securityEnabled
+      ? 'Active'
+      : 'Disabled';
+
+  type ComparableModel = {
+    label: string;
+    ratedQps: number;
+    ratedLps: number;
+    ratedObjects: number;
+  };
+
+  type SiteComparisonSnapshot = {
+    qpsText: string;
+    lpsText: string;
+    objectsText: string;
+    demandBlock: string;
+    lowerBlock: string;
+    currentBlock: string;
+    higherBlock: string;
+  };
+
+  const nonComparableRoles = new Set(['ND', 'ND-X', 'Reporting', 'LIC', 'CDC']);
+  const isNiosxPlatform = (platform: string) => platform === 'NXVS' || platform === 'NXaaS' || platform === 'NX-P';
+  const metricText = (value: number) => value > 0 ? formatNumber(value) : '—';
+
+  const getModelCatalog = (site: Site): ComparableModel[] => (
+    isNiosxPlatform(site.platform)
+      ? nxvsServers.map(server => ({
+          label: server.serverSize,
+          ratedQps: server.qps,
+          ratedLps: server.lps,
+          ratedObjects: server.objects,
+        }))
+      : niosServerGuardrails.map(server => ({
+          label: server.model,
+          ratedQps: server.maxQPS,
+          ratedLps: server.maxLPS,
+          ratedObjects: server.maxDbObj,
+        }))
+  );
+
+  const formatModelBlock = (model: ComparableModel | null, site: Site, qpsMultiplier: number, lpsMultiplier: number) => {
+    if (!model) return '—';
+    const utilization = getUtilizationTarget(site.platform);
+    const effectiveQps = Math.round(model.ratedQps * utilization * qpsMultiplier);
+    const effectiveLps = Math.round(model.ratedLps * utilization * lpsMultiplier);
+    const effectiveObjects = Math.round(model.ratedObjects * utilization);
+    return `${model.label}\nQPS ${formatNumber(effectiveQps)}\nLPS ${formatNumber(effectiveLps)}\nObj ${formatNumber(effectiveObjects)}`;
+  };
+
+  const buildComparisonSnapshot = (site: Site): SiteComparisonSnapshot | null => {
+    if (nonComparableRoles.has(site.role)) return null;
+
+    const workload = getSiteWorkloadDetails(
+      site.numIPs,
+      site.role,
+      platformMode,
+      site.dhcpPercent ?? 80,
+      site.platform,
+      {
+        isSpoke: site.isSpoke,
+        hubLPS: site.hubLPS || 0,
+        foObjects: site.foObjects || 0,
+        perfFeatures: site.effectivePerfFeatures || site.perfFeatures || [],
+      }
+    );
+
+    const models = getModelCatalog(site);
+    const currentIndex = models.findIndex(model => model.label === site.recommendedModel);
+    const currentModel = currentIndex >= 0
+      ? models[currentIndex]
+      : {
+          label: site.recommendedModel,
+          ratedQps: 0,
+          ratedLps: 0,
+          ratedObjects: 0,
+        };
+
+    const qpsText = metricText(workload.adjustedQPS);
+    const lpsText = metricText(workload.adjustedLPS);
+    const objectsText = metricText(workload.objects);
+
+    return {
+      qpsText,
+      lpsText,
+      objectsText,
+      demandBlock: `QPS ${qpsText}\nLPS ${lpsText}\nObj ${objectsText}`,
+      lowerBlock: currentIndex > 0
+        ? formatModelBlock(models[currentIndex - 1], site, workload.qpsMultiplier ?? 1, workload.lpsMultiplier ?? 1)
+        : '—',
+      currentBlock: formatModelBlock(currentModel, site, workload.qpsMultiplier ?? 1, workload.lpsMultiplier ?? 1),
+      higherBlock: currentIndex >= 0 && currentIndex < models.length - 1
+        ? formatModelBlock(models[currentIndex + 1], site, workload.qpsMultiplier ?? 1, workload.lpsMultiplier ?? 1)
+        : '—',
+    };
+  };
+
+  const comparisonSnapshots = new Map<string, SiteComparisonSnapshot | null>();
+  sites.forEach(site => {
+    comparisonSnapshots.set(site.id, buildComparisonSnapshot(site));
+  });
 
   doc.setFontSize(18);
   doc.setFont('helvetica', 'bold');
-  doc.text('Site Sizing Report', pageWidth / 2, 15, { align: 'center' });
+  const title = customerName ? `${customerName} - Site Sizing Report` : 'Site Sizing Report';
+  doc.text(title, pageWidth / 2, 15, { align: 'center' });
 
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
   doc.text(`Generated: ${new Date().toLocaleString()}`, pageWidth / 2, 22, { align: 'center' });
-  doc.text(`Platform Mode: ${platformMode} | Partner SKU: ${partnerSku.sku}`, pageWidth / 2, 28, { align: 'center' });
+  const subtitleParts = [`Platform: ${platformMode}`];
+  if (showTokens && partnerSkuValue !== '—') subtitleParts.push(`SKU: ${partnerSkuValue}`);
+  subtitleParts.push(`Target: ${utilLabel}`);
+  doc.text(subtitleParts.join(' | '), pageWidth / 2, 28, { align: 'center' });
 
   doc.setFontSize(9);
   const summaryY = 35;
-  const boxWidth = 45;
-  const boxGap = 5;
-  const startX = (pageWidth - (4 * boxWidth + 3 * boxGap)) / 2;
-
-  const summaryBoxes = [
-    { label: 'Total Sites', value: sites.length.toString() },
-    { label: 'Total IPs', value: totals.totalIPs.toLocaleString() },
-    { label: 'Total Tokens', value: totals.totalTokens.toLocaleString() },
-    { label: 'Partner SKU', value: partnerSku.sku },
-  ];
+  const boxWidth = 38;
+  const boxGap = 4;
+  const summaryBoxes = showTokens
+    ? [
+        { label: 'Total Sites', value: sites.length.toString() },
+        { label: 'Total IPs', value: totals.totalIPs.toLocaleString() },
+        { label: 'Total KW', value: totals.totalKW.toLocaleString() },
+        { label: 'Total Tokens', value: totals.totalTokens.toLocaleString() },
+        { label: 'Partner SKU', value: partnerSkuValue },
+      ]
+    : [
+        { label: 'Total Sites', value: sites.length.toString() },
+        { label: 'Total IPs', value: totals.totalIPs.toLocaleString() },
+        { label: 'Total KW', value: totals.totalKW.toLocaleString() },
+        { label: 'Platform', value: platformMode },
+        { label: 'Sizing Target', value: utilLabel },
+      ];
+  const startX = (pageWidth - (summaryBoxes.length * boxWidth + (summaryBoxes.length - 1) * boxGap)) / 2;
 
   summaryBoxes.forEach((box, i) => {
     const x = startX + i * (boxWidth + boxGap);
@@ -210,35 +338,114 @@ export async function exportPDF(sites: Site[], totals: Totals, bom: BomItem[], p
     doc.setFontSize(9);
   });
 
+  const siteTableHead = showTokens
+    ? [['Location', '# IPs', 'KW', 'Role', 'Platform', 'Model', 'QPS', 'LPS', 'Objects', 'SKU', 'Tokens']]
+    : [['Location', '# IPs', 'KW', 'Role', 'Platform', 'Model', 'QPS', 'LPS', 'Objects', 'SKU', 'Workload Summary']];
+  const siteTableBody = sites.map(s => {
+    const snapshot = comparisonSnapshots.get(s.id);
+    const base = [
+      s.name, s.numIPs.toLocaleString(), s.knowledgeWorkers.toLocaleString(),
+      s.role, s.platform, s.recommendedModel, snapshot?.qpsText || '—', snapshot?.lpsText || '—', snapshot?.objectsText || '—', s.hardwareSku,
+    ];
+    if (showTokens) {
+      return [...base, s.tokens.toLocaleString()];
+    } else {
+      // Add workload summary instead of tokens for NIOS
+      const workloadSummary = [];
+      if (snapshot?.qpsText && snapshot?.qpsText !== '—') workloadSummary.push(`QPS ${snapshot.qpsText}`);
+      if (snapshot?.lpsText && snapshot?.lpsText !== '—') workloadSummary.push(`LPS ${snapshot.lpsText}`);
+      if (snapshot?.objectsText && snapshot?.objectsText !== '—') workloadSummary.push(`Obj ${snapshot.objectsText}`);
+      return [...base, workloadSummary.length > 0 ? workloadSummary.join(', ') : '—'];
+    }
+  });
+  const siteTableTotal = showTokens
+    ? ['TOTAL', totals.totalIPs.toLocaleString(), totals.totalKW.toLocaleString(), '', '', '', '', '', '', '', totals.infraTokens.toLocaleString()]
+    : ['TOTAL', totals.totalIPs.toLocaleString(), totals.totalKW.toLocaleString(), '', '', '', '', '', '', '', ''];
+
   autoTable(doc, {
     startY: 55,
-    head: [['Location', 'Type', '# IPs', 'KW', 'Role', 'Services', 'Platform', 'Model', 'SKU', 'Tokens']],
-    body: [
-      ...sites.map(s => [
-        s.name, s.sourceType || 'Manual', s.numIPs.toLocaleString(), s.knowledgeWorkers.toLocaleString(),
-        s.role, (s.services || []).join(', ') || '-', s.platform, s.recommendedModel, s.hardwareSku, s.tokens.toLocaleString()
-      ]),
-      ['TOTAL', '', totals.totalIPs.toLocaleString(), totals.totalKW.toLocaleString(), '', '', '', '', '', totals.infraTokens.toLocaleString()]
-    ],
+    head: siteTableHead,
+    body: [...siteTableBody, siteTableTotal],
     theme: 'striped',
     headStyles: { fillColor: [59, 130, 246], fontSize: 8 },
-    bodyStyles: { fontSize: 7 },
+    bodyStyles: { fontSize: 6.5 },
     footStyles: { fillColor: [229, 231, 235], fontStyle: 'bold' },
-    columnStyles: {
-      0: { cellWidth: 35 }, 1: { cellWidth: 20 }, 2: { cellWidth: 20, halign: 'right' },
-      3: { cellWidth: 15, halign: 'right' }, 4: { cellWidth: 20 }, 5: { cellWidth: 30 },
-      6: { cellWidth: 30 }, 7: { cellWidth: 20 }, 8: { cellWidth: 30 }, 9: { cellWidth: 20, halign: 'right' },
-    },
+    columnStyles: showTokens
+      ? {
+          0: { cellWidth: 38 },
+          1: { cellWidth: 16, halign: 'right' },
+          2: { cellWidth: 16, halign: 'right' },
+          3: { cellWidth: 24 },
+          4: { cellWidth: 20 },
+          5: { cellWidth: 18 },
+          6: { cellWidth: 16, halign: 'right' },
+          7: { cellWidth: 16, halign: 'right' },
+          8: { cellWidth: 20, halign: 'right' },
+          9: { cellWidth: 28 },
+          10: { cellWidth: 16, halign: 'right' },
+        }
+      : {
+          0: { cellWidth: 38 },
+          1: { cellWidth: 16, halign: 'right' },
+          2: { cellWidth: 16, halign: 'right' },
+          3: { cellWidth: 24 },
+          4: { cellWidth: 20 },
+          5: { cellWidth: 18 },
+          6: { cellWidth: 16, halign: 'right' },
+          7: { cellWidth: 16, halign: 'right' },
+          8: { cellWidth: 20, halign: 'right' },
+          9: { cellWidth: 28 },
+          10: { cellWidth: 40 },
+        },
   });
 
-  if (bom.length > 0) {
-    const finalY = (doc as any).lastAutoTable?.finalY || 55;
-    if (finalY > 150) doc.addPage();
+  const comparisonRows = sites.reduce<string[][]>((rows, site) => {
+    const snapshot = comparisonSnapshots.get(site.id);
+    if (!snapshot) return rows;
+    rows.push([
+      site.name,
+      site.role,
+      snapshot.demandBlock,
+      snapshot.lowerBlock,
+      snapshot.currentBlock,
+      snapshot.higherBlock,
+    ]);
+    return rows;
+  }, []);
+
+  if (comparisonRows.length > 0) {
+    doc.addPage();
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
-    doc.text('Bill of Materials', 14, finalY > 150 ? 15 : finalY + 15);
+    doc.text('Model Comparison', 14, 15);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Shows demand plus the next size down, selected model, and next size up at rollout target capacity.', 14, 21);
     autoTable(doc, {
-      startY: finalY > 150 ? 22 : finalY + 22,
+      startY: 26,
+      head: [['Location', 'Role', 'Demand', 'Size Down', 'Selected', 'Size Up']],
+      body: comparisonRows,
+      theme: 'striped',
+      headStyles: { fillColor: [37, 99, 235], fontSize: 8 },
+      bodyStyles: { fontSize: 7, overflow: 'linebreak', valign: 'middle', cellPadding: 1.5 },
+      columnStyles: {
+        0: { cellWidth: 34 },
+        1: { cellWidth: 22 },
+        2: { cellWidth: 36 },
+        3: { cellWidth: 46 },
+        4: { cellWidth: 46, fillColor: [239, 246, 255], textColor: [30, 64, 175] },
+        5: { cellWidth: 46 },
+      },
+    });
+  }
+
+  if (bom.length > 0) {
+    doc.addPage();
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Bill of Materials', 14, 15);
+    autoTable(doc, {
+      startY: 22,
       head: [['Hardware SKU', 'Description', 'Qty', 'Sites']],
       body: bom.map(b => [b.sku, b.description, b.quantity.toString(), b.sites.slice(0, 5).join(', ') + (b.sites.length > 5 ? '...' : '')]),
       theme: 'striped',
@@ -248,24 +455,38 @@ export async function exportPDF(sites: Site[], totals: Totals, bom: BomItem[], p
     });
   }
 
-  doc.addPage();
-  doc.setFontSize(12);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Token Summary', 14, 15);
-  autoTable(doc, {
-    startY: 22,
-    head: [['Category', 'Tokens', 'Status']],
-    body: [
-      ['Infrastructure', totals.infraTokens.toLocaleString(), 'Active'],
-      ['Security', totals.securityTokens.toLocaleString(), securityEnabled ? 'Active' : 'Disabled'],
-      ['UDDI', totals.uddiTokens.toLocaleString(), uddiEnabled ? 'Active' : 'Disabled'],
-      ['TOTAL', totals.totalTokens.toLocaleString(), ''],
-    ],
-    theme: 'striped',
-    headStyles: { fillColor: [139, 92, 246], fontSize: 9 },
-    bodyStyles: { fontSize: 8 },
-    columnStyles: { 0: { cellWidth: 50 }, 1: { cellWidth: 40, halign: 'right' }, 2: { cellWidth: 30 } },
-  });
+  if (showTokens) {
+    doc.addPage();
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Token Summary', 14, 15);
+    autoTable(doc, {
+      startY: 22,
+      head: [['Category', 'Tokens', 'Status']],
+      body: [
+        ['Infrastructure', totals.infraTokens.toLocaleString(), 'Active'],
+        ['Security', totals.securityTokens.toLocaleString(), securityStatus],
+        ['UDDI', totals.uddiTokens.toLocaleString(), uddiEnabled ? 'Active' : 'Disabled'],
+        ['TOTAL', totals.totalTokens.toLocaleString(), ''],
+      ],
+      theme: 'striped',
+      headStyles: { fillColor: [139, 92, 246], fontSize: 9 },
+      bodyStyles: { fontSize: 8 },
+      columnStyles: { 0: { cellWidth: 50 }, 1: { cellWidth: 40, halign: 'right' }, 2: { cellWidth: 30 } },
+    });
+  }
+
+  // Methodology footnote
+  doc.setPage(1);
+  const footY = doc.internal.pageSize.getHeight() - 10;
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'italic');
+  doc.text(
+    `Sizing Methodology: ${utilLabel} utilization target at rollout. DNS QPS = IPs ÷ 3. DHCP LPS = DHCP clients ÷ 900s. DNS+DHCP = 130% multi-protocol penalty. ` +
+    `Database objects = Knowledge Workers × 2.5. Service IPs add 5 QPS and 2 LPS each. DNSSEC reduces QPS by 20%. ` +
+    `UDDI platforms use 80% target, NIOS uses 60% target. Model selection based on highest utilization metric.`,
+    14, footY
+  );
 
   doc.save('site-sizing-export.pdf');
 }

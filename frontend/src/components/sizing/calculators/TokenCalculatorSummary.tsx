@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Server, Plus, Info, FileSpreadsheet, ArrowUpDown, ChevronUp, ChevronDown, Columns3 } from "lucide-react";
+import { Server, Plus, Info, FileSpreadsheet, FileText, ArrowUpDown, ChevronUp, ChevronDown, Columns3 } from "lucide-react";
 import { formatNumber } from "@/lib/utils";
 import {
   getSiteRecommendedModel,
@@ -29,6 +29,7 @@ import {
 import { PLATFORM_MODES, PLATFORM_OPTIONS_BY_MODE, ROLE_OPTIONS_BY_MODE, ADDITIONAL_SERVICES } from "./platformConfig";
 import { getServiceImpact, getTokensForModel, getPartnerSkuFromTokens, getSkuDescription, getRecommendedPlatformMode } from "./tokenUtils";
 import { exportCSV, exportYAML, exportExcel, exportPDF, exportForLucid } from "./SizingExports";
+import type { BomItem } from "./SizingExports";
 import { PlatformChangeAlertDialog, WhyThisModelDialog } from "./SizingDialogs";
 import { SiteTableRow, LocationHeaderRow } from "./SiteTableRow";
 import type { Association } from "./SiteTableRow";
@@ -314,7 +315,7 @@ export function TokenCalculatorSummary() {
       const isDisabledInUddi = platformMode === 'UDDI' && (role === 'GM' || role === 'GMC');
       const services = override.services || [];
 
-      let defaultPlatform = 'NIOS';
+      let defaultPlatform = 'NIOS-V';
       if (platformMode === 'UDDI') defaultPlatform = 'NXVS';
       else if (platformMode === 'Hybrid' && type !== 'dataCenter') defaultPlatform = 'NXVS';
 
@@ -325,10 +326,13 @@ export function TokenCalculatorSummary() {
 
       // Per-DC/Site IP calculation uses its own KW, not global KW
       const dcSiteAutoIPs = Math.round(kw * ipMultiplier);
+      // serviceIPs: user-entered IPs for DNS/DHCP services running on a composite GM/GMC
+      const isCompositeGm = role.startsWith('GM+') || role.startsWith('GMC+');
+      const serviceIPs = isCompositeGm ? (override.serviceIPs || 0) : 0;
+
       let numIPs;
       if (type === 'dataCenter') {
         numIPs = override.numIPs !== undefined ? override.numIPs : dcSiteAutoIPs;
-        const serviceIPs = (role === 'GM' || role === 'GMC' || role.startsWith('GM+') || role.startsWith('GMC+')) ? services.length * 100 : 0;
         numIPs += serviceIPs;
       } else {
         numIPs = override.numIPs !== undefined ? override.numIPs : dcSiteAutoIPs;
@@ -357,6 +361,7 @@ export function TokenCalculatorSummary() {
         customGroups: override.customGroups || [],
         description: override.description || '',
         modelOverride: override.modelOverride || null,
+        serviceIPs,
         isDisabledInUddi, originalRole: role,
       };
     };
@@ -377,22 +382,11 @@ export function TokenCalculatorSummary() {
       allBasicSites = naturalOrder;
     }
 
-    // Always keep DC/GM rows (unit A) at the top, sorted by their current order
-    // Enforce: A1 = GM, A2+ = GMC (preserves composite roles like GM+DNS → GMC+DNS)
-    const isUnitA = (s) => s.sourceType === 'dataCenter' || s.role === 'GM' || s.role === 'GMC' || s.role?.startsWith('GM+') || s.role?.startsWith('GMC+');
+    // Keep effective unit-A rows at the top, but preserve explicit unit-letter and role overrides.
+    // If a GM/GMC row is reassigned away from unit A, do not force it back to GM/GMC.
+    const isUnitA = (s) => (s.unitLetterOverride || getUnitLetterForRole(s.role)) === 'A';
     const aRows = allBasicSites.filter(s => isUnitA(s));
     const nonARows = allBasicSites.filter(s => !isUnitA(s));
-    // Re-assign GM/GMC based on position: first = GM, rest = GMC
-    aRows.forEach((s, i) => {
-      if (platformMode === 'UDDI') return; // No GM/GMC in UDDI mode
-      const isComposite = s.role?.includes('+');
-      const suffix = isComposite ? s.role.replace(/^GM\+|^GMC\+/, '') : '';
-      if (i === 0) {
-        s.role = suffix ? `GM+${suffix}` : 'GM';
-      } else {
-        s.role = suffix ? `GMC+${suffix}` : 'GMC';
-      }
-    });
     allBasicSites = [...aRows, ...nonARows];
 
     // === DHCP FO / HA: Compute hub LPS, FO objects, partner counts from effectiveAssociations ===
@@ -409,8 +403,8 @@ export function TokenCalculatorSummary() {
       if (!siteA || !siteB) return;
       const lpsA = calculateSiteLPS(siteA.numIPs, siteA.dhcpPercent, siteA.role);
       const lpsB = calculateSiteLPS(siteB.numIPs, siteB.dhcpPercent, siteB.role);
-      const objsA = calculateSiteDhcpObjects(siteA.numIPs, siteA.dhcpPercent);
-      const objsB = calculateSiteDhcpObjects(siteB.numIPs, siteB.dhcpPercent);
+      const objsA = calculateSiteDhcpObjects(siteA.numIPs, siteA.dhcpPercent, siteA.role);
+      const objsB = calculateSiteDhcpObjects(siteB.numIPs, siteB.dhcpPercent, siteB.role);
       hubLPSMap[mA.rowId] = (hubLPSMap[mA.rowId] || 0) + Math.ceil(lpsB * HUB_FAILOVER_CAPACITY);
       hubLPSMap[mB.rowId] = (hubLPSMap[mB.rowId] || 0) + Math.ceil(lpsA * HUB_FAILOVER_CAPACITY);
       foObjectsMap[mA.rowId] = (foObjectsMap[mA.rowId] || 0) + objsB;
@@ -817,8 +811,8 @@ export function TokenCalculatorSummary() {
   }, [sites, dhcpPercent, platformMode, answers, totals.memberCount]);
 
   // BOM — include all physical hardware SKUs (TE, ND), exclude VM/Cloud/N/A
-  const bom = useMemo(() => {
-    const bomItems = {};
+  const bom = useMemo<BomItem[]>(() => {
+    const bomItems: Record<string, BomItem> = {};
     sites.forEach(site => {
       const sku = site.hardwareSku || 'N/A';
       // Only include real physical hardware SKUs
@@ -1126,36 +1120,19 @@ export function TokenCalculatorSummary() {
     if (contextAddSite) {
       // Add to the first data center if one exists, otherwise create without parent
       const parentDcId = dataCenters.length > 0 ? dataCenters[0].id : null;
-      contextAddSite(newSiteName, parentDcId, kwNum || 0); // name, dataCenterId, knowledgeWorkers (global KW)
+      contextAddSite(newSiteName, parentDcId, 0); // Sites don't inherit global KW — only DCs do
     }
   }, [sites.length, dataCenters, contextAddSite, kwNum]);
 
   // Add manual data center - syncs to TopBar and updates Discovery # of Data Centers
   // Uses async/await to ensure state is persisted before any navigation
-  const addManualDataCenter = useCallback(async () => {
-    const currentDCCount = dataCenters.length;
-    const newDCName = `Data Center ${currentDCCount + 1}`;
-    
-    // Add to context (shows in TopBar) — pre-fill with global KW
+  const addManualDataCenter = useCallback(() => {
+    const newDCName = `Data Center ${dataCenters.length + 1}`;
     if (contextAddDC) {
-      contextAddDC(newDCName, kwNum || 0); // name, knowledgeWorkers (global KW)
+      contextAddDC(newDCName, kwNum || 0);
     }
-    
-    // Update "# of Data Centers" answer (ud-5) to match the new count
-    const newCount = String(currentDCCount + 1);
-    setAnswer('ud-5', newCount);
-    
-    // Force immediate save to server to persist changes before any navigation
-    // This prevents the race condition where debounced auto-save loses the change
-    if (saveToServer) {
-      try {
-        await saveToServer();
-      } catch (err) {
-        console.error(`[addManualDataCenter] Save failed:`, err);
-      }
-    }
-    
-  }, [dataCenters.length, contextAddDC, setAnswer, saveToServer, kwNum]);
+    setAnswer('ud-5', String(dataCenters.length + 1));
+  }, [dataCenters.length, contextAddDC, setAnswer, kwNum]);
 
   // Add discovery site — ND for NIOS mode, ND-X for UDDI/Hybrid
   const addDiscoverySite = useCallback(() => {
@@ -1406,6 +1383,16 @@ export function TokenCalculatorSummary() {
 
                 <Button
                   variant="outline" size="sm"
+                  onClick={() => exportPDF(sites, totals, bom, partnerSku, platformMode, securityEnabled, uddiEnabled, undefined)}
+                  className="text-xs h-7 px-2"
+                  data-testid="export-pdf-button"
+                >
+                  <FileText className="h-3 w-3 mr-1" />
+                  PDF
+                </Button>
+
+                <Button
+                  variant="outline" size="sm"
                   onClick={() => exportForLucid(expandedServers, activeDrawing?.name || '10', unitAssignments)}
                   className="text-xs h-7 px-2"
                   data-testid="export-drawing-button"
@@ -1620,9 +1607,7 @@ export function TokenCalculatorSummary() {
                           {showKW && <TableCell className="p-1 w-16 font-semibold">KW</TableCell>}
                           <TableCell className="p-1 w-20 font-semibold">Devices</TableCell>
                           <TableCell className="p-1 w-24 font-semibold" colSpan={1 + (showServices ? 1 : 0) + (showDescription ? 1 : 0)}>Role</TableCell>
-                          <TableCell className="p-1 w-20 font-semibold">FO / HA</TableCell>
-                          <TableCell className="p-1 w-24 text-center font-semibold">Member Count</TableCell>
-                          <TableCell className="p-1 w-10 text-center font-semibold">HA</TableCell>
+                          <TableCell className="p-1 w-24 text-center font-semibold" colSpan={3}>Member Count</TableCell>
                           <TableCell className="p-1 w-24 font-semibold">Platform</TableCell>
                           <TableCell className="p-1 w-16 font-semibold">Model</TableCell>
                           {showHardware && <TableCell className="p-1 w-28 font-semibold">HW SKU</TableCell>}

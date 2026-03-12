@@ -7,6 +7,7 @@ import {
   ndxServerGuardrails,
   canGMRunServices,
   dhcpFoAssociationLimits,
+  getUtilizationTarget,
 } from '@/lib/tokenData';
 import { calculatePerfImpact } from './calculators/platformConfig';
 
@@ -57,12 +58,17 @@ export function getPartnerSku(packCount: number): string {
 
 // Calculate LPS for a site (used for Hub sizing)
 // Formula: dhcp_clients / 15 minutes (900 seconds)
+// Returns 0 if the role doesn't include DHCP
 export function calculateSiteLPS(numIPs: number, dhcpPercent: number, role: string): number {
+  const hasDHCP = role === 'DHCP' || role === 'DNS/DHCP' ||
+    role.includes('+DHCP') || role.includes('+DNS/DHCP');
+  if (!hasDHCP) return 0;
+
   const dhcpClients = Math.ceil(numIPs * (dhcpPercent / 100));
   let lps = Math.max(1, Math.ceil(dhcpClients / niosGridConstants.lpsAggregateSeconds));
   
   // Multi-protocol penalty: 130% capacity needed for DNS+DHCP
-  if (role === 'DNS/DHCP') {
+  if (role === 'DNS/DHCP' || role.includes('+DNS/DHCP')) {
     lps = Math.ceil(lps * niosGridConstants.multiRoleCapacityMultiplier);
   }
   
@@ -70,7 +76,13 @@ export function calculateSiteLPS(numIPs: number, dhcpPercent: number, role: stri
 }
 
 // Calculate DHCP objects for a site (used for FO object replication)
-export function calculateSiteDhcpObjects(numIPs: number, dhcpPercent: number): number {
+// Pass role to return 0 when site doesn't run DHCP
+export function calculateSiteDhcpObjects(numIPs: number, dhcpPercent: number, role?: string): number {
+  if (role) {
+    const hasDHCP = role === 'DHCP' || role === 'DNS/DHCP' ||
+      role.includes('+DHCP') || role.includes('+DNS/DHCP');
+    if (!hasDHCP) return 0;
+  }
   const dhcpClients = Math.ceil(numIPs * (dhcpPercent / 100));
   return dhcpClients * niosGridConstants.dhcpLeaseObjectsPerClient;
 }
@@ -170,10 +182,11 @@ export function findRecommendedX6(workload: WorkloadRequirements) {
 }
 
 export function findRecommendedUDDI(workload: WorkloadRequirements, serverType: string) {
+  const util = niosGridConstants.uddiUtilPercent / 100; // 80% for UDDI
   const servers = serverType === 'NXVS' ? nxvsServers : nxaasServers;
   for (const server of servers) {
-    if (server.qps * 0.6 >= workload.qps && server.lps * 0.6 >= workload.lps &&
-        server.objects * 0.6 >= workload.objects && server.discAssets * 0.6 >= workload.discAssets) {
+    if (server.qps * util >= workload.qps && server.lps * util >= workload.lps &&
+        server.objects * util >= workload.objects && server.discAssets * util >= workload.discAssets) {
       return server;
     }
   }
@@ -245,20 +258,27 @@ export function getSiteRecommendedModel(
     ? (sitePlatform === 'NXVS' || sitePlatform === 'NXaaS' || sitePlatform === 'NX-P')
     : (platform.includes('UDDI') || platform.includes('Hybrid'));
   
-  const dhcpClients = Math.ceil(numIPs * (dhcpPercent / 100));
-  const staticClients = numIPs - dhcpClients;
+  // Role-aware: determine which services this role runs
+  const hasDNS = role === 'DNS' || role === 'DNS/DHCP' ||
+    role.includes('+DNS') || role.includes('+DNS/DHCP');
+  const hasDHCP = role === 'DHCP' || role === 'DNS/DHCP' ||
+    role.includes('+DHCP') || role.includes('+DNS/DHCP');
   
-  // Calculate base workload metrics
-  let qps = Math.ceil(numIPs / (isUDDI ? 50 : niosGridConstants.peakQpsDivisor));
-  let lps = Math.max(1, Math.ceil(dhcpClients / niosGridConstants.lpsAggregateSeconds));
+  const dhcpClients = hasDHCP ? Math.ceil(numIPs * (dhcpPercent / 100)) : 0;
+  const staticClients = hasDNS ? (numIPs - dhcpClients) : 0;
+  
+  // Calculate base workload metrics — zero out for roles that don't run that service
+  let qps = hasDNS ? Math.ceil(numIPs / (isUDDI ? 50 : niosGridConstants.peakQpsDivisor)) : 0;
+  let lps = hasDHCP ? Math.max(1, Math.ceil(dhcpClients / niosGridConstants.lpsAggregateSeconds)) : 0;
   // DNS Objects: UDDI uses ×4 for DHCP (Kea DHCID in reverse zone), NIOS uses ×3
   const dhcpDnsMultiplier = isUDDI ? niosGridConstants.dnsRecordsPerDhcpClientUDDI : niosGridConstants.dnsRecordsPerDhcpClient;
-  const dnsObjects = (dhcpClients * dhcpDnsMultiplier) + 
-                     (staticClients * niosGridConstants.dnsRecordsPerStaticClient);
-  const dhcpObjects = dhcpClients * niosGridConstants.dhcpLeaseObjectsPerClient;
+  const dnsObjects = hasDNS
+    ? (dhcpClients * dhcpDnsMultiplier) + (staticClients * niosGridConstants.dnsRecordsPerStaticClient)
+    : 0;
+  const dhcpObjects = hasDHCP ? dhcpClients * niosGridConstants.dhcpLeaseObjectsPerClient : 0;
   
-  // If this is a Hub, add LPS from all spokes
-  if (hubLPS > 0) {
+  // If this is a Hub, add LPS from all spokes (only if role runs DHCP)
+  if (hubLPS > 0 && hasDHCP) {
     lps += hubLPS;
   }
   
@@ -270,8 +290,8 @@ export function getSiteRecommendedModel(
   // Calculate performance feature impact on effective capacity
   const { qpsMultiplier, lpsMultiplier } = calculatePerfImpact(perfFeatures, role);
   
-  // The utilization threshold (60% target)
-  const util = niosGridConstants.maxDbUtilizationPercent / 100;
+  // Platform-aware utilization threshold: NIOS=60%, UDDI=80%
+  const util = isUDDI ? niosGridConstants.uddiUtilPercent / 100 : niosGridConstants.niosUtilPercent / 100;
   
   // Handle Grid Master and Grid Master Candidate roles
   if (role === 'GM' || role === 'GMC') {
@@ -437,48 +457,58 @@ export function getSiteWorkloadDetails(
     ? (sitePlatform === 'NXVS' || sitePlatform === 'NXaaS' || sitePlatform === 'NX-P')
     : (platform?.includes('UDDI') || platform?.includes('Hybrid'));
   
-  const dhcpClients = Math.ceil(numIPs * (dhcpPercent / 100));
-  const staticClients = numIPs - dhcpClients;
+  // Role-aware: determine which services this role runs
+  const hasDNS = role === 'DNS' || role === 'DNS/DHCP' ||
+    role.includes('+DNS') || role.includes('+DNS/DHCP');
+  const hasDHCP = role === 'DHCP' || role === 'DNS/DHCP' ||
+    role.includes('+DHCP') || role.includes('+DNS/DHCP');
+  const isPureGM = (role === 'GM' || role === 'GMC');
   
-  // Base calculations
-  let qps = Math.ceil(numIPs / (isUDDI ? 50 : niosGridConstants.peakQpsDivisor));
-  let lps = Math.max(1, Math.ceil(dhcpClients / niosGridConstants.lpsAggregateSeconds));
+  const dhcpClients = hasDHCP ? Math.ceil(numIPs * (dhcpPercent / 100)) : 0;
+  const staticClients = hasDNS ? (numIPs - dhcpClients) : 0;
+  
+  // Base calculations — zero out metrics for roles that don't run that service
+  let qps = hasDNS ? Math.ceil(numIPs / (isUDDI ? 50 : niosGridConstants.peakQpsDivisor)) : 0;
+  let lps = hasDHCP ? Math.max(1, Math.ceil(dhcpClients / niosGridConstants.lpsAggregateSeconds)) : 0;
   
   // DNS Objects: UDDI uses ×4 for DHCP (Kea DHCID in reverse zone), NIOS uses ×3
   const dhcpDnsMultiplier = isUDDI ? niosGridConstants.dnsRecordsPerDhcpClientUDDI : niosGridConstants.dnsRecordsPerDhcpClient;
-  const dnsObjects = (dhcpClients * dhcpDnsMultiplier) + 
-                     (staticClients * niosGridConstants.dnsRecordsPerStaticClient);
-  const dhcpObjects = dhcpClients * niosGridConstants.dhcpLeaseObjectsPerClient;
+  const dnsObjects = hasDNS
+    ? (dhcpClients * dhcpDnsMultiplier) + (staticClients * niosGridConstants.dnsRecordsPerStaticClient)
+    : 0;
+  const dhcpObjects = hasDHCP ? dhcpClients * niosGridConstants.dhcpLeaseObjectsPerClient : 0;
   
   // Track penalties
   const penalties: string[] = [];
   
-  // Hub LPS addition
-  if (hubLPS > 0) {
+  // Hub LPS addition (only if role runs DHCP)
+  if (hubLPS > 0 && hasDHCP) {
     penalties.push(`Hub: +${hubLPS} LPS from partner(s)`);
     lps += hubLPS;
   }
   
-  // FO Object replication
-  if (foObjects > 0) {
+  // FO Object replication (only if role runs DHCP)
+  if (foObjects > 0 && hasDHCP) {
     penalties.push(`FO Objects: +${foObjects.toLocaleString()} replicated from partner(s)`);
   }
   
   // Performance feature impacts
-  const { qpsMultiplier, lpsMultiplier } = calculatePerfImpact(perfFeatures, role);
-  if (qpsMultiplier < 1.0) {
-    const pct = Math.round((1 - qpsMultiplier) * 100);
-    penalties.push(`Perf Features: −${pct}% effective QPS`);
-  }
-  if (lpsMultiplier < 1.0) {
-    const pct = Math.round((1 - lpsMultiplier) * 100);
-    penalties.push(`Perf Features: −${pct}% effective LPS`);
+  const { qpsMultiplier, lpsMultiplier, appliedLabels } = calculatePerfImpact(perfFeatures, role);
+  
+  if (appliedLabels && appliedLabels.length > 0) {
+    for (const label of appliedLabels) {
+      if (label.type === 'qps' && hasDNS) {
+        penalties.push(`${label.label}: −${label.percent}% effective QPS`);
+      } else if (label.type === 'lps' && hasDHCP) {
+        penalties.push(`${label.label}: −${label.percent}% effective LPS`);
+      }
+    }
   }
   
-  // Multi-role penalty
+  // Multi-role penalty (only when running both DNS and DHCP)
   let adjustedQPS = qps;
   let adjustedLPS = lps;
-  if (role === 'DNS/DHCP') {
+  if (hasDNS && hasDHCP) {
     penalties.push('Multi-protocol: 130% capacity');
     adjustedQPS = Math.ceil(qps * niosGridConstants.multiRoleCapacityMultiplier);
     adjustedLPS = Math.ceil(lps * niosGridConstants.multiRoleCapacityMultiplier);
@@ -487,21 +517,7 @@ export function getSiteWorkloadDetails(
   // Handle GM/GMC with DNS/DHCP (additive load)
   const isGMWithServices = role.startsWith('GM+') || role.startsWith('GMC+');
   if (isGMWithServices) {
-    const hasDNS = role.includes('DNS');
-    const hasDHCP = role.includes('DHCP') && !role.includes('DNS/DHCP') || role.includes('DNS/DHCP');
-    const hasBoth = role.includes('DNS/DHCP');
-    
     penalties.push('⚠️ GM/GMC + Services: ADDITIVE sizing');
-    
-    if (hasBoth) {
-      penalties.push('Multi-protocol: 130% capacity');
-      adjustedQPS = Math.ceil(qps * niosGridConstants.multiRoleCapacityMultiplier);
-      adjustedLPS = Math.ceil(lps * niosGridConstants.multiRoleCapacityMultiplier);
-    } else if (hasDNS) {
-      adjustedQPS = qps;
-    } else if (hasDHCP) {
-      adjustedLPS = lps;
-    }
   }
   
   // Calculate objects based on role + FO replicated objects
@@ -528,12 +544,21 @@ export function getSiteWorkloadDetails(
   // Determine which metric drove the model selection
   let driver = 'objects';
   const servers = isUDDI ? nxvsServers : niosServerGuardrails;
-  const utilization = niosGridConstants.maxDbUtilizationPercent / 100;
+  const utilization = isUDDI ? niosGridConstants.uddiUtilPercent / 100 : niosGridConstants.niosUtilPercent / 100;
   
   for (const server of servers) {
-    const maxQPS = isUDDI ? server.qps : server.maxQPS;
-    const maxLPS = isUDDI ? server.lps : server.maxLPS;
-    const maxObj = isUDDI ? server.objects : server.maxDbObj;
+    let maxQPS = 0, maxLPS = 0, maxObj = 0;
+    if (isUDDI) {
+      const s = server as typeof nxvsServers[0];
+      maxQPS = s.qps;
+      maxLPS = s.lps;
+      maxObj = s.objects;
+    } else {
+      const s = server as typeof niosServerGuardrails[0];
+      maxQPS = s.maxQPS;
+      maxLPS = s.maxLPS;
+      maxObj = s.maxDbObj;
+    }
     
     // Apply perf feature impact to effective capacity
     const effQPS = maxQPS * utilization * qpsMultiplier;

@@ -13,7 +13,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { AlertTriangle, HelpCircle, Star, Activity, Archive, Server } from "lucide-react";
 import { formatNumber } from "@/lib/utils";
-import { niosServerGuardrails, niosGridConstants, nxvsServers } from "@/lib/tokenData";
+import { niosServerGuardrails, niosGridConstants, nxvsServers, getMaxKWForModel, getUtilizationTarget } from "@/lib/tokenData";
 import { getSiteWorkloadDetails } from "../calculations";
 
 export function PlatformChangeAlertDialog({
@@ -85,6 +85,27 @@ export function PlatformChangeAlertDialog({
   );
 }
 
+// Normalized model data for comparison
+interface ModelSnapshot {
+  name: string;
+  ratedQps: number;
+  ratedLps: number;
+  ratedObjects: number;
+}
+
+function getModelName(server: any, isUDDI: boolean): string {
+  return isUDDI ? server.serverSize : server.model;
+}
+
+function getModelSnapshot(server: any, isUDDI: boolean): ModelSnapshot {
+  return {
+    name: getModelName(server, isUDDI),
+    ratedQps: isUDDI ? server.qps : server.maxQPS,
+    ratedLps: isUDDI ? server.lps : server.maxLPS,
+    ratedObjects: isUDDI ? server.objects : server.maxDbObj,
+  };
+}
+
 export function WhyThisModelDialog({ open, onOpenChange, site, platformMode, dhcpPercent }) {
   if (!site) return null;
 
@@ -99,29 +120,43 @@ export function WhyThisModelDialog({ open, onOpenChange, site, platformMode, dhc
   );
 
   const isUDDI = site.platform === 'NXVS' || site.platform === 'NXaaS';
-  const servers = isUDDI ? nxvsServers : niosServerGuardrails;
-  const selectedServer = servers.find(s =>
-    isUDDI ? s.serverSize === site.recommendedModel : s.model === site.recommendedModel
-  );
+  const allServers = isUDDI ? nxvsServers : niosServerGuardrails;
+  const currentIndex = allServers.findIndex(s => getModelName(s, isUDDI) === site.recommendedModel);
+  const selectedServer = currentIndex >= 0 ? allServers[currentIndex] : null;
+  const prevServer = currentIndex > 0 ? allServers[currentIndex - 1] : null;
+  const nextServer = currentIndex >= 0 && currentIndex < allServers.length - 1 ? allServers[currentIndex + 1] : null;
 
-  const utilization = niosGridConstants.maxDbUtilizationPercent / 100;
-  const serverQPS = isUDDI ? selectedServer?.qps : selectedServer?.maxQPS;
-  const serverLPS = isUDDI ? selectedServer?.lps : selectedServer?.maxLPS;
-  const serverObj = isUDDI ? selectedServer?.objects : selectedServer?.maxDbObj;
+  const current: ModelSnapshot = selectedServer
+    ? getModelSnapshot(selectedServer, isUDDI)
+    : { name: site.recommendedModel, ratedQps: 0, ratedLps: 0, ratedObjects: 0 };
+  const sizeDown: ModelSnapshot | null = prevServer ? getModelSnapshot(prevServer, isUDDI) : null;
+  const sizeUp: ModelSnapshot | null = nextServer ? getModelSnapshot(nextServer, isUDDI) : null;
 
-  // Apply perf feature multipliers to effective capacity (matches model selection logic)
+  const utilization = getUtilizationTarget(site.platform);
+  const utilPercent = Math.round(utilization * 100);
   const qpsMult = workload.qpsMultiplier ?? 1;
   const lpsMult = workload.lpsMultiplier ?? 1;
-  
-  // Effective capacity = rated × 60% × perf multiplier
-  const effQPS = Math.round((serverQPS || 0) * utilization * qpsMult);
-  const effLPS = Math.round((serverLPS || 0) * utilization * lpsMult);
-  const effObj = Math.round((serverObj || 0) * utilization);
 
-  // Utilization as % of total rated capacity (not effective)
-  const qpsUtilTotal = serverQPS ? Math.round((workload.adjustedQPS / serverQPS) * 100) : 0;
-  const lpsUtilTotal = serverLPS ? Math.round((workload.adjustedLPS / serverLPS) * 100) : 0;
-  const objUtilTotal = serverObj ? Math.round((workload.objects / serverObj) * 100) : 0;
+  // Effective capacity at utilization target with perf multipliers
+  const effCap = (model: ModelSnapshot) => ({
+    qps: Math.round(model.ratedQps * utilization * qpsMult),
+    lps: Math.round(model.ratedLps * utilization * lpsMult),
+    objects: Math.round(model.ratedObjects * utilization),
+  });
+
+  // % of rated capacity consumed by demand
+  const pctOfRated = (demand: number, rated: number) => rated > 0 ? Math.round((demand / rated) * 100) : 0;
+
+  const currentEff = effCap(current);
+  const demandQPS = workload.adjustedQPS;
+  const demandLPS = workload.adjustedLPS;
+  const demandObj = workload.objects;
+
+  // Show QPS for any role that serves DNS queries (not pure DHCP or pure GM/GMC)
+  const hasDNS = site.role === 'DNS' || site.role === 'DNS/DHCP' || site.role.includes('+DNS');
+  const hasDHCP = site.role === 'DHCP' || site.role === 'DNS/DHCP' || site.role.includes('+DHCP');
+  const showQPS = demandQPS > 0 && (hasDNS || (!hasDHCP && !site.role.startsWith('GM')));
+  const showLPS = demandLPS > 0 && (hasDHCP || (!hasDNS && !site.role.startsWith('GM')));
 
   const driverLabels = {
     qps: 'Query Performance (QPS)',
@@ -129,90 +164,365 @@ export function WhyThisModelDialog({ open, onOpenChange, site, platformMode, dhc
     objects: 'Database Capacity (Objects)',
   };
 
+  // Verdict label for a model column
+  const verdict = (model: ModelSnapshot) => {
+    const eff = effCap(model);
+    const qpsFit = !showQPS || eff.qps >= demandQPS;
+    const lpsFit = !showLPS || eff.lps >= demandLPS;
+    const objFit = eff.objects >= demandObj;
+    if (qpsFit && lpsFit && objFit) return { text: `Fits @ ${utilPercent}%`, color: 'text-green-700 dark:text-green-400' };
+    return { text: 'Too small', color: 'text-destructive' };
+  };
+
+  // Metric row for a comparison column: shows effective capacity + % used
+  const MetricRow = ({ label, demand, rated, isDriver, effVal, userLimit }: { label: string; demand: number; rated: number; isDriver: boolean; effVal: number; userLimit: number }) => {
+    const pct = pctOfRated(demand, rated);
+    const color = pct > utilPercent * 1.0 ? 'text-destructive font-semibold' : pct > (utilPercent - 10) ? 'text-amber-600 dark:text-amber-400 font-medium' : 'text-foreground';
+    
+    // Determine penalty strings with labels
+    const penaltyMult = Number((label === 'QPS' ? qpsMult : label === 'LPS' ? lpsMult : 1).toFixed(2));
+    let penaltyLabel = '';
+    if (penaltyMult < 1) {
+      if (workload.penalties.some(p => p.includes('DNSSEC') || p.includes('DNS Security')) && label === 'QPS') penaltyLabel = ' (DNSSEC)';
+      else if (workload.penalties.some(p => p.includes('multi-protocol') || p.includes('Multi-protocol'))) penaltyLabel = ' (Multi-protocol)';
+    }
+    const penaltyText = penaltyMult < 1 ? ` × ${penaltyMult}${penaltyLabel}` : '';
+    const formulaText = `${formatNumber(rated)} × ${utilPercent}%${penaltyText} = ${formatNumber(effVal)}`;
+
+    return (
+      <div className="flex-1 py-1 px-3 border-x border-border/30 first:border-l-0 last:border-r-0">
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center gap-1 text-[10px] text-muted-foreground uppercase tracking-wide">
+            {label} {isDriver && <Star className="h-2.5 w-2.5 text-accent fill-accent" />}
+          </div>
+          <div className="text-[10px] font-mono text-muted-foreground">{pct}% used</div>
+        </div>
+        
+        <div className="flex items-baseline justify-between">
+          <div className={`text-sm font-mono ${color}`}>{formatNumber(effVal)}</div>
+          <div className="text-[9px] text-muted-foreground">Target Limit</div>
+        </div>
+
+        <div className="flex flex-col gap-0.5 mt-1">
+          <div className="text-[9px] text-muted-foreground/80">~{formatNumber(userLimit)} users</div>
+          <div className="text-[8px] text-muted-foreground/60 font-mono">{formulaText}</div>
+        </div>
+      </div>
+    );
+  };
+
+  const getMetricData = (model: ModelSnapshot) => {
+    const eff = effCap(model);
+    return {
+      qps: {
+        eff: eff.qps,
+        // Formula: QPS = (Users * 3 * (3500/(9*3600)))
+        // So Users = QPS / 3 / (3500/(9*3600)) = QPS / 3 / 0.10802 = QPS / 0.32407
+        users: Math.round(eff.qps / (3 * (3500 / 32400)))
+      },
+      lps: {
+        eff: eff.lps,
+        // Formula: LPS = (Users * 3 * (dhcpPercent/100)) / (leaseTime / 32400)
+        // With standard 80% dhcp and 86400 lease time:
+        // LPS = (Users * 3 * 0.8) / (86400 / 32400) = (Users * 2.4) / 2.666 = Users * 0.9
+        // Users = LPS / ((3 * (dhcpPercent/100)) / (86400/32400))
+        users: Math.round(eff.lps / ((3 * (dhcpPercent / 100)) / (86400 / 32400)))
+      },
+      objects: {
+        eff: eff.objects,
+        // Formula: Objects = Users * 2.5
+        users: Math.round(eff.objects / 2.5)
+      }
+    };
+  };
+
+  const sizeDownData = sizeDown ? getMetricData(sizeDown) : null;
+  const currentData = getMetricData(current);
+  const sizeUpData = sizeUp ? getMetricData(sizeUp) : null;
+  
+  const qpsPenaltyStr = Number(qpsMult.toFixed(2));
+  let qpsPenaltyLabel = '';
+  if (qpsPenaltyStr < 1) {
+    if (workload.penalties.some(p => p.includes('DNSSEC') || p.includes('DNS Security'))) qpsPenaltyLabel = ' (DNSSEC)';
+    else if (workload.penalties.some(p => p.includes('multi-protocol') || p.includes('Multi-protocol'))) qpsPenaltyLabel = ' (Multi-protocol)';
+  }
+
+  const lpsPenaltyStr = Number(lpsMult.toFixed(2));
+  let lpsPenaltyLabel = '';
+  if (lpsPenaltyStr < 1) {
+    if (workload.penalties.some(p => p.includes('multi-protocol') || p.includes('Multi-protocol'))) lpsPenaltyLabel = ' (Multi-protocol)';
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <HelpCircle className="h-5 w-5 text-accent dark:text-accent" />
+            <HelpCircle className="h-5 w-5 text-accent" />
             Why {site.recommendedModel} for {site.name}?
           </DialogTitle>
           <DialogDescription>
-            Detailed sizing breakdown and model selection rationale
+            Model comparison at {utilPercent}% utilization target — demand: {showQPS && `QPS ${formatNumber(demandQPS)}`}{showQPS && showLPS && ' · '}{showLPS && `LPS ${formatNumber(demandLPS)}`}{(showQPS || showLPS) && ' · '}Obj {formatNumber(demandObj)}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
-          {/* Site Summary */}
-          <div className="grid grid-cols-2 gap-4 p-4 bg-muted/30 rounded-lg">
-            <div>
-              <div className="text-sm text-muted-foreground">Site</div>
-              <div className="font-medium">{site.name}</div>
+        <div className="space-y-4 py-3">
+          {/* ── Vertical Model Comparison Stack ── */}
+          <div className="flex flex-col gap-3">
+            
+            {/* SIZE DOWN */}
+            <div className="rounded-lg border border-border bg-muted/20 p-3">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-baseline gap-3">
+                  <div className="text-[10px] uppercase tracking-wide text-muted-foreground w-20">Size Down</div>
+                  <div className="font-semibold text-base">{sizeDown ? sizeDown.name : '—'}</div>
+                  {sizeDown && <div className={`text-xs font-medium ${verdict(sizeDown).color}`}>{verdict(sizeDown).text}</div>}
+                </div>
+              </div>
+              {sizeDown && sizeDownData && (
+                <div className="flex justify-between mt-2 pt-2 border-t border-border/50">
+                  {showQPS && <MetricRow label="QPS" demand={demandQPS} rated={sizeDown.ratedQps} isDriver={workload.driver === 'qps'} effVal={sizeDownData.qps.eff} userLimit={sizeDownData.qps.users} />}
+                  {showLPS && <MetricRow label="LPS" demand={demandLPS} rated={sizeDown.ratedLps} isDriver={workload.driver === 'lps'} effVal={sizeDownData.lps.eff} userLimit={sizeDownData.lps.users} />}
+                  <MetricRow label="Objects" demand={demandObj} rated={sizeDown.ratedObjects} isDriver={workload.driver === 'objects'} effVal={sizeDownData.objects.eff} userLimit={sizeDownData.objects.users} />
+                </div>
+              )}
+              {!sizeDown && <div className="text-xs text-muted-foreground mt-2">Smallest available model</div>}
             </div>
-            <div>
-              <div className="text-sm text-muted-foreground">Role</div>
-              <div className="font-medium">{site.role}</div>
-            </div>
-            <div>
-              <div className="text-sm text-muted-foreground">IP Addresses</div>
-              <div className="font-medium">{formatNumber(site.numIPs)}</div>
-            </div>
-            <div>
-              <div className="text-sm text-muted-foreground">DHCP Clients ({dhcpPercent}%)</div>
-              <div className="font-medium">{formatNumber(workload.dhcpClients)}</div>
-            </div>
-          </div>
 
-          {/* Driver Explanation */}
-          <div className="p-4 bg-accent/10 rounded-lg border border-accent/30">
-            <div className="flex items-center gap-2 mb-2">
-              <Star className="h-5 w-5 text-accent dark:text-accent fill-accent" />
-              <span className="font-medium text-foreground">
-                Model selected based on: {driverLabels[workload.driver]}
-              </span>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              {workload.driver === 'qps' && `This site requires ${formatNumber(workload.adjustedQPS)} QPS capacity, which is the limiting factor.`}
-              {workload.driver === 'lps' && `This site requires ${formatNumber(workload.adjustedLPS)} LPS capacity for DHCP operations, which is the limiting factor.`}
-              {workload.driver === 'objects' && `This site requires ${formatNumber(workload.objects)} database objects, which is the limiting factor.`}
-            </p>
-          </div>
-
-          {/* Workload Requirements */}
-          <div>
-            <h4 className="font-medium mb-3 flex items-center gap-2">
-              <Activity className="h-4 w-4" /> Workload Requirements
-            </h4>
-            <div className="space-y-3">
-              <WorkloadBar label="QPS (Queries/sec)" isDriver={workload.driver === 'qps'} value={workload.adjustedQPS} max={serverQPS || 0} effective={effQPS} util={qpsUtilTotal} />
-              <WorkloadBar label="LPS (Leases/sec)" isDriver={workload.driver === 'lps'} value={workload.adjustedLPS} max={serverLPS || 0} effective={effLPS} util={lpsUtilTotal} />
-              <WorkloadBar label="DB Objects" isDriver={workload.driver === 'objects'} value={workload.objects} max={serverObj || 0} effective={effObj} util={objUtilTotal} />
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              Bars show % of total rated capacity. 60% target line = recommended max at rollout.
-            </p>
-          </div>
-
-          {/* Penalties Applied */}
-          {workload.penalties.length > 0 && (
-            <div>
-              <h4 className="font-medium mb-3 flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-amber-500" /> Penalties Applied
-              </h4>
-              <div className="space-y-2">
-                {workload.penalties.map((penalty, i) => (
-                  <div key={i} className="flex items-start gap-2 p-2 bg-amber-50 dark:bg-amber-900/20 rounded text-sm">
-                    <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
-                    <span>{penalty}</span>
+            {/* SELECTED */}
+            <div className="rounded-lg border-2 border-accent bg-accent/5 p-4 relative shadow-sm">
+              <div className="flex items-center justify-between mb-4 border-b border-accent/20 pb-3">
+                <div className="flex items-baseline gap-3">
+                  <div className="text-[10px] uppercase tracking-wide text-accent font-bold w-20">Selected</div>
+                  <div className="font-bold text-lg">{current.name}</div>
+                  <div className={`text-xs font-medium ${verdict(current).color}`}>{verdict(current).text}</div>
+                </div>
+                {(() => {
+                  const maxKW = getMaxKWForModel(site.recommendedModel);
+                  return maxKW > 0 ? (
+                    <div className="text-[11px] text-muted-foreground">
+                      Max <span className="font-semibold text-foreground">{formatNumber(maxKW)}</span> knowledge workers
+                    </div>
+                  ) : null;
+                })()}
+              </div>
+              
+              <div className="flex gap-6">
+                {showQPS && (
+                  <div className="flex-1 space-y-2">
+                    <div className="flex justify-between items-baseline">
+                      <span className={`flex items-center gap-1 text-[11px] uppercase tracking-wide ${workload.driver === 'qps' ? 'font-bold text-accent' : 'text-muted-foreground'}`}>
+                        QPS {workload.driver === 'qps' && <Star className="h-3 w-3 text-accent fill-accent" />}
+                      </span>
+                      <div className="text-right flex items-center gap-2">
+                        <span className="text-[10px] text-muted-foreground">Demand</span>
+                        <span className="text-sm font-mono font-semibold">{formatNumber(demandQPS)}</span>
+                      </div>
+                    </div>
+                    <div className="relative">
+                      <Progress value={Math.min(pctOfRated(demandQPS, current.ratedQps), 100)} className={`h-3 ${pctOfRated(demandQPS, current.ratedQps) > utilPercent ? '[&>div]:bg-destructive' : pctOfRated(demandQPS, current.ratedQps) > utilPercent - 10 ? '[&>div]:bg-yellow-500' : ''}`} />
+                      <div className="absolute top-0 h-3 border-r-2 border-amber-500" style={{ left: `${utilPercent}%` }} title={`${utilPercent}% target`} />
+                    </div>
+                    <div className="flex justify-between items-start pt-1">
+                      <div className="space-y-0.5">
+                        <div className="text-[11px] text-muted-foreground">
+                          <span className="font-mono font-medium text-foreground">{formatNumber(currentData.qps.eff)}</span> Target Limit
+                        </div>
+                        <div className="text-[10px] text-muted-foreground/80">
+                          ~{formatNumber(currentData.qps.users)} users
+                        </div>
+                        <div className="text-[9px] text-muted-foreground/60 font-mono">
+                          {formatNumber(current.ratedQps)} Max × {utilPercent}%{qpsMult < 1 ? ` × ${qpsPenaltyStr}${qpsPenaltyLabel}` : ''}
+                        </div>
+                      </div>
+                      <div className="text-right space-y-0.5">
+                        <div className="text-[11px] text-muted-foreground">
+                          <span className="font-mono">{formatNumber(current.ratedQps)}</span> Max Rated
+                        </div>
+                        <div className="text-[10px] font-mono text-muted-foreground/80">{pctOfRated(demandQPS, current.ratedQps)}% Used</div>
+                      </div>
+                    </div>
                   </div>
-                ))}
+                )}
+                
+                {showLPS && (
+                  <div className="flex-1 space-y-2 border-l border-accent/20 pl-6">
+                    <div className="flex justify-between items-baseline">
+                      <span className={`flex items-center gap-1 text-[11px] uppercase tracking-wide ${workload.driver === 'lps' ? 'font-bold text-accent' : 'text-muted-foreground'}`}>
+                        LPS {workload.driver === 'lps' && <Star className="h-3 w-3 text-accent fill-accent" />}
+                      </span>
+                      <div className="text-right flex items-center gap-2">
+                        <span className="text-[10px] text-muted-foreground">Demand</span>
+                        <span className="text-sm font-mono font-semibold">{formatNumber(demandLPS)}</span>
+                      </div>
+                    </div>
+                    <div className="relative">
+                      <Progress value={Math.min(pctOfRated(demandLPS, current.ratedLps), 100)} className={`h-3 ${pctOfRated(demandLPS, current.ratedLps) > utilPercent ? '[&>div]:bg-destructive' : pctOfRated(demandLPS, current.ratedLps) > utilPercent - 10 ? '[&>div]:bg-yellow-500' : ''}`} />
+                      <div className="absolute top-0 h-3 border-r-2 border-amber-500" style={{ left: `${utilPercent}%` }} title={`${utilPercent}% target`} />
+                    </div>
+                    <div className="flex justify-between items-start pt-1">
+                      <div className="space-y-0.5">
+                        <div className="text-[11px] text-muted-foreground">
+                          <span className="font-mono font-medium text-foreground">{formatNumber(currentData.lps.eff)}</span> Target Limit
+                        </div>
+                        <div className="text-[10px] text-muted-foreground/80">
+                          ~{formatNumber(currentData.lps.users)} users
+                        </div>
+                        <div className="text-[9px] text-muted-foreground/60 font-mono">
+                          {formatNumber(current.ratedLps)} Max × {utilPercent}%{lpsMult < 1 ? ` × ${lpsPenaltyStr}${lpsPenaltyLabel}` : ''}
+                        </div>
+                      </div>
+                      <div className="text-right space-y-0.5">
+                        <div className="text-[11px] text-muted-foreground">
+                          <span className="font-mono">{formatNumber(current.ratedLps)}</span> Max Rated
+                        </div>
+                        <div className="text-[10px] font-mono text-muted-foreground/80">{pctOfRated(demandLPS, current.ratedLps)}% Used</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                <div className={`flex-1 space-y-2 ${(showQPS || showLPS) ? 'border-l border-accent/20 pl-6' : ''}`}>
+                  <div className="flex justify-between items-baseline">
+                    <span className={`flex items-center gap-1 text-[11px] uppercase tracking-wide ${workload.driver === 'objects' ? 'font-bold text-accent' : 'text-muted-foreground'}`}>
+                      Objects {workload.driver === 'objects' && <Star className="h-3 w-3 text-accent fill-accent" />}
+                    </span>
+                    <div className="text-right flex items-center gap-2">
+                      <span className="text-[10px] text-muted-foreground">Demand</span>
+                      <span className="text-sm font-mono font-semibold">{formatNumber(demandObj)}</span>
+                    </div>
+                  </div>
+                  <div className="relative">
+                    <Progress value={Math.min(pctOfRated(demandObj, current.ratedObjects), 100)} className={`h-3 ${pctOfRated(demandObj, current.ratedObjects) > utilPercent ? '[&>div]:bg-destructive' : pctOfRated(demandObj, current.ratedObjects) > utilPercent - 10 ? '[&>div]:bg-yellow-500' : ''}`} />
+                    <div className="absolute top-0 h-3 border-r-2 border-amber-500" style={{ left: `${utilPercent}%` }} title={`${utilPercent}% target`} />
+                  </div>
+                  <div className="flex justify-between items-start pt-1">
+                    <div className="space-y-0.5">
+                      <div className="text-[11px] text-muted-foreground">
+                        <span className="font-mono font-medium text-foreground">{formatNumber(currentData.objects.eff)}</span> Target Limit
+                      </div>
+                      <div className="text-[10px] text-muted-foreground/80">
+                        ~{formatNumber(currentData.objects.users)} users
+                      </div>
+                      <div className="text-[9px] text-muted-foreground/60 font-mono">
+                        {formatNumber(current.ratedObjects)} Max × {utilPercent}%
+                      </div>
+                    </div>
+                    <div className="text-right space-y-0.5">
+                      <div className="text-[11px] text-muted-foreground">
+                        <span className="font-mono">{formatNumber(current.ratedObjects)}</span> Max Rated
+                      </div>
+                      <div className="text-[10px] font-mono text-muted-foreground/80">{pctOfRated(demandObj, current.ratedObjects)}% Used</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* SIZE UP */}
+            <div className="rounded-lg border border-border bg-muted/20 p-3">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-baseline gap-3">
+                  <div className="text-[10px] uppercase tracking-wide text-muted-foreground w-20">Size Up</div>
+                  <div className="font-semibold text-base">{sizeUp ? sizeUp.name : '—'}</div>
+                  {sizeUp && <div className={`text-xs font-medium ${verdict(sizeUp).color}`}>{verdict(sizeUp).text}</div>}
+                </div>
+              </div>
+              {sizeUp && sizeUpData && (
+                <div className="flex justify-between mt-2 pt-2 border-t border-border/50">
+                  {showQPS && <MetricRow label="QPS" demand={demandQPS} rated={sizeUp.ratedQps} isDriver={workload.driver === 'qps'} effVal={sizeUpData.qps.eff} userLimit={sizeUpData.qps.users} />}
+                  {showLPS && <MetricRow label="LPS" demand={demandLPS} rated={sizeUp.ratedLps} isDriver={workload.driver === 'lps'} effVal={sizeUpData.lps.eff} userLimit={sizeUpData.lps.users} />}
+                  <MetricRow label="Objects" demand={demandObj} rated={sizeUp.ratedObjects} isDriver={workload.driver === 'objects'} effVal={sizeUpData.objects.eff} userLimit={sizeUpData.objects.users} />
+                </div>
+              )}
+              {!sizeUp && <div className="text-xs text-muted-foreground mt-2">Largest available model</div>}
+            </div>
+          </div>
+
+          {/* Penalties & Sizing Math */}
+          {(workload.penalties.length > 0 || workload.qps > 0 || workload.lps > 0) && (
+            <div>
+              <h4 className="font-medium mb-3 flex items-center gap-2 text-sm">
+                <AlertTriangle className="h-4 w-4 text-amber-500" /> Sizing Math & Penalties
+              </h4>
+              <div className="space-y-2 text-sm">
+                {workload.qps > 0 && (
+                  <div className="flex justify-between p-2 bg-muted/30 rounded">
+                    <span className="text-muted-foreground">Base QPS</span>
+                    <span className="font-mono">{formatNumber(site.numIPs)} Users ÷ 3 = {formatNumber(workload.qps)}</span>
+                  </div>
+                )}
+                {workload.lps > 0 && (
+                  <div className="flex justify-between p-2 bg-muted/30 rounded">
+                    <span className="text-muted-foreground">Base LPS</span>
+                    <span className="font-mono">{formatNumber(workload.dhcpClients)} DHCP ÷ 900s = {formatNumber(workload.lps)}</span>
+                  </div>
+                )}
+                {workload.objects > 0 && (
+                  <div className="flex justify-between p-2 bg-muted/30 rounded">
+                    <span className="text-muted-foreground">Base Objects</span>
+                    <span className="font-mono">{formatNumber(site.knowledgeWorkers || Math.round(site.numIPs / 3))} Users × 2.5 = {formatNumber(workload.objects)}</span>
+                  </div>
+                )}
+                {workload.penalties.map((penalty, i) => {
+                  const beforeQPS = workload.qps;
+                  const afterQPS = workload.adjustedQPS;
+                  const beforeLPS = workload.lps;
+                  const afterLPS = workload.adjustedLPS;
+
+                  if (penalty.includes('multi-protocol') || penalty.includes('Multi-protocol')) {
+                    return (
+                      <div key={i} className="flex items-start gap-2 p-2 bg-amber-50 dark:bg-amber-900/20 rounded">
+                        <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
+                        <div className="flex-1">
+                          <div className="font-medium text-amber-900 dark:text-amber-100">Multi-protocol penalty</div>
+                          <div className="text-xs text-amber-800 dark:text-amber-200 mt-1">
+                            QPS: {formatNumber(beforeQPS)} × 1.3 = {formatNumber(afterQPS)}<br />
+                            LPS: {formatNumber(beforeLPS)} × 1.3 = {formatNumber(afterLPS)}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  if (penalty.includes('DNSSEC') || penalty.includes('DNS Security')) {
+                    return (
+                      <div key={i} className="flex items-start gap-2 p-2 bg-amber-50 dark:bg-amber-900/20 rounded">
+                        <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
+                        <div className="flex-1">
+                          <div className="font-medium text-amber-900 dark:text-amber-100">DNSSEC penalty</div>
+                          <div className="text-xs text-amber-800 dark:text-amber-200 mt-1">
+                            QPS: {formatNumber(beforeQPS)} × 0.8 = {formatNumber(Math.round(beforeQPS * 0.8))}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div key={i} className="flex items-start gap-2 p-2 bg-amber-50 dark:bg-amber-900/20 rounded">
+                      <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
+                      <span>{penalty}</span>
+                    </div>
+                  );
+                })}
+                {(workload.adjustedQPS !== workload.qps || workload.adjustedLPS !== workload.lps) && (
+                  <div className="flex justify-between p-2 bg-accent/10 rounded border border-accent/30">
+                    <span className="font-medium">After penalties</span>
+                    <span className="font-mono">
+                      {workload.adjustedQPS > 0 && `QPS: ${formatNumber(workload.adjustedQPS)}`}
+                      {workload.adjustedQPS > 0 && workload.adjustedLPS > 0 && ' · '}
+                      {workload.adjustedLPS > 0 && `LPS: ${formatNumber(workload.adjustedLPS)}`}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           )}
 
           {/* Object Breakdown */}
           <div>
-            <h4 className="font-medium mb-3 flex items-center gap-2">
+            <h4 className="font-medium mb-3 flex items-center gap-2 text-sm">
               <Archive className="h-4 w-4" /> Object Breakdown
             </h4>
             <div className="grid grid-cols-2 gap-3 text-sm">
@@ -228,7 +538,6 @@ export function WhyThisModelDialog({ open, onOpenChange, site, platformMode, dhc
               </div>
             </div>
 
-            {/* UDDI vs NIOS impact comparison — only shown in UDDI mode */}
             {isUDDI && workload.dhcpClients > 0 && (
               <div className="mt-3 p-3 rounded-lg border border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-950/40">
                 <div className="text-xs font-semibold text-blue-700 dark:text-blue-300 mb-2 uppercase tracking-wide">
@@ -260,45 +569,22 @@ export function WhyThisModelDialog({ open, onOpenChange, site, platformMode, dhc
                   </div>
                 </div>
                 <p className="text-[10px] text-muted-foreground mt-2">
-                  Kea DHCP (UDDI) creates a DHCID record in both the forward and reverse zones, adding 1 extra DNS record per DHCP client vs NIOS.
+                  Kea DHCP (UDDI) creates a DHCID record in both forward and reverse zones, adding 1 extra DNS record per DHCP client vs NIOS.
                 </p>
               </div>
             )}
           </div>
 
-          {/* Server Specs */}
-          {selectedServer && (
-            <div>
-              <h4 className="font-medium mb-3 flex items-center gap-2">
-                <Server className="h-4 w-4" /> {site.recommendedModel} Specifications
-              </h4>
-              <div className="grid grid-cols-3 gap-3 text-sm">
-                <div className="p-3 bg-muted/30 rounded text-center">
-                  <div className="text-muted-foreground">Max QPS</div>
-                  <div className="font-medium">{formatNumber(serverQPS || 0)}</div>
-                </div>
-                <div className="p-3 bg-muted/30 rounded text-center">
-                  <div className="text-muted-foreground">Max LPS</div>
-                  <div className="font-medium">{formatNumber(serverLPS || 0)}</div>
-                </div>
-                <div className="p-3 bg-muted/30 rounded text-center">
-                  <div className="text-muted-foreground">Max Objects</div>
-                  <div className="font-medium">{formatNumber(serverObj || 0)}</div>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Tokens */}
-          <div className="p-4 bg-primary/10 rounded-lg border border-primary/30">
+          <div className="p-3 bg-primary/10 rounded-lg border border-primary/30">
             <div className="flex items-center justify-between">
               <div>
-                <div className="font-medium text-foreground">Token Cost</div>
-                <div className="text-sm text-muted-foreground">
+                <div className="font-medium text-foreground text-sm">Token Cost</div>
+                <div className="text-xs text-muted-foreground">
                   {site.serverCount > 1 ? `${site.serverCount} servers x ${formatNumber(site.tokensPerServer || 0)} tokens` : 'Per server'}
                 </div>
               </div>
-              <div className="text-2xl font-bold text-primary">
+              <div className="text-xl font-bold text-primary">
                 {formatNumber(site.tokens || 0)}
               </div>
             </div>
@@ -306,36 +592,5 @@ export function WhyThisModelDialog({ open, onOpenChange, site, platformMode, dhc
         </div>
       </DialogContent>
     </Dialog>
-  );
-}
-
-function WorkloadBar({ label, isDriver, value, max, effective, util }) {
-  // util = % of TOTAL rated capacity
-  // effective = the actual usable capacity after 60% target + perf penalties
-  const effectiveUtil = effective ? Math.round((value / effective) * 100) : 0;
-  // Color based on % of total: green (<50%), yellow (50-60%), red (>60%)
-  const barColor = util > 60 ? '[&>div]:bg-destructive' : util > 50 ? '[&>div]:bg-yellow-500' : '';
-  
-  return (
-    <div className="space-y-1">
-      <div className="flex justify-between text-sm">
-        <span className={isDriver ? 'font-bold text-accent' : ''}>
-          {label} {isDriver && '\u2605'}
-        </span>
-        <span>
-          {formatNumber(value)} / {formatNumber(max)} ({util}%)
-        </span>
-      </div>
-      <div className="relative">
-        <Progress value={Math.min(util, 100)} className={`h-2 ${barColor}`} />
-        {/* 60% threshold marker */}
-        <div className="absolute top-0 h-2 border-r-2 border-amber-500" style={{ left: '60%' }} title="60% target" />
-      </div>
-      {effective < max && effective > 0 && (
-        <div className="text-[10px] text-muted-foreground">
-          Effective capacity after penalties: {formatNumber(effective)} ({effectiveUtil}% used)
-        </div>
-      )}
-    </div>
   );
 }

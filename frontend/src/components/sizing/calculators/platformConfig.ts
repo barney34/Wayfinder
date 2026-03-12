@@ -414,9 +414,9 @@ export function getAvailablePerfFeatures(role: string): PerformanceFeature[] {
 }
 
 // Helper: Calculate the net performance multiplier from enabled perf features
-// Returns { qpsMultiplier, lpsMultiplier } — multiplicative reduction
+// Returns { qpsMultiplier, lpsMultiplier, appliedLabels }
 // enabledFeatures: array of feature codes including auto-applied ones
-export function calculatePerfImpact(enabledFeatures: string[] = [], role: string): PerfImpactResult {
+export function calculatePerfImpact(enabledFeatures: string[] = [], role: string): PerfImpactResult & { appliedLabels: { type: 'qps' | 'lps', label: string, percent: number }[] } {
   // Check ALL features (including autoApply) — the caller is responsible for
   // injecting auto-applied feature codes (like DHCP-FO) into enabledFeatures
   const relevant = PERFORMANCE_FEATURES.filter(f => {
@@ -425,18 +425,21 @@ export function calculatePerfImpact(enabledFeatures: string[] = [], role: string
   });
   let qpsMult = 1.0;
   let lpsMult = 1.0;
+  const appliedLabels: { type: 'qps' | 'lps', label: string, percent: number }[] = [];
 
   for (const feat of relevant) {
     if (enabledFeatures.includes(feat.value)) {
       if (feat.impactType === 'qps') {
         qpsMult *= (1 - feat.impactPercent / 100);
+        appliedLabels.push({ type: 'qps', label: feat.label, percent: feat.impactPercent });
       } else if (feat.impactType === 'lps') {
         lpsMult *= (1 - feat.impactPercent / 100);
+        appliedLabels.push({ type: 'lps', label: feat.label, percent: feat.impactPercent });
       }
     }
   }
 
-  return { qpsMultiplier: qpsMult, lpsMultiplier: lpsMult };
+  return { qpsMultiplier: qpsMult, lpsMultiplier: lpsMult, appliedLabels };
 }
 
 // Helper: Check if platform is physical (has hardware)

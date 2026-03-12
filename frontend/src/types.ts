@@ -77,6 +77,7 @@ export interface SiteOverride {
   description?: string;
   modelOverride?: string | null;
   hardwareSku?: string;
+  serviceIPs?: number;
   servers?: Record<number, Record<string, unknown>>;
 }
 
