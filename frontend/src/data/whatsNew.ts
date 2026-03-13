@@ -9,6 +9,12 @@ export interface WhatsNewEntry {
 export const whatsNewEntries: WhatsNewEntry[] = [
   {
     date: 'Mar 13, 2026',
+    title: 'Drawing-Synced Sites & Data Centers',
+    description: '• The Sites and Data Centers controls in the top toolbar now behave like a shortcut editor for the active drawing\n• Name and KW edits made in the toolbar now immediately flow through to the active drawing sizing state\n• Site and Data Center ordering in the toolbar now follows the drawing’s active layout order instead of only the base discovery order\n• Existing customers keep their current values automatically until a drawing-specific override is edited',
+    category: 'improvement',
+  },
+  {
+    date: 'Mar 13, 2026',
     title: 'Sizing Table Unit Layout & Toolbar Clarity',
     description: '• Rebuilt the sizing table unit organization around a canonical layout engine with distinct Auto and Auto Override modes\n• Dragging a row across unit groups now rebuckets it into the new unit, while keeping the GM guardrail enforced at A1\n• Added visual unit separators that make each unit bucket clearer and act as drop targets during manual reordering\n• Updated Lucid export ordering to match the table’s derived unit numbering and ranges\n• Added `#` placeholders in the top Sites toolbar so empty KW inputs are easier to understand at a glance',
     category: 'feature',
