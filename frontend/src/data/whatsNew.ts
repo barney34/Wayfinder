@@ -8,6 +8,12 @@ export interface WhatsNewEntry {
 // Newest first
 export const whatsNewEntries: WhatsNewEntry[] = [
   {
+    date: 'Mar 13, 2026',
+    title: 'Sizing Table Unit Layout & Toolbar Clarity',
+    description: '• Rebuilt the sizing table unit organization around a canonical layout engine with distinct Auto and Auto Override modes\n• Dragging a row across unit groups now rebuckets it into the new unit, while keeping the GM guardrail enforced at A1\n• Added visual unit separators that make each unit bucket clearer and act as drop targets during manual reordering\n• Updated Lucid export ordering to match the table’s derived unit numbering and ranges\n• Added `#` placeholders in the top Sites toolbar so empty KW inputs are easier to understand at a glance',
+    category: 'feature',
+  },
+  {
     date: 'Mar 12, 2025',
     title: 'Sizing UI & Performance Math Updates',
     description: '• Complete redesign of the Sizing Comparison pop-out using a stacked vertical layout\n• Added exact Max Users calculations derived from target capacity limits\n• Capacity math formulas now explicitly call out which performance feature triggered a penalty (e.g. "× 0.8 (DNSSEC)")\n• Selected model progress bars explicitly label Current Demand vs Target Limit vs Max Rated capacity\n• Fixed floating point precision bugs in the math formulas (no more long decimals)\n• Automatically clears incompatible add-ons/services when changing a site\'s role (e.g. strips RPZ if DNS is toggled off)',

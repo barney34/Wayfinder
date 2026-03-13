@@ -117,6 +117,7 @@ interface SiteTableRowProps {
   sites: SiteRow[];
   drawings: Drawing[];
   activeDrawingId: string;
+  layoutMode: 'auto' | 'autoOverride';
   platformMode: string;
   dhcpPercent: number;
   roleOptions: RoleOption[];
@@ -597,7 +598,7 @@ function FoAssocCell({ site, sites, dhcpAssociations, onAddAssociation, onRemove
 
 
 export const SiteTableRow = React.memo(function SiteTableRow({
-  site, sites, drawings, activeDrawingId, platformMode, dhcpPercent,
+  site, sites, drawings, activeDrawingId, layoutMode, platformMode, dhcpPercent,
   roleOptions, platformOptions, showHardware, showKW, showServices, showDescription = true, exportView,
   onUpdateSite, onToggleService, onTogglePerfFeature, onDeleteSite, onOpenModelDialog, onCopySiteToDrawing,
   unitAssignment, isDragging, isDragOver, onDragStart, onDragOver, onDrop, onDragEnd,
@@ -943,22 +944,7 @@ export const SiteTableRow = React.memo(function SiteTableRow({
               {['A','B','C','D','E','F','G','M','N'].map(letter => (
                 <button
                   key={letter}
-                  onClick={() => {
-                    const dcRows = sites.filter(s => s.sourceType === 'dataCenter');
-                    const dcIndex = dcRows.findIndex(s => s.id === site.id);
-                    const letterDefaultRole: Record<string, string> = {
-                      A: dcIndex <= 0 ? 'GM' : 'GMC',
-                      B: 'DNS/DHCP', C: 'DHCP', D: 'DNS/DHCP',
-                      E: 'DNS', F: 'DNS', G: 'DNS/DHCP', M: 'DNS/DHCP', N: 'ND',
-                    };
-                    const nextRole = letter === 'A' && platformMode === 'UDDI'
-                      ? site.role : (letterDefaultRole[letter] || site.role);
-                    if (nextRole !== site.role) {
-                      onUpdateSite(site.id, { unitLetterOverride: letter, role: nextRole });
-                    } else {
-                      onUpdateSite(site.id, 'unitLetterOverride', letter);
-                    }
-                  }}
+                  onClick={() => onUpdateSite(site.id, 'unitLetterOverride', letter)}
                   className={`px-1 py-1 text-xs font-bold rounded transition-colors ${
                     (unitAssignment?.unitLetter || getUnitGroup(site.role, site.services)) === letter
                       ? 'bg-primary text-primary-foreground' : 'bg-secondary hover:bg-muted'
@@ -972,25 +958,7 @@ export const SiteTableRow = React.memo(function SiteTableRow({
                   key={letter}
                   onClick={() => {
                     // Auto-set role when selecting special unit letters
-                    if (letter === 'NX' && site.role !== 'ND-X') {
-                      onUpdateSite(site.id, { unitLetterOverride: letter, role: 'ND-X', platform: 'NXVS' });
-                    } else if (letter === 'RPT' && site.role !== 'Reporting') {
-                      // Atomic update for all Reporting fields
-                      onUpdateSite(site.id, {
-                        unitLetterOverride: letter,
-                        role: 'Reporting',
-                        platform: 'NIOS-V',
-                        hwAddons: [],
-                        sfpAddons: {},
-                        rptQuantity: '500MB'
-                      });
-                    } else if (letter === 'LIC' && site.role !== 'LIC') {
-                      onUpdateSite(site.id, { unitLetterOverride: letter, role: 'LIC' });
-                    } else if (letter === 'CDC' && site.role !== 'CDC') {
-                      onUpdateSite(site.id, { unitLetterOverride: letter, role: 'CDC' });
-                    } else {
-                      onUpdateSite(site.id, 'unitLetterOverride', letter);
-                    }
+                    onUpdateSite(site.id, 'unitLetterOverride', letter);
                   }}
                   className={`px-1 py-1 text-[10px] font-bold rounded transition-colors ${
                     (unitAssignment?.unitLetter || getUnitGroup(site.role, site.services)) === letter
@@ -1025,10 +993,12 @@ export const SiteTableRow = React.memo(function SiteTableRow({
         ) : site._isExpanded && site._serverIndex !== undefined ? (
           /* Individual server within a multi-server expansion: show unit number */
           <span className="text-sm font-semibold tabular-nums text-foreground">{unitAssignment?.unitNumber ?? (site._serverIndex + 1)}</span>
+        ) : layoutMode === 'auto' ? (
+          <span className="text-sm font-semibold tabular-nums text-foreground">{unitAssignment?.unitNumber ?? 1}</span>
         ) : (
           <Input
             type="number" min="1" max="999"
-            value={site.unitNumberOverride ?? unitAssignment?.unitNumber ?? 1}
+            value={unitAssignment?.unitNumber ?? 1}
             onFocus={e => {
               // Select all text on focus for easy replacement
               e.target.select();

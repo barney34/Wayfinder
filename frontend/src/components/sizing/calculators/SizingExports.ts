@@ -590,21 +590,9 @@ export async function exportForLucid(sites: Site[], drawingNum: string, unitAssi
 
   const rows: LucidExportRow[] = [];
 
-  // Sort by role priority
-  const roleOrder: Record<string, number> = {
-    'GM': 0, 'GMC': 1, 'GM+DNS': 0, 'GM+DHCP': 0, 'GM+DNS/DHCP': 0,
-    'GMC+DNS': 1, 'GMC+DHCP': 1, 'GMC+DNS/DHCP': 1,
-    'DNS': 2, 'DNS/DHCP': 2, 'DHCP': 3,
-    'Edge': 4, 'ExtDNS': 5, 'Cache': 6, 'Guest': 7,
-    'MSSync': 8, 'ND': 9, 'Reporting': 10, 'LIC': 11, 'CDC': 12,
-  };
-  const sortedSites = [...sites].sort((a, b) =>
-    (roleOrder[a.role] ?? 5) - (roleOrder[b.role] ?? 5)
-  );
-
   // Group expanded servers by parent site to produce individual + combined rows
   const parentGroups = new Map<string, Site[]>();
-  sortedSites.forEach(site => {
+  sites.forEach(site => {
     if (site.addToReport === false) return;
     const parentId = site._parentSiteId || site.id;
     if (!parentGroups.has(parentId)) parentGroups.set(parentId, []);
@@ -618,7 +606,7 @@ export async function exportForLucid(sites: Site[], drawingNum: string, unitAssi
     // --- Reporting: special handling ---
     if (firstSite.role === 'Reporting') {
       const ua = unitAssignments[firstSite.id];
-      const unitNum = firstSite.unitNumberOverride ?? ua?.unitNumber ?? 1;
+      const unitNum = ua?.unitNumber ?? 1;
       const swInst = firstSite.swInstances || 1;
       rows.push(makeRow(firstSite, 'RPT', String(unitNum), swInst, 1,
         'Reporting Virtual Server\nScheduled Reports\nAutomated Data Collection'));
@@ -649,7 +637,7 @@ export async function exportForLucid(sites: Site[], drawingNum: string, unitAssi
     if (groupSites.length === 1 && (firstSite.serverCount || 1) <= 1) {
       // --- Single server: one row ---
       const ua = unitAssignments[firstSite.id];
-      const unitNum = firstSite.unitNumberOverride ?? ua?.unitNumber ?? 1;
+      const unitNum = ua?.unitNumber ?? 1;
       const sw = haMultiplier;
       const hw = isVirtual ? 0 : sw;
       rows.push(makeRow(firstSite, unitGroup, String(unitNum), sw, hw, buildDesc(firstSite)));
@@ -658,8 +646,6 @@ export async function exportForLucid(sites: Site[], drawingNum: string, unitAssi
       let totalSW = 0;
       let totalHW = 0;
 
-      // For multi-server groups we use SERVER INDICES (1-based position within the group)
-      // NOT the global unit assignment number — keeps display consistent with UI chips.
       let minServerIdx = Infinity;
       let maxServerIdx = -Infinity;
 
@@ -670,18 +656,15 @@ export async function exportForLucid(sites: Site[], drawingNum: string, unitAssi
         const hw = isVirtual ? 0 : sw;
 
         let range: string;
+        const unitNum = unitAssignments[site.id]?.unitNumber ?? ((site._serverIndex ?? 0) + 1);
         if (srvCount > 1) {
-          // Grouped: calculate range from server index
-          const startIdx = (site._serverIndex ?? 0) + 1;
-          range = `${startIdx}-${startIdx + srvCount - 1}`;
-          minServerIdx = Math.min(minServerIdx, startIdx);
-          maxServerIdx = Math.max(maxServerIdx, startIdx + srvCount - 1);
+          range = `${unitNum}-${unitNum + srvCount - 1}`;
+          minServerIdx = Math.min(minServerIdx, unitNum);
+          maxServerIdx = Math.max(maxServerIdx, unitNum + srvCount - 1);
         } else {
-          // Individual row within multi-server site: use 1-based server position
-          const serverPos = (site._serverIndex ?? 0) + 1;
-          range = String(serverPos);
-          minServerIdx = Math.min(minServerIdx, serverPos);
-          maxServerIdx = Math.max(maxServerIdx, serverPos);
+          range = String(unitNum);
+          minServerIdx = Math.min(minServerIdx, unitNum);
+          maxServerIdx = Math.max(maxServerIdx, unitNum);
         }
 
         totalSW += sw;

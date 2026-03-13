@@ -47,6 +47,7 @@ export interface DrawingConfig {
   platformMode?: PlatformMode;
   siteOverrides?: Record<string, SiteOverride>;
   siteOrder?: string[];
+  layoutMode?: 'auto' | 'autoOverride';
   sortMode?: 'auto' | 'manual';
   dhcpAssociations?: unknown[];
 }
@@ -67,16 +68,17 @@ export interface SiteOverride {
   sfpAddons?: Record<string, number>;
   perfFeatures?: string[];
   services?: string[];
-  rptQuantity?: number | null;
+  rptQuantity?: string | null;
   addToReport?: boolean;
   addToBom?: boolean;
   unitLetterOverride?: string | null;
   unitNumberOverride?: number;
   groupingMode?: 'individual' | 'grouped' | 'combined' | 'custom';
-  customGroups?: unknown[];
+  customGroups?: [number, number][];
   description?: string;
   modelOverride?: string | null;
   hardwareSku?: string;
+  includeHW?: boolean;
   serviceIPs?: number;
   servers?: Record<number, Record<string, unknown>>;
 }
