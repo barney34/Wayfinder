@@ -35,12 +35,53 @@ import { SiteTableRow, LocationHeaderRow } from "./SiteTableRow";
 import type { Association } from "./SiteTableRow";
 import { SizingTableHeader } from "./SizingTableHeader";
 import { DrawingTabs, useDrawings, CompareDrawingsDialog, CopySiteToDrawingMenu } from "./DrawingManager";
-import { computeUnitAssignments, getUnitLetterForRole, UNIT_SORT_ORDER } from "./unitDesignations";
+import { computeUnitAssignments, getEffectiveUnitLetter, getUnitLetterForRole, orderServersByUnit } from "./unitDesignations";
+import type { LayoutMode } from "./unitDesignations";
 import { useSiteSizing } from "./useSiteSizing";
 
 // Re-export constants for backward compatibility
 export { PLATFORM_MODES, PLATFORM_OPTIONS_BY_MODE, ROLE_OPTIONS_BY_MODE, ADDITIONAL_SERVICES };
 export { getServiceImpact, getTokensForModel, getPartnerSkuFromTokens, getSkuDescription, getRecommendedPlatformMode };
+
+const NIOS_PLATFORM_VALUES = new Set(['NIOS', 'NIOS-V', 'NIOS-PHA', 'NIOS-VHA']);
+const NX_PLATFORM_VALUES = new Set(['NX-P', 'NXVS', 'NXaaS']);
+
+function getUnitRoleAndPlatform(site, targetUnit: string, targetIndex: number) {
+  if (targetUnit === 'A') {
+    const platform = NIOS_PLATFORM_VALUES.has(site.platform) ? site.platform : 'NIOS-V';
+    return { unitLetterOverride: 'A', role: targetIndex === 0 ? 'GM' : 'GMC', platform };
+  }
+
+  if (targetUnit === 'B') return { unitLetterOverride: 'B', role: 'DNS/DHCP' };
+  if (targetUnit === 'C') return { unitLetterOverride: 'C', role: 'DHCP' };
+  if (targetUnit === 'D') return { unitLetterOverride: 'D', role: 'DNS/DHCP' };
+  if (targetUnit === 'E') return { unitLetterOverride: 'E', role: 'DNS' };
+  if (targetUnit === 'F') return { unitLetterOverride: 'F', role: 'DNS' };
+  if (targetUnit === 'G') return { unitLetterOverride: 'G', role: 'DNS/DHCP' };
+  if (targetUnit === 'M') return { unitLetterOverride: 'M', role: 'DNS/DHCP' };
+  if (targetUnit === 'N') {
+    const platform = NIOS_PLATFORM_VALUES.has(site.platform) ? site.platform : 'NIOS-V';
+    return { unitLetterOverride: 'N', role: 'ND', platform };
+  }
+  if (targetUnit === 'NX') {
+    const platform = NX_PLATFORM_VALUES.has(site.platform) ? site.platform : 'NXVS';
+    return { unitLetterOverride: 'NX', role: 'ND-X', platform };
+  }
+  if (targetUnit === 'RPT') {
+    return {
+      unitLetterOverride: 'RPT',
+      role: 'Reporting',
+      platform: 'NIOS-V',
+      hwAddons: [],
+      sfpAddons: {},
+      rptQuantity: site.rptQuantity || '500MB',
+    };
+  }
+  if (targetUnit === 'LIC') return { unitLetterOverride: 'LIC', role: 'LIC' };
+  if (targetUnit === 'CDC') return { unitLetterOverride: 'CDC', role: 'CDC' };
+
+  return { unitLetterOverride: targetUnit };
+}
 
 /**
  * TokenCalculatorSummary Component
@@ -66,7 +107,7 @@ export function TokenCalculatorSummary() {
     [activeDrawingId, drawingConfigs]
   );
   const siteOrder = activeDrawingConfig.siteOrder || null;
-  const sortMode = activeDrawingConfig.sortMode || 'auto'; // 'auto' or 'manual'
+  const layoutMode: LayoutMode = activeDrawingConfig.layoutMode || (activeDrawingConfig.sortMode === 'manual' ? 'autoOverride' : 'auto');
 
   // Setters that write to active drawing config
   const setSiteOverrides = useCallback((updater) => {
@@ -79,9 +120,59 @@ export function TokenCalculatorSummary() {
     updateDrawingConfig(activeDrawingId, { siteOrder: order });
   }, [activeDrawingId, updateDrawingConfig]);
 
-  const setSortMode = useCallback((mode: 'auto' | 'manual') => {
-    updateDrawingConfig(activeDrawingId, { sortMode: mode });
+  const setLayoutMode = useCallback((mode: LayoutMode) => {
+    updateDrawingConfig(activeDrawingId, {
+      layoutMode: mode,
+      sortMode: mode === 'auto' ? 'auto' : 'manual',
+    });
   }, [activeDrawingId, updateDrawingConfig]);
+
+  const getOverrideKey = useCallback((overrides, siteId: string) => {
+    const doubleKey = siteId.startsWith('site-') ? `site-${siteId}` : (siteId.startsWith('dc-') ? `dc-${siteId}` : null);
+    return (doubleKey && overrides[doubleKey]) ? doubleKey : siteId;
+  }, []);
+
+  const clearLegacyUnitNumberOverrides = useCallback((overrides) => {
+    let changed = false;
+    const next = { ...overrides };
+
+    Object.keys(next).forEach(key => {
+      const currentOverride = next[key];
+      if (!currentOverride) return;
+
+      let nextOverride = currentOverride;
+
+      if (currentOverride.unitNumberOverride !== undefined) {
+        nextOverride = { ...nextOverride };
+        delete nextOverride.unitNumberOverride;
+        changed = true;
+      }
+
+      if (currentOverride.servers) {
+        let serverChanged = false;
+        const nextServers = { ...currentOverride.servers };
+
+        Object.keys(nextServers).forEach(serverKey => {
+          if (nextServers[serverKey]?.unitNumberOverride === undefined) return;
+          nextServers[serverKey] = { ...nextServers[serverKey] };
+          delete nextServers[serverKey].unitNumberOverride;
+          serverChanged = true;
+        });
+
+        if (serverChanged) {
+          nextOverride = nextOverride === currentOverride ? { ...nextOverride } : nextOverride;
+          nextOverride.servers = nextServers;
+          changed = true;
+        }
+      }
+
+      if (nextOverride !== currentOverride) {
+        next[key] = nextOverride;
+      }
+    });
+
+    return changed ? next : overrides;
+  }, []);
 
   // dhcpAssociations: drawing-level store for NIOS FOAs and UDDI HA groups
   const dhcpAssociations: Association[] = useMemo(
@@ -356,11 +447,11 @@ export function TokenCalculatorSummary() {
         addToReport: override.addToReport !== undefined ? override.addToReport : true,
         addToBom: override.addToBom !== undefined ? override.addToBom : true,
         unitLetterOverride: override.unitLetterOverride || null,
-        unitNumberOverride: override.unitNumberOverride !== undefined ? override.unitNumberOverride : undefined,
         groupingMode: override.groupingMode || 'individual',
         customGroups: override.customGroups || [],
         description: override.description || '',
         modelOverride: override.modelOverride || null,
+        includeHW: override.includeHW,
         serviceIPs,
         isDisabledInUddi, originalRole: role,
       };
@@ -369,25 +460,8 @@ export function TokenCalculatorSummary() {
     const dcSites = dataCenters.map((dc, i) => buildBasicSite(dc, i, 'dataCenter'));
     const branchSites = contextSites.map((site, i) => buildBasicSite(site, i, 'site'));
     const naturalOrder = [...dcSites, ...branchSites];
-
-    // Apply manual sort order if set — determines drawing display & export order
-    let allBasicSites;
-    if (siteOrder && siteOrder.length > 0) {
-      const idToSite = Object.fromEntries(naturalOrder.map(s => [s.id, s]));
-      const ordered = siteOrder.map(id => idToSite[id]).filter(Boolean);
-      const inOrder = new Set(siteOrder);
-      naturalOrder.forEach(s => { if (!inOrder.has(s.id)) ordered.push(s); });
-      allBasicSites = ordered;
-    } else {
-      allBasicSites = naturalOrder;
-    }
-
-    // Keep effective unit-A rows at the top, but preserve explicit unit-letter and role overrides.
-    // If a GM/GMC row is reassigned away from unit A, do not force it back to GM/GMC.
-    const isUnitA = (s) => (s.unitLetterOverride || getUnitLetterForRole(s.role)) === 'A';
-    const aRows = allBasicSites.filter(s => isUnitA(s));
-    const nonARows = allBasicSites.filter(s => !isUnitA(s));
-    allBasicSites = [...aRows, ...nonARows];
+    const preferredOrder = layoutMode === 'autoOverride' ? siteOrder : null;
+    const allBasicSites = orderServersByUnit(naturalOrder, preferredOrder);
 
     // === DHCP FO / HA: Compute hub LPS, FO objects, partner counts from effectiveAssociations ===
     const HUB_FAILOVER_CAPACITY = 0.5;
@@ -511,79 +585,86 @@ export function TokenCalculatorSummary() {
         displayLabel,
       };
     });
-  }, [dataCenterIds, contextSiteIds, dataCenters, contextSites, siteOverrides, ipMultiplier, dhcpPercent, platformMode, leaseTimeSeconds, ipCalcValue, siteOrder, effectiveAssociations, answers['dhcp-fingerprint']]);
+  }, [dataCenterIds, contextSiteIds, dataCenters, contextSites, siteOverrides, ipMultiplier, dhcpPercent, platformMode, leaseTimeSeconds, ipCalcValue, siteOrder, layoutMode, effectiveAssociations, answers['dhcp-fingerprint']]);
 
-  // Sort sites by unit group (A→B→C→…→RPT→LIC→CDC) then by unit number within group
-  const sortByUnit = useCallback(() => {
-    const sorted = [...sites].sort((a, b) => {
-      const la = a.unitLetterOverride || getUnitLetterForRole(a.role);
-      const lb = b.unitLetterOverride || getUnitLetterForRole(b.role);
-      const oa = UNIT_SORT_ORDER[la] ?? 99;
-      const ob = UNIT_SORT_ORDER[lb] ?? 99;
-      if (oa !== ob) return oa - ob;
-      // Within A group: GM (and GM+ variants) before GMC (and GMC+ variants)
-      if (la === 'A') {
-        const aIsGM = (a.role === 'GM' || a.role?.startsWith('GM+')) && !a.role?.startsWith('GMC');
-        const bIsGM = (b.role === 'GM' || b.role?.startsWith('GM+')) && !b.role?.startsWith('GMC');
-        if (aIsGM && !bIsGM) return -1;
-        if (!aIsGM && bIsGM) return 1;
-      }
-      // Within same group, sort by unit number override or natural order
-      const na = a.unitNumberOverride ?? 999;
-      const nb = b.unitNumberOverride ?? 999;
-      return na - nb;
-    });
-    setSiteOrder(sorted.map(s => s.id));
-  }, [sites, setSiteOrder]);
+  const toggleLayoutMode = useCallback(() => {
+    setSiteOverrides(prev => clearLegacyUnitNumberOverrides(prev));
 
-  // Toggle sort mode and trigger auto-sort when switching to auto
-  const toggleSortMode = useCallback(() => {
-    if (sortMode === 'manual') {
-      // Switching to auto: clear all unitNumberOverride values and trigger sort
-      setSiteOverrides(prev => {
-        const next = { ...prev };
-        Object.keys(next).forEach(key => {
-          if (next[key]?.unitNumberOverride !== undefined) {
-            const updated = { ...next[key] };
-            delete updated.unitNumberOverride;
-            next[key] = updated;
-          }
-        });
-        return next;
-      });
-      setSortMode('auto');
-      sortByUnit();
-    } else {
-      // Switching to manual: preserve current order
-      setSortMode('manual');
+    if (layoutMode === 'auto') {
+      setSiteOrder(sites.map(s => s.id));
+      setLayoutMode('autoOverride');
+      return;
     }
-  }, [sortMode, setSortMode, sortByUnit, setSiteOverrides]);
 
-  // One-time cleanup: clear all unitNumberOverride values when in auto mode
-  // This ensures existing drawings with legacy overrides get contiguous numbering
+    setSiteOrder(null);
+    setLayoutMode('auto');
+  }, [layoutMode, sites, setLayoutMode, setSiteOrder, setSiteOverrides, clearLegacyUnitNumberOverrides]);
+
   useEffect(() => {
-    if (sortMode === 'auto') {
-      const hasAnyOverrides = Object.values(siteOverrides).some(
-        (override: any) => override?.unitNumberOverride !== undefined
-      );
-      
-      if (hasAnyOverrides) {
-        setSiteOverrides(prev => {
-          const next = { ...prev };
-          let changed = false;
-          Object.keys(next).forEach(key => {
-            if (next[key]?.unitNumberOverride !== undefined) {
-              const updated = { ...next[key] };
-              delete updated.unitNumberOverride;
-              next[key] = updated;
-              changed = true;
-            }
-          });
-          return changed ? next : prev;
-        });
-      }
+    const cleaned = clearLegacyUnitNumberOverrides(siteOverrides);
+    if (cleaned !== siteOverrides) {
+      setSiteOverrides(cleaned);
     }
-  }, [sortMode, siteOverrides, setSiteOverrides]);
+  }, [siteOverrides, setSiteOverrides, clearLegacyUnitNumberOverrides]);
+
+  const moveSiteInLayout = useCallback((siteId: string, targetUnit: string, targetIndex?: number) => {
+    const movingSite = sites.find(s => s.id === siteId);
+    if (!movingSite) return;
+
+    const remainingSites = sites.filter(s => s.id !== siteId);
+    const remainingOrderIds = remainingSites.map(s => s.id);
+    const targetBucketIds = remainingSites
+      .filter(s => getEffectiveUnitLetter(s) === targetUnit)
+      .map(s => s.id);
+    const resolvedTargetIndex = Math.max(0, Math.min(targetIndex ?? targetBucketIds.length, targetBucketIds.length));
+
+    let insertAt = remainingOrderIds.length;
+
+    if (targetBucketIds.length > 0 && resolvedTargetIndex < targetBucketIds.length) {
+      insertAt = remainingOrderIds.indexOf(targetBucketIds[resolvedTargetIndex]);
+    } else if (targetBucketIds.length > 0) {
+      insertAt = remainingOrderIds.indexOf(targetBucketIds[targetBucketIds.length - 1]) + 1;
+    }
+
+    const preferredOrderIds = [...remainingOrderIds];
+    preferredOrderIds.splice(insertAt, 0, siteId);
+
+    const mappedUpdates: Record<string, unknown> = {
+      ...getUnitRoleAndPlatform(movingSite, targetUnit, resolvedTargetIndex),
+    };
+    if (mappedUpdates.role && mappedUpdates.role !== 'DHCP' && mappedUpdates.role !== 'DNS/DHCP') {
+      mappedUpdates.dhcpPartner = null;
+    }
+    const provisionalSites = [...remainingSites, { ...movingSite, ...mappedUpdates }];
+    const nextOrderedSites = orderServersByUnit(provisionalSites, preferredOrderIds);
+    const aRows = nextOrderedSites.filter(site => getEffectiveUnitLetter(site) === 'A');
+
+    if (
+      (mappedUpdates.platform && mappedUpdates.platform !== movingSite.platform) ||
+      (mappedUpdates.role && mappedUpdates.role !== movingSite.role && mappedUpdates.role !== 'DHCP' && mappedUpdates.role !== 'DNS/DHCP')
+    ) {
+      setDhcpAssociations((prev: Association[]) => prev.filter(a => !a.members.some(m => m.rowId === siteId)));
+    }
+
+    setSiteOverrides(prev => {
+      let next = clearLegacyUnitNumberOverrides(prev);
+
+      const applySiteUpdates = (id: string, updates: Record<string, unknown>) => {
+        const key = getOverrideKey(next, id);
+        next = { ...next, [key]: { ...next[key], ...updates } };
+      };
+
+      applySiteUpdates(siteId, mappedUpdates);
+
+      aRows.forEach((site, index) => {
+        applySiteUpdates(site.id, getUnitRoleAndPlatform(site, 'A', index));
+      });
+
+      return next;
+    });
+
+    setSiteOrder(nextOrderedSites.map(site => site.id));
+  }, [sites, setSiteOverrides, setSiteOrder, setDhcpAssociations, clearLegacyUnitNumberOverrides, getOverrideKey]);
 
   const [dragSourceId, setDragSourceId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
@@ -600,18 +681,23 @@ export function TokenCalculatorSummary() {
     setDragSourceId(null);
     setDragOverId(null);
     if (!dragSourceId || dragSourceId === targetId) return;
-    const currentIds = siteOrder || sites.map(s => s.id);
-    const sourceIdx = currentIds.indexOf(dragSourceId);
-    const targetIdx = currentIds.indexOf(targetId);
-    if (sourceIdx < 0 || targetIdx < 0) return;
-    const newOrder = [...currentIds];
-    newOrder.splice(sourceIdx, 1);
-    newOrder.splice(targetIdx, 0, dragSourceId);
-    setSiteOrder(newOrder);
-    
-    // In auto mode, the drag position is preserved, and unit numbers are auto-assigned
-    // based on the new order (no re-sort needed, just renumbering happens via unitAssignments)
-  }, [dragSourceId, siteOrder, sites, setSiteOrder]);
+
+    if (targetId.startsWith('unit-bucket-')) {
+      const targetUnit = targetId.replace('unit-bucket-', '');
+      moveSiteInLayout(dragSourceId, targetUnit, 9999);
+      return;
+    }
+
+    const targetSite = sites.find(s => s.id === targetId);
+    if (!targetSite) return;
+
+    const targetUnit = getEffectiveUnitLetter(targetSite);
+    const targetIndex = sites
+      .filter(s => getEffectiveUnitLetter(s) === targetUnit)
+      .findIndex(s => s.id === targetId);
+
+    moveSiteInLayout(dragSourceId, targetUnit, targetIndex);
+  }, [dragSourceId, sites, moveSiteInLayout]);
 
   const handleDragEnd = useCallback(() => {
     setDragSourceId(null);
@@ -973,12 +1059,21 @@ export function TokenCalculatorSummary() {
     const grpMatch = siteId.match(/^(.+)__grp__/);
     if (grpMatch) {
       const parentId = grpMatch[1];
+      if ('unitLetterOverride' in updates && typeof updates.unitLetterOverride === 'string') {
+        moveSiteInLayout(parentId, updates.unitLetterOverride);
+        return;
+      }
       setSiteOverrides(prev => ({ ...prev, [parentId]: { ...prev[parentId], ...updates } }));
       return;
     }
 
     const site = sites.find(s => s.id === siteId);
     if (!site) return;
+
+    if ('unitLetterOverride' in updates && typeof updates.unitLetterOverride === 'string') {
+      moveSiteInLayout(siteId, updates.unitLetterOverride);
+      return;
+    }
 
     // If updating name or KW, sync to context (TopBar) and DON'T add to local override
     if (('knowledgeWorkers' in updates || 'name' in updates) && site.sourceType) {
@@ -1016,90 +1111,11 @@ export function TokenCalculatorSummary() {
       setAnswer('ni-3', String(currentTotal));
     }
 
-    // When unit number changes in auto mode, reorder rows within that unit group
-    if ('unitNumberOverride' in updates && sortMode === 'auto') {
-      if (site) {
-        const targetUnitLetter = site.unitLetterOverride || getUnitLetterForRole(site.role);
-        const targetNumber = updates.unitNumberOverride;
-        
-        // If user cleared the number (undefined/null), just clear the override and let auto-assignment handle it
-        if (targetNumber === undefined || targetNumber === null) {
-          setSiteOverrides(prev => {
-            const doubleKey = siteId.startsWith('site-') ? `site-${siteId}` : (siteId.startsWith('dc-') ? `dc-${siteId}` : null);
-            const hasDoubleKey = doubleKey && prev[doubleKey];
-            const effectiveKey = hasDoubleKey ? doubleKey : siteId;
-            const updated = { ...prev[effectiveKey] };
-            delete updated.unitNumberOverride;
-            return { ...prev, [effectiveKey]: updated };
-          });
-          return;
-        }
-        
-        // Get all rows in the same unit group
-        const sameUnitRows = sites.filter(s => {
-          const letter = s.unitLetterOverride || getUnitLetterForRole(s.role);
-          return letter === targetUnitLetter;
-        });
-        
-        // Find current position of the site being changed
-        const currentIdx = sameUnitRows.findIndex(s => s.id === siteId);
-        if (currentIdx === -1) return;
-        
-        // Calculate target position (0-indexed, but user sees 1-indexed)
-        const targetIdx = Math.max(0, Math.min(targetNumber - 1, sameUnitRows.length - 1));
-        
-        // Reorder within the unit group
-        const reordered = [...sameUnitRows];
-        const [movedRow] = reordered.splice(currentIdx, 1);
-        reordered.splice(targetIdx, 0, movedRow);
-        
-        // Clear all unitNumberOverride for this unit group (let auto-assignment handle numbering)
-        setSiteOverrides(prev => {
-          const next = { ...prev };
-          reordered.forEach(s => {
-            const key = s.id;
-            const doubleKey = key.startsWith('site-') ? `site-${key}` : (key.startsWith('dc-') ? `dc-${key}` : null);
-            const effectiveKey = (doubleKey && next[doubleKey]) ? doubleKey : key;
-            if (next[effectiveKey]?.unitNumberOverride !== undefined) {
-              const updated = { ...next[effectiveKey] };
-              delete updated.unitNumberOverride;
-              next[effectiveKey] = updated;
-            }
-          });
-          return next;
-        });
-        
-        // Update site order: replace the unit group with reordered version
-        const otherRows = sites.filter(s => {
-          const letter = s.unitLetterOverride || getUnitLetterForRole(s.role);
-          return letter !== targetUnitLetter;
-        });
-        
-        // Rebuild order: maintain relative positions of other unit groups
-        const currentOrder = siteOrder || sites.map(s => s.id);
-        const newOrder = [];
-        const reorderedIds = new Set(reordered.map(r => r.id));
-        const otherIds = new Set(otherRows.map(r => r.id));
-        
-        let reorderedInserted = false;
-        currentOrder.forEach(id => {
-          if (reorderedIds.has(id) && !reorderedInserted) {
-            // Insert all reordered rows at the position of the first one
-            newOrder.push(...reordered.map(r => r.id));
-            reorderedInserted = true;
-          } else if (otherIds.has(id)) {
-            newOrder.push(id);
-          }
-        });
-        
-        // If reordered group wasn't inserted yet, append it
-        if (!reorderedInserted) {
-          newOrder.push(...reordered.map(r => r.id));
-        }
-        
-        setSiteOrder(newOrder);
-        return;
-      }
+    if ('unitNumberOverride' in updates && layoutMode === 'autoOverride') {
+      const targetNumber = Number(updates.unitNumberOverride);
+      if (!Number.isFinite(targetNumber) || targetNumber < 1) return;
+      moveSiteInLayout(siteId, getEffectiveUnitLetter(site), targetNumber - 1);
+      return;
     }
 
     // All other fields go into per-drawing siteOverrides — ATOMIC single write
@@ -1111,7 +1127,7 @@ export function TokenCalculatorSummary() {
       const effectiveKey = hasDoubleKey ? doubleKey : siteId;
       return { ...prev, [effectiveKey]: { ...prev[effectiveKey], ...updates } };
     });
-  }, [sites, contextUpdateSite, contextUpdateDC, setSiteOrder]);
+  }, [sites, layoutMode, contextUpdateSite, contextUpdateDC, moveSiteInLayout, setSiteOverrides, setAnswer, setDhcpAssociations]);
 
   // Add manual site - uses context to persist across navigation
   const addManualSite = useCallback(() => {
@@ -1371,14 +1387,14 @@ export function TokenCalculatorSummary() {
                 )}
 
                 <Button
-                  variant={sortMode === 'auto' ? 'default' : 'outline'}
+                  variant={layoutMode === 'auto' ? 'default' : 'outline'}
                   size="sm"
-                  onClick={toggleSortMode}
+                  onClick={toggleLayoutMode}
                   className="text-xs h-7 px-2"
-                  title={sortMode === 'auto' ? 'Auto-sort enabled (click for manual)' : 'Manual sort (click for auto-sort)'}
+                  title={layoutMode === 'auto' ? 'Auto layout enabled (click for auto override)' : 'Auto override enabled (click to reset to auto)'}
                 >
                   <ArrowUpDown className="h-3 w-3 mr-1" />
-                  {sortMode === 'auto' ? 'Auto' : 'Manual'}
+                  {layoutMode === 'auto' ? 'Auto' : 'Auto Override'}
                 </Button>
 
                 <Button
@@ -1431,11 +1447,44 @@ export function TokenCalculatorSummary() {
                   const discoveryServers = expandedServers.filter(srv => isDiscoveryRole(srv.role));
 
                   const rows = [];
-                  let lastParentId = null;
+                  let lastParentId: string | null = null;
+                  let currentUnitBucket: string | null = null;
                   
                   // ── Main rows (DNS, DHCP, GM, etc.) ──
                   mainServers.forEach((srv, idx) => {
                     const parentSite = sites.find(s => s.id === srv._parentSiteId);
+                    const unitAssignment = unitAssignments[srv.id];
+                    const unitBucket = unitAssignment?.unitLetter || getEffectiveUnitLetter(srv);
+
+                    if (unitBucket !== currentUnitBucket) {
+                      currentUnitBucket = unitBucket;
+                      
+                      let bucketName = 'Unit ' + unitBucket;
+                      if (unitBucket === 'A') bucketName = 'Grid Manager';
+                      else if (unitBucket === 'B') bucketName = 'Core DNS/DHCP';
+                      else if (unitBucket === 'C') bucketName = 'DHCP';
+                      else if (unitBucket === 'D') bucketName = 'DNS/DHCP';
+                      else if (unitBucket === 'E') bucketName = 'DNS';
+                      else if (unitBucket === 'F') bucketName = 'DNS';
+                      else if (unitBucket === 'G') bucketName = 'DNS/DHCP';
+                      else if (unitBucket === 'M') bucketName = 'DNS/DHCP';
+                      else if (unitBucket === 'RPT') bucketName = 'Reporting';
+                      else if (unitBucket === 'LIC') bucketName = 'License Only';
+                      else if (unitBucket === 'CDC') bucketName = 'Cloud Data Connector';
+
+                      rows.push(
+                        <TableRow 
+                          key={`unit-separator-${unitBucket}`} 
+                          className={`bg-muted/40 border-t border-b border-primary/20 transition-colors ${layoutMode === 'autoOverride' && dragOverId === `unit-bucket-${unitBucket}` ? 'bg-primary/10 border-primary' : ''}`}
+                          onDragOver={layoutMode === 'autoOverride' ? (e) => { e.preventDefault(); handleDragOver(`unit-bucket-${unitBucket}`); } : undefined}
+                          onDrop={layoutMode === 'autoOverride' ? (e) => { e.preventDefault(); handleDrop(`unit-bucket-${unitBucket}`); } : undefined}
+                        >
+                          <TableCell colSpan={totalCols} className="py-2 px-4 text-xs font-semibold text-primary uppercase tracking-wider bg-primary/5">
+                            {unitBucket} — {bucketName}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    }
                     
                     // Show location header when entering a new location group with multiple servers
                     if (srv._isExpanded && srv._parentSiteId !== lastParentId && parentSite) {
@@ -1458,6 +1507,7 @@ export function TokenCalculatorSummary() {
                         sites={sites}
                         drawings={drawings}
                         activeDrawingId={activeDrawingId}
+                        layoutMode={layoutMode}
                         platformMode={platformMode}
                         dhcpPercent={dhcpPercent}
                         roleOptions={roleOptions}
@@ -1511,10 +1561,10 @@ export function TokenCalculatorSummary() {
                         unitAssignment={unitAssignments[srv.id]}
                         isDragging={dragSourceId === srv.id}
                         isDragOver={dragOverId === srv.id && dragSourceId !== srv.id}
-                        onDragStart={!srv._isExpanded ? () => handleDragStart(srv.id) : undefined}
-                        onDragOver={!srv._isExpanded ? () => handleDragOver(srv.id) : undefined}
-                        onDrop={!srv._isExpanded ? () => handleDrop(srv.id) : undefined}
-                        onDragEnd={!srv._isExpanded ? handleDragEnd : undefined}
+                        onDragStart={layoutMode === 'autoOverride' && !srv._isExpanded ? () => handleDragStart(srv.id) : undefined}
+                        onDragOver={layoutMode === 'autoOverride' && !srv._isExpanded ? () => handleDragOver(srv.id) : undefined}
+                        onDrop={layoutMode === 'autoOverride' && !srv._isExpanded ? () => handleDrop(srv.id) : undefined}
+                        onDragEnd={layoutMode === 'autoOverride' && !srv._isExpanded ? handleDragEnd : undefined}
                         dhcpAssociations={dhcpAssociations}
                         onAddAssociation={addAssociation}
                         onRemoveAssociation={removeAssociation}
@@ -1644,6 +1694,7 @@ export function TokenCalculatorSummary() {
                           sites={sites}
                           drawings={drawings}
                           activeDrawingId={activeDrawingId}
+                          layoutMode={layoutMode}
                           platformMode={platformMode}
                           dhcpPercent={dhcpPercent}
                           roleOptions={roleOptions}
@@ -1662,10 +1713,10 @@ export function TokenCalculatorSummary() {
                           unitAssignment={unitAssignments[srv.id]}
                           isDragging={dragSourceId === srv.id}
                           isDragOver={dragOverId === srv.id && dragSourceId !== srv.id}
-                          onDragStart={!srv._isExpanded ? () => handleDragStart(srv.id) : undefined}
-                          onDragOver={!srv._isExpanded ? () => handleDragOver(srv.id) : undefined}
-                          onDrop={!srv._isExpanded ? () => handleDrop(srv.id) : undefined}
-                          onDragEnd={!srv._isExpanded ? handleDragEnd : undefined}
+                          onDragStart={layoutMode === 'autoOverride' && !srv._isExpanded ? () => handleDragStart(srv.id) : undefined}
+                          onDragOver={layoutMode === 'autoOverride' && !srv._isExpanded ? () => handleDragOver(srv.id) : undefined}
+                          onDrop={layoutMode === 'autoOverride' && !srv._isExpanded ? () => handleDrop(srv.id) : undefined}
+                          onDragEnd={layoutMode === 'autoOverride' && !srv._isExpanded ? handleDragEnd : undefined}
                           dhcpAssociations={[]}
                           onAddAssociation={addAssociation}
                           onRemoveAssociation={removeAssociation}

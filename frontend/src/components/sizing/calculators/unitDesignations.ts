@@ -20,6 +20,8 @@ export interface Server {
   _serverCount?: number;
 }
 
+export type LayoutMode = 'auto' | 'autoOverride';
+
 // Role → Unit Letter mapping
 export const ROLE_TO_UNIT: Record<string, string> = {
   'GM':       'A',  // Grid Manager
@@ -84,6 +86,51 @@ export function getUnitLetterForRole(role: string): string {
   return 'B';
 }
 
+export function getEffectiveUnitLetter(server: Pick<Server, 'role' | 'unitLetterOverride'>): string {
+  return server.unitLetterOverride || getUnitLetterForRole(server.role);
+}
+
+export function isPrimaryGridManagerRole(role: string): boolean {
+  return Boolean(role) && role.startsWith('GM') && !role.startsWith('GMC');
+}
+
+export function orderServersByUnit<T extends Server>(servers: T[], preferredOrderIds?: string[] | null): T[] {
+  const idToServer = new Map(servers.map(server => [server.id, server]));
+  const ordered: T[] = [];
+  const seen = new Set<string>();
+
+  preferredOrderIds?.forEach(id => {
+    const server = idToServer.get(id);
+    if (!server) return;
+    ordered.push(server);
+    seen.add(id);
+  });
+
+  servers.forEach(server => {
+    if (seen.has(server.id)) return;
+    ordered.push(server);
+  });
+
+  return [...ordered].sort((a, b) => {
+    const unitA = getEffectiveUnitLetter(a);
+    const unitB = getEffectiveUnitLetter(b);
+    const sortA = UNIT_SORT_ORDER[unitA] ?? 99;
+    const sortB = UNIT_SORT_ORDER[unitB] ?? 99;
+
+    if (sortA !== sortB) return sortA - sortB;
+
+    if (unitA === 'A') {
+      const aIsPrimary = isPrimaryGridManagerRole(a.role);
+      const bIsPrimary = isPrimaryGridManagerRole(b.role);
+
+      if (aIsPrimary && !bIsPrimary) return -1;
+      if (!aIsPrimary && bIsPrimary) return 1;
+    }
+
+    return 0;
+  });
+}
+
 /**
  * Auto-assign unit numbers globally across all servers in a drawing.
  * Returns a map of serverId → { unitLetter, unitNumber }
@@ -102,7 +149,7 @@ export function computeUnitAssignments(servers: Server[]): Record<string, UnitAs
   const assignments: Record<string, UnitAssignment> = {};
   
   servers.forEach(srv => {
-    const letter = srv.unitLetterOverride || getUnitLetterForRole(srv.role);
+    const letter = getEffectiveUnitLetter(srv);
     
     // Initialize counter for this letter if not seen yet
     if (letterCounters[letter] === undefined) {

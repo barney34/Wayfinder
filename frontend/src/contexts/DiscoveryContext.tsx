@@ -443,7 +443,7 @@ export function DiscoveryProvider({ children, customerId }: DiscoveryProviderPro
     return drawingConfigs[drawingId] || {
       platformMode: 'NIOS',
       featureNIOS: true, featureUDDI: false, featureSecurity: true,
-      siteOverrides: {}, siteOrder: null,
+      siteOverrides: {}, siteOrder: null, layoutMode: 'auto',
     };
   }, [drawingConfigs]);
 
@@ -461,7 +461,7 @@ export function DiscoveryProvider({ children, customerId }: DiscoveryProviderPro
     setDrawings(prev => [...prev, newDrawing]);
     setDrawingConfigs(prev => ({
       ...prev,
-      [newId]: { platformMode: 'NIOS', featureNIOS: true, featureUDDI: false, featureSecurity: false, siteOverrides: {}, siteOrder: null },
+      [newId]: { platformMode: 'NIOS', featureNIOS: true, featureUDDI: false, featureSecurity: false, siteOverrides: {}, siteOrder: null, layoutMode: 'auto' },
     }));
     setActiveDrawingIdState(newId);
     markDirty();
