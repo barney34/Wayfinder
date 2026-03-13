@@ -393,8 +393,8 @@ export function TokenCalculatorSummary() {
       const override = siteOverrides[singleKey] || siteOverrides[doubleKey] || {};
       // Use single-key format for id (consistent going forward)
       const key = singleKey;
-      // KW comes directly from source (context) - not from override
-      const kw = source.knowledgeWorkers || 0;
+      // KW: drawing override takes priority over base source
+      const kw = override.knowledgeWorkers ?? source.knowledgeWorkers ?? 0;
 
       let defaultRole = 'DNS/DHCP';
       if (type === 'dataCenter' && platformMode !== 'UDDI') {
@@ -431,7 +431,7 @@ export function TokenCalculatorSummary() {
 
       return {
         id: key, sourceId: source.id, sourceType: type,
-        name: source.name || override.name || `${type === 'dataCenter' ? 'DC' : 'Site'} ${index + 1}`,
+        name: override.name ?? (source.name || `${type === 'dataCenter' ? 'DC' : 'Site'} ${index + 1}`),
         numIPs, numIPsAuto: dcSiteAutoIPs,
         knowledgeWorkers: kw, role, services, platform,
         dhcpPercent: override.dhcpPercent ?? dhcpPercent,

@@ -81,7 +81,7 @@ export function useSiteSizing() {
       const doubleKey = type === 'dataCenter' ? `dc-${source.id}` : `site-${source.id}`;
       const override = siteOverrides[singleKey] || siteOverrides[doubleKey] || {};
       const key = singleKey;
-      const kw = source.knowledgeWorkers || 0;
+      const kw = override.knowledgeWorkers ?? source.knowledgeWorkers ?? 0;
 
       let defaultRole = 'DNS/DHCP';
       if (type === 'dataCenter' && platformMode !== 'UDDI') {
@@ -120,7 +120,7 @@ export function useSiteSizing() {
 
       return {
         id: key, sourceId: source.id, sourceType: type,
-        name: source.name || override.name || `${type === 'dataCenter' ? 'DC' : 'Site'} ${index + 1}`,
+        name: override.name ?? (source.name || `${type === 'dataCenter' ? 'DC' : 'Site'} ${index + 1}`),
         numIPs, numIPsAuto: type === 'dataCenter' ? ipCalcValue : Math.round(kw * ipMultiplier),
         knowledgeWorkers: kw, role, services, platform,
         dhcpPercent: override.dhcpPercent ?? dhcpPercent,

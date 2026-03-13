@@ -53,7 +53,7 @@ export function SiteConfiguration({ value, onChange, questionId }) {
     // Start with Data Centers (they become GM/GMC candidates)
     const dcSites = dataCenters.map((dc, index) => {
       const override = siteOverrides[`dc-${dc.id}`] || {};
-      const kw = dc.knowledgeWorkers || 0;
+      const kw = override.knowledgeWorkers ?? dc.knowledgeWorkers ?? 0;
       const numIPs = override.numIPsOverride ? override.numIPs : Math.round(kw * ipMultiplier);
       
       return {
@@ -74,7 +74,7 @@ export function SiteConfiguration({ value, onChange, questionId }) {
     // Add branch/remote sites from context
     const branchSites = contextSites.map((site, index) => {
       const override = siteOverrides[`site-${site.id}`] || {};
-      const kw = site.knowledgeWorkers || 0;
+      const kw = override.knowledgeWorkers ?? site.knowledgeWorkers ?? 0;
       const numIPs = override.numIPsOverride ? override.numIPs : Math.round(kw * ipMultiplier);
       
       return {

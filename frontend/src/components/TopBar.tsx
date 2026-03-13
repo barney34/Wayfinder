@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { 
   Building2, MapPin, Calculator, Target, Plus, Check, X, ChevronDown, ChevronUp, Info
 } from "lucide-react";
@@ -32,6 +32,61 @@ export function TopBar({ customerName, nickname, opportunity, onNameChange, onNi
 
   // Per-drawing feature state (each drawing independent)
   const activeConfig = getDrawingConfig(activeDrawingId);
+  const drawingSiteOverrides = activeConfig.siteOverrides || {};
+  const drawingSiteOrder = activeConfig.siteOrder || null;
+
+  // Effective sites/DCs: merge drawing overrides for name/KW, respect siteOrder
+  const effectiveDCs = useMemo(() => {
+    const withOverrides = dataCenters.map(dc => {
+      const doubleKey = `dc-${dc.id}`;
+      const ovr = { ...(drawingSiteOverrides[doubleKey] || {}), ...(drawingSiteOverrides[dc.id] || {}) };
+      return {
+        ...dc,
+        name: ovr.name ?? dc.name,
+        knowledgeWorkers: ovr.knowledgeWorkers ?? dc.knowledgeWorkers,
+      };
+    });
+    if (drawingSiteOrder && drawingSiteOrder.length > 0) {
+      const idToDc = Object.fromEntries(withOverrides.map(dc => [dc.id, dc]));
+      const ordered = drawingSiteOrder.map(id => idToDc[id]).filter(Boolean);
+      const inOrder = new Set(drawingSiteOrder);
+      withOverrides.forEach(dc => { if (!inOrder.has(dc.id)) ordered.push(dc); });
+      return ordered;
+    }
+    return withOverrides;
+  }, [dataCenters, drawingSiteOverrides, drawingSiteOrder]);
+
+  const effectiveSites = useMemo(() => {
+    const baseSites = sites.filter(s => s.dataCenterId !== '__discovery__');
+    const withOverrides = baseSites.map(site => {
+      const doubleKey = `site-${site.id}`;
+      const ovr = { ...(drawingSiteOverrides[doubleKey] || {}), ...(drawingSiteOverrides[site.id] || {}) };
+      return {
+        ...site,
+        name: ovr.name ?? site.name,
+        knowledgeWorkers: ovr.knowledgeWorkers ?? site.knowledgeWorkers,
+      };
+    });
+    if (drawingSiteOrder && drawingSiteOrder.length > 0) {
+      const idToSite = Object.fromEntries(withOverrides.map(s => [s.id, s]));
+      const ordered = drawingSiteOrder.map(id => idToSite[id]).filter(Boolean);
+      const inOrder = new Set(drawingSiteOrder);
+      withOverrides.forEach(s => { if (!inOrder.has(s.id)) ordered.push(s); });
+      return ordered;
+    }
+    return withOverrides;
+  }, [sites, drawingSiteOverrides, drawingSiteOrder]);
+
+  const updateDrawingSiteOverride = useCallback((siteId, updates) => {
+    const current = getDrawingConfig(activeDrawingId).siteOverrides || {};
+    const doubleKey = siteId.startsWith('site-') ? `site-${siteId}` : (siteId.startsWith('dc-') ? `dc-${siteId}` : null);
+    const effectiveKey = (doubleKey && current[doubleKey]) ? doubleKey : siteId;
+    const existing = current[effectiveKey] || {};
+    updateDrawingConfig(activeDrawingId, {
+      siteOverrides: { ...current, [effectiveKey]: { ...existing, ...updates } },
+    });
+  }, [activeDrawingId, getDrawingConfig, updateDrawingConfig]);
+
   const niosEnabled = activeConfig.featureNIOS ?? true;
   const uddiEnabled = activeConfig.featureUDDI ?? false;
   const securityEnabled = activeConfig.featureSecurity ?? false;
@@ -216,12 +271,12 @@ export function TopBar({ customerName, nickname, opportunity, onNameChange, onNi
                 <button onClick={handleQuickAddDCs} disabled={!dcQuickCount} className="h-5 px-1.5 text-[10px] rounded bg-primary hover:bg-primary/90 disabled:bg-muted text-white disabled:text-muted-foreground shrink-0">Add</button>
               </div>
             </div>
-            {dataCenters.length > 0 && (
+            {effectiveDCs.length > 0 && (
               <div className="grid grid-cols-2 gap-1.5 mb-2">
-                {dataCenters.map((dc) => (
+                {effectiveDCs.map((dc) => (
                   <div key={dc.id} className="flex items-center bg-secondary border border-border rounded-lg overflow-hidden">
-                    <input value={dc.name} onChange={e => updateDataCenter(dc.id, { name: e.target.value })} className="flex-1 min-w-0 px-1.5 py-1 text-[11px] text-foreground bg-transparent border-0 focus:outline-none focus:bg-muted" />
-                    <input type="number" value={dc.knowledgeWorkers || ''} onChange={e => updateDataCenter(dc.id, { knowledgeWorkers: parseInt(e.target.value) || 0 })} placeholder={kw > 0 ? String(kw) : '0'} className="w-12 px-1 py-1 text-[11px] text-foreground font-semibold bg-transparent border-0 focus:outline-none focus:bg-muted text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+                    <input value={dc.name} onChange={e => updateDrawingSiteOverride(dc.id, { name: e.target.value })} className="flex-1 min-w-0 px-1.5 py-1 text-[11px] text-foreground bg-transparent border-0 focus:outline-none focus:bg-muted" />
+                    <input type="number" value={dc.knowledgeWorkers || ''} onChange={e => updateDrawingSiteOverride(dc.id, { knowledgeWorkers: parseInt(e.target.value) || 0 })} placeholder={kw > 0 ? String(kw) : '0'} className="w-12 px-1 py-1 text-[11px] text-foreground font-semibold bg-transparent border-0 focus:outline-none focus:bg-muted text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
                     <button onClick={() => deleteDataCenter(dc.id)} className="px-1 py-1 hover:bg-destructive/20 shrink-0" data-testid={`delete-dc-${dc.id}`}><X className="h-3 w-3 text-destructive" /></button>
                   </div>
                 ))}
@@ -248,12 +303,12 @@ export function TopBar({ customerName, nickname, opportunity, onNameChange, onNi
                 <button onClick={handleQuickAddSites} disabled={!siteQuickCount} className="h-5 px-1.5 text-[10px] rounded bg-primary hover:bg-primary/90 disabled:bg-muted text-white disabled:text-muted-foreground shrink-0">Add</button>
               </div>
             </div>
-            {sites.filter(s => s.dataCenterId !== '__discovery__').length > 0 && (
+            {effectiveSites.length > 0 && (
               <div className="grid grid-cols-2 gap-1.5 mb-2">
-                {sites.filter(s => s.dataCenterId !== '__discovery__').map((site) => (
+                {effectiveSites.map((site) => (
                   <div key={site.id} className="flex items-center bg-secondary border border-border rounded-lg overflow-hidden">
-                    <input value={site.name} onChange={e => updateSite(site.id, { name: e.target.value })} className="flex-1 min-w-0 px-1.5 py-1 text-[11px] text-foreground bg-transparent border-0 focus:outline-none focus:bg-muted" />
-                    <input type="number" value={site.knowledgeWorkers || ''} onChange={e => updateSite(site.id, { knowledgeWorkers: parseInt(e.target.value) || 0 })} placeholder="#" className="w-12 px-1 py-1 text-[11px] text-primary dark:text-accent font-semibold bg-transparent border-0 focus:outline-none focus:bg-muted text-center placeholder:text-muted-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+                    <input value={site.name} onChange={e => updateDrawingSiteOverride(site.id, { name: e.target.value })} className="flex-1 min-w-0 px-1.5 py-1 text-[11px] text-foreground bg-transparent border-0 focus:outline-none focus:bg-muted" />
+                    <input type="number" value={site.knowledgeWorkers || ''} onChange={e => updateDrawingSiteOverride(site.id, { knowledgeWorkers: parseInt(e.target.value) || 0 })} placeholder="#" className="w-12 px-1 py-1 text-[11px] text-primary dark:text-accent font-semibold bg-transparent border-0 focus:outline-none focus:bg-muted text-center placeholder:text-muted-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
                     <button onClick={() => deleteSite(site.id)} className="px-1 py-1 hover:bg-destructive/20 shrink-0" data-testid={`delete-site-${site.id}`}><X className="h-3 w-3 text-destructive" /></button>
                   </div>
                 ))}

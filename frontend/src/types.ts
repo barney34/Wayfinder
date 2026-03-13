@@ -54,6 +54,7 @@ export interface DrawingConfig {
 
 export interface SiteOverride {
   name?: string;
+  knowledgeWorkers?: number;
   role?: string;
   platform?: string;
   numIPs?: number;
